@@ -21,8 +21,8 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
-import com.squareup.leakcanary.AndroidExcludedRefs;
-import com.squareup.leakcanary.ExcludedRefs;
+/*import com.squareup.leakcanary.AndroidExcludedRefs;
+import com.squareup.leakcanary.ExcludedRefs;*/
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -50,7 +50,7 @@ public class IRCCloudApplication extends IRCCloudApplicationBase {
         super.onCreate();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        if(BuildConfig.DEBUG && prefs.getBoolean("detect_leaks", true) && Build.VERSION.SDK_INT < 23) {
+        /*if(BuildConfig.DEBUG && prefs.getBoolean("detect_leaks", true) && Build.VERSION.SDK_INT < 23) {
             ExcludedRefs excludedRefs = AndroidExcludedRefs.createAndroidDefaults()
                     .thread("WebViewCoreThread")
                     .thread("CookieSyncManager")
@@ -68,8 +68,8 @@ public class IRCCloudApplication extends IRCCloudApplicationBase {
                     .instanceField("android.media.AudioManager$1", "this$0")
                     .build();
             refWatcher = LeakCanary.install(this, CrashlyticsLeakService.class, excludedRefs);
-        } else {
+        } else {*/
             refWatcher = RefWatcher.DISABLED;
-        }
+        //}
     }
 }

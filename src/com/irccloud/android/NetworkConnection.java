@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -35,8 +34,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.v4.os.BuildCompat;
-import android.telecom.TelecomManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.WindowManager;
@@ -61,7 +58,6 @@ import com.irccloud.android.data.model.Channel;
 import com.irccloud.android.data.collection.ChannelsList;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.collection.EventsList;
-import com.irccloud.android.data.model.RecentConversation;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
@@ -2903,6 +2899,8 @@ public class NetworkConnection {
         } catch (IOException e) {
             if (conn.getErrorStream() != null) {
                 reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()), 512);
+            } else {
+                printStackTraceToCrashlytics(e);
             }
         }
 

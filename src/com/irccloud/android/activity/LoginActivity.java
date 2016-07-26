@@ -110,10 +110,13 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
     private String impression_id = null;
     private GoogleApiClient mGoogleApiClient;
 
+    private static final int REQUEST_SAML = 1;
     private static final int REQUEST_RESOLVE_ERROR = 1001;
     private static final int REQUEST_RESOLVE_CREDENTIALS = 1002;
     private static final int REQUEST_RESOLVE_SAVE_CREDENTIALS = 1003;
     private boolean mResolvingError = false;
+
+    private String auth_url = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -200,7 +203,14 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 login.post(new Runnable() {
                     @Override
                     public void run() {
-                        new LoginTask().execute((Void) null);
+                        if(auth_url != null) {
+                            Intent i = new Intent(LoginActivity.this, SAMLAuthActivity.class);
+                            i.putExtra("auth_url", auth_url);
+                            i.putExtra("title", loginBtn.getText().toString());
+                            startActivityForResult(i, REQUEST_SAML);
+                        } else {
+                            new LoginTask().execute((Void) null);
+                        }
                     }
                 });
             }
@@ -407,14 +417,20 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         @Override
         public void onClick(View view) {
             name.setVisibility(View.GONE);
-            email.setVisibility(View.VISIBLE);
-            password.setVisibility(View.VISIBLE);
+            if(auth_url != null) {
+                email.setVisibility(View.GONE);
+                password.setVisibility(View.GONE);
+                forgotPassword.setVisibility(View.GONE);
+            } else {
+                email.setVisibility(View.VISIBLE);
+                password.setVisibility(View.VISIBLE);
+                forgotPassword.setVisibility(View.VISIBLE);
+                email.requestFocus();
+            }
             loginBtn.setVisibility(View.VISIBLE);
             signupBtn.setVisibility(View.GONE);
-            email.requestFocus();
             TOS.setVisibility(View.GONE);
             loginHint.setVisibility(View.GONE);
-            forgotPassword.setVisibility(View.VISIBLE);
             loginSignupHint.setVisibility(View.GONE);
             EnterYourEmail.setVisibility(View.GONE);
             sendAccessLinkBtn.setVisibility(View.GONE);
@@ -514,7 +530,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             startActivity(i);
             finish();
         } else {
-            if (host.getVisibility() == View.GONE && mGoogleApiClient.isConnected()) {
+            if (auth_url == null && host.getVisibility() == View.GONE && mGoogleApiClient.isConnected()) {
                 Log.e("IRCCloud", "Play Services connected");
                 CredentialRequest request = new CredentialRequest.Builder()
                         .setAccountTypes("https://" + NetworkConnection.IRCCLOUD_HOST)
@@ -609,7 +625,56 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_RESOLVE_ERROR) {
+        if (requestCode == REQUEST_SAML) {
+            if (resultCode == RESULT_OK) {
+                SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+                editor.putString("session_key", NetworkConnection.getInstance().session);
+                editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+                editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
+                editor.commit();
+
+                editor = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).edit();
+                editor.putBoolean("greeting_3.0", true);
+                editor.commit();
+
+                final Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                i.putExtra("nosplash", true);
+                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                    i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                if (getIntent() != null) {
+                    if (getIntent().getData() != null)
+                        i.setData(getIntent().getData());
+                    if (getIntent().getExtras() != null)
+                        i.putExtras(getIntent().getExtras());
+                }
+
+                startActivity(i);
+                finish();
+            } else {
+                NetworkConnection.IRCCLOUD_HOST = null;
+                name.setVisibility(View.GONE);
+                email.setVisibility(View.GONE);
+                password.setVisibility(View.GONE);
+                loginBtn.setVisibility(View.GONE);
+                signupBtn.setVisibility(View.GONE);
+                TOS.setVisibility(View.GONE);
+                signupHint.setVisibility(View.GONE);
+                loginHint.setVisibility(View.GONE);
+                forgotPassword.setVisibility(View.GONE);
+                loginSignupHint.setVisibility(View.GONE);
+                EnterYourEmail.setVisibility(View.GONE);
+                sendAccessLinkBtn.setVisibility(View.GONE);
+                notAProblem.setVisibility(View.GONE);
+                enterpriseLearnMore.setVisibility(View.VISIBLE);
+                enterpriseHint.setVisibility(View.VISIBLE);
+                host.setVisibility(View.VISIBLE);
+                nextBtn.setVisibility(View.VISIBLE);
+                hostHint.setVisibility(View.VISIBLE);
+                host.requestFocus();
+                ((TextView) findViewById(R.id.enterpriseHintText)).setText("Enterprise Edition");
+            }
+        } else if (requestCode == REQUEST_RESOLVE_ERROR) {
             mResolvingError = false;
             if (resultCode == RESULT_OK) {
                 if (!mGoogleApiClient.isConnecting() && !mGoogleApiClient.isConnected()) {
@@ -1099,10 +1164,19 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.commit();
 
-                    if (result.getString("auth_mechanism").equals("internal"))
+                    if (result.getString("auth_mechanism").equals("internal")) {
                         loginSignupHint.getChildAt(1).setVisibility(View.VISIBLE);
-                    else
+                        auth_url = null;
+                        loginBtn.setText("Login");
+                    } else if (result.getString("auth_mechanism").equals("saml")) {
+                        loginBtn.setText("Login with " + result.getString("saml_provider"));
+                        auth_url = "https://" + NetworkConnection.IRCCLOUD_HOST + "/saml/auth";
                         loginSignupHint.getChildAt(1).setVisibility(View.GONE);
+                    } else {
+                        loginSignupHint.getChildAt(1).setVisibility(View.GONE);
+                        auth_url = null;
+                        loginBtn.setText("Login");
+                    }
 
                     if (result.get("enterprise") instanceof JSONObject && ((JSONObject) result.get("enterprise")).has("fullname"))
                         ((TextView) findViewById(R.id.enterpriseHintText)).setText(((JSONObject) result.get("enterprise")).getString("fullname"));

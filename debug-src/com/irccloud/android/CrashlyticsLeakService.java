@@ -16,7 +16,7 @@
 
 package com.irccloud.android;
 
-import android.annotation.TargetApi;
+/*import android.annotation.TargetApi;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -32,12 +32,12 @@ import java.io.ObjectOutputStream;
 import static android.os.Build.VERSION_CODES.HONEYCOMB;
 import static com.squareup.leakcanary.LeakCanary.leakInfo;
 import static com.squareup.leakcanary.internal.LeakCanaryInternals.findNextAvailableHprofFile;
-import static com.squareup.leakcanary.internal.LeakCanaryInternals.leakResultFile;
+import static com.squareup.leakcanary.internal.LeakCanaryInternals.leakResultFile;*/
 /**
  * Created by sam on 5/18/15.
  */
-public class CrashlyticsLeakService extends AbstractAnalysisResultService {
-
+public class CrashlyticsLeakService /*extends AbstractAnalysisResultService*/ {
+/*
     @TargetApi(HONEYCOMB) @Override
     protected final void onHeapAnalyzed(HeapDump heapDump, AnalysisResult result) {
         String leakInfo = leakInfo(this, heapDump, result, true);
@@ -111,5 +111,5 @@ public class CrashlyticsLeakService extends AbstractAnalysisResultService {
             name += "(" + heapDump.referenceName + ")";
         }
         Crashlytics.logException(new Exception(name + " has leaked"));
-    }
+    }*/
 }

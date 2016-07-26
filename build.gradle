@@ -208,6 +208,7 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled false
             shrinkResources false
+            debuggable true
         }
 
         enterpriserelease {

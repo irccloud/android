@@ -412,6 +412,23 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activity.SAMLAuthActivity"
+            android:theme="@style/dawn"
+            android:windowSoftInputMode="adjustResize" >
+            <layout android:defaultHeight="320dp"
+                android:defaultWidth="400dp"
+                android:gravity="top|end"
+                android:minWidth="320dp"
+                android:minHeight="320dp"/>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".activity.PastebinEditorActivity"
             android:theme="@style/dawnDialogWhenLarge"
@@ -470,7 +487,7 @@
             android:name="io.fabric.ApiKey"
             android:value="${CRASHLYTICS_KEY}" />
 
-        <service android:name=".CrashlyticsLeakService" />
+        <!-- <service android:name=".CrashlyticsLeakService" /> -->
 
         <receiver
             android:name=".SyncReceiver"
