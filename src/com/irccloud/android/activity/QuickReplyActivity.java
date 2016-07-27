@@ -271,6 +271,8 @@ public class QuickReplyActivity extends AppCompatActivity {
                 }
             }
         };
+
+        findViewById(R.id.messageTxt).requestFocus();
     }
 
     @Override
