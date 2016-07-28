@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.gcm.GcmListenerService;
+import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -31,6 +32,7 @@ import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Server;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -39,6 +41,16 @@ public class GCMService extends GcmListenerService {
     public void onMessageReceived(String id, Bundle data) {
         if(!data.containsKey("type"))
             super.onMessageReceived(id, data);
+
+        if(NetworkConnection.getInstance().session == null || NetworkConnection.getInstance().session.length() == 0) {
+            Log.e("IRCCloud", "Got a GCM while logged out, deleting token");
+            try {
+                InstanceID.getInstance(this).deleteInstanceID();
+            } catch (IOException e) {
+                NetworkConnection.printStackTraceToCrashlytics(e);
+            }
+            return;
+        }
 
         //Log.d("IRCCloud", "GCM K/V pairs: " + data);
         try {

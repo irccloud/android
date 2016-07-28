@@ -39,6 +39,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Exchanger;
 
 public class BackgroundTaskService extends GcmTaskService {
     private static final int GCM_INTERVAL = 30; //Wait up to 30 seconds before sending GCM registration
@@ -48,7 +49,10 @@ public class BackgroundTaskService extends GcmTaskService {
         List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_GCM_REGISTER)).queryList();
         for(BackgroundTask t : tasks) {
             Crashlytics.log(Log.INFO, "IRCCloud", "Removing old GCM registration task: " + t.tag);
-            GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
+            try {
+                GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
+            } catch (Exception e) {
+            }
             t.delete();
         }
 
@@ -57,15 +61,19 @@ public class BackgroundTaskService extends GcmTaskService {
             task.type = BackgroundTask.TYPE_GCM_REGISTER;
             task.tag = Long.toString(System.currentTimeMillis());
             task.session = NetworkConnection.getInstance().session;
-            task.save();
 
             Crashlytics.log(Log.INFO, "IRCCloud", "Scheduled GCM registration task: " + task.tag);
-            GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
-                    .setTag(task.tag)
-                    .setExecutionWindow(1, GCM_INTERVAL)
-                    .setRequiredNetwork(OneoffTask.NETWORK_STATE_CONNECTED)
-                    .setService(BackgroundTaskService.class)
-                    .build());
+            try {
+                GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
+                        .setTag(task.tag)
+                        .setExecutionWindow(1, GCM_INTERVAL)
+                        .setRequiredNetwork(OneoffTask.NETWORK_STATE_CONNECTED)
+                        .setService(BackgroundTaskService.class)
+                        .build());
+            } catch (Exception e) {
+                return;
+            }
+            task.save();
         }
     }
 
@@ -76,7 +84,10 @@ public class BackgroundTaskService extends GcmTaskService {
                     .queryList();
 
             for(BackgroundTask t : tasks) {
-                GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
+                try {
+                    GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
+                } catch (Exception e) {
+                }
                 t.delete();
             }
 
@@ -85,43 +96,60 @@ public class BackgroundTaskService extends GcmTaskService {
             task.tag = Long.toString(System.currentTimeMillis());
             task.data = token;
             task.session = session;
-            task.save();
 
-            GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
-                    .setTag(task.tag)
-                    .setExecutionWindow(1, GCM_INTERVAL)
-                    .setRequiredNetwork(OneoffTask.NETWORK_STATE_CONNECTED)
-                    .setService(BackgroundTaskService.class)
-                    .build());
+            try {
+                GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
+                        .setTag(task.tag)
+                        .setExecutionWindow(1, GCM_INTERVAL)
+                        .setRequiredNetwork(OneoffTask.NETWORK_STATE_CONNECTED)
+                        .setService(BackgroundTaskService.class)
+                        .build());
+            } catch (Exception e) {
+                return;
+            }
+            task.save();
         }
     }
 
     public static void unregisterGCM(final Context context) {
         final String session = NetworkConnection.getInstance().session;
         final String token = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_token", null);
+
+        List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_GCM_REGISTER))
+                .and(Condition.column(BackgroundTask$Table.DATA).is(token))
+                .queryList();
+
+        for(BackgroundTask t : tasks) {
+            try {
+                GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
+            } catch (Exception e) {
+            }
+            t.delete();
+        }
+
         if(Looper.myLooper() == Looper.getMainLooper()) {
             new AsyncTask<Void, Void, Void>() {
 
                 @Override
                 protected Void doInBackground(Void... voids) {
-                    if(onGcmUnregister(context, token, session) != GcmNetworkManager.RESULT_SUCCESS)
-                        scheduleUnregister(context, token, session);
                     try {
                         InstanceID.getInstance(context).deleteInstanceID();
                     } catch (IOException e) {
                         NetworkConnection.printStackTraceToCrashlytics(e);
                     }
+                    if(onGcmUnregister(context, token, session) != GcmNetworkManager.RESULT_SUCCESS)
+                        scheduleUnregister(context, token, session);
                     return null;
                 }
             }.execute((Void) null);
         } else {
             try {
-                if(onGcmUnregister(context, token, session) != GcmNetworkManager.RESULT_SUCCESS)
-                    scheduleUnregister(context, token, session);
                 InstanceID.getInstance(context).deleteInstanceID();
             } catch (IOException e) {
                 NetworkConnection.printStackTraceToCrashlytics(e);
             }
+            if(onGcmUnregister(context, token, session) != GcmNetworkManager.RESULT_SUCCESS)
+                scheduleUnregister(context, token, session);
         }
     }
 
@@ -227,6 +255,17 @@ public class BackgroundTaskService extends GcmTaskService {
     private static int onGcmUnregister(Context context, String token, String session) {
         try {
             Crashlytics.log(Log.INFO, "IRCCloud", "Unregistering GCM");
+            try {
+                String GCM_ID = BuildConfig.GCM_ID;
+                if(BuildConfig.ENTERPRISE && context.getSharedPreferences("prefs", 0).getString("host", BuildConfig.HOST).equals("api.irccloud.com"))
+                    GCM_ID = BuildConfig.GCM_ID_IRCCLOUD;
+                if(token.equals(InstanceID.getInstance(context).getToken(GCM_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE))) {
+                    Crashlytics.log(Log.INFO, "IRCCloud", "Deleting old GCM token");
+                    InstanceID.getInstance(context).deleteInstanceID();
+                }
+            } catch (Exception e) {
+                NetworkConnection.printStackTraceToCrashlytics(e);
+            }
             JSONObject result = NetworkConnection.getInstance().unregisterGCM(token, session);
             if (result != null && result.has("success")) {
                 if(result.getBoolean("success")) {

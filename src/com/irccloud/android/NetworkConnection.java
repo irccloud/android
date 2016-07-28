@@ -48,6 +48,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.RecentConversationsList;
@@ -1273,8 +1274,6 @@ public class NetworkConnection {
         streamId = null;
         disconnect();
         try {
-            GcmNetworkManager.getInstance(IRCCloudApplication.getInstance()).cancelAllTasks(BackgroundTaskService.class);
-            Delete.table(BackgroundTask.class);
             if(BuildConfig.GCM_ID.length() > 0) {
                 BackgroundTaskService.unregisterGCM(IRCCloudApplication.getInstance().getApplicationContext());
             }

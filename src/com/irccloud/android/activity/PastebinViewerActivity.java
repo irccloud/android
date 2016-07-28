@@ -18,15 +18,11 @@ package com.irccloud.android.activity;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.net.http.SslError;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -35,6 +31,7 @@ import android.os.Bundle;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
+import android.support.customtabs.CustomTabsSession;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -45,10 +42,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
-import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -65,7 +59,6 @@ import com.irccloud.android.GingerbreadImageProxy;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
-import com.samsung.android.sdk.multiwindow.SMultiWindowActivity;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 
@@ -278,8 +271,12 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
         @Override
         public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-            client.warmup(0);
-            client.newSession(null).mayLaunchUrl(Uri.parse(url.contains("?")?url.substring(0, url.indexOf("?")):url), null, null);
+            if(client != null) {
+                client.warmup(0);
+                CustomTabsSession session = client.newSession(null);
+                if (session != null)
+                    session.mayLaunchUrl(Uri.parse(url.contains("?") ? url.substring(0, url.indexOf("?")) : url), null, null);
+            }
         }
 
         @Override
