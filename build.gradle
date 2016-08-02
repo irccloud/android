@@ -52,13 +52,13 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 24
-    buildToolsVersion '24.0.0'
+    buildToolsVersion '24.0.1'
     testBuildType 'debugTest'
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 76
-        versionName "3.5"
+        versionCode 77
+        versionName "3.6"
         minSdkVersion 10
         targetSdkVersion 24
         applicationId "com.irccloud.android"
