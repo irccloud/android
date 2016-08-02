@@ -3336,7 +3336,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         new File(imageDir, ".nomedia").createNewFile();
                         File tempFile = File.createTempFile("irccloudcapture", ".mp4", imageDir);
                         imageCaptureURI = Uri.fromFile(tempFile);
-                        i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
                         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
                             i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
                         else
@@ -3448,7 +3448,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     new File(imageDir, ".nomedia").createNewFile();
                                     File tempFile = File.createTempFile("irccloudcapture", ".mp4", imageDir);
                                     imageCaptureURI = Uri.fromFile(tempFile);
-                                    i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                    i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
                                     if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
                                         i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
                                     else
@@ -5656,6 +5656,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 } else {
                     Log.e("IRCCloud", "Upload cancelled");
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
                 }
             } catch (IOException ex) {
                 NetworkConnection.printStackTraceToCrashlytics(ex);
@@ -5793,6 +5794,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             hide_progress();
             if(metadataDialog != null)
                 metadataDialog.cancel();
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
         }
 
         private void hide_progress() {
