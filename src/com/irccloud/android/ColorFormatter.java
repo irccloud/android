@@ -1566,6 +1566,8 @@ public class ColorFormatter {
         boolean bold = false, underline = false, italics = false;
         String fg = "", bg = "";
         StringBuilder builder = new StringBuilder(msg);
+        builder.insert(0, "<irc>");
+        builder.append("</irc>");
 
         while (pos < builder.length()) {
             if (builder.charAt(pos) == 2) { //Bold
