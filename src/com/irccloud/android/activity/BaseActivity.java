@@ -45,7 +45,9 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -597,63 +599,68 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 break;
             case R.id.menu_feedback:
                 try {
-                    StringBuilder bugReport = new StringBuilder(
-                        "Briefly describe the issue below:\n\n\n\n\n" +
+                    String bugReport = "Briefly describe the issue below:\n\n\n\n\n" +
                         "===========\n" +
                         "UID: " + NetworkConnection.getInstance().getUserInfo().id + "\n" +
                         "App version: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + " (" + getPackageManager().getPackageInfo(getPackageName(), 0).versionCode + ")\n" +
                         "Device: " + Build.MODEL + "\n" +
                         "Android version: " + Build.VERSION.RELEASE + "\n" +
-                        "Firmware fingerprint: " + Build.FINGERPRINT + "\n");
+                        "Firmware fingerprint: " + Build.FINGERPRINT + "\n";
 
                     File logsDir = new File(getFilesDir(),".Fabric/com.crashlytics.sdk.android.crashlytics-core/log-files/");
                     File log = null;
-                    long max = Long.MIN_VALUE;
-                    for(File f : logsDir.listFiles()) {
-                        if(f.lastModified() > max) {
-                            max = f.lastModified();
-                            log = f;
-                        }
-                    }
-
-                    File f = new File(getFilesDir(), "logs");
-                    f.mkdirs();
-                    f = new File(getFilesDir(), LOG_FILENAME);
-                    if(log != null) {
-                        byte[] b = new byte[1];
-
-                        FileOutputStream out = new FileOutputStream(f);
-                        FileInputStream is = new FileInputStream(log);
-                        is.skip(5);
-                        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                            f.setReadable(true, false);
-
-                        while(is.available() > 0 && is.read(b,0,1) > 0) {
-                            if (b[0] == ' ') {
-                                while(is.available() > 0 && is.read(b,0,1) > 0) {
-                                    out.write(b);
-                                    if (b[0] == '\n')
-                                        break;
-                                }
+                    File output = null;
+                    if(logsDir.exists()) {
+                        long max = Long.MIN_VALUE;
+                        for (File f : logsDir.listFiles()) {
+                            if (f.lastModified() > max) {
+                                max = f.lastModified();
+                                log = f;
                             }
                         }
-                        is.close();
-                        out.close();
+
+                        if (log != null) {
+                            File f = new File(getFilesDir(), "logs");
+                            f.mkdirs();
+                            output = new File(getFilesDir(), LOG_FILENAME);
+                            byte[] b = new byte[1];
+
+                            FileOutputStream out = new FileOutputStream(output);
+                            FileInputStream is = new FileInputStream(log);
+                            is.skip(5);
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                                f.setReadable(true, false);
+
+                            while (is.available() > 0 && is.read(b, 0, 1) > 0) {
+                                if (b[0] == ' ') {
+                                    while (is.available() > 0 && is.read(b, 0, 1) > 0) {
+                                        out.write(b);
+                                        if (b[0] == '\n')
+                                            break;
+                                    }
+                                }
+                            }
+                            is.close();
+                            out.close();
+                        }
                     }
 
                     Intent email = new Intent(Intent.ACTION_SEND);
                     email.setData(Uri.parse("mailto:"));
                     email.setType("message/rfc822");
                     email.putExtra(Intent.EXTRA_EMAIL, new String[]{"IRCCloud Team <team@irccloud.com>"});
-                    email.putExtra(Intent.EXTRA_TEXT, bugReport.toString());
+                    email.putExtra(Intent.EXTRA_TEXT, bugReport);
                     email.putExtra(Intent.EXTRA_SUBJECT, "IRCCloud for Android");
-                    if(log != null)
-                        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                    if(log != null) {
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
                             email.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + getFileStreamPath(LOG_FILENAME).getAbsolutePath()));
                         else
-                            email.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this,getPackageName() + ".fileprovider",f));
+                            email.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", output));
+                    }
                     startActivityForResult(Intent.createChooser(email, "Send Feedback:"), 0);
                 } catch (Exception e) {
+                    Toast.makeText(this, "Unable to generate email report: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Crashlytics.logException(e);
                     NetworkConnection.printStackTraceToCrashlytics(e);
                 }
                 break;
