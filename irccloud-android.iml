@@ -72,7 +72,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/shaders" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/build/.DS_Store" />
       <excludeFolder url="file://$MODULE_DIR$/build/filtered_resources" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/assets" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/blame" />
@@ -156,8 +155,8 @@
     <orderEntry type="library" exported="" name="beta-1.1.5" level="project" />
     <orderEntry type="library" exported="" name="handy-uri-templates-2.0.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-tasks-9.2.1" level="project" />
-    <orderEntry type="library" exported="" name="kotlin-stdlib-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.5.4" level="project" />
+    <orderEntry type="library" exported="" name="kotlin-stdlib-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-24.1.1" level="project" />
     <orderEntry type="library" exported="" name="support-vector-drawable-24.1.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-auth-9.2.1" level="project" />
