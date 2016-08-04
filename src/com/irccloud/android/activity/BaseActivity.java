@@ -81,7 +81,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     private boolean mResolvingError;
     private static final int REQUEST_RESOLVE_ERROR = 1001;
     private static final int REQUEST_SEND_FEEDBACK = 1002;
-    private static final String LOG_FILENAME = "logs/log.txt";
+    private static final String LOG_FILENAME = "log.txt";
 
     private SMultiWindow mMultiWindow = null;
     private SMultiWindowActivity mMultiWindowActivity = null;
@@ -622,7 +622,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         if (log != null) {
                             File f = new File(getFilesDir(), "logs");
                             f.mkdirs();
-                            output = new File(getFilesDir(), LOG_FILENAME);
+                            output = new File(f, LOG_FILENAME);
                             byte[] b = new byte[1];
 
                             FileOutputStream out = new FileOutputStream(output);
@@ -653,7 +653,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     email.putExtra(Intent.EXTRA_SUBJECT, "IRCCloud for Android");
                     if(log != null) {
                         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                            email.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + getFileStreamPath(LOG_FILENAME).getAbsolutePath()));
+                            email.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + output.getAbsolutePath()));
                         else
                             email.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", output));
                     }
