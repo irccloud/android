@@ -46,7 +46,7 @@ public class GCMService extends GcmListenerService {
             Log.e("IRCCloud", "Got a GCM while logged out, deleting token");
             try {
                 InstanceID.getInstance(this).deleteInstanceID();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 NetworkConnection.printStackTraceToCrashlytics(e);
             }
             return;

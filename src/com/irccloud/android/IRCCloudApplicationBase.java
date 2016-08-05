@@ -35,6 +35,7 @@ import android.util.Log;
 import android.webkit.WebView;
 
 import com.crashlytics.android.Crashlytics;
+import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
@@ -247,6 +248,10 @@ public class IRCCloudApplicationBase extends Application {
                 }
                 if(!conn.notifier && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     conn.disconnect();
+                    if(ServersList.getInstance().count() < 1) {
+                        Crashlytics.log(Log.DEBUG, "IRCCloud", "No servers configured, not connecting notifier socket");
+                        return;
+                    }
                     if(!(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)) {
                         try {
                             Thread.sleep(1000);
