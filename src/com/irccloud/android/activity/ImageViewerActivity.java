@@ -550,10 +550,10 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                     fail();
                 }
                 return;
-            } else if (lower.startsWith("i.imgur.com") && lower.endsWith(".gifv")) {
+            } else if (lower.startsWith("i.imgur.com") && (lower.endsWith(".gifv") || lower.endsWith(".gif"))) {
                 String id = url.replace("https://", "").replace("http://", "");
                 id = id.substring(id.indexOf("/") + 1);
-                id = id.substring(0, id.length() - 5);
+                id = id.substring(0, id.lastIndexOf("."));
                 new ImgurImageTask().execute(id);
                 return;
             } else if (lower.startsWith("gfycat.com/") || lower.startsWith("www.gfycat.com/")) {
