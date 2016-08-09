@@ -16,7 +16,7 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Device">
+    <PreferenceCategory android:title="Device" android:key="device">
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="screenlock"
             android:defaultValue="false"
@@ -41,6 +41,12 @@
             android:summaryOn="Image URLs will open in IRCCloud"
             android:summaryOff="Image URLs will open in your browser"
             android:title="Image Viewer" />
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="browser"
+            android:defaultValue="false"
+            android:summaryOff="URLs will open in IRCCloud"
+            android:summaryOn="URLs will open in your browser"
+            android:title="Open URLs in Browser" />
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="pastebin-disableprompt"
             android:defaultValue="true"

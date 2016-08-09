@@ -28,6 +28,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
@@ -56,6 +57,7 @@ import com.crashlytics.android.answers.ShareEvent;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.GingerbreadImageProxy;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
@@ -370,7 +372,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             item.setChecked(!item.isChecked());
             mWebView.loadUrl("javascript:window.PASTEVIEW.doToggleLines()");
         } else if (item.getItemId() == R.id.action_browser) {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
                 CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
                 builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
                 builder.addDefaultShareMenuItem();

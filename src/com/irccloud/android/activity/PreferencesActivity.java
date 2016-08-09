@@ -74,6 +74,7 @@ import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
+import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -304,6 +305,11 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         } catch (NameNotFoundException e) {
             // TODO Auto-generated catch block
             NetworkConnection.printStackTraceToCrashlytics(e);
+        }
+
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 || CustomTabsHelper.getPackageNameToUse(this) == null) {
+            PreferenceCategory c = (PreferenceCategory) findPreference("device");
+            c.removePreference(findPreference("browser"));
         }
 
         getListView().setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
