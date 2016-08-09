@@ -160,7 +160,12 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     }
 
     public class ImgurGalleryTask extends AsyncTaskEx<String, Void, String> {
-        private final String GALLERY_URL = (BuildConfig.MASHAPE_KEY.length() > 0) ? "https://imgur-apiv3.p.mashape.com/3/gallery/" : "https://api.imgur.com/3/gallery/";
+        private String type = "gallery";
+        private final String GALLERY_URL = (BuildConfig.MASHAPE_KEY.length() > 0) ? "https://imgur-apiv3.p.mashape.com/3/" : "https://api.imgur.com/3/";
+
+        public ImgurGalleryTask(String type) {
+            this.type = type;
+        }
 
         @Override
         protected String doInBackground(String... params) {
@@ -169,16 +174,19 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 if (BuildConfig.MASHAPE_KEY.length() > 0)
                     headers.put("X-Mashape-Authorization", BuildConfig.MASHAPE_KEY);
                 headers.put("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
-                JSONObject o = NetworkConnection.getInstance().fetchJSON(GALLERY_URL + params[0], headers);
+                JSONObject o = NetworkConnection.getInstance().fetchJSON(GALLERY_URL + type + "/" + params[0], headers);
                 if (o.getBoolean("success")) {
                     JSONObject data = o.getJSONObject("data");
-                    android.util.Log.e("IRCCloud", "D: " + data.toString());
-                    if (data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
-                        return data.getString("link");
-                    else if (data.getBoolean("animated"))
-                        return data.getString("mp4");
+                    if(data.getInt("images_count") == 1) {
+                        data = data.getJSONArray("images").getJSONObject(0);
+                        if (data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
+                            return data.getString("link");
+                        else if (data.getBoolean("animated"))
+                            return data.getString("mp4");
+                    }
                 }
             } catch (Exception e) {
+                e.printStackTrace();
             }
             return null;
         }
@@ -528,14 +536,16 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 }
             } else if ((lower.startsWith("d.pr/i/") || lower.startsWith("droplr.com/i/")) && !lower.endsWith("+")) {
                 url += "+";
-            } else if (lower.startsWith("imgur.com/") || lower.startsWith("www.imgur.com/")) {
+            } else if (lower.startsWith("imgur.com/") || lower.startsWith("www.imgur.com/") || lower.startsWith("m.imgur.com/")) {
                 String id = url.replace("https://", "").replace("http://", "");
                 id = id.substring(id.indexOf("/") + 1);
 
                 if (!id.contains("/") && id.length() > 0) {
                     new ImgurImageTask().execute(id);
                 } else if (id.startsWith("gallery/") && id.length() > 8) {
-                    new ImgurGalleryTask().execute(id.substring(8));
+                    new ImgurGalleryTask("gallery").execute(id.substring(8));
+                } else if (id.startsWith("a/") && id.length() > 2) {
+                    new ImgurGalleryTask("album").execute(id.substring(2));
                 } else {
                     fail();
                 }
