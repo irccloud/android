@@ -628,8 +628,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             FileOutputStream out = new FileOutputStream(output);
                             FileInputStream is = new FileInputStream(log);
                             is.skip(5);
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                                f.setReadable(true, false);
 
                             while (is.available() > 0 && is.read(b, 0, 1) > 0) {
                                 if (b[0] == ' ') {
@@ -652,10 +650,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     email.putExtra(Intent.EXTRA_TEXT, bugReport);
                     email.putExtra(Intent.EXTRA_SUBJECT, "IRCCloud for Android");
                     if(log != null) {
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                            email.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + output.getAbsolutePath()));
-                        else
-                            email.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", output));
+                        email.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", output));
                     }
                     startActivityForResult(Intent.createChooser(email, "Send Feedback:"), 0);
                 } catch (Exception e) {
