@@ -1401,6 +1401,8 @@ public class NetworkConnection {
             o.put("cid", cid);
             if (to != null)
                 o.put("to", to);
+            else
+                o.put("to", "*");
             o.put("msg", message);
             return send("say", o);
         } catch (JSONException e) {
@@ -1410,6 +1412,8 @@ public class NetworkConnection {
     }
 
     public JSONObject say(int cid, String to, String message, String sk) throws IOException {
+        if(to == null)
+            to = "*";
         String postdata = "cid=" + cid + "&to=" + URLEncoder.encode(to, "UTF-8") + "&msg=" + URLEncoder.encode(message, "UTF-8") + "&session=" + sk;
         try {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/say"), postdata, sk, null, null);
