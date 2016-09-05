@@ -98,6 +98,7 @@
 		<item name="alertDialogTheme">@style/orchidAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_orchid</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_orchid</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_orchid</item>
 		<item name="editTextTheme">@style/orchidEditText</item>
 	</style>
 
@@ -184,6 +185,7 @@
 		<item name="alertDialogTheme">@style/orchidAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_orchid</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_orchid</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_orchid</item>
 		<item name="editTextTheme">@style/orchidEditText</item>
 	</style>
 
@@ -270,6 +272,7 @@
 		<item name="alertDialogTheme">@style/orchidAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_orchid</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_orchid</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_orchid</item>
 		<item name="editTextTheme">@style/orchidEditText</item>
 	</style>
 
@@ -356,6 +359,7 @@
 		<item name="alertDialogTheme">@style/orchidAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_orchid</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_orchid</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_orchid</item>
 		<item name="editTextTheme">@style/orchidEditText</item>
 	</style>
 
@@ -442,6 +446,7 @@
 		<item name="alertDialogTheme">@style/orchidAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_orchid</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_orchid</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_orchid</item>
 		<item name="editTextTheme">@style/orchidEditText</item>
 	</style>
 

@@ -98,6 +98,7 @@
 		<item name="alertDialogTheme">@style/sandAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_sand</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_sand</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_sand</item>
 		<item name="editTextTheme">@style/sandEditText</item>
 	</style>
 
@@ -184,6 +185,7 @@
 		<item name="alertDialogTheme">@style/sandAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_sand</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_sand</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_sand</item>
 		<item name="editTextTheme">@style/sandEditText</item>
 	</style>
 
@@ -270,6 +272,7 @@
 		<item name="alertDialogTheme">@style/sandAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_sand</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_sand</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_sand</item>
 		<item name="editTextTheme">@style/sandEditText</item>
 	</style>
 
@@ -356,6 +359,7 @@
 		<item name="alertDialogTheme">@style/sandAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_sand</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_sand</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_sand</item>
 		<item name="editTextTheme">@style/sandEditText</item>
 	</style>
 
@@ -442,6 +446,7 @@
 		<item name="alertDialogTheme">@style/sandAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_sand</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_sand</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_sand</item>
 		<item name="editTextTheme">@style/sandEditText</item>
 	</style>
 

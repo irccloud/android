@@ -98,6 +98,7 @@
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_emerald</item>
 		<item name="editTextTheme">@style/emeraldEditText</item>
 	</style>
 
@@ -184,6 +185,7 @@
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_emerald</item>
 		<item name="editTextTheme">@style/emeraldEditText</item>
 	</style>
 
@@ -270,6 +272,7 @@
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_emerald</item>
 		<item name="editTextTheme">@style/emeraldEditText</item>
 	</style>
 
@@ -356,6 +359,7 @@
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_emerald</item>
 		<item name="editTextTheme">@style/emeraldEditText</item>
 	</style>
 
@@ -442,6 +446,7 @@
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_emerald</item>
 		<item name="editTextTheme">@style/emeraldEditText</item>
 	</style>
 

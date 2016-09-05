@@ -108,6 +108,7 @@
                 android:lineSpacingMultiplier="1.0"
                 android:includeFontPadding="false"
                 android:clickable="false"
+                android:hyphenationFrequency="none"
                 android:layout_weight="1"/>
 
             <ImageView

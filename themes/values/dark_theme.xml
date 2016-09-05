@@ -231,7 +231,7 @@
     </style>
 
     <style name="DarkAppAlertTheme" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="android:background">?dialogBackgroundColor</item>
+        <item name="android:windowBackground">?dialogBackgroundDrawable</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>

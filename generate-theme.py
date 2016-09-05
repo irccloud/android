@@ -115,6 +115,7 @@ def theme(f, t, parent):
     f.write("\t\t<item name=\"alertDialogTheme\">@style/" + themename + "Alert</item>\n")
     f.write("\t\t<item name=\"scrollbarDrawable\">@drawable/scrollbar_" + themename + "</item>\n")
     f.write("\t\t<item name=\"windowBackgroundDrawable\">@drawable/windowBackground_" + themename + "</item>\n")
+    f.write("\t\t<item name=\"dialogBackgroundDrawable\">@drawable/dialog_background_" + themename + "</item>\n")
     f.write("\t\t<item name=\"editTextTheme\">@style/" + themename + "EditText</item>\n")
     
     f.write("\t</style>\n\n")
@@ -381,6 +382,23 @@ f.write("""<?xml version="1.0" encoding="utf-8"?>
     <shape>
         <corners android:radius="4dp" />
         <solid android:color="@color/{theme}_text4" />
+    </shape>
+</inset>
+""".format(**params))
+f.close()
+
+f = open("themes/drawable/dialog_background_" + themename + ".xml", "w")
+f.truncate()
+f.write("""<?xml version="1.0" encoding="utf-8"?>
+{license}
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="16dp"
+    android:insetRight="16dp"
+    android:insetTop="16dp"
+    android:insetBottom="16dp">
+    <shape>
+        <corners android:radius="2dp" />
+        <solid android:color="@color/{theme}_background6" />
     </shape>
 </inset>
 """.format(**params))

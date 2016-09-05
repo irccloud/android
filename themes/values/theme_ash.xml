@@ -98,6 +98,7 @@
 		<item name="alertDialogTheme">@style/ashAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_ash</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_ash</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_ash</item>
 		<item name="editTextTheme">@style/ashEditText</item>
 	</style>
 
@@ -184,6 +185,7 @@
 		<item name="alertDialogTheme">@style/ashAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_ash</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_ash</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_ash</item>
 		<item name="editTextTheme">@style/ashEditText</item>
 	</style>
 
@@ -270,6 +272,7 @@
 		<item name="alertDialogTheme">@style/ashAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_ash</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_ash</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_ash</item>
 		<item name="editTextTheme">@style/ashEditText</item>
 	</style>
 
@@ -356,6 +359,7 @@
 		<item name="alertDialogTheme">@style/ashAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_ash</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_ash</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_ash</item>
 		<item name="editTextTheme">@style/ashEditText</item>
 	</style>
 
@@ -442,6 +446,7 @@
 		<item name="alertDialogTheme">@style/ashAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_ash</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_ash</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_ash</item>
 		<item name="editTextTheme">@style/ashEditText</item>
 	</style>
 

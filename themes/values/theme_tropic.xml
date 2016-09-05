@@ -98,6 +98,7 @@
 		<item name="alertDialogTheme">@style/tropicAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_tropic</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_tropic</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_tropic</item>
 		<item name="editTextTheme">@style/tropicEditText</item>
 	</style>
 
@@ -184,6 +185,7 @@
 		<item name="alertDialogTheme">@style/tropicAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_tropic</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_tropic</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_tropic</item>
 		<item name="editTextTheme">@style/tropicEditText</item>
 	</style>
 
@@ -270,6 +272,7 @@
 		<item name="alertDialogTheme">@style/tropicAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_tropic</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_tropic</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_tropic</item>
 		<item name="editTextTheme">@style/tropicEditText</item>
 	</style>
 
@@ -356,6 +359,7 @@
 		<item name="alertDialogTheme">@style/tropicAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_tropic</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_tropic</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_tropic</item>
 		<item name="editTextTheme">@style/tropicEditText</item>
 	</style>
 
@@ -442,6 +446,7 @@
 		<item name="alertDialogTheme">@style/tropicAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_tropic</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_tropic</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_tropic</item>
 		<item name="editTextTheme">@style/tropicEditText</item>
 	</style>
 
