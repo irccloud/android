@@ -1552,7 +1552,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.html += " were";
                         else
                             event.html += " was";
-                        if (event.hostmask != null && event.hostmask.length() > 0)
+                        if (event.from_hostmask != null && event.from_hostmask.length() > 0)
                             event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
                         else
                             event.html += " kicked by the server <b>" + event.nick + "</b>";

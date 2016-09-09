@@ -395,6 +395,7 @@ public class EventsList {
                 if(event != null) {
                     e.from = "";
                     e.from_mode = event.getString("kicker_mode");
+                    e.from_hostmask = event.getString("kicker_hostmask");
                     e.old_nick = event.getString("nick");
                     e.nick = event.getString("kicker");
                 }

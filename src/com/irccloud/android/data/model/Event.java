@@ -74,6 +74,9 @@ public class Event /*extends ObservableBaseModel*/ {
     public String from_realname;
 
     @Column
+    public String from_hostmask;
+
+    @Column
     public String nick;
 
     @Column
@@ -168,6 +171,7 @@ public class Event /*extends ObservableBaseModel*/ {
         from = e.from;
         from_mode = e.from_mode;
         from_realname = e.from_realname;
+        from_hostmask = e.from_hostmask;
         nick = e.nick;
         old_nick = e.old_nick;
         server = e.server;
