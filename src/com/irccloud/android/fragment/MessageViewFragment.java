@@ -140,6 +140,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private ProgressBar spinner = null;
     private final Handler mHandler = new Handler();
     private ColorScheme colorScheme = ColorScheme.getInstance();
+    private Typeface hackRegular;
 
     public static final int ROW_MESSAGE = 0;
     public static final int ROW_TIMESTAMP = 1;
@@ -664,7 +665,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if (holder.timestamp != null) {
-                    holder.timestamp.setTypeface(mono ? Typeface.MONOSPACE : Typeface.DEFAULT);
+                    holder.timestamp.setTypeface(mono ? hackRegular : Typeface.DEFAULT);
                     if (e.row_type == ROW_TIMESTAMP) {
                         holder.timestamp.setTextSize(textSize);
                     } else {
@@ -699,10 +700,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (holder.message != null && e.html != null) {
                     holder.message.setMovementMethod(linkMovementMethodNoLongPress);
                     holder.message.setOnClickListener(new OnItemClickListener(position));
-                    if (mono || (e.msg != null && e.msg.startsWith("<pre>")))
-                        holder.message.setTypeface(Typeface.MONOSPACE);
-                    else
+                    if (mono || (e.msg != null && e.msg.startsWith("<pre>"))) {
+                        holder.message.setTypeface(hackRegular);
+                    } else {
                         holder.message.setTypeface(Typeface.DEFAULT);
+                    }
                     try {
                         holder.message.setTextColor(e.color);
                     } catch (Exception e1) {
@@ -791,7 +793,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if (holder.nickname != null) {
                         holder.nickname.setVisibility(View.VISIBLE);
                         if (mono)
-                            holder.nickname.setTypeface(Typeface.MONOSPACE);
+                            holder.nickname.setTypeface(hackRegular);
                         else
                             holder.nickname.setTypeface(Typeface.DEFAULT);
                         holder.nickname.setTextSize(textSize);
@@ -806,7 +808,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.realname.setMovementMethod(linkMovementMethodNoLongPress);
                         holder.realname.setVisibility((pref_chatOneLine || pref_norealname) ? View.GONE : View.VISIBLE);
                         if (mono)
-                            holder.realname.setTypeface(Typeface.MONOSPACE);
+                            holder.realname.setTypeface(hackRegular);
                         else
                             holder.realname.setTypeface(Typeface.DEFAULT);
                         holder.realname.setTextSize(textSize);
@@ -842,6 +844,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        hackRegular = Typeface.createFromAsset(getActivity().getAssets(), "Hack-Regular.otf");
+
         final View v = inflater.inflate(R.layout.messageview, container, false);
         statusView = (TextView) v.findViewById(R.id.statusView);
         statusView.setOnClickListener(new OnClickListener() {
