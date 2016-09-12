@@ -57,8 +57,8 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 80
-        versionName "3.7"
+        versionCode 81
+        versionName "3.8"
         minSdkVersion 10
         targetSdkVersion 24
         applicationId "com.irccloud.android"
