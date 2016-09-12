@@ -3179,13 +3179,11 @@ public class NetworkConnection {
                     NetworkInfo ni = cm.getActiveNetworkInfo();
                     if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
                         Crashlytics.log(Log.DEBUG, TAG, "Loading via WiFi");
-                        conn.setConnectTimeout(2500);
-                        conn.setReadTimeout(10000);
                     } else {
                         Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
-                        conn.setConnectTimeout(5000);
-                        conn.setReadTimeout(30000);
                     }
+                    conn.setConnectTimeout(15000);
+                    conn.setReadTimeout(30000);
                 } catch (Exception e) {
                 }
 
