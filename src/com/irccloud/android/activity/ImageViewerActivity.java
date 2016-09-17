@@ -177,8 +177,9 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(GALLERY_URL + type + "/" + params[0], headers);
                 if (o.getBoolean("success")) {
                     JSONObject data = o.getJSONObject("data");
-                    if(data.getInt("images_count") == 1) {
-                        data = data.getJSONArray("images").getJSONObject(0);
+                    if((data.has("images_count") && data.getInt("images_count") == 1) || !data.getBoolean("is_album")) {
+                        if(data.getBoolean("is_album"))
+                            data = data.getJSONArray("images").getJSONObject(0);
                         if (data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
                             return data.getString("link");
                         else if (data.getBoolean("animated"))

@@ -354,7 +354,7 @@ dependencies {
     //debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
 
     //enterprisedebugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
-    compile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'
-    enterprisereleaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'
-    debugTestCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'
+    compile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
+    enterprisereleaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
+    debugTestCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
 }
