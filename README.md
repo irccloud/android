@@ -24,6 +24,7 @@ Requirements
 * Android Studio 0.2.x
 * Android 4.3 SDK
 * Android Support Library, revision 18 or newer
+* Google Repository & Google Play service tool, version 32 or new.
 * android-websockets library: https://github.com/irccloud/android-websockets
 * An Android device running Android 2.2 or newer
 
