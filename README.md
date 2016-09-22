@@ -21,29 +21,29 @@ Screenshots
 
 Requirements
 ------
-* Android Studio 0.2.x
-* Android 4.3 SDK
-* Android Support Library, revision 18 or newer
+* Android Studio 2.2.x
+* Gradle 2.2.x
+* Android 7.0 SDK
+* Android Support Library, revision 24 or newer
+* Google Play Services, version 9.6.0 or newer
 * android-websockets library: https://github.com/irccloud/android-websockets
 * An Android device running Android 2.2 or newer
 
 Building
 ------
-* Make sure you've installed the Android 4.3 SDK and upgraded to the latest version of Android Studio
+* Make sure you've installed the Android 7.0 SDK and upgraded to the latest version of Android Studio
+* Make sure you've updated all support repository and Google Play Services repository packages in the Android SDK manager
 * Check out android-websockets and the IRCCloud Android project from github
-* Mac/Linux: Launch Android Studio and open the irccloud android folder as a project
-* Windows: Import the build.gradle files from both the android and android-websocket projects into a new project
-* Android Studio will warn you that "android-websockets" is unrecognized, you can ignore this warning
-* Android Studio will notify you that the Android framework has been detected, click on the "Configure" button and then click OK
-* Click Build > Make Project, or Run > Run 'android' to automatically deploy the apk to your device
+* Open Android studio and select the IRCCloud Android build.gradle file
+* Click Run button for the 'irccloud-android' configuration  to automatically deploy the apk to your device
 
-The app can also be built using Gradle from the command-line using the build.gradle file located in the IRCCloud Android project.
+The app can also be built using Gradle from the command-line using the build.gradle file located in the IRCCloud Android project by typing "./gradlew :assembleDebug"
 
 _You must uninstall the Play Store version of the app first before installing a debug version, as the signing keys will not match._
 
 License
 ------
-Copyright (C) 2013 IRCCloud, Ltd.
+Copyright (C) 2016 IRCCloud, Ltd.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
