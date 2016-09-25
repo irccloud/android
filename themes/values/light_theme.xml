@@ -238,6 +238,7 @@
     </style>
 
     <style name="LightAppAlertTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">?dialogBackgroundDrawable</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
@@ -260,5 +261,6 @@
     <style name="LightDialogTitleTextStyle" parent="android:Widget.TextView">
         <item name="android:textColor">?navBarHeadingColor</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
+        <item name="android:background">?dialogBackgroundColor</item>
     </style>
 </resources>
