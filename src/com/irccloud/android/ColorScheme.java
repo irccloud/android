@@ -52,7 +52,7 @@ public class ColorScheme {
             case "ash":
                 return actionbar?R.style.ash:R.style.ashNoActionBar;
             case "midnight":
-                return actionbar?R.style.ash:R.style.midnightNoActionBar;
+                return actionbar?R.style.midnight:R.style.midnightNoActionBar;
             default:
                 return actionbar?R.style.dawn:R.style.dawnNoActionBar;
         }
