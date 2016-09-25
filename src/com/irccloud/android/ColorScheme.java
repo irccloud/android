@@ -51,6 +51,8 @@ public class ColorScheme {
                 return actionbar?R.style.orchid:R.style.orchidNoActionBar;
             case "ash":
                 return actionbar?R.style.ash:R.style.ashNoActionBar;
+            case "midnight":
+                return actionbar?R.style.ash:R.style.midnightNoActionBar;
             default:
                 return actionbar?R.style.dawn:R.style.dawnNoActionBar;
         }
@@ -74,6 +76,8 @@ public class ColorScheme {
                 return R.style.orchidPrefsTheme;
             case "ash":
                 return R.style.ashPrefsTheme;
+            case "midnight":
+                return R.style.midnightPrefsTheme;
             default:
                 return R.style.dawnPrefsTheme;
         }
@@ -97,6 +101,8 @@ public class ColorScheme {
                 return R.style.orchidDialog;
             case "ash":
                 return R.style.ashDialog;
+            case "midnight":
+                return R.style.midnightDialog;
             default:
                 return R.style.dawnDialog;
         }
@@ -120,6 +126,8 @@ public class ColorScheme {
                 return R.style.orchidDialogWhenLarge;
             case "ash":
                 return R.style.ashDialogWhenLarge;
+            case "midnight":
+                return R.style.midnightDialogWhenLarge;
             default:
                 return R.style.dawnDialogWhenLarge;
         }

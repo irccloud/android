@@ -875,6 +875,10 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             d.setColorFilter(getResources().getColor(R.color.ash_background0), PorterDuff.Mode.SRC_ATOP);
             ((RadioButton)v.findViewById(R.id.ash)).setCompoundDrawables(null, null, d, null);
 
+            d = ((RadioButton)v.findViewById(R.id.midnight)).getCompoundDrawables()[2].mutate();
+            d.setColorFilter(getResources().getColor(R.color.midnight_background0), PorterDuff.Mode.SRC_ATOP);
+            ((RadioButton)v.findViewById(R.id.midnight)).setCompoundDrawables(null, null, d, null);
+
             final RadioGroup group = (RadioGroup) v.findViewById(R.id.radioGroup);
             switch(ColorScheme.getUserTheme()) {
                 case "dawn":
@@ -900,6 +904,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     break;
                 case "ash":
                     group.check(R.id.ash);
+                    break;
+                case "midnight":
+                    group.check(R.id.midnight);
                     break;
             }
 
@@ -931,6 +938,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                             break;
                         case R.id.ash:
                             theme = "ash";
+                            break;
+                        case R.id.midnight:
+                            theme = "midnight";
                             break;
                     }
 
