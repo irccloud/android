@@ -91,6 +91,7 @@
 		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
 		<item name="scrollbarColor">@color/scrollbarColor_dawn</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_dawn</item>
 		<item name="contentBorderColor">#679FFF</item>
 	</style>
 
@@ -170,6 +171,7 @@
 		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
 		<item name="scrollbarColor">@color/scrollbarColor_dawn</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_dawn</item>
 		<item name="contentBorderColor">#679FFF</item>
 	</style>
 
@@ -247,6 +249,7 @@
 		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
 		<item name="scrollbarColor">@color/scrollbarColor_dawn</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_dawn</item>
 		<item name="contentBorderColor">#679FFF</item>
 	</style>
 
@@ -324,6 +327,7 @@
 		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
 		<item name="scrollbarColor">@color/scrollbarColor_dawn</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_dawn</item>
 		<item name="contentBorderColor">#679FFF</item>
 	</style>
 
@@ -403,6 +407,7 @@
 		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
 		<item name="scrollbarColor">@color/scrollbarColor_dawn</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_dawn</item>
 		<item name="contentBorderColor">#679FFF</item>
 	</style>
 
