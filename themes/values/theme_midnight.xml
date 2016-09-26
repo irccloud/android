@@ -21,6 +21,9 @@
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
+		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="editTextTheme">@style/midnightEditText</item>
 	</style>
 
 	<style name="midnightNoActionBar" parent="ashNoActionBar">
@@ -29,6 +32,9 @@
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
+		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="editTextTheme">@style/midnightEditText</item>
 	</style>
 
 	<style name="midnightDialog" parent="ashDialog">
@@ -37,6 +43,9 @@
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
+		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="editTextTheme">@style/midnightEditText</item>
 	</style>
 
 	<style name="midnightAlert" parent="ashAlert">
@@ -45,6 +54,9 @@
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
+		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="editTextTheme">@style/midnightEditText</item>
 	</style>
 
 	<style name="midnightDialogWhenLarge" parent="ashDialogWhenLarge">
@@ -53,9 +65,14 @@
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
+		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="editTextTheme">@style/midnightEditText</item>
 	</style>
 
 	<color name="midnight_black">#000000</color>
+	<color name="midnight_actionbar_border">#191919</color>
+	<color name="midnight_actionbar_bg">#262626</color>
 	<drawable name="bufferBackgroundDrawable_midnight">@color/midnight_black</drawable>
 	<drawable name="bufferBorderDrawable_midnight">@color/midnight_black</drawable>
 
