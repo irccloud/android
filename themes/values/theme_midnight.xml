@@ -17,6 +17,7 @@
 <resources>
 	<style name="midnight" parent="ash">
 		<item name="contentBackgroundColor">@color/midnight_black</item>
+		<item name="contentBorderColor">@color/midnight_actionbar_border</item>
 		<item name="bufferBackgroundColor">@color/midnight_black</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
@@ -47,6 +48,7 @@
 
 	<style name="midnightNoActionBar" parent="ashNoActionBar">
 		<item name="contentBackgroundColor">@color/midnight_black</item>
+		<item name="contentBorderColor">@color/midnight_actionbar_border</item>
 		<item name="bufferBackgroundColor">@color/midnight_black</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
@@ -77,6 +79,7 @@
 
 	<style name="midnightDialog" parent="ashDialog">
 		<item name="contentBackgroundColor">@color/midnight_black</item>
+		<item name="contentBorderColor">@color/midnight_actionbar_border</item>
 		<item name="bufferBackgroundColor">@color/midnight_black</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
@@ -103,6 +106,7 @@
 
 	<style name="midnightAlert" parent="ashAlert">
 		<item name="contentBackgroundColor">@color/midnight_black</item>
+		<item name="contentBorderColor">@color/midnight_actionbar_border</item>
 		<item name="bufferBackgroundColor">@color/midnight_black</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
@@ -129,6 +133,7 @@
 
 	<style name="midnightDialogWhenLarge" parent="ashDialogWhenLarge">
 		<item name="contentBackgroundColor">@color/midnight_black</item>
+		<item name="contentBorderColor">@color/midnight_actionbar_border</item>
 		<item name="bufferBackgroundColor">@color/midnight_black</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
