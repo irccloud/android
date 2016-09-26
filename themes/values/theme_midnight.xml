@@ -37,6 +37,10 @@
 		<item name="listItemBackgroundColor">@color/ash_background7</item>
 		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
 		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_midnight</item>
+		<item name="serverBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_midnight</item>
+		<item name="serverBorderColor">@color/midnight_actionbar_border</item>
 	</style>
 
 	<style name="midnightNoActionBar" parent="ashNoActionBar">
@@ -61,6 +65,10 @@
 		<item name="listItemBackgroundColor">@color/ash_background7</item>
 		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
 		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_midnight</item>
+		<item name="serverBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_midnight</item>
+		<item name="serverBorderColor">@color/midnight_actionbar_border</item>
 	</style>
 
 	<style name="midnightDialog" parent="ashDialog">
@@ -82,6 +90,10 @@
 		<item name="listItemBackgroundColor">@color/ash_background7</item>
 		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
 		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_midnight</item>
+		<item name="serverBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_midnight</item>
+		<item name="serverBorderColor">@color/midnight_actionbar_border</item>
 	</style>
 
 	<style name="midnightAlert" parent="ashAlert">
@@ -102,6 +114,10 @@
 		<item name="listItemBackgroundColor">@color/ash_background7</item>
 		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
 		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_midnight</item>
+		<item name="serverBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_midnight</item>
+		<item name="serverBorderColor">@color/midnight_actionbar_border</item>
 	</style>
 
 	<style name="midnightDialogWhenLarge" parent="ashDialogWhenLarge">
@@ -122,6 +138,10 @@
 		<item name="listItemBackgroundColor">@color/ash_background7</item>
 		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
 		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_midnight</item>
+		<item name="serverBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_midnight</item>
+		<item name="serverBorderColor">@color/midnight_actionbar_border</item>
 	</style>
 
 	<color name="midnight_black">#000000</color>
@@ -130,6 +150,8 @@
 	<color name="midnight_dialog_bg">#191919</color>
 	<drawable name="bufferBackgroundDrawable_midnight">@color/midnight_black</drawable>
 	<drawable name="bufferBorderDrawable_midnight">@color/midnight_black</drawable>
+	<drawable name="serverBackgroundDrawable_midnight">@color/midnight_actionbar_bg</drawable>
+	<drawable name="serverBorderDrawable_midnight">@color/midnight_actionbar_border</drawable>
 
 	<style name="midnightPrefsTheme" parent="midnightNoActionBar">
 		<item name="editTextTheme">@style/midnightEditText</item>
