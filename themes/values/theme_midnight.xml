@@ -483,10 +483,10 @@
 	<color name="midnight_background6">#000000</color>
 	<color name="midnight_background6a">#141414</color>
 	<color name="midnight_background7">#000000</color>
-	<drawable name="bufferBackgroundDrawable_midnight">@color/midnight_background4</drawable>
+	<drawable name="bufferBackgroundDrawable_midnight">@color/midnight_background5a</drawable>
 	<drawable name="serverBackgroundDrawable_midnight">@color/midnight_background5</drawable>
-	<drawable name="bufferBorderDrawable_midnight">@color/midnight_border9</drawable>
-	<drawable name="serverBorderDrawable_midnight">@color/midnight_border9</drawable>
+	<drawable name="bufferBorderDrawable_midnight">@color/midnight_border10</drawable>
+	<drawable name="serverBorderDrawable_midnight">@color/midnight_border10</drawable>
 	<drawable name="selectedBackgroundDrawable_midnight">@color/midnight_text3</drawable>
 	<drawable name="selectedBorderDrawable_midnight">@color/midnight_text6</drawable>
 	<drawable name="windowBackground_midnight">@color/midnight_background7</drawable>

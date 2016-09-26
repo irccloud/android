@@ -18,12 +18,12 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 	<item>
 		<shape android:shape="rectangle" >
-			<solid android:color="@color/midnight_border9" />
+			<solid android:color="@color/midnight_border10" />
 		</shape>
 	</item>
 	<item android:left="8dp">
 		<shape android:shape="rectangle" >
-			<solid android:color="@color/midnight_background4" />
+			<solid android:color="@color/midnight_background5a" />
 		</shape>
 	</item>
 </layer-list>
