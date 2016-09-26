@@ -1015,8 +1015,11 @@ public class EventsList {
             if (e.from != null)
                 e.from = TextUtils.htmlEncode(e.from);
 
-            if (e.msg != null)
-                e.msg = TextUtils.htmlEncode(e.msg).replace("  ", " &nbsp;");
+            if (e.msg != null) {
+                e.msg = TextUtils.htmlEncode(e.msg).replace("  ", "&nbsp; ");
+                if(e.msg.startsWith(" "))
+                    e.msg = "&nbsp;" + e.msg.substring(1);
+            }
 
             Formatter f = formatterMap.get(e.type);
             if (f != null)

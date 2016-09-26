@@ -104,7 +104,7 @@
                 android:ellipsize="none"
                 android:gravity="top"
                 android:linksClickable="true"
-                android:lineSpacingExtra="4dp"
+                android:lineSpacingExtra="2dp"
                 android:lineSpacingMultiplier="1.0"
                 android:includeFontPadding="false"
                 android:clickable="false"
