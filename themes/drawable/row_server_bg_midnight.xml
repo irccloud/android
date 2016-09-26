@@ -19,5 +19,5 @@
     <item android:drawable="@color/ash_background2" android:state_pressed="true"/>
     <item android:drawable="@color/ash_text3" android:state_selected="true"/>
     <item android:drawable="@color/ash_background2" android:state_focused="true"/>
-    <item android:drawable="@color/ash_background6"/>
+    <item android:drawable="@color/midnight_actionbar_bg"/>
 </selector>
