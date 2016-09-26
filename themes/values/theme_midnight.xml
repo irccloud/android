@@ -481,7 +481,7 @@
 	<color name="midnight_background5">#191919</color>
 	<color name="midnight_background5a">#141414</color>
 	<color name="midnight_background6">#000000</color>
-	<color name="midnight_background6a">#101010</color>
+	<color name="midnight_background6a">#0D0D0D</color>
 	<color name="midnight_background7">#000000</color>
 	<drawable name="bufferBackgroundDrawable_midnight">@color/midnight_background5a</drawable>
 	<drawable name="serverBackgroundDrawable_midnight">@color/midnight_background5</drawable>
