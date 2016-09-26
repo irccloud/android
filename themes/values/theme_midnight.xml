@@ -26,7 +26,7 @@
 		<item name="highlightBackgroundColor">@color/midnight_background5</item>
 		<item name="selfBackgroundColor">@color/midnight_background6</item>
 		<item name="contentBackgroundColor">@color/midnight_background7</item>
-		<item name="dialogBackgroundColor">@color/midnight_background6</item>
+		<item name="dialogBackgroundColor">@color/midnight_background6a</item>
 		<item name="messageTextColor">@color/midnight_text4</item>
 		<item name="serverBackgroundColor">@color/midnight_background5</item>
 		<item name="bufferBackgroundColor">@color/midnight_background4</item>
@@ -113,7 +113,7 @@
 		<item name="highlightBackgroundColor">@color/midnight_background5</item>
 		<item name="selfBackgroundColor">@color/midnight_background6</item>
 		<item name="contentBackgroundColor">@color/midnight_background7</item>
-		<item name="dialogBackgroundColor">@color/midnight_background6</item>
+		<item name="dialogBackgroundColor">@color/midnight_background6a</item>
 		<item name="messageTextColor">@color/midnight_text4</item>
 		<item name="serverBackgroundColor">@color/midnight_background5</item>
 		<item name="bufferBackgroundColor">@color/midnight_background4</item>
@@ -200,7 +200,7 @@
 		<item name="highlightBackgroundColor">@color/midnight_background5</item>
 		<item name="selfBackgroundColor">@color/midnight_background6</item>
 		<item name="contentBackgroundColor">@color/midnight_background7</item>
-		<item name="dialogBackgroundColor">@color/midnight_background6</item>
+		<item name="dialogBackgroundColor">@color/midnight_background6a</item>
 		<item name="messageTextColor">@color/midnight_text4</item>
 		<item name="serverBackgroundColor">@color/midnight_background5</item>
 		<item name="bufferBackgroundColor">@color/midnight_background4</item>
@@ -287,7 +287,7 @@
 		<item name="highlightBackgroundColor">@color/midnight_background5</item>
 		<item name="selfBackgroundColor">@color/midnight_background6</item>
 		<item name="contentBackgroundColor">@color/midnight_background7</item>
-		<item name="dialogBackgroundColor">@color/midnight_background6</item>
+		<item name="dialogBackgroundColor">@color/midnight_background6a</item>
 		<item name="messageTextColor">@color/midnight_text4</item>
 		<item name="serverBackgroundColor">@color/midnight_background5</item>
 		<item name="bufferBackgroundColor">@color/midnight_background4</item>
@@ -374,7 +374,7 @@
 		<item name="highlightBackgroundColor">@color/midnight_background5</item>
 		<item name="selfBackgroundColor">@color/midnight_background6</item>
 		<item name="contentBackgroundColor">@color/midnight_background7</item>
-		<item name="dialogBackgroundColor">@color/midnight_background6</item>
+		<item name="dialogBackgroundColor">@color/midnight_background6a</item>
 		<item name="messageTextColor">@color/midnight_text4</item>
 		<item name="serverBackgroundColor">@color/midnight_background5</item>
 		<item name="bufferBackgroundColor">@color/midnight_background4</item>

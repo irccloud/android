@@ -22,6 +22,6 @@
     android:insetBottom="16dp">
     <shape>
         <corners android:radius="2dp" />
-        <solid android:color="@color/midnight_background6" />
+        <solid android:color="@color/midnight_background6a" />
     </shape>
 </inset>
