@@ -1798,13 +1798,13 @@ public class ColorFormatter {
                                     int blue = Integer.parseInt(bg.substring(2,3), 16);
                                     int green = Integer.parseInt(bg.substring(4,5), 16);
 
-                                    red += 0x20;
+                                    red += 0x33;
                                     if(red > 0xFF)
                                         red = 0xFF;
-                                    green += 0x20;
+                                    green += 0x33;
                                     if(green > 0xFF)
                                         green = 0xFF;
-                                    blue += 0x20;
+                                    blue += 0x33;
                                     if(blue > 0xFF)
                                         blue = 0xFF;
 
@@ -1821,13 +1821,13 @@ public class ColorFormatter {
                                 int blue = Integer.parseInt(fg.substring(2,3), 16);
                                 int green = Integer.parseInt(fg.substring(4,5), 16);
 
-                                red += 0x20;
+                                red += 0x33;
                                 if(red > 0xFF)
                                     red = 0xFF;
-                                green += 0x20;
+                                green += 0x33;
                                 if(green > 0xFF)
                                     green = 0xFF;
-                                blue += 0x20;
+                                blue += 0x33;
                                 if(blue > 0xFF)
                                     blue = 0xFF;
 

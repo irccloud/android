@@ -23,7 +23,7 @@
 		<item name="archivesHeadingTextColor">@color/midnight_text9</item>
 		<item name="chatterBarTextColor">@color/midnight_text5</item>
 		<item name="linkColor">@color/midnight_text1</item>
-		<item name="highlightBackgroundColor">@color/midnight_background5</item>
+		<item name="highlightBackgroundColor">@color/midnight_background5a</item>
 		<item name="selfBackgroundColor">@color/midnight_background6</item>
 		<item name="contentBackgroundColor">@color/midnight_background7</item>
 		<item name="dialogBackgroundColor">@color/midnight_background6a</item>
@@ -110,7 +110,7 @@
 		<item name="archivesHeadingTextColor">@color/midnight_text9</item>
 		<item name="chatterBarTextColor">@color/midnight_text5</item>
 		<item name="linkColor">@color/midnight_text1</item>
-		<item name="highlightBackgroundColor">@color/midnight_background5</item>
+		<item name="highlightBackgroundColor">@color/midnight_background5a</item>
 		<item name="selfBackgroundColor">@color/midnight_background6</item>
 		<item name="contentBackgroundColor">@color/midnight_background7</item>
 		<item name="dialogBackgroundColor">@color/midnight_background6a</item>
@@ -197,7 +197,7 @@
 		<item name="archivesHeadingTextColor">@color/midnight_text9</item>
 		<item name="chatterBarTextColor">@color/midnight_text5</item>
 		<item name="linkColor">@color/midnight_text1</item>
-		<item name="highlightBackgroundColor">@color/midnight_background5</item>
+		<item name="highlightBackgroundColor">@color/midnight_background5a</item>
 		<item name="selfBackgroundColor">@color/midnight_background6</item>
 		<item name="contentBackgroundColor">@color/midnight_background7</item>
 		<item name="dialogBackgroundColor">@color/midnight_background6a</item>
@@ -284,7 +284,7 @@
 		<item name="archivesHeadingTextColor">@color/midnight_text9</item>
 		<item name="chatterBarTextColor">@color/midnight_text5</item>
 		<item name="linkColor">@color/midnight_text1</item>
-		<item name="highlightBackgroundColor">@color/midnight_background5</item>
+		<item name="highlightBackgroundColor">@color/midnight_background5a</item>
 		<item name="selfBackgroundColor">@color/midnight_background6</item>
 		<item name="contentBackgroundColor">@color/midnight_background7</item>
 		<item name="dialogBackgroundColor">@color/midnight_background6a</item>
@@ -371,7 +371,7 @@
 		<item name="archivesHeadingTextColor">@color/midnight_text9</item>
 		<item name="chatterBarTextColor">@color/midnight_text5</item>
 		<item name="linkColor">@color/midnight_text1</item>
-		<item name="highlightBackgroundColor">@color/midnight_background5</item>
+		<item name="highlightBackgroundColor">@color/midnight_background5a</item>
 		<item name="selfBackgroundColor">@color/midnight_background6</item>
 		<item name="contentBackgroundColor">@color/midnight_background7</item>
 		<item name="dialogBackgroundColor">@color/midnight_background6a</item>
