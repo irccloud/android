@@ -38,6 +38,12 @@
             android:summaryOff="Image URLs will open in your browser"
             android:title="Image Viewer"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="videoviewer"
+			android:defaultValue="true"
+			android:summaryOn="Video URLs will open in IRCCloud"
+			android:summaryOff="Video URLs will open in your browser"
+			android:title="Video Player" />
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="browser"
 			android:defaultValue="false"
 			android:summaryOff="URLs will open in IRCCloud"
