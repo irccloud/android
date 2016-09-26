@@ -30,6 +30,13 @@
 		<item name="selfBackgroundColor">@color/ash_border11</item>
 		<item name="statusBackgroundColor">@color/ash_border10</item>
 		<item name="noticeBackgroundColor">@color/ash_border11</item>
+		<item name="android:dialogTheme">@style/midnightDialog</item>
+		<item name="dialogTheme">@style/midnightDialog</item>
+		<item name="android:alertDialogTheme">@style/midnightAlert</item>
+		<item name="alertDialogTheme">@style/midnightAlert</item>
+		<item name="listItemBackgroundColor">@color/ash_background7</item>
+		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
 	</style>
 
 	<style name="midnightNoActionBar" parent="ashNoActionBar">
@@ -47,9 +54,17 @@
 		<item name="selfBackgroundColor">@color/ash_border11</item>
 		<item name="statusBackgroundColor">@color/ash_border10</item>
 		<item name="noticeBackgroundColor">@color/ash_border11</item>
+		<item name="android:dialogTheme">@style/midnightDialog</item>
+		<item name="dialogTheme">@style/midnightDialog</item>
+		<item name="android:alertDialogTheme">@style/midnightAlert</item>
+		<item name="alertDialogTheme">@style/midnightAlert</item>
+		<item name="listItemBackgroundColor">@color/ash_background7</item>
+		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
 	</style>
 
 	<style name="midnightDialog" parent="ashDialog">
+		<item name="android:colorPrimaryDark">@color/midnight_black</item>
 		<item name="contentBackgroundColor">@color/midnight_black</item>
 		<item name="bufferBackgroundColor">@color/midnight_black</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
@@ -60,6 +75,13 @@
 		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="android:dialogTheme">@style/midnightDialog</item>
+		<item name="dialogTheme">@style/midnightDialog</item>
+		<item name="android:alertDialogTheme">@style/midnightAlert</item>
+		<item name="alertDialogTheme">@style/midnightAlert</item>
+		<item name="listItemBackgroundColor">@color/ash_background7</item>
+		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
 	</style>
 
 	<style name="midnightAlert" parent="ashAlert">
@@ -73,6 +95,13 @@
 		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="android:dialogTheme">@style/midnightDialog</item>
+		<item name="dialogTheme">@style/midnightDialog</item>
+		<item name="android:alertDialogTheme">@style/midnightAlert</item>
+		<item name="alertDialogTheme">@style/midnightAlert</item>
+		<item name="listItemBackgroundColor">@color/ash_background7</item>
+		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
 	</style>
 
 	<style name="midnightDialogWhenLarge" parent="ashDialogWhenLarge">
@@ -86,11 +115,19 @@
 		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="android:dialogTheme">@style/midnightDialog</item>
+		<item name="dialogTheme">@style/midnightDialog</item>
+		<item name="android:alertDialogTheme">@style/midnightAlert</item>
+		<item name="alertDialogTheme">@style/midnightAlert</item>
+		<item name="listItemBackgroundColor">@color/ash_background7</item>
+		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
 	</style>
 
 	<color name="midnight_black">#000000</color>
 	<color name="midnight_actionbar_border">#191919</color>
 	<color name="midnight_actionbar_bg">#262626</color>
+	<color name="midnight_dialog_bg">#191919</color>
 	<drawable name="bufferBackgroundDrawable_midnight">@color/midnight_black</drawable>
 	<drawable name="bufferBorderDrawable_midnight">@color/midnight_black</drawable>
 
