@@ -22,6 +22,8 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
 		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="navBarBorderColor">@color/midnight_actionbar_border</item>
+		<item name="navBarColor">@color/midnight_actionbar_bg</item>
 		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
 		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
@@ -50,6 +52,8 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
 		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="navBarBorderColor">@color/midnight_actionbar_border</item>
+		<item name="navBarColor">@color/midnight_actionbar_bg</item>
 		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
 		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
@@ -78,6 +82,8 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
 		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="navBarBorderColor">@color/midnight_actionbar_border</item>
+		<item name="navBarColor">@color/midnight_actionbar_bg</item>
 		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
 		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
@@ -102,6 +108,8 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
 		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="navBarBorderColor">@color/midnight_actionbar_border</item>
+		<item name="navBarColor">@color/midnight_actionbar_bg</item>
 		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
 		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
@@ -126,6 +134,8 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
 		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="navBarBorderColor">@color/midnight_actionbar_border</item>
+		<item name="navBarColor">@color/midnight_actionbar_bg</item>
 		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
 		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
