@@ -22,8 +22,14 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
 		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="highlightBackgroundColor">@color/ash_border10</item>
+		<item name="selfBackgroundColor">@color/ash_border11</item>
+		<item name="statusBackgroundColor">@color/ash_border10</item>
+		<item name="noticeBackgroundColor">@color/ash_border11</item>
 	</style>
 
 	<style name="midnightNoActionBar" parent="ashNoActionBar">
@@ -33,8 +39,14 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
 		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="highlightBackgroundColor">@color/ash_border10</item>
+		<item name="selfBackgroundColor">@color/ash_border11</item>
+		<item name="statusBackgroundColor">@color/ash_border10</item>
+		<item name="noticeBackgroundColor">@color/ash_border11</item>
 	</style>
 
 	<style name="midnightDialog" parent="ashDialog">
@@ -44,6 +56,8 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
 		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
 	</style>
@@ -55,6 +69,8 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
 		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
 	</style>
@@ -66,6 +82,8 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
 		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
 	</style>
