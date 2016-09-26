@@ -877,7 +877,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
             if(BuildConfig.DEBUG) {
                 d = ((RadioButton) v.findViewById(R.id.midnight)).getCompoundDrawables()[2].mutate();
-                d.setColorFilter(getResources().getColor(R.color.midnight_background0), PorterDuff.Mode.SRC_ATOP);
+                d.setColorFilter(getResources().getColor(R.color.midnight_background3), PorterDuff.Mode.SRC_ATOP);
                 ((RadioButton) v.findViewById(R.id.midnight)).setCompoundDrawables(null, null, d, null);
             } else {
                 v.findViewById(R.id.midnight).setVisibility(View.GONE);
