@@ -4121,7 +4121,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (event.html != null) {
             String html = event.html;
 
-            if (event.type.equals("buffer_msg") && user != null) {
+            if ((event.type.equals("buffer_msg") || event.type.equals("notice")) && user != null) {
                 CollapsedEventsList c = new CollapsedEventsList();
                 html = "<b>&lt;" + ColorFormatter.irc_to_html(c.formatNick(event.from, event.from_mode, false)) + "&gt;</b> " + ColorFormatter.irc_to_html(event.msg);
             }
