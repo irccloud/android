@@ -53,7 +53,6 @@ import android.view.animation.Animation.AnimationListener;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
@@ -624,6 +623,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 row.setOnClickListener(new OnItemClickListener(position));
+                row.setOnLongClickListener(new OnItemLongClickListener(position));
 
                 if (e.html != null && e.formatted == null) {
                     e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
@@ -700,6 +700,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (holder.message != null && e.html != null) {
                     holder.message.setMovementMethod(linkMovementMethodNoLongPress);
                     holder.message.setOnClickListener(new OnItemClickListener(position));
+                    holder.message.setOnLongClickListener(new OnItemLongClickListener(position));
                     if (mono || (e.msg != null && e.msg.startsWith("<pre>"))) {
                         holder.message.setTypeface(hackRegular);
                     } else {
@@ -924,18 +925,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (conn != null)
                     conn.globalMsg = null;
                 update_global_msg();
-            }
-        });
-        ((ListView) v.findViewById(android.R.id.list)).setOnItemLongClickListener(new OnItemLongClickListener() {
-
-            @Override
-            public boolean onItemLongClick(AdapterView<?> list, View v, int pos, long id) {
-                try {
-                    longPressOverride = mListener.onMessageLongClicked((Event) list.getItemAtPosition(pos));
-                    return longPressOverride;
-                } catch (Exception e) {
-                }
-                return false;
             }
         });
         spinner = (ProgressBar) v.findViewById(R.id.spinner);
@@ -1633,6 +1622,22 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 // TODO Auto-generated catch block
                 NetworkConnection.printStackTraceToCrashlytics(e);
             }
+        }
+    }
+
+    private class OnItemLongClickListener implements View.OnLongClickListener {
+        private int pos;
+
+        OnItemLongClickListener(int position) { pos = position; }
+
+        @Override
+        public boolean onLongClick(View view) {
+            try {
+                longPressOverride = mListener.onMessageLongClicked((Event) adapter.getItem(pos));
+                return longPressOverride;
+            } catch (Exception e) {
+            }
+            return false;
         }
     }
 
