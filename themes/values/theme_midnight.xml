@@ -72,7 +72,6 @@
 	</style>
 
 	<style name="midnightDialog" parent="ashDialog">
-		<item name="android:colorPrimaryDark">@color/midnight_black</item>
 		<item name="contentBackgroundColor">@color/midnight_black</item>
 		<item name="bufferBackgroundColor">@color/midnight_black</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
