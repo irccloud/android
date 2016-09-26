@@ -1821,13 +1821,13 @@ public class ColorFormatter {
                                 int blue = Integer.parseInt(fg.substring(2,3), 16);
                                 int green = Integer.parseInt(fg.substring(4,5), 16);
 
-                                red += 0x33;
+                                red += 0x22;
                                 if(red > 0xFF)
                                     red = 0xFF;
-                                green += 0x33;
+                                green += 0x22;
                                 if(green > 0xFF)
                                     green = 0xFF;
-                                blue += 0x33;
+                                blue += 0x22;
                                 if(blue > 0xFF)
                                     blue = 0xFF;
 
