@@ -608,11 +608,18 @@ public class NotificationsList {
                         .setAllowGeneratedReplies(true)
                         .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build()).build());
             }
-            wearableExtender.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_wearable_reply,
+
+            NotificationCompat.Action.Builder actionBuilder = new NotificationCompat.Action.Builder(R.drawable.ic_wearable_reply,
                     "Reply", replyPendingIntent)
                     .setAllowGeneratedReplies(true)
-                    .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build()).build());
+                    .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build());
 
+            NotificationCompat.Action.WearableExtender actionExtender =
+                    new NotificationCompat.Action.WearableExtender()
+                            .setHintLaunchesActivity(true)
+                            .setHintDisplayActionInline(true);
+            wearableExtender.addAction(actionBuilder.extend(actionExtender).build());
+            
             NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
                     new NotificationCompat.CarExtender.UnreadConversation.Builder(title + ((network != null) ? (" (" + network + ")") : ""))
                             .setReadPendingIntent(dismissPendingIntent)
