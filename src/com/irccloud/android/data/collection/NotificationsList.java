@@ -618,7 +618,7 @@ public class NotificationsList {
                     new NotificationCompat.Action.WearableExtender()
                             .setHintLaunchesActivity(true)
                             .setHintDisplayActionInline(true);
-            
+
             wearableExtender.addAction(actionBuilder.extend(actionExtender).build());
 
             NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
