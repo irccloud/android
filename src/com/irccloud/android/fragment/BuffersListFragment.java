@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,6 +69,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
     LinearLayout bottomUnreadIndicator = null;
     LinearLayout bottomUnreadIndicatorColor = null;
     LinearLayout bottomUnreadIndicatorBorder = null;
+    ProgressBar progressBar = null;
     RefreshTask refreshTask = null;
     private boolean ready = false;
     public boolean readOnly = false;
@@ -452,6 +454,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 refreshTask = new RefreshTask();
                 refreshTask.execute((Void) null);
             }
+            progressBar.setVisibility(View.GONE);
         }
     }
 
@@ -545,6 +548,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.bufferslist, null);
+        progressBar = (ProgressBar)view.findViewById(R.id.bufferprogress);
         recyclerView = (RecyclerView)view.findViewById(android.R.id.list);
         layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -761,6 +765,12 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             case NetworkConnection.EVENT_BACKLOG_START:
                 if (refreshTask != null)
                     refreshTask.cancel(true);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility((adapter == null || adapter.getItemCount() == 0) ? View.VISIBLE : View.GONE);
+                    }
+                });
                 break;
             case NetworkConnection.EVENT_BACKLOG_END:
             case NetworkConnection.EVENT_CACHE_END:
