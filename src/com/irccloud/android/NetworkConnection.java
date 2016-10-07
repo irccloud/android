@@ -1909,6 +1909,7 @@ public class NetworkConnection {
                     editor.putBoolean("notifications_all", (userInfo.prefs.has("notifications-all") && userInfo.prefs.get("notifications-all") instanceof Boolean && userInfo.prefs.getBoolean("notifications-all")));
                     editor.putBoolean("disableTrackUnread", !(userInfo.prefs.has("disableTrackUnread") && userInfo.prefs.get("disableTrackUnread") instanceof Boolean && userInfo.prefs.getBoolean("disableTrackUnread")));
                     editor.putBoolean("enableReadOnSelect", (userInfo.prefs.has("enableReadOnSelect") && userInfo.prefs.get("enableReadOnSelect") instanceof Boolean && userInfo.prefs.getBoolean("enableReadOnSelect")));
+                    editor.putBoolean("ascii-compact", (userInfo.prefs.has("ascii-compact") && userInfo.prefs.get("ascii-compact") instanceof Boolean && userInfo.prefs.getBoolean("ascii-compact")));
                     if(userInfo.prefs.has("theme") && !prefs.contains("theme"))
                         editor.putString("theme", userInfo.prefs.getString("theme"));
                     if(userInfo.prefs.has("font") && !prefs.contains("monospace"))
@@ -1940,6 +1941,7 @@ public class NetworkConnection {
                     editor.putBoolean("nick-colors", false);
                     editor.putBoolean("emoji-disableconvert", true);
                     editor.putBoolean("pastebin-disableprompt", true);
+                    editor.putBoolean("ascii-compact", false);
                 }
                 editor.commit();
                 mEvents.clearCaches();

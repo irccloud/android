@@ -450,27 +450,34 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 try {
                     if (player != null) {
                         player.setDisplay(surfaceHolder);
-                        player.prepare();
+                        player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                            @Override
+                            public void onPrepared(MediaPlayer mediaPlayer) {
+                                int videoWidth = player.getVideoWidth();
+                                int videoHeight = player.getVideoHeight();
 
-                        int videoWidth = player.getVideoWidth();
-                        int videoHeight = player.getVideoHeight();
+                                int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+                                int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
 
-                        int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-                        int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
+                                int scaledWidth = (int) (((float) videoWidth / (float) videoHeight) * (float) screenHeight);
+                                int scaledHeight = (int) (((float) videoHeight / (float) videoWidth) * (float) screenWidth);
 
-                        int scaledWidth = (int) (((float) videoWidth / (float) videoHeight) * (float) screenHeight);
-                        int scaledHeight = (int) (((float) videoHeight / (float) videoWidth) * (float) screenWidth);
+                                android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
+                                lp.width = screenWidth;
+                                lp.height = scaledHeight;
+                                if (lp.height > screenHeight && scaledWidth < screenWidth) {
+                                    lp.width = scaledWidth;
+                                    lp.height = screenHeight;
+                                }
+                                v.setLayoutParams(lp);
 
-                        android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
-                        lp.width = screenWidth;
-                        lp.height = scaledHeight;
-                        if (lp.height > screenHeight && scaledWidth < screenWidth) {
-                            lp.width = scaledWidth;
-                            lp.height = screenHeight;
-                        }
-                        v.setLayoutParams(lp);
-
-                        player.start();
+                                player.start();
+                                mSpinner.setVisibility(View.GONE);
+                                mProgress.setVisibility(View.GONE);
+                                hide_actionbar();
+                            }
+                        });
+                        player.prepareAsync();
                     }
                 } catch (Exception e) {
                     fail();

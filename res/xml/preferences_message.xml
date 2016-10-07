@@ -33,6 +33,10 @@
 			android:defaultValue="true"
 			android:title="Nicknames on a separate line"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="ascii-compact"
+			android:defaultValue="false"
+			android:title="Compact spacing"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="chat-norealname"
 			android:defaultValue="true"
 			android:dependency="chat-oneline"

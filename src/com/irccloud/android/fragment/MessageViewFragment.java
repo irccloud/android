@@ -180,6 +180,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_avatarsOff = false;
     private boolean pref_chatOneLine = false;
     private boolean pref_norealname = false;
+    private boolean pref_compact = false;
 
     private class LinkMovementMethodNoLongPress extends IRCCloudLinkMovementMethod {
         @Override
@@ -206,6 +207,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         private class ViewHolder {
             int type;
             LinearLayout lastSeenEidWrapper;
+            LinearLayout messageContainer;
             TextView timestamp;
             TextView timestamp_left;
             TextView timestamp_right;
@@ -615,6 +617,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.failed = (ImageView) row.findViewById(R.id.failed);
                     holder.avatar = (ImageView) row.findViewById(R.id.avatar);
                     holder.lastSeenEidWrapper = (LinearLayout) row.findViewById(R.id.lastSeenEidWrapper);
+                    holder.messageContainer = (LinearLayout) row.findViewById(R.id.messageContainer);
                     holder.type = e.row_type;
 
                     row.setTag(holder);
@@ -716,6 +719,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     else
                         holder.message.setLinkTextColor(colorScheme.linkColor);
 
+                    if(pref_compact)
+                        holder.message.setLineSpacing(0,1);
+                    else
+                        holder.message.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),1);
+
                     Spanned formatted = e.formatted;
                     if(formatted != null && !pref_avatarsOff && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
                         Bitmap b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize+4, getResources().getDisplayMetrics()), e.self);
@@ -768,6 +776,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if (holder.failed != null)
                     holder.failed.setVisibility(e.failed ? View.VISIBLE : View.GONE);
+
+                if (holder.messageContainer != null) {
+                    if(pref_compact)
+                        holder.messageContainer.setPadding(0,0,0,0);
+                    else
+                        holder.messageContainer.setPadding(0,0,0,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
+                }
 
                 if (holder.avatar != null) {
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)holder.avatar.getLayoutParams();
@@ -2037,9 +2052,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_avatarsOff = false;
         pref_chatOneLine = false;
         pref_norealname = false;
+        pref_compact = false;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                pref_compact = (prefs.has("ascii-compact") && prefs.get("ascii-compact") instanceof Boolean && prefs.getBoolean("ascii-compact"));
                 pref_24hr = (prefs.has("time-24hr") && prefs.get("time-24hr") instanceof Boolean && prefs.getBoolean("time-24hr"));
                 pref_seconds = (prefs.has("time-seconds") && prefs.get("time-seconds") instanceof Boolean && prefs.getBoolean("time-seconds"));
                 pref_timeLeft = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("time-left", true);
