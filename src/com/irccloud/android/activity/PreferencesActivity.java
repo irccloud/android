@@ -254,6 +254,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("notifications_all").setOnPreferenceChangeListener(prefstoggle);
         findPreference("disableTrackUnread").setOnPreferenceChangeListener(prefstoggle);
         findPreference("enableReadOnSelect").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("ascii-compact").setOnPreferenceChangeListener(prefstoggle);
         if (findPreference("emoji-disableconvert") != null) {
             findPreference("emoji-disableconvert").setOnPreferenceChangeListener(prefstoggle);
             findPreference("emoji-disableconvert").setSummary(":thumbsup: → \uD83D\uDC4D");
