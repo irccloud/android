@@ -98,7 +98,7 @@ public class Avatar {
                 normalizedNick = nick.toUpperCase();
 
             if(font == null) {
-                font = Typeface.createFromAsset(IRCCloudApplication.getInstance().getApplicationContext().getAssets(), "SourceSansPro-Regular.otf");
+                font = Typeface.createFromAsset(IRCCloudApplication.getInstance().getApplicationContext().getAssets(), "SourceSansPro-Semibold.otf");
             }
 
             if(isDarkTheme) {
