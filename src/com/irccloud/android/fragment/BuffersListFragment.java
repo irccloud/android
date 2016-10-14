@@ -306,6 +306,10 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             row.setServer(b.getServer());
             row.setSelected(selected_bid);
             row.setReadOnly(readOnly);
+            if(b.getType() == Buffer.TYPE_ARCHIVES_HEADER)
+                row.setShowSpinner(b.getArchived() > 0 && b.getServer() != null && b.getServer().deferred_archives > 0);
+            else
+                row.setShowSpinner(!readOnly && b.getShowSpinner());
 
             row.getRoot().setOnClickListener(new OnClickListener() {
                 @Override
@@ -314,6 +318,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                         case Buffer.TYPE_ARCHIVES_HEADER:
                             mExpandArchives.put(b.getCid(), !mExpandArchives.get(b.getCid(), false));
                             refresh();
+                            if(mExpandArchives.get(b.getCid(), false) && b.getServer() != null && b.getServer().deferred_archives > 0)
+                                NetworkConnection.getInstance().request_archives(b.getCid());
                             return;
                         case Buffer.TYPE_JOIN_CHANNEL:
                             AddChannelFragment newFragment = new AddChannelFragment();
@@ -371,7 +377,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 if (isCancelled())
                     return null;
 
-                int archiveCount = 0;
+                int archiveCount = s.deferred_archives;
                 ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffersForServer(s.getCid());
                 for (Buffer b : buffers) {
                     if (isCancelled())
@@ -765,13 +771,11 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             case NetworkConnection.EVENT_BACKLOG_END:
             case NetworkConnection.EVENT_CACHE_END:
                 ready = true;
-                if (obj != null && adapter != null) {
-                    Integer bid = (Integer) obj;
-                    b = BuffersList.getInstance().getBuffer(bid);
-                    if (b != null) {
-                        adapter.updateBuffer(b);
-                        break;
-                    }
+                Integer bid = (obj == null)?-1:((Integer) obj);
+                b = BuffersList.getInstance().getBuffer(bid);
+                if (obj != null && adapter != null && b != null) {
+                    adapter.updateBuffer(b);
+                    break;
                 } else {
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(new Runnable() {

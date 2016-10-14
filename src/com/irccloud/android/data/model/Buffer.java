@@ -491,6 +491,9 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
 
     @Bindable
     public boolean getShowSpinner() {
-        return (isConsole() && getServer() != null)? getServer().isConnecting() : (this.timeout > 0);
+        if(type_int == Type.ARCHIVES_HEADER)
+            return (getServer() != null && getServer().deferred_archives > 0);
+        else
+            return (isConsole() && getServer() != null)? getServer().isConnecting() : (this.timeout > 0);
     }
 }

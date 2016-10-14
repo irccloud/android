@@ -1111,14 +1111,14 @@ public class NetworkConnection {
 
         String url = "wss://" + IRCCLOUD_HOST + IRCCLOUD_PATH;
         if (highest_eid > 0 && streamId != null && streamId.length() > 0) {
-            url += "?since_id=" + highest_eid + "&stream_id=" + streamId;
+            url += "?exclude_archives=1&since_id=" + highest_eid + "&stream_id=" + streamId;
             if(notifier)
                 url += "&notifier=1";
             url += "&limit=" + limit;
         } else if(notifier) {
-            url += "?notifier=1&limit="+limit;
+            url += "?exclude_archives=1&notifier=1&limit="+limit;
         } else {
-            url += "?limit=" + limit;
+            url += "?exclude_archives=1&limit=" + limit;
         }
 
         if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
@@ -1779,6 +1779,29 @@ public class NetworkConnection {
         }
     }
 
+    public void request_archives(int cid) {
+        try {
+            if (oobTasks.containsKey(cid)) {
+                Crashlytics.log(Log.WARN, TAG, "Ignoring duplicate archives request for CID: " + cid);
+                return;
+            }
+            if (session == null || session.length() == 0) {
+                Crashlytics.log(Log.WARN, TAG, "Not fetching archives before session is set");
+                return;
+            }
+            if (Looper.myLooper() == null)
+                Looper.prepare();
+
+            OOBIncludeTask task = new OOBIncludeTask(0);
+            synchronized (oobTasks) {
+                oobTasks.put(cid, task);
+            }
+            task.execute(new URL("https://" + IRCCLOUD_HOST + "/chat/archives?cid=" + cid));
+        } catch (MalformedURLException e) {
+            printStackTraceToCrashlytics(e);
+        }
+    }
+
     public void upgrade() {
         if (disconnectSockerTimerTask != null)
             disconnectSockerTimerTask.cancel();
@@ -2127,6 +2150,9 @@ public class NetworkConnection {
 
                 NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"));
 
+                if(object.has("deferred_archives"))
+                    server.deferred_archives = object.getInt("deferred_archives");
+
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKESERVER, server);
                 }
@@ -2195,6 +2221,8 @@ public class NetworkConnection {
                 NotificationsList.getInstance().updateLastSeenEid(buffer.getBid(), buffer.getLast_seen_eid());
                 if(buffer.getTimeout() == 1 || buffer.getDeferred() == 1)
                     mEvents.deleteEventsForBuffer(buffer.getBid());
+                if(buffer.getServer() != null && buffer.getArchived() == 1)
+                    buffer.getServer().deferred_archives--;
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKEBUFFER, buffer);
                 }
@@ -2227,6 +2255,9 @@ public class NetworkConnection {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null)
                     b.setArchived(0);
+                Server s = mServers.getServer(object.cid());
+                if(s != null && s.deferred_archives > 0)
+                    s.deferred_archives--;
                 if (!backlog) {
                     notifyHandlers(EVENT_BUFFERUNARCHIVED, object.bid());
                 }
@@ -3279,7 +3310,7 @@ public class NetworkConnection {
                             }
                             NotificationsList.getInstance().deleteOldNotifications();
                             schedule_idle_timer();
-                            if (bid > 0) {
+                            if (bid >= 0) {
                                 notifyHandlers(EVENT_BACKLOG_END, bid);
                             }
                         }

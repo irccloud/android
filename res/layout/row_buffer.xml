@@ -24,6 +24,7 @@
 		<variable name="server" type="com.irccloud.android.data.model.Server"/>
 		<variable name="selected" type="int"/>
 		<variable name="readOnly" type="boolean"/>
+		<variable name="showSpinner" type="boolean"/>
 	</data>
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -93,7 +94,7 @@
 						android:layout_weight="0"
 						android:padding="4dp"
 						style="?android:attr/progressBarStyleSmall"
-						android:visibility="@{(!readOnly &amp;&amp; buffer.showSpinner) ? View.VISIBLE : View.GONE }" />
+						android:visibility="@{showSpinner ? View.VISIBLE : View.GONE }" />
 				</LinearLayout>
 		</LinearLayout>
 	</LinearLayout>

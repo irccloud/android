@@ -113,6 +113,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     private String nickserv_pass;
     private String join_commands;
     public ArrayList<String> ignores;
+    public int deferred_archives;
 
     @Override
     public int compareTo(Server another) {
