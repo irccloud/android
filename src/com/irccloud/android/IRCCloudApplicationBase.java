@@ -105,6 +105,8 @@ public class IRCCloudApplicationBase extends Application {
                         editor.remove("notify_ringtone");
                         editor.commit();
                     }
+                }
+                if (c != null && !c.isClosed()) {
                     c.close();
                 }
             }
@@ -142,6 +144,8 @@ public class IRCCloudApplicationBase extends Application {
                         editor.remove("notify_ringtone");
                         editor.commit();
                     }
+                }
+                if (c != null && !c.isClosed()) {
                     c.close();
                 }
             }
