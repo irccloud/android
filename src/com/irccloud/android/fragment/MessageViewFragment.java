@@ -555,7 +555,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 if (e.msg != null && e.msg.length() > 0)
                                     e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                                 if (e.from != null && e.from.length() > 0) {
-                                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors)) + "</b>");
+                                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>");
                                 }
                                 if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
                                     e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
@@ -636,7 +636,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if (e.formatted_nick == null && e.from != null && e.from.length() > 0) {
-                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors)) + "</b>");
+                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>");
                 }
 
                 if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
@@ -1477,7 +1477,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     collapsedEvents.clear();
                     if (event.html == null) {
                         if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors) + "</b> " + event.msg;
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + event.msg;
                         else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
                             event.html = "<b>" + event.server + "</b> " + event.msg;
                         else
@@ -1485,7 +1485,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
 
                     if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
-                        event.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors)) + "</b>");
+                        event.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>");
                     }
 
                     if (event.formatted_realname == null && event.from_realname != null && event.from_realname.length() > 0) {
@@ -1518,12 +1518,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.html = event.msg + " by the server <b>" + event.server + "</b>";
                         break;
                     case "buffer_me_msg":
-                        event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, !event.self && pref_nickColors) + "</b> " + event.msg + "</i>";
+                        event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + event.msg + "</i>";
                         break;
                     case "buffer_msg":
                     case "notice":
                         if (pref_chatOneLine && event.from != null && event.from.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors) + "</b> ";
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> ";
                         else
                             event.html = "";
                         if(event.target_mode != null && server != null && server.PREFIX != null) {

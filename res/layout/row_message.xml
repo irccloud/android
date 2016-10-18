@@ -91,7 +91,7 @@
                 android:layout_height="16dp"
                 android:id="@+id/expandable"
                 android:layout_gravity="top"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="2dp"
                 android:layout_marginRight="2dp"
                 android:visibility="gone"
                 android:textSize="16sp"

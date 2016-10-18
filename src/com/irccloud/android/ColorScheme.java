@@ -304,6 +304,7 @@ public class ColorScheme {
             statusBarColor = colorForAttribute(ctx, android.R.attr.statusBarColor);
         isDarkTheme = !theme.equals("dawn");
         ColorFormatter.COLOR_MAP = isDarkTheme?ColorFormatter.COLOR_MAP_DARK:ColorFormatter.COLOR_MAP_LIGHT;
+        selfTextColor = isDarkTheme?"ffffff":"142b43";
     }
 
     private int colorForAttribute(Context ctx, int attribute) {
@@ -417,4 +418,5 @@ public class ColorScheme {
     public int row_members_bg_drawable;
     public String theme;
     public boolean isDarkTheme;
+    public String selfTextColor;
 }

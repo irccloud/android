@@ -64,8 +64,7 @@ public class Avatar {
         TextPaint tp = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         tp.setTextAlign(Paint.Align.CENTER);
         tp.setTypeface(font);
-        tp.setTextSize((size / 3) * 2);
-        tp.setFakeBoldText(true);
+        tp.setTextSize((int)(size * 0.65));
         tp.setColor(textColor);
         if (isDarkTheme || !round) {
             c.drawText(text, size/2, (size/2) - ((tp.descent() + tp.ascent()) / 2), tp);
@@ -102,9 +101,9 @@ public class Avatar {
             }
 
             if(isDarkTheme) {
-                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), ColorScheme.getInstance().contentBackgroundColor, self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, true)), true, size, round));
+                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), ColorScheme.getInstance().contentBackgroundColor, Color.parseColor("#" + (self?ColorScheme.getInstance().selfTextColor:ColorScheme.colorForNick(nick, true))), true, size, round));
             } else {
-                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), 0xFFFFFFFF, self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, false)), false, size, round));
+                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), 0xFFFFFFFF, Color.parseColor("#" + (self?ColorScheme.getInstance().selfTextColor:ColorScheme.colorForNick(nick, false))), false, size, round));
             }
         }
         return bitmaps.get(size);

@@ -536,6 +536,10 @@ public class CollapsedEventsList {
     }
 
     public String formatNick(String nick, String from_mode, boolean colorize) {
+        return formatNick(nick, from_mode, colorize, null);
+    }
+
+    public String formatNick(String nick, String from_mode, boolean colorize, String defaultColor) {
         ObjectNode PREFIX = null;
         if (server != null)
             PREFIX = server.PREFIX;
@@ -550,7 +554,7 @@ public class CollapsedEventsList {
             PREFIX.put(server != null ? server.MODE_VOICED : "v", "+");
         }
 
-        String color = colorize?ColorScheme.colorForNick(nick, ColorScheme.getInstance().isDarkTheme):null;
+        String color = colorize?ColorScheme.colorForNick(nick, ColorScheme.getInstance().isDarkTheme):defaultColor;
 
         StringBuilder output = new StringBuilder();
         boolean showSymbol = false;
