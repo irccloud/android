@@ -1,0 +1,181 @@
+<!--
+~ Copyright (c) 2015 IRCCloud, Ltd.
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<resources>
+	<style name="midnight" parent="ash">
+		<item name="contentBackgroundColor">@color/midnight_black</item>
+		<item name="contentBorderColor">@color/midnight_actionbar_border</item>
+		<item name="bufferBackgroundColor">@color/midnight_black</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
+		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="navBarBorderColor">@color/midnight_actionbar_border</item>
+		<item name="navBarColor">@color/midnight_actionbar_bg</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
+		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="highlightBackgroundColor">@color/ash_border10</item>
+		<item name="selfBackgroundColor">@color/ash_border11</item>
+		<item name="statusBackgroundColor">@color/ash_border10</item>
+		<item name="noticeBackgroundColor">@color/ash_border11</item>
+		<item name="android:dialogTheme">@style/midnightDialog</item>
+		<item name="dialogTheme">@style/midnightDialog</item>
+		<item name="android:alertDialogTheme">@style/midnightAlert</item>
+		<item name="alertDialogTheme">@style/midnightAlert</item>
+		<item name="listItemBackgroundColor">@color/ash_background7</item>
+		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_midnight</item>
+		<item name="serverBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_midnight</item>
+		<item name="serverBorderColor">@color/midnight_actionbar_border</item>
+	</style>
+
+	<style name="midnightNoActionBar" parent="ashNoActionBar">
+		<item name="contentBackgroundColor">@color/midnight_black</item>
+		<item name="contentBorderColor">@color/midnight_actionbar_border</item>
+		<item name="bufferBackgroundColor">@color/midnight_black</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
+		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="navBarBorderColor">@color/midnight_actionbar_border</item>
+		<item name="navBarColor">@color/midnight_actionbar_bg</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
+		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="highlightBackgroundColor">@color/ash_border10</item>
+		<item name="selfBackgroundColor">@color/ash_border11</item>
+		<item name="statusBackgroundColor">@color/ash_border10</item>
+		<item name="noticeBackgroundColor">@color/ash_border11</item>
+		<item name="android:dialogTheme">@style/midnightDialog</item>
+		<item name="dialogTheme">@style/midnightDialog</item>
+		<item name="android:alertDialogTheme">@style/midnightAlert</item>
+		<item name="alertDialogTheme">@style/midnightAlert</item>
+		<item name="listItemBackgroundColor">@color/ash_background7</item>
+		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_midnight</item>
+		<item name="serverBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_midnight</item>
+		<item name="serverBorderColor">@color/midnight_actionbar_border</item>
+	</style>
+
+	<style name="midnightDialog" parent="ashDialog">
+		<item name="contentBackgroundColor">@color/midnight_black</item>
+		<item name="contentBorderColor">@color/midnight_actionbar_border</item>
+		<item name="bufferBackgroundColor">@color/midnight_black</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
+		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="navBarBorderColor">@color/midnight_actionbar_border</item>
+		<item name="navBarColor">@color/midnight_actionbar_bg</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
+		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="android:dialogTheme">@style/midnightDialog</item>
+		<item name="dialogTheme">@style/midnightDialog</item>
+		<item name="android:alertDialogTheme">@style/midnightAlert</item>
+		<item name="alertDialogTheme">@style/midnightAlert</item>
+		<item name="listItemBackgroundColor">@color/ash_background7</item>
+		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_midnight</item>
+		<item name="serverBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_midnight</item>
+		<item name="serverBorderColor">@color/midnight_actionbar_border</item>
+	</style>
+
+	<style name="midnightAlert" parent="ashAlert">
+		<item name="contentBackgroundColor">@color/midnight_black</item>
+		<item name="contentBorderColor">@color/midnight_actionbar_border</item>
+		<item name="bufferBackgroundColor">@color/midnight_black</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
+		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="navBarBorderColor">@color/midnight_actionbar_border</item>
+		<item name="navBarColor">@color/midnight_actionbar_bg</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
+		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="android:dialogTheme">@style/midnightDialog</item>
+		<item name="dialogTheme">@style/midnightDialog</item>
+		<item name="android:alertDialogTheme">@style/midnightAlert</item>
+		<item name="alertDialogTheme">@style/midnightAlert</item>
+		<item name="listItemBackgroundColor">@color/ash_background7</item>
+		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_midnight</item>
+		<item name="serverBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_midnight</item>
+		<item name="serverBorderColor">@color/midnight_actionbar_border</item>
+	</style>
+
+	<style name="midnightDialogWhenLarge" parent="ashDialogWhenLarge">
+		<item name="contentBackgroundColor">@color/midnight_black</item>
+		<item name="contentBorderColor">@color/midnight_actionbar_border</item>
+		<item name="bufferBackgroundColor">@color/midnight_black</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_midnight</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_midnight</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_midnight</item>
+		<item name="actionbarDrawable">@drawable/actionbar_midnight</item>
+		<item name="navBarBorderColor">@color/midnight_actionbar_border</item>
+		<item name="navBarColor">@color/midnight_actionbar_bg</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_midnight</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
+		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="android:dialogTheme">@style/midnightDialog</item>
+		<item name="dialogTheme">@style/midnightDialog</item>
+		<item name="android:alertDialogTheme">@style/midnightAlert</item>
+		<item name="alertDialogTheme">@style/midnightAlert</item>
+		<item name="listItemBackgroundColor">@color/ash_background7</item>
+		<item name="dialogBackgroundColor">@color/midnight_dialog_bg</item>
+		<item name="dialogBackgroundDrawable">@drawable/dialog_background_midnight</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_midnight</item>
+		<item name="serverBackgroundColor">@color/midnight_actionbar_bg</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_midnight</item>
+		<item name="serverBorderColor">@color/midnight_actionbar_border</item>
+	</style>
+
+	<color name="midnight_black">#000000</color>
+	<color name="midnight_actionbar_border">#191919</color>
+	<color name="midnight_actionbar_bg">#262626</color>
+	<color name="midnight_dialog_bg">#191919</color>
+	<drawable name="bufferBackgroundDrawable_midnight">@color/midnight_black</drawable>
+	<drawable name="bufferBorderDrawable_midnight">@color/midnight_black</drawable>
+	<drawable name="serverBackgroundDrawable_midnight">@color/midnight_actionbar_bg</drawable>
+	<drawable name="serverBorderDrawable_midnight">@color/midnight_actionbar_border</drawable>
+
+	<style name="midnightPrefsTheme" parent="midnightNoActionBar">
+		<item name="editTextTheme">@style/midnightEditText</item>
+		<item name="android:windowNoTitle">false</item>
+		<item name="android:windowTitleSize">?attr/actionBarSize</item>
+		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+	</style>
+
+	<style name="midnightEditText" parent="midnight">
+		<item name="android:colorControlActivated">?colorControlNormal</item>
+		<item name="colorControlActivated">?colorControlNormal</item>
+	</style>
+</resources>

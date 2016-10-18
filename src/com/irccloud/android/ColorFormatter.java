@@ -1756,26 +1756,6 @@ public class ColorFormatter {
                     if (new_bg.length() > 0 && bg.length() > 0) {
                         html += "</_bg" + bg + ">";
                     }
-                    if (new_bg.length() > 0) {
-                        if (new_bg.equals("clear")) {
-                            bg = "";
-                        } else {
-                            bg = "";
-                            if (new_bg.length() == 6) {
-                                bg = new_bg;
-                            } else if (new_bg.length() == 3) {
-                                bg += new_bg.charAt(0);
-                                bg += new_bg.charAt(0);
-                                bg += new_bg.charAt(1);
-                                bg += new_bg.charAt(1);
-                                bg += new_bg.charAt(2);
-                                bg += new_bg.charAt(2);
-                            } else {
-                                bg = "#ffffff";
-                            }
-                            html += "<_bg" + bg + ">";
-                        }
-                    }
                     if (new_fg.length() > 0) {
                         if (new_fg.equals("clear")) {
                             fg = "";
@@ -1791,10 +1771,70 @@ public class ColorFormatter {
                                 fg += new_fg.charAt(2);
                                 fg += new_fg.charAt(2);
                             } else {
-                                fg = "#000000";
+                                fg = "000000";
                             }
-                            html += "<font color=\"#" + fg + "\">";
                         }
+                    }
+                    if (new_bg.length() > 0) {
+                        if (new_bg.equals("clear")) {
+                            bg = "";
+                        } else {
+                            bg = "";
+                            if (new_bg.length() == 6) {
+                                bg = new_bg;
+                            } else if (new_bg.length() == 3) {
+                                bg += new_bg.charAt(0);
+                                bg += new_bg.charAt(0);
+                                bg += new_bg.charAt(1);
+                                bg += new_bg.charAt(1);
+                                bg += new_bg.charAt(2);
+                                bg += new_bg.charAt(2);
+                            } else {
+                                bg = "ffffff";
+                            }
+                            if(ColorScheme.getInstance().theme != null) {
+                                if(bg.equalsIgnoreCase(fg) && Integer.toHexString(ColorScheme.getInstance().contentBackgroundColor).equalsIgnoreCase("ff" + bg)) {
+                                    int red = Integer.parseInt(bg.substring(0,1), 16);
+                                    int blue = Integer.parseInt(bg.substring(2,3), 16);
+                                    int green = Integer.parseInt(bg.substring(4,5), 16);
+
+                                    red += 0x22;
+                                    if(red > 0xFF)
+                                        red = 0xFF;
+                                    green += 0x22;
+                                    if(green > 0xFF)
+                                        green = 0xFF;
+                                    blue += 0x22;
+                                    if(blue > 0xFF)
+                                        blue = 0xFF;
+
+                                    bg = String.format("%02x%02x%02x", red, green, blue);
+                                }
+                            }
+                            html += "<_bg" + bg + ">";
+                        }
+                    }
+                    if (fg.length() > 0) {
+                        if(ColorScheme.getInstance().theme != null) {
+                            if(Integer.toHexString(ColorScheme.getInstance().contentBackgroundColor).equalsIgnoreCase("ff" + fg)) {
+                                int red = Integer.parseInt(fg.substring(0,1), 16);
+                                int blue = Integer.parseInt(fg.substring(2,3), 16);
+                                int green = Integer.parseInt(fg.substring(4,5), 16);
+
+                                red += 0x22;
+                                if(red > 0xFF)
+                                    red = 0xFF;
+                                green += 0x22;
+                                if(green > 0xFF)
+                                    green = 0xFF;
+                                blue += 0x22;
+                                if(blue > 0xFF)
+                                    blue = 0xFF;
+
+                                fg = String.format("%02x%02x%02x", red, green, blue);
+                            }
+                        }
+                        html += "<font color=\"#" + fg + "\">";
                     }
                     builder.insert(pos, html);
                 }
