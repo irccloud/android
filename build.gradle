@@ -94,7 +94,7 @@ android {
     buildTypes {
         debug {
             buildConfigField "String", "HOST", "\"api.irccloud.com\""
-            versionNameSuffix "-" + getRevision() + "+midnight"
+            versionNameSuffix "-" + getRevision()
             buildConfigField "boolean", "ENTERPRISE", "false"
             if (rootProject.file('private.properties').exists()) {
                 def props = new Properties()
