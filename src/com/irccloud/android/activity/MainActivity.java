@@ -60,6 +60,7 @@ import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v13.view.inputmethod.InputContentInfoCompat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.FileProvider;
@@ -334,6 +335,27 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return false;
             }
         });
+        if (Build.VERSION.SDK_INT >= 13) {
+            messageTxt.setOnIMEImageReceivedListener(new ActionEditText.OnIMEImageReceivedListener() {
+                @Override
+                public boolean onIMEImageReceived(InputContentInfoCompat info) {
+                    Uri uri = makeTempCopy(info.getContentUri(), MainActivity.this);
+                    if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
+                        new ImgurRefreshTask(uri).execute((Void) null);
+                    } else {
+                        fileUploadTask = new FileUploadTask(uri, MainActivity.this);
+                        if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                        } else {
+                            fileUploadTask.execute((Void) null);
+                        }
+                    }
+                    return true;
+                }
+            });
+        }
         messageTxt.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -3206,6 +3228,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 type = "image/jpeg";
             else if (lower.endsWith(".png"))
                 type = "image/png";
+            else if (lower.endsWith(".gif"))
+                type = "image/gif";
+            else if (lower.endsWith(".webp"))
+                type = "image/webp";
             else if (lower.endsWith(".bmp"))
                 type = "image/bmp";
             else if (lower.endsWith(".mp4"))
@@ -5369,6 +5395,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     type = "image/jpeg";
                 else if (lower.endsWith(".png"))
                     type = "image/png";
+                else if (lower.endsWith(".gif"))
+                    type = "image/gif";
+                else if (lower.endsWith(".webp"))
+                    type = "image/webp";
                 else if (lower.endsWith(".bmp"))
                     type = "image/bmp";
                 else if (lower.endsWith(".mp4"))

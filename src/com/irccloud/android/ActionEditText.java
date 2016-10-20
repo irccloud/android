@@ -18,13 +18,18 @@ package com.irccloud.android;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v13.view.inputmethod.InputConnectionCompat;
+import android.support.v13.view.inputmethod.InputContentInfoCompat;
+import android.support.v4.os.BuildCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.support.v13.view.inputmethod.EditorInfoCompat;
 
 // An EditText that lets you use actions ("Done", "Go", etc.) on multi-line edits.
 // From: http://stackoverflow.com/a/12570003/1406639
@@ -45,7 +50,10 @@ public class ActionEditText extends AppCompatEditText {
 
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-        InputConnection conn = super.onCreateInputConnection(outAttrs);
+        final InputConnection ic = super.onCreateInputConnection(outAttrs);
+        if(ic == null)
+            return null;
+
         if (Build.VERSION.SDK_INT >= 11) {
             outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS;
             outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_NEXT;
@@ -61,7 +69,37 @@ public class ActionEditText extends AppCompatEditText {
         } else {
             outAttrs.inputType &= ~EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES;
         }
-        return conn;
+        if (Build.VERSION.SDK_INT >= 13) {
+            EditorInfoCompat.setContentMimeTypes(outAttrs, new String[]{"image/*"});
+
+            final InputConnectionCompat.OnCommitContentListener callback =
+                    new InputConnectionCompat.OnCommitContentListener() {
+                        @Override
+                        public boolean onCommitContent(InputContentInfoCompat inputContentInfo,
+                                                       int flags, Bundle opts) {
+                            // read and display inputContentInfo asynchronously
+                            if (BuildCompat.isAtLeastNMR1() && (flags &
+                                    InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+                                try {
+                                    inputContentInfo.requestPermission();
+                                }
+                                catch (Exception e) {
+                                    return false; // return false if failed
+                                }
+                            }
+
+                            if(imageListener != null) {
+                                boolean result = imageListener.onIMEImageReceived(inputContentInfo);
+                                inputContentInfo.releasePermission();
+                                return result;
+                            }
+                            return false;
+                        }
+                    };
+            return InputConnectionCompat.createWrapper(ic, outAttrs, callback);
+        } else {
+            return ic;
+        }
     }
 
     @Override
@@ -74,5 +112,15 @@ public class ActionEditText extends AppCompatEditText {
 
     public void setDrawerLayout(DrawerLayout view) {
         mDrawerLayout = view;
+    }
+
+    private OnIMEImageReceivedListener imageListener = null;
+
+    public void setOnIMEImageReceivedListener(OnIMEImageReceivedListener listener) {
+        imageListener = listener;
+    }
+
+    public interface OnIMEImageReceivedListener {
+        boolean onIMEImageReceived(InputContentInfoCompat info);
     }
 }

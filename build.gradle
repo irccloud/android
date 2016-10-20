@@ -20,7 +20,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:2.2.2'
         classpath 'io.fabric.tools:gradle:1.21.2'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
@@ -51,8 +51,8 @@ def getRevision = { ->
 }
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '24.0.1'
+    compileSdkVersion 25
+    buildToolsVersion '25.0.0'
     testBuildType 'debugTest'
     useLibrary 'org.apache.http.legacy'
 
@@ -60,7 +60,7 @@ android {
         versionCode 83
         versionName "3.9"
         minSdkVersion 10
-        targetSdkVersion 24
+        targetSdkVersion 25
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
@@ -322,13 +322,13 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:24.2.1'
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:cardview-v7:24.2.1'
-    compile 'com.android.support:design:24.2.1'
-    compile 'com.android.support:recyclerview-v7:24.2.1'
-    compile 'com.android.support:customtabs:24.2.1'
-
+    compile 'com.android.support:support-v4:25.0.0'
+    compile 'com.android.support:support-v13:25.0.0'
+    compile 'com.android.support:appcompat-v7:25.0.0'
+    compile 'com.android.support:cardview-v7:25.0.0'
+    compile 'com.android.support:design:25.0.0'
+    compile 'com.android.support:recyclerview-v7:25.0.0'
+    compile 'com.android.support:customtabs:25.0.0'
     compile 'com.google.android.gms:play-services-base:9.6.1'
     compile 'com.google.android.gms:play-services-auth:9.6.1'
     compile 'com.google.android.gms:play-services-identity:9.6.1'

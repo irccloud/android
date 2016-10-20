@@ -51,12 +51,13 @@
 
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
-    <uses-sdk tools:overrideLibrary="android.support.customtabs"/>
+    <uses-sdk tools:overrideLibrary="android.support.customtabs, android.support.v13"/>
 
     <application
         android:name=".IRCCloudApplication"
         android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
+        android:roundIcon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:resizeableActivity="true"
