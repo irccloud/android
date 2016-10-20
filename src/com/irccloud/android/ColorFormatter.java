@@ -1400,7 +1400,7 @@ public class ColorFormatter {
                             }
                         }
 
-                        if (isImageEnt || lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|(^.*\\/.*\\.bmp$)|" +
+                        if (isImageEnt || lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|(^.*\\/.*\\.bmp$)|(^.*\\/.*\\.webp$)|" +
                                         "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
                                         "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
                                         "(^https?://(www\\.)?imgur\\.com/.*$)|(^https?://m\\.imgur\\.com/.*$)|" +
