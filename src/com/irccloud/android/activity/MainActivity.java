@@ -340,7 +340,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 @Override
                 public boolean onIMEImageReceived(InputContentInfoCompat info) {
                     if(info.getLinkUri() != null && info.getLinkUri().getScheme().startsWith("http")) {
-                        if(!messageTxt.getText().toString().endsWith(" "))
+                        if(messageTxt.getText().length() > 0 && !messageTxt.getText().toString().endsWith(" "))
                             messageTxt.getText().append(" ");
                         messageTxt.getText().append(info.getLinkUri().toString());
                     } else {
