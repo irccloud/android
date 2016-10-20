@@ -339,17 +339,23 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             messageTxt.setOnIMEImageReceivedListener(new ActionEditText.OnIMEImageReceivedListener() {
                 @Override
                 public boolean onIMEImageReceived(InputContentInfoCompat info) {
-                    Uri uri = makeTempCopy(info.getContentUri(), MainActivity.this);
-                    if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
-                        new ImgurRefreshTask(uri).execute((Void) null);
+                    if(info.getLinkUri() != null && info.getLinkUri().getScheme().startsWith("http")) {
+                        if(!messageTxt.getText().toString().endsWith(" "))
+                            messageTxt.getText().append(" ");
+                        messageTxt.getText().append(info.getLinkUri().toString());
                     } else {
-                        fileUploadTask = new FileUploadTask(uri, MainActivity.this);
-                        if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                    REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                        Uri uri = (info.getLinkUri() != null) ? makeTempCopy(info.getContentUri(), MainActivity.this, info.getLinkUri().getLastPathSegment()) : makeTempCopy(info.getContentUri(), MainActivity.this);
+                        if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
+                            new ImgurRefreshTask(uri).execute((Void) null);
                         } else {
-                            fileUploadTask.execute((Void) null);
+                            fileUploadTask = new FileUploadTask(uri, MainActivity.this);
+                            if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                            } else {
+                                fileUploadTask.execute((Void) null);
+                            }
                         }
                     }
                     return true;
@@ -3195,8 +3201,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private final int REQUEST_PASTEBIN = 5;
 
     public static Uri makeTempCopy(Uri fileUri, Context context) {
-        if(fileUri.toString().contains(context.getCacheDir().getAbsolutePath()))
-            return fileUri;
         String original_filename;
 
         if (Build.VERSION.SDK_INT < 16) {
@@ -3220,6 +3224,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if(original_filename == null || original_filename.length() == 0)
             original_filename = "file";
+
+        return makeTempCopy(fileUri, context, original_filename);
+    }
+
+    public static Uri makeTempCopy(Uri fileUri, Context context, String original_filename) {
+        if(fileUri.toString().contains(context.getCacheDir().getAbsolutePath()))
+            return fileUri;
 
         String type = context.getContentResolver().getType(fileUri);
         if (type == null) {
