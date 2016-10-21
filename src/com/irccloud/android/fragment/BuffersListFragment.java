@@ -421,7 +421,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                         }
                     }
                 }
-                if (buffers.size() == 1 && s.getStatus().equals("connected_ready") && !readOnly) {
+                if (buffers.size() == 1 && s.getStatus().equals("connected_ready") && !readOnly && archiveCount == 0) {
                     Buffer join = new Buffer();
                     join.setCid(s.getCid());
                     join.setName("Join a Channel");
