@@ -322,13 +322,13 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:25.0.0'
-    compile 'com.android.support:support-v13:25.0.0'
-    compile 'com.android.support:appcompat-v7:25.0.0'
-    compile 'com.android.support:cardview-v7:25.0.0'
-    compile 'com.android.support:design:25.0.0'
-    compile 'com.android.support:recyclerview-v7:25.0.0'
-    compile 'com.android.support:customtabs:25.0.0'
+    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.android.support:support-v13:24.2.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:cardview-v7:24.2.1'
+    compile 'com.android.support:design:24.2.1'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
+    compile 'com.android.support:customtabs:24.2.1'
     compile 'com.google.android.gms:play-services-base:9.6.1'
     compile 'com.google.android.gms:play-services-auth:9.6.1'
     compile 'com.google.android.gms:play-services-identity:9.6.1'
