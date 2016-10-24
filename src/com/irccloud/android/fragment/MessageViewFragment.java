@@ -689,6 +689,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     else if (e.row_type != ROW_TIMESTAMP)
                         holder.timestamp.setTextColor(colorScheme.timestampColor);
                     holder.timestamp.setText(e.timestamp);
+                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)holder.timestamp.getLayoutParams();
+                    lp.topMargin = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pref_compact?0:2, getResources().getDisplayMetrics());
+
                 }
                 if (e.row_type == ROW_SOCKETCLOSED) {
                     if (e.msg != null && e.msg.length() > 0) {
@@ -800,7 +803,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             holder.avatar.setTag(a);
                         }
                         holder.avatar.setImageBitmap(b);
-                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16 * ((!e.header || b == null || e.group_eid > 0)?1:2), getResources().getDisplayMetrics());
+                        if(b != null)
+                            lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16 * ((!e.header || b == null || e.group_eid > 0)?1:2), getResources().getDisplayMetrics());
+                        else
+                            lp.height = 0;
                     }
                     holder.avatar.setLayoutParams(lp);
                 }

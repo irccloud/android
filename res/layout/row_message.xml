@@ -40,6 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/message_row_spacing"
+        android:layout_gravity="bottom"
         android:layout_weight="1">
 
         <LinearLayout
