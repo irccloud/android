@@ -30,7 +30,6 @@
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
 		<item name="highlightBackgroundColor">@color/ash_border10</item>
-		<item name="selfBackgroundColor">@color/ash_border11</item>
 		<item name="statusBackgroundColor">@color/ash_border10</item>
 		<item name="noticeBackgroundColor">@color/ash_border11</item>
 		<item name="android:dialogTheme">@style/midnightDialog</item>
@@ -61,7 +60,6 @@
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
 		<item name="highlightBackgroundColor">@color/ash_border10</item>
-		<item name="selfBackgroundColor">@color/ash_border11</item>
 		<item name="statusBackgroundColor">@color/ash_border10</item>
 		<item name="noticeBackgroundColor">@color/ash_border11</item>
 		<item name="android:dialogTheme">@style/midnightDialog</item>
