@@ -518,7 +518,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 startActivity(i);
                 finish();
             }
-        } else if (getSharedPreferences("prefs", 0).contains("session_key")) {
+        } else if (getSharedPreferences("prefs", 0).getString("session_key","").length() > 0) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
             i.putExtra("nosplash", true);
             if (getIntent() != null) {

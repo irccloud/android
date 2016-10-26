@@ -26,6 +26,7 @@ import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -76,13 +77,18 @@ public class SAMLAuthActivity extends AppCompatActivity {
             }
 
             @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return shouldOverrideUrlLoading(view, request.getUrl().toString());
+            }
+
+            @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.equals("https://" + NetworkConnection.IRCCLOUD_HOST + "/")) {
                     String cookie = CookieManager.getInstance().getCookie(url);
                     if(cookie != null){
                         String[] cookies = cookie.split(";");
                         for (String c : cookies) {
-                            if(c.startsWith("session=")) {
+                            if(c.startsWith("session=") && c.length() > 8) {
                                 NetworkConnection.getInstance().session = c.substring(8);
                                 setResult(RESULT_OK);
                                 break;
