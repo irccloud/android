@@ -483,6 +483,8 @@
 	<color name="sand_background6">#4F4116</color>
 	<color name="sand_background6a">#433713</color>
 	<color name="sand_background7">#3B3011</color>
+	<color name="sand_background7a">#2F270D</color>
+	<color name="sand_background8">#27200B</color>
 	<drawable name="bufferBackgroundDrawable_sand">@color/sand_background4</drawable>
 	<drawable name="serverBackgroundDrawable_sand">@color/sand_background6</drawable>
 	<drawable name="bufferBorderDrawable_sand">@color/sand_border9</drawable>

@@ -29,9 +29,10 @@
 		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
-		<item name="highlightBackgroundColor">@color/ash_border10</item>
-		<item name="statusBackgroundColor">@color/ash_border10</item>
-		<item name="noticeBackgroundColor">@color/ash_border11</item>
+		<item name="highlightBackgroundColor">@color/ash_background6a</item>
+		<item name="statusBackgroundColor">@color/ash_background8</item>
+		<item name="noticeBackgroundColor">@color/ash_background7</item>
+		<item name="selfBackgroundColor">@color/ash_background7a</item>
 		<item name="android:dialogTheme">@style/midnightDialog</item>
 		<item name="dialogTheme">@style/midnightDialog</item>
 		<item name="android:alertDialogTheme">@style/midnightAlert</item>
@@ -59,9 +60,10 @@
 		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_midnight</item>
 		<item name="textareaBackgroundColor">@color/midnight_actionbar_bg</item>
 		<item name="editTextTheme">@style/midnightEditText</item>
-		<item name="highlightBackgroundColor">@color/ash_border10</item>
-		<item name="statusBackgroundColor">@color/ash_border10</item>
-		<item name="noticeBackgroundColor">@color/ash_border11</item>
+		<item name="highlightBackgroundColor">@color/ash_background6a</item>
+		<item name="statusBackgroundColor">@color/ash_background8</item>
+		<item name="noticeBackgroundColor">@color/ash_background7</item>
+		<item name="selfBackgroundColor">@color/ash_background7a</item>
 		<item name="android:dialogTheme">@style/midnightDialog</item>
 		<item name="dialogTheme">@style/midnightDialog</item>
 		<item name="android:alertDialogTheme">@style/midnightAlert</item>

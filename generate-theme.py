@@ -189,6 +189,8 @@ f.write(color("background5a", 0.23))
 f.write(color("background6", 0.20))
 f.write(color("background6a", 0.17))
 f.write(color("background7", 0.15))
+f.write(color("background7a", 0.12))
+f.write(color("background8", 0.10))
 
 f.write("\t<drawable name=\"bufferBackgroundDrawable_" + themename + "\">@color/" + themename + "_background4</drawable>\n")
 f.write("\t<drawable name=\"serverBackgroundDrawable_" + themename + "\">@color/" + themename + "_background6</drawable>\n")

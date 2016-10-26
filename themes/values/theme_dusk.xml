@@ -483,6 +483,8 @@
 	<color name="dusk_background6">#16324F</color>
 	<color name="dusk_background6a">#132B43</color>
 	<color name="dusk_background7">#11263B</color>
+	<color name="dusk_background7a">#0D1E2F</color>
+	<color name="dusk_background8">#0B1927</color>
 	<drawable name="bufferBackgroundDrawable_dusk">@color/dusk_background4</drawable>
 	<drawable name="serverBackgroundDrawable_dusk">@color/dusk_background6</drawable>
 	<drawable name="bufferBorderDrawable_dusk">@color/dusk_border9</drawable>

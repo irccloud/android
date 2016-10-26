@@ -483,6 +483,8 @@
 	<color name="tropic_background6">#164F4F</color>
 	<color name="tropic_background6a">#134343</color>
 	<color name="tropic_background7">#113B3B</color>
+	<color name="tropic_background7a">#0D2F2F</color>
+	<color name="tropic_background8">#0B2727</color>
 	<drawable name="bufferBackgroundDrawable_tropic">@color/tropic_background4</drawable>
 	<drawable name="serverBackgroundDrawable_tropic">@color/tropic_background6</drawable>
 	<drawable name="bufferBorderDrawable_tropic">@color/tropic_border9</drawable>
