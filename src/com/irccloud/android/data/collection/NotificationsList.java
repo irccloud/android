@@ -531,7 +531,7 @@ public class NotificationsList {
                     if (weartext.length() > 0)
                         weartext.append("<br/>");
                     if (n.message_type.equals("buffer_me_msg")) {
-                        style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, "— " + n.nick);
+                        style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, "— " + ((n.nick == null) ? servernick : n.nick));
                         weartext.append("<b>— ").append((n.nick == null) ? servernick : n.nick).append("</b> ").append(n.message);
                     } else {
                         style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
