@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -27,6 +28,9 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.CharacterStyle;
+import android.text.style.MetricAffectingSpan;
+import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.text.util.Linkify.MatchFilter;
@@ -1528,7 +1532,27 @@ public class ColorFormatter {
             output.setSpan(span, start, end, 0);
         }
 
+        for(int i = 0; i < output.length(); i++) {
+            if(i < output.length() - 1 && (output.charAt(i) == '←' || output.charAt(i) == '→' || output.charAt(i) == '⇐' || output.charAt(i) == '↔' || output.charAt(i) == '↮') && output.charAt(i+1) != 0xFE0F) {
+                output.setSpan(new SourceSansProSpan(), i, i+2, 0);
+            }
+        }
+
         return output;
+    }
+
+    private static Typeface sourceSansPro;
+    private static class SourceSansProSpan extends CharacterStyle {
+
+        public SourceSansProSpan() {
+            if(sourceSansPro == null)
+                sourceSansPro = Typeface.createFromAsset(IRCCloudApplication.getInstance().getAssets(), "SourceSansPro-Regular.otf");
+        }
+
+        @Override
+        public void updateDrawState(TextPaint textPaint) {
+            textPaint.setTypeface(sourceSansPro);
+        }
     }
 
     private static boolean isPunctuation(char c) {
