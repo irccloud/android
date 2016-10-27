@@ -88,6 +88,7 @@ public class SAMLAuthActivity extends AppCompatActivity {
                     if(cookie != null){
                         String[] cookies = cookie.split(";");
                         for (String c : cookies) {
+                            c = c.trim();
                             if(c.startsWith("session=") && c.length() > 8) {
                                 NetworkConnection.getInstance().session = c.substring(8);
                                 setResult(RESULT_OK);
