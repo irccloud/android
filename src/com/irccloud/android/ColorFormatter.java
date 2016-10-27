@@ -98,7 +98,7 @@ public class ColorFormatter {
                     + "\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_\\^\\{\\}\\[\\]\\<\\>\\|])|(?:\\%[a-fA-F0-9]{2}))*)?"
                     + "(?:\\b|$)");
 
-    public static final String[] COLOR_MAP_LIGHT = {
+    public static final String[] COLOR_MAP = {
             "FFFFFF", //white
             "000000", //black
             "000080", //navy
@@ -117,26 +117,14 @@ public class ColorFormatter {
             "C0C0C0", //silver
     };
 
-    public static final String[] COLOR_MAP_DARK = {
-            "FFFFFF", //white
-            "000000", //black
-            "4682b4", //steelblue
-            "32cd32", //limegreen
-            "FF0000", //red
-            "FA8072", //salmon
-            "DA70D6", //orchid
-            "FFA500", //orange
-            "FFFF00", //yellow
-            "00FF00", //lime
-            "20b2aa", //lightseagreen
-            "00FFFF", //cyan
-            "00BFF9", //deepskyblue
-            "FF00FF", //magenta
-            "808080", //grey
-            "C0C0C0", //silver
-    };
-
-    public static String[] COLOR_MAP = COLOR_MAP_LIGHT;
+    private static final HashMap<String, String> DARK_FG_SUBSTITUTIONS = new HashMap<String, String>() {{
+        put("000080","4682b4");
+        put("008000","32cd32");
+        put("800000","FA8072");
+        put("800080","DA70D6");
+        put("008080","20B2AA");
+        put("0000FF","00BFF9");
+    }};
 
     public static final HashMap<String, String> emojiMap = new HashMap<String, String>() {{
         put("poodle", "\uD83D\uDC29");
@@ -1756,6 +1744,26 @@ public class ColorFormatter {
                     if (new_bg.length() > 0 && bg.length() > 0) {
                         html += "</_bg" + bg + ">";
                     }
+                    if (new_bg.length() > 0) {
+                        if (new_bg.equals("clear")) {
+                            bg = "";
+                        } else {
+                            bg = "";
+                            if (new_bg.length() == 6) {
+                                bg = new_bg;
+                            } else if (new_bg.length() == 3) {
+                                bg += new_bg.charAt(0);
+                                bg += new_bg.charAt(0);
+                                bg += new_bg.charAt(1);
+                                bg += new_bg.charAt(1);
+                                bg += new_bg.charAt(2);
+                                bg += new_bg.charAt(2);
+                            } else {
+                                bg = "ffffff";
+                            }
+                            html += "<_bg" + bg + ">";
+                        }
+                    }
                     if (new_fg.length() > 0) {
                         if (new_fg.equals("clear")) {
                             fg = "";
@@ -1774,48 +1782,9 @@ public class ColorFormatter {
                                 fg = "000000";
                             }
                         }
-                    }
-                    if (new_bg.length() > 0) {
-                        if (new_bg.equals("clear")) {
-                            bg = "";
-                        } else {
-                            bg = "";
-                            if (new_bg.length() == 6) {
-                                bg = new_bg;
-                            } else if (new_bg.length() == 3) {
-                                bg += new_bg.charAt(0);
-                                bg += new_bg.charAt(0);
-                                bg += new_bg.charAt(1);
-                                bg += new_bg.charAt(1);
-                                bg += new_bg.charAt(2);
-                                bg += new_bg.charAt(2);
-                            } else {
-                                bg = "ffffff";
-                            }
-                            if(ColorScheme.getInstance().theme != null) {
-                                if(bg.equalsIgnoreCase(fg) && Integer.toHexString(ColorScheme.getInstance().contentBackgroundColor).equalsIgnoreCase("ff" + bg)) {
-                                    int red = Integer.parseInt(bg.substring(0,1), 16);
-                                    int blue = Integer.parseInt(bg.substring(2,3), 16);
-                                    int green = Integer.parseInt(bg.substring(4,5), 16);
-
-                                    red += 0x22;
-                                    if(red > 0xFF)
-                                        red = 0xFF;
-                                    green += 0x22;
-                                    if(green > 0xFF)
-                                        green = 0xFF;
-                                    blue += 0x22;
-                                    if(blue > 0xFF)
-                                        blue = 0xFF;
-
-                                    bg = String.format("%02x%02x%02x", red, green, blue);
-                                }
-                            }
-                            html += "<_bg" + bg + ">";
-                        }
-                    }
-                    if (fg.length() > 0) {
-                        if(ColorScheme.getInstance().theme != null) {
+                        if(ColorScheme.getInstance().theme != null && bg.length() == 0) {
+                            if(ColorScheme.getInstance().isDarkTheme && DARK_FG_SUBSTITUTIONS.containsKey(fg))
+                                fg = DARK_FG_SUBSTITUTIONS.get(fg);
                             if(Integer.toHexString(ColorScheme.getInstance().contentBackgroundColor).equalsIgnoreCase("ff" + fg)) {
                                 int red = Integer.parseInt(fg.substring(0,1), 16);
                                 int blue = Integer.parseInt(fg.substring(2,3), 16);

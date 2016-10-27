@@ -311,7 +311,6 @@ public class ColorScheme {
         if(Build.VERSION.SDK_INT >= 21)
             statusBarColor = colorForAttribute(ctx, android.R.attr.statusBarColor);
         isDarkTheme = !theme.equals("dawn");
-        ColorFormatter.COLOR_MAP = isDarkTheme?ColorFormatter.COLOR_MAP_DARK:ColorFormatter.COLOR_MAP_LIGHT;
         selfTextColor = isDarkTheme?"ffffff":"142b43";
     }
 
