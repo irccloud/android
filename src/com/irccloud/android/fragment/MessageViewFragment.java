@@ -208,6 +208,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             int type;
             LinearLayout lastSeenEidWrapper;
             LinearLayout messageContainer;
+            LinearLayout socketClosedBar;
             TextView timestamp;
             TextView timestamp_left;
             TextView timestamp_right;
@@ -618,6 +619,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.avatar = (ImageView) row.findViewById(R.id.avatar);
                     holder.lastSeenEidWrapper = (LinearLayout) row.findViewById(R.id.lastSeenEidWrapper);
                     holder.messageContainer = (LinearLayout) row.findViewById(R.id.messageContainer);
+                    holder.socketClosedBar = (LinearLayout) row.findViewById(R.id.socketClosedBar);
                     holder.type = e.row_type;
 
                     row.setTag(holder);
@@ -858,6 +860,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     else
                         lp.leftMargin = 0;
                     holder.lastSeenEidWrapper.setLayoutParams(lp);
+                }
+
+                if(holder.socketClosedBar != null) {
+                    holder.socketClosedBar.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize + 2, getResources().getDisplayMetrics()));
                 }
 
                 return row;
