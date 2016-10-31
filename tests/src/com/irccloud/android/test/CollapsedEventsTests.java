@@ -374,6 +374,22 @@ public class CollapsedEventsTests extends AndroidTestCase {
         assertEquals("→ <b>sam</b> joined #test1, #test2, and #test3", list.getCollapsedMessage());
     }
 
+    public void testMultiChannelNickChangeQuitJoin() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        list.showChan = true;
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_old", "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1");
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2");
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1");
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2");
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1");
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2");
+        assertEquals("↔ <b>sam</b> (was sam_old) nipped out #test1 and #test2", list.getCollapsedMessage());
+    }
+
     public void testMultiChannelPopIn1() {
         CollapsedEventsList list = new CollapsedEventsList();
         list.showChan = true;

@@ -76,7 +76,7 @@ public class CollapsedEventsList {
         int count;
 
         public String toString() {
-            return "{type: " + type + ", nick: " + nick + ", old_nick: " + old_nick + ", hostmask: " + hostmask + ", msg: " + msg + "netsplit: " + netsplit + "}";
+            return "{type: " + type + ", nick: " + nick + ", old_nick: " + old_nick + ", hostmask: " + hostmask + ", msg: " + msg + ", chan: " + chan + ", netsplit: " + netsplit + "}";
         }
 
         public int modeCount() {
@@ -374,7 +374,10 @@ public class CollapsedEventsList {
                     for (CollapsedEvent ev : data) {
                         if (ev.type == TYPE_QUIT) {
                             ev.type = TYPE_POPOUT;
+                            ev.chan = chan;
                             return;
+                        } else if(ev.type == TYPE_POPOUT) {
+                            type = TYPE_POPOUT;
                         }
                     }
                 }
@@ -529,7 +532,7 @@ public class CollapsedEventsList {
 
     public CollapsedEvent findEvent(String nick, String chan) {
         for (CollapsedEvent e : data) {
-            if (e.nick != null && (e.nick.equalsIgnoreCase(nick) && (e.chan == null || e.chan.equalsIgnoreCase(chan))))
+            if (e.nick != null && (e.nick.equalsIgnoreCase(nick) && (chan == null || e.chan == null || e.chan.equalsIgnoreCase(chan))))
                 return e;
         }
         return null;
@@ -610,7 +613,7 @@ public class CollapsedEventsList {
         StringBuilder was = new StringBuilder();
         String modes = e.getModes(false);
 
-        if (e.old_nick != null && e.type != TYPE_MODE)
+        if (e.type != TYPE_NICKCHANGE && e.old_nick != null && e.type != TYPE_MODE)
             was.append("was ").append(e.old_nick);
         if (modes != null && modes.length() > 0) {
             if (was.length() > 0)
@@ -750,10 +753,7 @@ public class CollapsedEventsList {
 
                 if (e.type == TYPE_NICKCHANGE) {
                     message.append(e.old_nick).append(" → <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>");
-                    String old_nick = e.old_nick;
-                    e.old_nick = null;
                     message.append(was(e));
-                    e.old_nick = old_nick;
                 } else if (e.type == TYPE_NETSPLIT) {
                     message.append(e.msg.replace(" ", " ↮ "));
                 } else if (e.type == TYPE_CONNECTIONSTATUS) {
@@ -782,7 +782,7 @@ public class CollapsedEventsList {
                             message.append(" nipped out");
                             break;
                     }
-                } else if (showChan && e.type != TYPE_NETSPLIT && e.type != TYPE_CONNECTIONSTATUS) {
+                } else if (showChan && e.type != TYPE_NETSPLIT && e.type != TYPE_CONNECTIONSTATUS && e.type != TYPE_NICKCHANGE) {
                     if (groupcount == 0) {
                         message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE) ? e.target_mode : e.from_mode, false)).append("</b>").append(was(e));
                         switch (e.type) {

@@ -1785,7 +1785,8 @@ public class ColorFormatter {
                             } else {
                                 bg = "ffffff";
                             }
-                            html += "<_bg" + bg + ">";
+                            if(bg.length() > 0)
+                                html += "<_bg" + bg + ">";
                         }
                     }
                     if (new_fg.length() > 0) {
@@ -1827,7 +1828,8 @@ public class ColorFormatter {
                                 fg = String.format("%02x%02x%02x", red, green, blue);
                             }
                         }
-                        html += "<font color=\"#" + fg + "\">";
+                        if(fg.length() > 0)
+                            html += "<font color=\"#" + fg + "\">";
                     }
                     builder.insert(pos, html);
                 }
