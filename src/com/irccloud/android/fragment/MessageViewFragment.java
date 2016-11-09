@@ -1565,11 +1565,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         break;
                     case "kicked_channel":
-                        event.html = "← ";
+                        String collapsedNickColor = Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2);
+                        event.html = "\u0004" + collapsedNickColor + "← \u000f";
                         if (event.type.startsWith("you_"))
                             event.html += "You";
                         else
-                            event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, false) + "</b>";
+                            event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, false, collapsedNickColor) + "</b>";
                         if (event.hostmask != null && event.hostmask.length() > 0)
                             event.html += " (" + event.hostmask + ")";
                         if (event.type.startsWith("you_"))
@@ -1577,9 +1578,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         else
                             event.html += " was";
                         if (event.from_hostmask != null && event.from_hostmask.length() > 0)
-                            event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
+                            event.html += " kicked by " + collapsedEvents.formatNick(event.nick, event.from_mode, false, collapsedNickColor);
                         else
-                            event.html += " kicked by the server <b>" + event.nick + "</b>";
+                            event.html += " kicked by the server \u0004" + collapsedNickColor + event.nick + "\u000f";
                         if (event.msg != null && event.msg.length() > 0 && !event.msg.equals(event.nick))
                             event.html += ": " + event.msg;
                         break;
