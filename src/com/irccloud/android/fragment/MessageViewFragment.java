@@ -860,7 +860,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     else
                         lp.leftMargin = 0;
                     holder.lastSeenEidWrapper.setLayoutParams(lp);
-                    holder.lastSeenEidWrapper.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pref_compact?(textSize + 2):(textSize + 16), getResources().getDisplayMetrics()));
+                    holder.lastSeenEidWrapper.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pref_compact?(textSize + 2):(textSize + 4), getResources().getDisplayMetrics()));
                 }
 
                 if(holder.socketClosedBar != null) {
