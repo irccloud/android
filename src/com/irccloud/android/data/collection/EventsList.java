@@ -931,6 +931,13 @@ public class EventsList {
             }
         });
 
+        put("you_parted_channel", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
+            }
+        });
+
     }};
 
     private String reason(String reason) {

@@ -1399,7 +1399,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             currentCollapsedEid = -1;
                     }
 
-                    if (currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || pref_expandJoinPart) {
+                    if (currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || pref_expandJoinPart || event.type.equals("you_parted_channel")) {
                         collapsedEvents.clear();
                         currentCollapsedEid = eid;
                         lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
@@ -1482,7 +1482,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     event.formatted = null;
                     event.linkify = false;
                     lastCollapsedEid = event.eid;
-                    if (buffer.isConsole() && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) {
+                    if ((buffer.isConsole() && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) || event.type.equals("you_parted_channel")) {
                         currentCollapsedEid = -1;
                         lastCollapsedEid = -1;
                         collapsedEvents.clear();

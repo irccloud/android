@@ -27,6 +27,16 @@
 		android:paddingLeft="8dp"
 		android:paddingRight="8dp">
 
+		<ImageView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/avatar"
+			android:layout_gravity="right|top"
+			android:layout_marginLeft="4dp"
+			android:layout_marginRight="12dp"
+			android:contentDescription="user icon"
+			android:visibility="gone"/>
+
 		<TextView
 			android:id="@+id/timestamp_left"
 			android:layout_width="wrap_content"
