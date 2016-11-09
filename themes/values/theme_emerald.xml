@@ -34,7 +34,8 @@
 		<item name="timestampBackgroundColor">@color/emerald_background6</item>
 		<item name="statusBackgroundColor">@color/emerald_background6a</item>
 		<item name="noticeBackgroundColor">@color/emerald_background5a</item>
-		<item name="collapsedRowTextColor">@color/emerald_text7</item>
+		<item name="collapsedRowTextColor">@color/emerald_text12</item>
+		<item name="collapsedRowNickColor">@color/emerald_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/emerald_background6</item>
 		<item name="navBarColor">@color/emerald_background5</item>
 		<item name="navBarBorderColor">@color/emerald_border10</item>
@@ -121,7 +122,8 @@
 		<item name="timestampBackgroundColor">@color/emerald_background6</item>
 		<item name="statusBackgroundColor">@color/emerald_background6a</item>
 		<item name="noticeBackgroundColor">@color/emerald_background5a</item>
-		<item name="collapsedRowTextColor">@color/emerald_text7</item>
+		<item name="collapsedRowTextColor">@color/emerald_text12</item>
+		<item name="collapsedRowNickColor">@color/emerald_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/emerald_background6</item>
 		<item name="navBarColor">@color/emerald_background5</item>
 		<item name="navBarBorderColor">@color/emerald_border10</item>
@@ -208,7 +210,8 @@
 		<item name="timestampBackgroundColor">@color/emerald_background6</item>
 		<item name="statusBackgroundColor">@color/emerald_background6a</item>
 		<item name="noticeBackgroundColor">@color/emerald_background5a</item>
-		<item name="collapsedRowTextColor">@color/emerald_text7</item>
+		<item name="collapsedRowTextColor">@color/emerald_text12</item>
+		<item name="collapsedRowNickColor">@color/emerald_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/emerald_background6</item>
 		<item name="navBarColor">@color/emerald_background5</item>
 		<item name="navBarBorderColor">@color/emerald_border10</item>
@@ -295,7 +298,8 @@
 		<item name="timestampBackgroundColor">@color/emerald_background6</item>
 		<item name="statusBackgroundColor">@color/emerald_background6a</item>
 		<item name="noticeBackgroundColor">@color/emerald_background5a</item>
-		<item name="collapsedRowTextColor">@color/emerald_text7</item>
+		<item name="collapsedRowTextColor">@color/emerald_text12</item>
+		<item name="collapsedRowNickColor">@color/emerald_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/emerald_background6</item>
 		<item name="navBarColor">@color/emerald_background5</item>
 		<item name="navBarBorderColor">@color/emerald_border10</item>
@@ -382,7 +386,8 @@
 		<item name="timestampBackgroundColor">@color/emerald_background6</item>
 		<item name="statusBackgroundColor">@color/emerald_background6a</item>
 		<item name="noticeBackgroundColor">@color/emerald_background5a</item>
-		<item name="collapsedRowTextColor">@color/emerald_text7</item>
+		<item name="collapsedRowTextColor">@color/emerald_text12</item>
+		<item name="collapsedRowNickColor">@color/emerald_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/emerald_background6</item>
 		<item name="navBarColor">@color/emerald_background5</item>
 		<item name="navBarBorderColor">@color/emerald_border10</item>

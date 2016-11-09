@@ -55,6 +55,7 @@
     <attr name="timestampBackgroundColor" format="color"/>
     <attr name="newMsgsBackgroundColor" format="color"/>
     <attr name="collapsedRowTextColor" format="color"/>
+    <attr name="collapsedRowNickColor" format="color"/>
     <attr name="collapsedHeadingBackgroundColor" format="color"/>
     <attr name="navBarColor" format="color"/>
     <attr name="navBarHeadingColor" format="color"/>

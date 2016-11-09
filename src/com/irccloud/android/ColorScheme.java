@@ -243,6 +243,7 @@ public class ColorScheme {
         timestampBackgroundColor = colorForAttribute(ctx, R.attr.timestampBackgroundColor);
         newMsgsBackgroundColor = colorForAttribute(ctx, R.attr.newMsgsBackgroundColor);
         collapsedRowTextColor = colorForAttribute(ctx, R.attr.collapsedRowTextColor);
+        collapsedRowNickColor = colorForAttribute(ctx, R.attr.collapsedRowNickColor);
         collapsedHeadingBackgroundColor = colorForAttribute(ctx, R.attr.collapsedHeadingBackgroundColor);
         navBarColor = colorForAttribute(ctx, R.attr.navBarColor);
         navBarHeadingColor = colorForAttribute(ctx, R.attr.navBarHeadingColor);
@@ -357,6 +358,7 @@ public class ColorScheme {
     public int timestampBackgroundColor;
     public int newMsgsBackgroundColor;
     public int collapsedRowTextColor;
+    public int collapsedRowNickColor;
     public int collapsedHeadingBackgroundColor;
     public int navBarColor;
     public int navBarHeadingColor;

@@ -34,7 +34,8 @@
 		<item name="timestampBackgroundColor">@color/rust_background6</item>
 		<item name="statusBackgroundColor">@color/rust_background6a</item>
 		<item name="noticeBackgroundColor">@color/rust_background5a</item>
-		<item name="collapsedRowTextColor">@color/rust_text7</item>
+		<item name="collapsedRowTextColor">@color/rust_text12</item>
+		<item name="collapsedRowNickColor">@color/rust_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/rust_background6</item>
 		<item name="navBarColor">@color/rust_background5</item>
 		<item name="navBarBorderColor">@color/rust_border10</item>
@@ -121,7 +122,8 @@
 		<item name="timestampBackgroundColor">@color/rust_background6</item>
 		<item name="statusBackgroundColor">@color/rust_background6a</item>
 		<item name="noticeBackgroundColor">@color/rust_background5a</item>
-		<item name="collapsedRowTextColor">@color/rust_text7</item>
+		<item name="collapsedRowTextColor">@color/rust_text12</item>
+		<item name="collapsedRowNickColor">@color/rust_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/rust_background6</item>
 		<item name="navBarColor">@color/rust_background5</item>
 		<item name="navBarBorderColor">@color/rust_border10</item>
@@ -208,7 +210,8 @@
 		<item name="timestampBackgroundColor">@color/rust_background6</item>
 		<item name="statusBackgroundColor">@color/rust_background6a</item>
 		<item name="noticeBackgroundColor">@color/rust_background5a</item>
-		<item name="collapsedRowTextColor">@color/rust_text7</item>
+		<item name="collapsedRowTextColor">@color/rust_text12</item>
+		<item name="collapsedRowNickColor">@color/rust_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/rust_background6</item>
 		<item name="navBarColor">@color/rust_background5</item>
 		<item name="navBarBorderColor">@color/rust_border10</item>
@@ -295,7 +298,8 @@
 		<item name="timestampBackgroundColor">@color/rust_background6</item>
 		<item name="statusBackgroundColor">@color/rust_background6a</item>
 		<item name="noticeBackgroundColor">@color/rust_background5a</item>
-		<item name="collapsedRowTextColor">@color/rust_text7</item>
+		<item name="collapsedRowTextColor">@color/rust_text12</item>
+		<item name="collapsedRowNickColor">@color/rust_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/rust_background6</item>
 		<item name="navBarColor">@color/rust_background5</item>
 		<item name="navBarBorderColor">@color/rust_border10</item>
@@ -382,7 +386,8 @@
 		<item name="timestampBackgroundColor">@color/rust_background6</item>
 		<item name="statusBackgroundColor">@color/rust_background6a</item>
 		<item name="noticeBackgroundColor">@color/rust_background5a</item>
-		<item name="collapsedRowTextColor">@color/rust_text7</item>
+		<item name="collapsedRowTextColor">@color/rust_text12</item>
+		<item name="collapsedRowNickColor">@color/rust_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/rust_background6</item>
 		<item name="navBarColor">@color/rust_background5</item>
 		<item name="navBarBorderColor">@color/rust_border10</item>

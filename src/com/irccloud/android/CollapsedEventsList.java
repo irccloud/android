@@ -59,6 +59,8 @@ public class CollapsedEventsList {
 
     public boolean showChan = false;
 
+    private String collapsedNickColor = null;
+
     public class CollapsedEvent {
         long eid;
         int type;
@@ -199,7 +201,10 @@ public class CollapsedEventsList {
                             output += ", ";
                         output += mode_msgs[i];
                         if (showSymbol) {
-                            output += " (\u0004" + mode_colors.get(mode_modes[i].substring(1).toLowerCase()) + ((i == MODE_OPER && operIsLower)?mode_modes[i].toLowerCase():mode_modes[i]) + "\u000f)";
+                            output += " (\u0004" + mode_colors.get(mode_modes[i].substring(1).toLowerCase()) + ((i == MODE_OPER && operIsLower)?mode_modes[i].toLowerCase():mode_modes[i]) + "\u000f";
+                            if(ColorScheme.getInstance().theme != null)
+                                output += "\u0004" + Integer.toHexString(ColorScheme.getInstance().messageTextColor).substring(2);
+                            output += ")";
                         }
                     }
                 }
@@ -621,13 +626,28 @@ public class CollapsedEventsList {
             was.append(modes);
         }
 
-        if (was.length() > 0)
+        if (was.length() > 0) {
+            if(collapsedNickColor != null) {
+                was.insert(0, "\u0004" + collapsedNickColor);
+                was.append("\u000F");
+            }
             was.insert(0, " (").append(")");
-
+        }
         return was.toString();
     }
 
+    private void colorArrow(StringBuilder message, String arrow) {
+        if(collapsedNickColor != null)
+            message.append("\u0004").append(collapsedNickColor);
+        message.append(arrow);
+        if(collapsedNickColor != null)
+            message.append("\u000F");
+    }
+
     public String getCollapsedMessage() {
+        if(ColorScheme.getInstance().theme != null) {
+            collapsedNickColor = Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2);
+        }
         StringBuilder message = new StringBuilder();
 
         if (data.size() == 0)
@@ -640,23 +660,30 @@ public class CollapsedEventsList {
                     message.append(e.msg.replace(" ", " ↮ "));
                     break;
                 case TYPE_MODE:
-                    message.append("<b>").append(formatNick(e.nick, e.target_mode, false)).append("</b> was ").append(e.getModes(true));
+                    message.append(formatNick(e.nick, e.target_mode, false, collapsedNickColor));
+                    if(collapsedNickColor != null)
+                        message.append("\u0004").append(Integer.toHexString(ColorScheme.getInstance().messageTextColor).substring(2));
+                    message.append(" was ").append(e.getModes(true));
                     if (e.from_nick != null) {
-                        if (e.from_mode != null && e.from_mode.equalsIgnoreCase("__the_server__"))
-                            message.append(" by the server <b>").append(e.from_nick).append("</b>");
-                        else
-                            message.append(" by ").append(formatNick(e.from_nick, e.from_mode, false));
+                        if (e.from_mode != null && e.from_mode.equalsIgnoreCase("__the_server__")) {
+                            message.append(" by the server ");
+                            colorArrow(message, e.from_nick);
+                        } else {
+                            message.append(" by ").append(formatNick(e.from_nick, e.from_mode, false, collapsedNickColor));
+                        }
                     }
                     break;
                 case TYPE_JOIN:
-                    message.append("→ <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
+                    colorArrow(message, "→ ");
+                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" joined");
                     if (showChan)
                         message.append(" ").append(e.chan);
                     message.append(" (").append(e.hostmask).append(")");
                     break;
                 case TYPE_PART:
-                    message.append("← <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
+                    colorArrow(message, "← ");
+                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" left");
                     if (showChan)
                         message.append(" ").append(e.chan);
@@ -665,7 +692,8 @@ public class CollapsedEventsList {
                         message.append(": ").append(e.msg);
                     break;
                 case TYPE_QUIT:
-                    message.append("⇐ <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
+                    colorArrow(message, "⇐ ");
+                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor)).append(was(e));
                     if (e.hostmask != null)
                         message.append(" quit (").append(e.hostmask).append(") ");
                     else
@@ -674,16 +702,20 @@ public class CollapsedEventsList {
                         message.append(e.msg);
                     break;
                 case TYPE_NICKCHANGE:
-                    message.append(e.old_nick).append(" → <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>");
+                    message.append(e.old_nick);
+                    colorArrow(message, " → ");
+                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor));
                     break;
                 case TYPE_POPIN:
-                    message.append("↔ <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
+                    colorArrow(message, "↔ ");
+                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" popped in");
                     if (showChan)
                         message.append(" ").append(e.chan);
                     break;
                 case TYPE_POPOUT:
-                    message.append("↔ <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
+                    colorArrow(message, "↔ ");
+                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" nipped out");
                     if (showChan)
                         message.append(" ").append(e.chan);
@@ -727,16 +759,16 @@ public class CollapsedEventsList {
                         case TYPE_MODE:
                             if (message.length() > 0)
                                 message.append("• ");
-                            message.append("mode: ");
+                            colorArrow(message, "mode: ");
                             break;
                         case TYPE_JOIN:
-                            message.append("→ ");
+                            colorArrow(message, "→ ");
                             break;
                         case TYPE_PART:
-                            message.append("← ");
+                            colorArrow(message, "← ");
                             break;
                         case TYPE_QUIT:
-                            message.append("⇐ ");
+                            colorArrow(message, "⇐ ");
                             break;
                         case TYPE_NICKCHANGE:
                             if (message.length() > 0)
@@ -744,7 +776,7 @@ public class CollapsedEventsList {
                             break;
                         case TYPE_POPIN:
                         case TYPE_POPOUT:
-                            message.append("↔ ");
+                            colorArrow(message, "↔ ");
                             break;
                         case TYPE_CONNECTIONSTATUS:
                             break;
@@ -752,7 +784,9 @@ public class CollapsedEventsList {
                 }
 
                 if (e.type == TYPE_NICKCHANGE) {
-                    message.append(e.old_nick).append(" → <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>");
+                    message.append(e.old_nick);
+                    colorArrow(message, " → ");
+                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor));
                     message.append(was(e));
                 } else if (e.type == TYPE_NETSPLIT) {
                     message.append(e.msg.replace(" ", " ↮ "));
@@ -761,7 +795,7 @@ public class CollapsedEventsList {
                     if (e.count > 1)
                         message.append(" (").append(e.count).append("x)");
                 } else if (!showChan) {
-                    message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE) ? e.target_mode : e.from_mode, false)).append("</b>").append(was(e));
+                    message.append(formatNick(e.nick, (e.type == TYPE_MODE) ? e.target_mode : e.from_mode, false, collapsedNickColor)).append(was(e));
                 }
 
                 if ((next == null || next.type != e.type) && !showChan) {
@@ -784,7 +818,7 @@ public class CollapsedEventsList {
                     }
                 } else if (showChan && e.type != TYPE_NETSPLIT && e.type != TYPE_CONNECTIONSTATUS && e.type != TYPE_NICKCHANGE) {
                     if (groupcount == 0) {
-                        message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE) ? e.target_mode : e.from_mode, false)).append("</b>").append(was(e));
+                        message.append(formatNick(e.nick, (e.type == TYPE_MODE) ? e.target_mode : e.from_mode, false, collapsedNickColor)).append(was(e));
                         switch (e.type) {
                             case TYPE_JOIN:
                                 message.append(" joined ");

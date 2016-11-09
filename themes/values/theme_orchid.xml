@@ -34,7 +34,8 @@
 		<item name="timestampBackgroundColor">@color/orchid_background6</item>
 		<item name="statusBackgroundColor">@color/orchid_background6a</item>
 		<item name="noticeBackgroundColor">@color/orchid_background5a</item>
-		<item name="collapsedRowTextColor">@color/orchid_text7</item>
+		<item name="collapsedRowTextColor">@color/orchid_text12</item>
+		<item name="collapsedRowNickColor">@color/orchid_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/orchid_background6</item>
 		<item name="navBarColor">@color/orchid_background5</item>
 		<item name="navBarBorderColor">@color/orchid_border10</item>
@@ -121,7 +122,8 @@
 		<item name="timestampBackgroundColor">@color/orchid_background6</item>
 		<item name="statusBackgroundColor">@color/orchid_background6a</item>
 		<item name="noticeBackgroundColor">@color/orchid_background5a</item>
-		<item name="collapsedRowTextColor">@color/orchid_text7</item>
+		<item name="collapsedRowTextColor">@color/orchid_text12</item>
+		<item name="collapsedRowNickColor">@color/orchid_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/orchid_background6</item>
 		<item name="navBarColor">@color/orchid_background5</item>
 		<item name="navBarBorderColor">@color/orchid_border10</item>
@@ -208,7 +210,8 @@
 		<item name="timestampBackgroundColor">@color/orchid_background6</item>
 		<item name="statusBackgroundColor">@color/orchid_background6a</item>
 		<item name="noticeBackgroundColor">@color/orchid_background5a</item>
-		<item name="collapsedRowTextColor">@color/orchid_text7</item>
+		<item name="collapsedRowTextColor">@color/orchid_text12</item>
+		<item name="collapsedRowNickColor">@color/orchid_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/orchid_background6</item>
 		<item name="navBarColor">@color/orchid_background5</item>
 		<item name="navBarBorderColor">@color/orchid_border10</item>
@@ -295,7 +298,8 @@
 		<item name="timestampBackgroundColor">@color/orchid_background6</item>
 		<item name="statusBackgroundColor">@color/orchid_background6a</item>
 		<item name="noticeBackgroundColor">@color/orchid_background5a</item>
-		<item name="collapsedRowTextColor">@color/orchid_text7</item>
+		<item name="collapsedRowTextColor">@color/orchid_text12</item>
+		<item name="collapsedRowNickColor">@color/orchid_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/orchid_background6</item>
 		<item name="navBarColor">@color/orchid_background5</item>
 		<item name="navBarBorderColor">@color/orchid_border10</item>
@@ -382,7 +386,8 @@
 		<item name="timestampBackgroundColor">@color/orchid_background6</item>
 		<item name="statusBackgroundColor">@color/orchid_background6a</item>
 		<item name="noticeBackgroundColor">@color/orchid_background5a</item>
-		<item name="collapsedRowTextColor">@color/orchid_text7</item>
+		<item name="collapsedRowTextColor">@color/orchid_text12</item>
+		<item name="collapsedRowNickColor">@color/orchid_text7</item>
 		<item name="collapsedHeadingBackgroundColor">@color/orchid_background6</item>
 		<item name="navBarColor">@color/orchid_background5</item>
 		<item name="navBarBorderColor">@color/orchid_border10</item>
