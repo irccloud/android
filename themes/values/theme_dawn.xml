@@ -38,6 +38,7 @@
 		<item name="statusBackgroundColor">#f2f7fc</item>
 		<item name="noticeBackgroundColor">#d9e7ff</item>
 		<item name="collapsedRowTextColor">#afafaf</item>
+		<item name="collapsedRowNickColor">#777</item>
 		<item name="collapsedHeadingBackgroundColor">#F2F7FC</item>
 		<item name="navBarColor">#F2F7FC</item>
 		<item name="navBarBorderColor">#D9E7FF</item>
@@ -118,6 +119,7 @@
 		<item name="statusBackgroundColor">#f2f7fc</item>
 		<item name="noticeBackgroundColor">#d9e7ff</item>
 		<item name="collapsedRowTextColor">#afafaf</item>
+		<item name="collapsedRowNickColor">#777</item>
 		<item name="collapsedHeadingBackgroundColor">#F2F7FC</item>
 		<item name="navBarColor">#F2F7FC</item>
 		<item name="navBarBorderColor">#D9E7FF</item>
@@ -196,6 +198,7 @@
 		<item name="statusBackgroundColor">#f2f7fc</item>
 		<item name="noticeBackgroundColor">#d9e7ff</item>
 		<item name="collapsedRowTextColor">#afafaf</item>
+		<item name="collapsedRowNickColor">#777</item>
 		<item name="collapsedHeadingBackgroundColor">#F2F7FC</item>
 		<item name="navBarColor">#F2F7FC</item>
 		<item name="navBarBorderColor">#D9E7FF</item>
@@ -274,6 +277,7 @@
 		<item name="statusBackgroundColor">#f2f7fc</item>
 		<item name="noticeBackgroundColor">#d9e7ff</item>
 		<item name="collapsedRowTextColor">#afafaf</item>
+		<item name="collapsedRowNickColor">#777</item>
 		<item name="collapsedHeadingBackgroundColor">#F2F7FC</item>
 		<item name="navBarColor">#F2F7FC</item>
 		<item name="navBarBorderColor">#D9E7FF</item>
@@ -354,6 +358,7 @@
 		<item name="statusBackgroundColor">#f2f7fc</item>
 		<item name="noticeBackgroundColor">#d9e7ff</item>
 		<item name="collapsedRowTextColor">#afafaf</item>
+		<item name="collapsedRowNickColor">#777</item>
 		<item name="collapsedHeadingBackgroundColor">#F2F7FC</item>
 		<item name="navBarColor">#F2F7FC</item>
 		<item name="navBarBorderColor">#D9E7FF</item>
