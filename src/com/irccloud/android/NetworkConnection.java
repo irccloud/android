@@ -418,6 +418,8 @@ public class NetworkConnection {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo ni = cm.getActiveNetworkInfo();
 
+            Log.d("IRCCloud", "Network status changed: connected: " + ni.isConnected() + " state: " + state);
+
             if (ni != null && ni.isConnected() && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0) {
                 if (idleTimerTask != null)
                     idleTimerTask.cancel();
@@ -442,10 +444,15 @@ public class NetworkConnection {
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+                Log.d("IRCCloud", "Data saver enabled");
                 if(!isVisible() && state == STATE_CONNECTED) {
                     notifier = false;
                     disconnect();
                 }
+            } else {
+                Log.d("IRCCloud", "Data saver disabled");
+                if(isVisible() && state != STATE_CONNECTED)
+                    connect();
             }
         }
     };
