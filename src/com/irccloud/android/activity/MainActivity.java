@@ -1223,7 +1223,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 User u = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
                 e = new Event();
-                e.command = messageTxt.getText().toString();
+                e.command = ColorFormatter.emojify(messageTxt.getText().toString());
                 e.cid = buffer.getCid();
                 e.bid = buffer.getBid();
                 e.eid = (System.currentTimeMillis() + 5000) * 1000L;
