@@ -5094,6 +5094,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             try {
                 conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
+                conn.setReadTimeout(60000);
+                conn.setConnectTimeout(60000);
                 conn.setDoOutput(true);
                 conn.setFixedLengthStreamingMode(total);
                 if (BuildConfig.MASHAPE_KEY.length() > 0)

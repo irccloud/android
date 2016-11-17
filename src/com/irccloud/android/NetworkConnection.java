@@ -2892,8 +2892,8 @@ public class NetworkConnection {
             conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
         }
 
-        conn.setConnectTimeout(5000);
-        conn.setReadTimeout(5000);
+        conn.setReadTimeout(60000);
+        conn.setConnectTimeout(60000);
         conn.setUseCaches(false);
         conn.setRequestProperty("User-Agent", useragent);
         conn.setRequestProperty("Accept", "application/json");
