@@ -1258,12 +1258,17 @@ public class NetworkConnection {
             }
         }, extraHeaders);
 
-        Log.d("IRCCloud", "Creating websocket");
         reconnect_timestamp = 0;
         idle_interval = 0;
         accrued = 0;
         notifyHandlers(EVENT_CONNECTIVITY, null);
         if (client != null) {
+            client.setDebugListener(new WebSocketClient.DebugListener() {
+                @Override
+                public void onDebugMsg(String msg) {
+                    Crashlytics.log(Log.DEBUG, "IRCCloud", msg);
+                }
+            });
             client.setSocketTag(WEBSOCKET_TAG);
             if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0)
                 client.setProxy(host, port);
@@ -2888,8 +2893,8 @@ public class NetworkConnection {
             conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
         }
 
-        conn.setReadTimeout(60000);
-        conn.setConnectTimeout(60000);
+        conn.setReadTimeout(30000);
+        conn.setConnectTimeout(30000);
         conn.setUseCaches(false);
         conn.setRequestProperty("User-Agent", useragent);
         conn.setRequestProperty("Accept", "application/json");
