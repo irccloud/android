@@ -35,6 +35,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.os.BuildCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -249,7 +250,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
         if (session.length() > 0) {
             if(conn.notifier) {
-                android.util.Log.d("IRCCloud", "Upgrading notifier websocket");
+                Crashlytics.log(Log.INFO, "IRCCloud", "Upgrading notifier websocket");
                 conn.upgrade();
             }
         } else {
@@ -266,8 +267,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     protected void onPostResume() {
         super.onPostResume();
         if(conn != null){
-            final ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-            if(!(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) && (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING))
+            if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
                 conn.connect();
         }
     }

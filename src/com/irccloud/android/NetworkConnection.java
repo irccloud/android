@@ -418,11 +418,15 @@ public class NetworkConnection {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo ni = cm.getActiveNetworkInfo();
 
+            Crashlytics.log(Log.INFO, TAG, "Connectivity changed, connected: " + ((ni != null)?ni.isConnected():"Unknown"));
+
             if (ni != null && ni.isConnected() && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0) {
+                Crashlytics.log(Log.INFO, TAG, "Network became available, reconnecting");
                 if (idleTimerTask != null)
                     idleTimerTask.cancel();
                 connect();
             } else if (ni == null || !ni.isConnected()) {
+                Crashlytics.log(Log.INFO, TAG, "Network lost, disconnecting");
                 cancel_idle_timer();
                 reconnect_timestamp = 0;
                 try {
@@ -442,11 +446,13 @@ public class NetworkConnection {
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+                Crashlytics.log(Log.INFO, TAG, "Data Saver was enabled");
                 if(!isVisible() && state == STATE_CONNECTED) {
                     notifier = false;
                     disconnect();
                 }
             } else {
+                Crashlytics.log(Log.INFO, TAG, "Data Saver was disabled");
                 if(isVisible() && state != STATE_CONNECTED)
                     connect();
             }
@@ -1042,14 +1048,17 @@ public class NetworkConnection {
         int port = -1;
         int limit = 100;
 
-        if (session == null || session.length() == 0)
+        if (session == null || session.length() == 0) {
+            Crashlytics.log(Log.INFO, TAG, "Session key not set");
             return;
+        }
 
         if (ctx != null) {
             ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo ni = cm.getActiveNetworkInfo();
 
             if (ni == null || !ni.isConnected()) {
+                Crashlytics.log(Log.INFO, TAG, "No active network connection");
                 cancel_idle_timer();
                 state = STATE_DISCONNECTED;
                 reconnect_timestamp = 0;
@@ -1067,7 +1076,7 @@ public class NetworkConnection {
         }
 
         if (state == STATE_CONNECTING || state == STATE_CONNECTED) {
-            Log.w(TAG, "Ignoring duplicate connect request");
+            Crashlytics.log(Log.INFO, TAG, "Ignoring duplicate connect request");
             return;
         }
         state = STATE_CONNECTING;
@@ -1077,7 +1086,7 @@ public class NetworkConnection {
         saveTimerTask = null;
 
         if (oobTasks.size() > 0) {
-            Log.d("IRCCloud", "Clearing OOB tasks before connecting");
+            Crashlytics.log(Log.DEBUG, TAG, "Clearing OOB tasks before connecting");
         }
         synchronized (oobTasks) {
 
