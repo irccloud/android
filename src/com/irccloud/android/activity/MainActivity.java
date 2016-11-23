@@ -1697,49 +1697,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if(NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
             new GcmTask().execute((Void)null);
-
-            if(PreferenceManager.getDefaultSharedPreferences(this).contains("email") && !PreferenceManager.getDefaultSharedPreferences(this).contains("greeting_3.0")) {
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(MainActivity.this).edit();
-                editor.putBoolean("greeting_3.0", true);
-                editor.commit();
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Welcome to IRCCloud 3.0");
-                builder.setMessage("We've updated the default message layout. We hope you like it, but you can switch back in your settings.");
-                builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Answers.getInstance().logCustom(new CustomEvent("greeting_settings"));
-                        startActivity(new Intent(MainActivity.this, PreferencesActivity.class));
-                    }
-                });
-                builder.setNegativeButton("Close", null);
-                builder.setNeutralButton("What's New?", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Uri uri = Uri.parse("https://github.com/irccloud/android/releases");
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-                            builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
-                            builder.addDefaultShareMenuItem();
-                            CustomTabsIntent intent = builder.build();
-                            intent.intent.setData(uri);
-                            if (Build.VERSION.SDK_INT >= 22)
-                                intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
-                            if (Build.VERSION.SDK_INT >= 16 && intent.startAnimationBundle != null) {
-                                startActivity(intent.intent, intent.startAnimationBundle);
-                            } else {
-                                startActivity(intent.intent);
-                            }
-                        } else {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                            startActivity(intent);
-                        }
-                        Answers.getInstance().logCustom(new CustomEvent("greeting_changelog"));
-                    }
-                });
-                builder.show();
-            }
         }
     }
 
