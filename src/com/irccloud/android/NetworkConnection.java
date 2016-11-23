@@ -418,7 +418,7 @@ public class NetworkConnection {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo ni = cm.getActiveNetworkInfo();
 
-            Crashlytics.log(Log.INFO, TAG, "Connectivity changed, connected: " + ((ni != null)?ni.isConnected():"Unknown"));
+            Crashlytics.log(Log.INFO, TAG, "Connectivity changed, connected: " + ((ni != null)?ni.isConnected():"Unknown") + ", connected or connecting: " + ((ni != null)?ni.isConnectedOrConnecting():"Unknown"));
 
             if (ni != null && ni.isConnected() && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0) {
                 Crashlytics.log(Log.INFO, TAG, "Network became available, reconnecting");
