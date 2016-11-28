@@ -1755,6 +1755,8 @@ public class ColorFormatter {
                             } else
                                 new_bg = builder.substring(pos, pos + count);
                             builder.delete(pos, pos + count);
+                        } else {
+                            builder.insert(pos, ",");
                         }
                     }
                     String html = "";
