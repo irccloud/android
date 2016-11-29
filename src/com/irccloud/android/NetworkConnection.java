@@ -1049,33 +1049,31 @@ public class NetworkConnection {
         int port = -1;
         int limit = 100;
 
-        if (session == null || session.length() == 0) {
+        if (session.length() == 0) {
             Crashlytics.log(Log.INFO, TAG, "Session key not set");
             state = STATE_DISCONNECTED;
             return;
         }
 
-        if (ctx != null) {
-            ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-            if(cm != null) {
-                NetworkInfo ni = cm.getActiveNetworkInfo();
+        ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm != null) {
+            NetworkInfo ni = cm.getActiveNetworkInfo();
 
-                if (ni == null || !ni.isConnected()) {
-                    Crashlytics.log(Log.INFO, TAG, "No active network connection");
-                    cancel_idle_timer();
-                    state = STATE_DISCONNECTED;
-                    reconnect_timestamp = 0;
-                    notifyHandlers(EVENT_CONNECTIVITY, null);
-                    return;
-                }
+            if (ni != null && !ni.isConnectedOrConnecting()) {
+                Crashlytics.log(Log.INFO, TAG, "No active network connection");
+                cancel_idle_timer();
+                state = STATE_DISCONNECTED;
+                reconnect_timestamp = 0;
+                notifyHandlers(EVENT_CONNECTIVITY, null);
+                return;
+            }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
-                    limit = 50;
-                }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+                limit = 50;
+            }
 
-                if (ni.getType() == ConnectivityManager.TYPE_MOBILE && (ni.getSubtype() == TelephonyManager.NETWORK_TYPE_EDGE || ni.getSubtype() == TelephonyManager.NETWORK_TYPE_GPRS || ni.getSubtype() == TelephonyManager.NETWORK_TYPE_CDMA || ni.getSubtype() == TelephonyManager.NETWORK_TYPE_1xRTT)) {
-                    limit = 25;
-                }
+            if (ni != null && ni.getType() == ConnectivityManager.TYPE_MOBILE && (ni.getSubtype() == TelephonyManager.NETWORK_TYPE_EDGE || ni.getSubtype() == TelephonyManager.NETWORK_TYPE_GPRS || ni.getSubtype() == TelephonyManager.NETWORK_TYPE_CDMA || ni.getSubtype() == TelephonyManager.NETWORK_TYPE_1xRTT)) {
+                limit = 25;
             }
         }
 
