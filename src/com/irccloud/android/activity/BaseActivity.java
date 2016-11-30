@@ -269,7 +269,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if(conn != null){
             Crashlytics.log(Log.INFO, "IRCCloud", "App resumed, websocket state: " + conn.getState());
             if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
-                conn.connect();
+                conn.connect(true);
         }
     }
 

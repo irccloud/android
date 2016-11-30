@@ -1040,8 +1040,12 @@ public class NetworkConnection {
         saveTimer.schedule(saveTimerTask, delay);*/
     }
 
+    public void connect() {
+        connect(false);
+    }
+
     @TargetApi(24)
-    public synchronized void connect() {
+    public synchronized void connect(boolean ignoreNetworkState) {
         Crashlytics.log(Log.DEBUG, TAG, "connect()");
         Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
         session = ctx.getSharedPreferences("prefs", 0).getString("session_key", "");
@@ -1059,7 +1063,7 @@ public class NetworkConnection {
         if(cm != null) {
             NetworkInfo ni = cm.getActiveNetworkInfo();
 
-            if (ni != null && !ni.isConnectedOrConnecting()) {
+            if (!ignoreNetworkState && ni != null && !ni.isConnectedOrConnecting()) {
                 Crashlytics.log(Log.INFO, TAG, "No active network connection");
                 cancel_idle_timer();
                 state = STATE_DISCONNECTED;
