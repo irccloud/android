@@ -79,7 +79,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -138,7 +138,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -178,7 +178,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
         </activity>
         <activity android:name=".activity.ServerReorderActivity" >
         </activity>
@@ -190,7 +190,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -216,7 +216,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -241,7 +241,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -258,7 +258,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -287,7 +287,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
         </activity>
         <activity
             android:name=".activity.PastebinsActivity"
@@ -296,7 +296,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
         </activity>
 
         <receiver
@@ -398,7 +398,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -413,7 +413,7 @@
             <layout android:defaultHeight="320dp"
                 android:defaultWidth="400dp"
                 android:gravity="top|end"
-                android:minWidth="320dp"/>
+                android:minWidth="260dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -428,7 +428,7 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minWidth="320dp"/>
+                    android:minWidth="260dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
