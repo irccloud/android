@@ -2529,6 +2529,36 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 });
                 break;
+            case NetworkConnection.EVENT_WHOSPECIALRESPONSE:
+                event = (IRCCloudJSONObject) obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        StringBuilder sb = new StringBuilder();
+                        JsonNode users = event.getJsonNode("users");
+                        for(int i = 0; i < users.size(); i++) {
+                            sb.append(users.get(i).asText()).append("\n");
+                        }
+
+                        Bundle args = new Bundle();
+                        args.putString("title", "WHO for " + event.getString("subject"));
+                        args.putString("text", (sb.length() > 0) ? sb.toString(): "No results found.");
+                        TextListFragment whoList = (TextListFragment) getSupportFragmentManager().findFragmentByTag("whospecial");
+                        if (whoList == null) {
+                            whoList = new TextListFragment();
+                            whoList.setArguments(args);
+                            try {
+                                whoList.show(getSupportFragmentManager(), "whospecial");
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
+                            }
+                        } else {
+                            whoList.getArguments().putAll(args);
+                            whoList.refresh();
+                        }
+                    }
+                });
+                break;
             case NetworkConnection.EVENT_WHOIS:
                 event = (IRCCloudJSONObject) obj;
                 runOnUiThread(new Runnable() {

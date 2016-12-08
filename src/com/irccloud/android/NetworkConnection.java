@@ -215,6 +215,7 @@ public class NetworkConnection {
     public static final int EVENT_BANEXCEPTIONLIST = 46;
     public static final int EVENT_INVITELIST = 47;
     public static final int EVENT_CHANNELQUERY = 48;
+    public static final int EVENT_WHOSPECIALRESPONSE = 49;
 
     public static final int EVENT_BACKLOG_START = 100;
     public static final int EVENT_BACKLOG_END = 101;
@@ -2754,6 +2755,7 @@ public class NetworkConnection {
         put("ban_exception_list", new BroadcastParser(EVENT_BANEXCEPTIONLIST));
         put("invite_list", new BroadcastParser(EVENT_INVITELIST));
         put("channel_query", new BroadcastParser(EVENT_CHANNELQUERY));
+        put("who_special_response", new BroadcastParser(EVENT_WHOSPECIALRESPONSE));
         put("who_response", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
