@@ -57,7 +57,6 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.customtabs.CustomTabsClient;
-import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v13.view.inputmethod.InputContentInfoCompat;
@@ -75,7 +74,6 @@ import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
@@ -117,10 +115,8 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.ShareEvent;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.ActionEditText;
@@ -135,7 +131,6 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
-import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.RecentConversationsList;
@@ -160,7 +155,7 @@ import com.irccloud.android.fragment.IgnoreListFragment;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.irccloud.android.fragment.NamesListFragment;
 import com.irccloud.android.fragment.NickservFragment;
-import com.irccloud.android.fragment.ServerMapListFragment;
+import com.irccloud.android.fragment.TextListFragment;
 import com.irccloud.android.fragment.ServerReorderFragment;
 import com.irccloud.android.fragment.UsersListFragment;
 import com.irccloud.android.fragment.WhoListFragment;
@@ -2471,11 +2466,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        StringBuilder sb = new StringBuilder();
+                        JsonNode servers = event.getJsonNode("servers");
+                        for(int i = 0; i < servers.size(); i++) {
+                            sb.append(servers.get(i).asText()).append("\n");
+                        }
+
                         Bundle args = new Bundle();
-                        args.putString("event", event.toString());
-                        ServerMapListFragment serversList = (ServerMapListFragment) getSupportFragmentManager().findFragmentByTag("serverslist");
+                        args.putString("title", "Server Map");
+                        args.putString("text", (sb.length() > 0) ? sb.toString(): "No results found.");
+                        TextListFragment serversList = (TextListFragment) getSupportFragmentManager().findFragmentByTag("serverslist");
                         if (serversList == null) {
-                            serversList = new ServerMapListFragment();
+                            serversList = new TextListFragment();
                             serversList.setArguments(args);
                             try {
                                 serversList.show(getSupportFragmentManager(), "serverslist");
@@ -2485,6 +2487,44 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         } else {
                             serversList.setArguments(args);
                         }
+                    }
+                });
+                break;
+            case NetworkConnection.EVENT_CHANNELQUERY:
+                event = (IRCCloudJSONObject) obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String msg = "";
+                        String type = event.getString("query_type");
+
+                        if(type.equals("mode")) {
+                            msg = event.getString("channel") + " mode is <b>" + event.getString("diff") + "</b>";
+                        } else if(type.equals("timestamp")) {
+                            msg = event.getString("channel") + " created on <b>" + DateFormat.getDateTimeInstance().format(new Date(event.getLong("timestamp") * 1000)) + "</b>";
+                        } else {
+                            Log.w("IRCCloud", "Unhandled channel query type: " + type);
+                        }
+
+                        Bundle args = new Bundle();
+                        args.putString("text", msg);
+                        args.putString("title", server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                        TextListFragment queryFragment = (TextListFragment) getSupportFragmentManager().findFragmentByTag("channelquery");
+                        if (queryFragment == null) {
+                            queryFragment = new TextListFragment();
+                            queryFragment.setArguments(args);
+                            try {
+                                queryFragment.show(getSupportFragmentManager(), "channelquery");
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
+                            }
+                        } else {
+                            args = queryFragment.getArguments();
+                            msg = args.getString("text") + "<br/>\n" + msg;
+                            args.putString("text", msg);
+                            queryFragment.refresh();
+                        }
+                        getSupportFragmentManager().executePendingTransactions();
                     }
                 });
                 break;

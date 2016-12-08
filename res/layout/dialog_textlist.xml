@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (c) 2015 IRCCloud, Ltd.
+  ~ Copyright (c) 2016 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,24 +14,20 @@
   ~ limitations under the License.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
-    <data>
-        <variable name="server" type="String"/>
-    </data>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingLeft="12dp"
-        android:paddingRight="6dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="horizontal|vertical"
+    android:fillViewport="true">
 
-        <TextView
-            android:text="@{ server }"
-            android:textColor="?navBarHeadingColor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:typeface="monospace" />
-    </LinearLayout>
-</layout>
+    <TextView
+        android:id="@+id/textView"
+        android:textColor="?navBarHeadingColor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="14sp"
+        android:paddingLeft="12dp"
+        android:paddingRight="6dp"
+        android:typeface="monospace"
+        android:scrollbars="horizontal|vertical" />
+</LinearLayout>
