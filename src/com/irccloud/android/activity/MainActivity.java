@@ -2485,7 +2485,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 //App lost focus already
                             }
                         } else {
-                            serversList.setArguments(args);
+                            serversList.getArguments().putAll(args);
+                            serversList.refresh();
                         }
                     }
                 });
