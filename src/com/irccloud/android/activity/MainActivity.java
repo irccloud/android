@@ -2499,9 +2499,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         String type = event.getString("query_type");
 
                         if(type.equals("mode")) {
-                            msg = event.getString("channel") + " mode is <b>" + event.getString("diff") + "</b>";
+                            msg = event.getString("channel") + " mode is " + event.getString("diff");
                         } else if(type.equals("timestamp")) {
-                            msg = event.getString("channel") + " created on <b>" + DateFormat.getDateTimeInstance().format(new Date(event.getLong("timestamp") * 1000)) + "</b>";
+                            msg = event.getString("channel") + " created on " + DateFormat.getDateTimeInstance().format(new Date(event.getLong("timestamp") * 1000));
                         } else {
                             Log.w("IRCCloud", "Unhandled channel query type: " + type);
                         }
@@ -2520,7 +2520,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                         } else {
                             args = queryFragment.getArguments();
-                            msg = args.getString("text") + "<br/>\n" + msg;
+                            msg = args.getString("text") + "\n" + msg;
                             args.putString("text", msg);
                             queryFragment.refresh();
                         }

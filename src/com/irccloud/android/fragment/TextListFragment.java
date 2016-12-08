@@ -23,7 +23,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,7 +52,7 @@ public class TextListFragment extends DialogFragment {
         }
 
         if(text != null) {
-            textView.setText(Html.fromHtml(text));
+            textView.setText(text);
         }
 
         Dialog d = new AlertDialog.Builder(ctx)
@@ -87,7 +86,7 @@ public class TextListFragment extends DialogFragment {
         if(args.containsKey("text")) {
             text = args.getString("text");
             if(textView != null)
-                textView.setText(Html.fromHtml(text));
+                textView.setText(text);
         }
     }
 
