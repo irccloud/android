@@ -737,7 +737,7 @@ public class EventsList {
             put(stat, statsFormatter);
 
         String[] caps = {
-                "cap_ls", "cap_req", "cap_ack", "cap_raw"
+                "cap_ls", "cap_req", "cap_ack", "cap_raw", "cap_new"
         };
         Formatter capsFormatter = new Formatter() {
             @Override
@@ -755,8 +755,17 @@ public class EventsList {
                         case "cap_ack":
                             e.msg = "<b>CAP</b> Acknowledged: ";
                             break;
+                        case "cap_nak":
+                            e.msg = "<b>CAP</b> Rejected: ";
+                            break;
                         case "cap_raw":
                             e.msg = "<b>CAP</b> " + event.getString("line");
+                            break;
+                        case "cap_new":
+                            e.msg = "<b>CAP</b> Server added: ";
+                            break;
+                        case "cap_del":
+                            e.msg = "<b>CAP</b> Server removed: ";
                             break;
                     }
                     JsonNode caps = event.getJsonNode("caps");
