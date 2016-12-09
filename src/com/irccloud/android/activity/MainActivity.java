@@ -155,6 +155,7 @@ import com.irccloud.android.fragment.IgnoreListFragment;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.irccloud.android.fragment.NamesListFragment;
 import com.irccloud.android.fragment.NickservFragment;
+import com.irccloud.android.fragment.SpamFragment;
 import com.irccloud.android.fragment.TextListFragment;
 import com.irccloud.android.fragment.ServerReorderFragment;
 import com.irccloud.android.fragment.UsersListFragment;
@@ -3941,6 +3942,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
             itemList.add("Mark All As Read");
+
+            ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffersForServer(b.getCid());
+            for(Buffer b1 : buffers) {
+                if(b1.getArchived() == 0 && b1.getType().equals("conversation")) {
+                    itemList.add("Delete Active Conversations…");
+                    break;
+                }
+            }
             itemList.add("Add A Network");
             itemList.add("Reorder Connections");
         }
@@ -4148,6 +4157,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.setOwnerActivity(MainActivity.this);
                     dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                     dialog.show();
+                } else if (items[item].equals("Delete Active Conversations…")) {
+                    SpamFragment spamFragment = new SpamFragment();
+                    spamFragment.setCid(b.getCid());
+                    spamFragment.show(getSupportFragmentManager(), "spam");
                 }
             }
         });
