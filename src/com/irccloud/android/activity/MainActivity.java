@@ -2564,6 +2564,37 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 });
                 break;
+            case NetworkConnection.EVENT_MODULESLIST:
+                event = (IRCCloudJSONObject) obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        StringBuilder sb = new StringBuilder();
+                        JsonNode modules = event.getJsonNode("modules");
+                        android.util.Log.e("IRCCloud", event.toString());
+                        for(int i = 0; i < modules.size(); i++) {
+                            sb.append(modules.get(i).asText()).append("\n");
+                        }
+
+                        Bundle args = new Bundle();
+                        args.putString("title", "Modules list for " + server.getHostname());
+                        args.putString("text", (sb.length() > 0) ? sb.toString(): "No results found.");
+                        TextListFragment modulesList = (TextListFragment) getSupportFragmentManager().findFragmentByTag("whospecial");
+                        if (modulesList == null) {
+                            modulesList = new TextListFragment();
+                            modulesList.setArguments(args);
+                            try {
+                                modulesList.show(getSupportFragmentManager(), "moduleslist");
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
+                            }
+                        } else {
+                            modulesList.getArguments().putAll(args);
+                            modulesList.refresh();
+                        }
+                    }
+                });
+                break;
             case NetworkConnection.EVENT_WHOIS:
                 event = (IRCCloudJSONObject) obj;
                 runOnUiThread(new Runnable() {
