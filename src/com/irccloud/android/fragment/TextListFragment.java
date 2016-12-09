@@ -23,7 +23,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.method.ScrollingMovementMethod;
+import android.text.style.TabStopSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -52,7 +55,7 @@ public class TextListFragment extends DialogFragment {
         }
 
         if(text != null) {
-            textView.setText(text);
+            setText(text);
         }
 
         Dialog d = new AlertDialog.Builder(ctx)
@@ -86,8 +89,15 @@ public class TextListFragment extends DialogFragment {
         if(args.containsKey("text")) {
             text = args.getString("text");
             if(textView != null)
-                textView.setText(text);
+                setText(text);
         }
+    }
+
+    private void setText(String text) {
+        SpannableStringBuilder sb = new SpannableStringBuilder(text);
+        for (int i = 0; i < 100; i++)
+            sb.setSpan(new TabStopSpan.Standard(i * 300), 0, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textView.setText(sb, TextView.BufferType.SPANNABLE);
     }
 
     @Override

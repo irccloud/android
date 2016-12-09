@@ -2538,7 +2538,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         StringBuilder sb = new StringBuilder();
                         JsonNode users = event.getJsonNode("users");
                         for(int i = 0; i < users.size(); i++) {
-                            sb.append(users.get(i).asText()).append("\n");
+                            JsonNode node = users.get(i);
+                            for(int j = 0; j < node.size(); j++)
+                                sb.append(node.get(j).asText()).append(" \t");
+                            sb.deleteCharAt(sb.length() - 1);
+                            sb.append("\n");
                         }
 
                         Bundle args = new Bundle();
