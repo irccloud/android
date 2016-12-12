@@ -282,7 +282,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 return -1;
 
             synchronized (data) {
-                if (min_eid > 0 && buffer.getLast_seen_eid() > 0 && min_eid >= buffer.getLast_seen_eid()) {
+                if ((min_eid > 0 && buffer.getLast_seen_eid() > 0 && min_eid >= buffer.getLast_seen_eid()) || (data.size() == 0 && buffer.getLast_seen_eid() > 0)) {
                     lastSeenEidMarkerPosition = 0;
                 } else {
                     for (int i = data.size() - 1; i >= 0; i--) {
@@ -1320,8 +1320,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 headerView.setVisibility(View.GONE);
                 loadBacklogButton.setVisibility(View.GONE);
             } else {
-                headerView.setVisibility(View.VISIBLE);
-                loadBacklogButton.setVisibility(View.GONE);
+                headerView.setVisibility(View.GONE);
+                loadBacklogButton.setVisibility(View.VISIBLE);
             }
             if (adapter != null) {
                 adapter.clear();
@@ -1816,7 +1816,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             } catch (InterruptedException e) {
             }
 
-            if (isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED || b == null || !ready || requestingBacklog)
+            if (isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED || b == null || !ready || requestingBacklog || adapter.getCount() == 0)
                 return null;
 
             if (getActivity() != null) {
@@ -1950,14 +1950,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        headerView.setVisibility(View.VISIBLE);
+                        headerView.setVisibility(View.GONE);
                         backlogFailed.setVisibility(View.GONE);
-                        loadBacklogButton.setVisibility(View.GONE);
+                        loadBacklogButton.setVisibility(View.VISIBLE);
                         adapter = new MessageAdapter(MessageViewFragment.this, 0);
                         setListAdapter(adapter);
                         MessageViewFragment.this.adapter = adapter;
-                        requestingBacklog = true;
-                        conn.request_backlog(buffer.getCid(), buffer.getBid(), 0);
                     }
                 });
             } else {
@@ -1982,18 +1980,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 try {
                     avatarContainer.setVisibility(View.GONE);
                     avatar.setTag(null);
-                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
                     if (adapter.getLastSeenEIDPosition() == 0)
-                        lp.topMargin = (int) getSafeResources().getDimension(R.dimen.top_bar_height);
+                        headerViewContainer.setPadding(0,(int)getSafeResources().getDimension(R.dimen.top_bar_height),0,0);
                     else
-                        lp.topMargin = 0;
-                    headerView.setLayoutParams(lp);
-                    lp = (ViewGroup.MarginLayoutParams) backlogFailed.getLayoutParams();
-                    if (adapter.getLastSeenEIDPosition() == 0)
-                        lp.topMargin = (int) getSafeResources().getDimension(R.dimen.top_bar_height);
-                    else
-                        lp.topMargin = 0;
-                    backlogFailed.setLayoutParams(lp);
+                        headerViewContainer.setPadding(0,0,0,0);
                     setListAdapter(adapter);
                     MessageViewFragment.this.adapter = adapter;
                     if (events != null && events.size() > 0) {
@@ -2126,24 +2116,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             lastCollapsedDay = -1;
 
             if (events == null || (events.size() == 0 && buffer.getMin_eid() > 0)) {
-                if (buffer != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                    requestingBacklog = true;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            conn.request_backlog(buffer.getCid(), buffer.getBid(), 0);
-                        }
-                    });
-                } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            headerView.setVisibility(View.GONE);
-                            backlogFailed.setVisibility(View.GONE);
-                            loadBacklogButton.setVisibility(View.GONE);
-                        }
-                    });
-                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerView.setVisibility(View.GONE);
+                        backlogFailed.setVisibility(View.GONE);
+                        loadBacklogButton.setVisibility(View.GONE);
+                    }
+                });
             } else if (events.size() > 0) {
                 if (server != null) {
                     ignore.setIgnores(server.ignores);
@@ -2176,25 +2156,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     //Debug.stopMethodTracing();
                     avgInsertTime = 0;
                     //adapter.notifyDataSetChanged();
-                    if (events.firstKey() > buffer.getMin_eid() && buffer.getMin_eid() > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                headerView.setVisibility(View.VISIBLE);
-                                backlogFailed.setVisibility(View.GONE);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            headerView.setVisibility(View.GONE);
+                            if(buffer.getMin_eid() > 0 && earliest_eid > buffer.getMin_eid() && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED)
+                                loadBacklogButton.setVisibility(View.VISIBLE);
+                            else
                                 loadBacklogButton.setVisibility(View.GONE);
-                            }
-                        });
-                    } else {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                headerView.setVisibility(View.GONE);
-                                backlogFailed.setVisibility(View.GONE);
-                                loadBacklogButton.setVisibility(View.GONE);
-                            }
-                        });
-                    }
+                        }
+                    });
                 }
             }
             if (conn.getReconnectTimestamp() == 0 && conn.getState() == NetworkConnection.STATE_CONNECTED)
@@ -2206,7 +2177,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if (adapter != null && buffer != null) {
             try {
                 int markerPos = adapter.getLastSeenEIDPosition();
-                if (markerPos >= 0 && first > (markerPos + 1) && buffer.getUnread() > 0) {
+                if (markerPos >= 0 && ((first > (markerPos + 1) && buffer.getUnread() > 0) || adapter.getCount() == 0)) {
                     if (pref_trackUnread) {
                         int highlights = adapter.getUnreadHighlightsAbovePosition(first);
                         int count = (first - markerPos - 1) - highlights;
@@ -2226,7 +2197,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         if (markerPos == 0) {
                             long seconds = (long) Math.ceil((earliest_eid - buffer.getLast_seen_eid()) / 1000000.0);
-                            if (seconds < 0) {
+                            if (seconds <= 0) {
                                 if (count < 0) {
                                     hideView(unreadTopView);
                                     return;

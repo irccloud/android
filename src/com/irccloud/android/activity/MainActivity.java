@@ -1216,6 +1216,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         messageTxt.setText(messageTxt.getText().toString().substring(7));
                     show_pastebin_prompt();
                     return;
+                } else if(messageTxt.getText().toString().equals("/ignore")) {
+                    messageTxt.setText("");
+                    Bundle args = new Bundle();
+                    args.putInt("cid", buffer.getCid());
+                    IgnoreListFragment ignoreList = new IgnoreListFragment();
+                    ignoreList.setArguments(args);
+                    ignoreList.show(getSupportFragmentManager(), "ignorelist");
+                    return;
+                } else if(messageTxt.getText().toString().equals("/clear")) {
+                    messageTxt.setText("");
+                    EventsList.getInstance().deleteEventsForBuffer(buffer.getBid());
+                    onBufferSelected(buffer.getBid());
+                    return;
                 }
                 User u = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
                 e = new Event();
@@ -1293,13 +1306,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else if (messageTxt.getText().toString().equals("/crash")) {
                     Crashlytics.getInstance().crash();
                 }
-            }
-            if (e != null && e.command.equals("/ignore")) {
-                Bundle args = new Bundle();
-                args.putInt("cid", buffer.getCid());
-                IgnoreListFragment ignoreList = new IgnoreListFragment();
-                ignoreList.setArguments(args);
-                ignoreList.show(getSupportFragmentManager(), "ignorelist");
             }
             if (e != null && e.reqid != -1) {
                 messageTxt.setText("");
@@ -4354,6 +4360,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             itemList.add("Copy Hostmask");
         }
 
+        if(message != null) {
+            itemList.add("Clear Backlog");
+        }
+
         items = itemList.toArray(new String[itemList.size()]);
 
         if (selected_user != null)
@@ -4391,6 +4401,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                     Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Message copied to clipboard", Toast.LENGTH_SHORT).show();
+                } else if (items[item].equals("Clear Backlog")) {
+                    EventsList.getInstance().deleteEventsForBuffer(buffer.getBid());
+                    onBufferSelected(buffer.getBid());
                 } else if (items[item].equals("Copy Hostmask")) {
                     if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
                         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
