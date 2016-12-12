@@ -3192,7 +3192,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         }
-        if (menu.findItem(R.id.menu_userlist) != null && menu.findItem(R.id.menu_userlist).isVisible() && userListView != null)
+        if (menu != null && menu.findItem(R.id.menu_clear_backlog) != null) {
+            menu.findItem(R.id.menu_clear_backlog).setEnabled(buffer != null);
+        }
+        if (menu != null && menu.findItem(R.id.menu_userlist) != null && menu.findItem(R.id.menu_userlist).isVisible() && userListView != null)
             userListView.setVisibility(View.VISIBLE);
 
         return super.onPrepareOptionsMenu(menu);
@@ -3812,6 +3815,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 dialog.show();
                 return true;
+            case R.id.menu_clear_backlog:
+                EventsList.getInstance().deleteEventsForBuffer(buffer.getBid());
+                onBufferSelected(buffer.getBid());
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -4360,10 +4367,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             itemList.add("Copy Hostmask");
         }
 
-        if(message != null) {
-            itemList.add("Clear Backlog");
-        }
-
         items = itemList.toArray(new String[itemList.size()]);
 
         if (selected_user != null)
@@ -4401,9 +4404,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                     Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Message copied to clipboard", Toast.LENGTH_SHORT).show();
-                } else if (items[item].equals("Clear Backlog")) {
-                    EventsList.getInstance().deleteEventsForBuffer(buffer.getBid());
-                    onBufferSelected(buffer.getBid());
                 } else if (items[item].equals("Copy Hostmask")) {
                     if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
                         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
