@@ -43,6 +43,7 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.model.Event;
@@ -329,6 +330,11 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                             newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
                             mListener.addButtonPressed(b.getCid());
                             return;
+                        case Buffer.TYPE_SPAM:
+                            SpamFragment spamFragment = new SpamFragment();
+                            spamFragment.setCid(b.getCid());
+                            spamFragment.show(getActivity().getSupportFragmentManager(), "spam");
+                            return;
                     }
                     mListener.onBufferSelected(b.getBid());
                 }
@@ -379,6 +385,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 if (isCancelled())
                     return null;
 
+                int spamCount = 0;
                 int archiveCount = s.deferred_archives;
                 ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffersForServer(s.getCid());
                 for (Buffer b : buffers) {
@@ -399,10 +406,26 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                             firstFailurePosition = position;
                         if (b.isConsole() && s.isFailed() && (lastFailurePosition == -1 || lastFailurePosition < position))
                             lastFailurePosition = position;
+                        if(b.isConversation() && b.getUnread() > 0 && EventsList.getInstance().getSizeOfBuffer(b.getBid()) == 1)
+                            spamCount++;
                         position++;
                     } else {
                         archiveCount++;
                     }
+                }
+                if (spamCount > 3) {
+                    Buffer spam = new Buffer();
+                    spam.setCid(s.getCid());
+                    spam.setName("Spam detected");
+                    spam.setType(Buffer.TYPE_SPAM);
+                    for(int i = 0; i < entries.size(); i++) {
+                        Buffer b = entries.get(i);
+                        if(b.getCid() == spam.getCid() && b.isConversation()) {
+                            entries.add(i, spam);
+                            break;
+                        }
+                    }
+                    position++;
                 }
                 if (archiveCount > 0) {
                     Buffer header = new Buffer();

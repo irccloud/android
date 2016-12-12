@@ -48,9 +48,10 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public static final String TYPE_CONVERSATION = "conversation";
     public static final String TYPE_ARCHIVES_HEADER = "archives_header";
     public static final String TYPE_JOIN_CHANNEL = "join_channel";
+    public static final String TYPE_SPAM = "spam";
 
     private enum Type {
-        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, OTHER
+        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, SPAM, OTHER
     }
 
     private Server server = null;
@@ -205,6 +206,9 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
             case TYPE_JOIN_CHANNEL:
                 this.type_int = Type.JOIN_CHANNEL;
                 break;
+            case TYPE_SPAM:
+                this.type_int = Type.SPAM;
+                break;
             default:
                 this.type_int = Type.OTHER;
                 break;
@@ -257,6 +261,15 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         if(this.bid != -1) {
             BuffersList.getInstance().dirty = true;
         }
+    }
+
+    public boolean isSpam() {
+        return type_int == Type.SPAM;
+    }
+
+    @Bindable
+    public boolean getIsSpam() {
+        return isSpam();
     }
 
     public int getDeferred() {
@@ -425,6 +438,8 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
                 return colorScheme.bufferTextColor;
         } else if (isChannel() && !isJoined()) {
             return colorScheme.inactiveBufferTextColor;
+        } else if (isSpam()) {
+            return colorScheme.networkErrorColor;
         } else {
             return colorScheme.bufferTextColor;
         }
@@ -432,10 +447,12 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
 
     @Bindable
     public String getIcon() {
-        if(type.equals(TYPE_CHANNEL)) {
+        if(isChannel()) {
             Channel c = ChannelsList.getInstance().getChannelForBuffer(bid);
             if(c != null && c.hasMode("k"))
                 return FontAwesome.LOCK;
+        } else if(isSpam()) {
+            return FontAwesome.EXCLAMATION_TRIANGLE;
         }
         return null;
     }
@@ -444,6 +461,8 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public int getBackgroundResource() {
         if(isChannel() || isConversation())
             return colorScheme.bufferBackgroundDrawable;
+        else if(isSpam())
+            return R.drawable.row_failed_bg;
         else if(isConsole())
             return (getServer() != null && getServer().isFailed()) ? R.drawable.row_failed_bg : colorScheme.serverBackgroundDrawable;
         else if(type_int == Type.JOIN_CHANNEL)
@@ -495,5 +514,10 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
             return (getServer() != null && getServer().deferred_archives > 0);
         else
             return (isConsole() && getServer() != null)? getServer().isConnecting() : (this.timeout > 0);
+    }
+
+    @Bindable
+    public int getSpamIconColor() {
+        return 0xFFff6e00;
     }
 }

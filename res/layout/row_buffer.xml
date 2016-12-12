@@ -31,22 +31,25 @@
 		android:layout_height="wrap_content"
 		android:background="?buffersDrawerBackgroundDrawable"
 		android:descendantFocusability="blocksDescendants"
-		android:minHeight="@{ ( buffer.isGroupHeading ) ? @dimen/buffergroup_min_height : @dimen/buffer_min_height }"
+		android:minHeight="@{ (buffer.isSpam) ? @dimen/spam_min_height : (( buffer.isGroupHeading ) ? @dimen/buffergroup_min_height : @dimen/buffer_min_height) }"
 		android:orientation="horizontal" >
 
 		<LinearLayout
+			android:orientation="vertical"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_marginTop='@{ ( buffer.isGroupHeading ) ? @dimen/buffers_margin : 0 }'
 			android:layout_marginRight="@dimen/buffers_margin"
 			android:background="@{ (!readOnly &amp;&amp; (selected!=buffer.bid &amp;&amp; buffer.unread > 0)) ? buffer.unreadColor : (selected==buffer.bid)?buffer.selectedBorderResource:buffer.borderResource }"
-			android:paddingLeft="8dp" >
+			android:paddingLeft="8dp"
+			android:weightSum="1">
 
 				<LinearLayout
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:background="@{ selected == buffer.bid ? buffer.selectedBackgroundResource : buffer.backgroundResource }"
-					android:gravity="center_vertical" >
+					android:gravity="center_vertical"
+					android:layout_weight="1">
 
 					<TextView
 						android:layout_width="16dp"
@@ -58,7 +61,7 @@
 						android:gravity="center"
 						android:textSize="16sp"
 						android:typeface="@{ FontAwesome.getTypeface() }"
-						android:textColor="@{ (selected == buffer.bid || (buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader) ) ? buffer.selectedTextColor : buffer.textColor }"
+						android:textColor="@{ (buffer.isSpam) ? buffer.spamIconColor : ((selected == buffer.bid || (buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader) ) ? buffer.selectedTextColor : buffer.textColor) }"
 						android:text='@{buffer.isConsole ? server.icon : buffer.icon}' />
 
 					<TextView
@@ -96,6 +99,16 @@
 						style="?android:attr/progressBarStyleSmall"
 						android:visibility="@{showSpinner ? View.VISIBLE : View.GONE }" />
 				</LinearLayout>
+			<TextView
+				android:visibility="@{ buffer.isSpam ? View.VISIBLE : View.GONE }"
+				android:background="@drawable/row_failed_bg"
+				android:paddingBottom="8dp"
+				android:paddingLeft="24dp"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textColor="?networkErrorColor"
+				android:text="Tap to choose messages to delete"
+				android:layout_weight="0" />
 		</LinearLayout>
 	</LinearLayout>
 </layout>
