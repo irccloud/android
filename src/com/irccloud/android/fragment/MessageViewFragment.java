@@ -972,6 +972,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     backlogFailed.setVisibility(View.GONE);
                     loadBacklogButton.setVisibility(View.GONE);
                     headerView.setVisibility(View.VISIBLE);
+                    requestingBacklog = true;
                     NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
                 }
             }
