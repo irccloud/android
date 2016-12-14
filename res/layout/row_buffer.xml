@@ -107,7 +107,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:textColor="?networkErrorColor"
-				android:text="Tap to choose messages to delete"
+				android:text="Tap here to choose conversations to delete"
 				android:layout_weight="0" />
 		</LinearLayout>
 	</LinearLayout>
