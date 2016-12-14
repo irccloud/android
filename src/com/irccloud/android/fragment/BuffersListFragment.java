@@ -406,7 +406,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                             firstFailurePosition = position;
                         if (b.isConsole() && s.isFailed() && (lastFailurePosition == -1 || lastFailurePosition < position))
                             lastFailurePosition = position;
-                        if(b.isConversation() && b.getUnread() > 0 && EventsList.getInstance().getSizeOfBuffer(b.getBid()) == 1)
+                        if(!readOnly && b.isConversation() && b.getUnread() > 0 && EventsList.getInstance().getSizeOfBuffer(b.getBid()) == 1)
                             spamCount++;
                         position++;
                     } else {
