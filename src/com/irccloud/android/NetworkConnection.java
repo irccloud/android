@@ -1089,6 +1089,7 @@ public class NetworkConnection {
             return;
         }
         state = STATE_CONNECTING;
+        ready = false;
 
         if (saveTimerTask != null)
             saveTimerTask.cancel();
@@ -2820,11 +2821,16 @@ public class NetworkConnection {
             //Log.d(TAG, "New event: " + type);
             if ((backlog || accrued > 0) && object.bid() > -1 && object.bid() != currentBid && object.eid > 0) {
                 if(!backlog) {
-                    if(firstEid == -1 && object.eid > highest_eid) {
+                    if(firstEid == -1) {
                         firstEid = object.eid();
                         if (firstEid > highest_eid) {
-                            Log.w("IRCCloud", "Backlog gap detected, purging cache");
-                            mEvents.clear();
+                            Log.w("IRCCloud", "Backlog gap detected, purging cache and reconnecting");
+                            highest_eid = 0;
+                            streamId = null;
+                            failCount = 0;
+                            disconnect();
+                            connect();
+                            return;
                         }
                     }
                 }

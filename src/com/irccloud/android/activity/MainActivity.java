@@ -3081,7 +3081,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
+        if (NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && NetworkConnection.getInstance().ready) {
             if(buffer != null && buffer.getType() != null) {
                 if (buffer.isChannel()) {
                     getMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
@@ -3101,7 +3101,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (menu != null && buffer != null && buffer.getType() != null && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
+        if (menu != null && buffer != null && buffer.getType() != null && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && NetworkConnection.getInstance().ready) {
             if (buffer.getArchived() == 0) {
                 if (menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
