@@ -1903,6 +1903,7 @@ public class NetworkConnection {
                 if (!(object.has("resumed") && object.getBoolean("resumed"))) {
                     Log.d("IRCCloud", "Socket was not resumed");
                     NotificationsList.getInstance().clearLastSeenEIDs();
+                    mEvents.clear();
                     if(streamId != null || highest_eid > 0) {
                         Crashlytics.log(Log.WARN, "IRCCloud", "Unable to resume socket, requesting full OOB load");
                         highest_eid = 0;
