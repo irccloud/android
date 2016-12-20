@@ -1900,6 +1900,19 @@ public class NetworkConnection {
         put("header", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
+                if (!(object.has("resumed") && object.getBoolean("resumed"))) {
+                    Log.d("IRCCloud", "Socket was not resumed");
+                    NotificationsList.getInstance().clearLastSeenEIDs();
+                    if(streamId != null || highest_eid > 0) {
+                        Crashlytics.log(Log.WARN, "IRCCloud", "Unable to resume socket, requesting full OOB load");
+                        highest_eid = 0;
+                        streamId = null;
+                        failCount = 0;
+                        if (client != null)
+                            client.disconnect();
+                        return;
+                    }
+                }
                 idle_interval = object.getLong("idle_interval") + 15000;
                 clockOffset = object.getLong("time") - (System.currentTimeMillis() / 1000);
                 currentcount = 0;
@@ -1908,12 +1921,6 @@ public class NetworkConnection {
                 streamId = object.getString("streamid");
                 if (object.has("accrued"))
                     accrued = object.getInt("accrued");
-                if (!(object.has("resumed") && object.getBoolean("resumed"))) {
-                    Log.d("IRCCloud", "Socket was not resumed");
-                    NotificationsList.getInstance().clearLastSeenEIDs();
-                    mEvents.clear();
-                    mUsers.clear();
-                }
             }
         });
 
@@ -2075,6 +2082,7 @@ public class NetworkConnection {
                     @Override
                     public void parse(IRCCloudJSONObject object) throws JSONException {
                         Log.d("IRCCloud", "OOB was skipped");
+                        ready = true;
                     }
                 });
 
@@ -2828,8 +2836,8 @@ public class NetworkConnection {
                             highest_eid = 0;
                             streamId = null;
                             failCount = 0;
-                            disconnect();
-                            connect();
+                            if (client != null)
+                                client.disconnect();
                             return;
                         }
                     }
