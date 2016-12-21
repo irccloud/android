@@ -2166,6 +2166,7 @@ public class NetworkConnection {
                 "no_channel_topic",
                 "invite_only_chan",
                 "channel_full",
+                "channel_key_set",
                 "need_registered_nick"};
         for (String event : alerts) {
             put(event, alert);
