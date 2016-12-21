@@ -1951,6 +1951,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        earliest_eid = 0;
                         headerView.setVisibility(View.GONE);
                         backlogFailed.setVisibility(View.GONE);
                         loadBacklogButton.setVisibility(View.VISIBLE);
@@ -2016,6 +2017,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                             update_unread();
                         }
+                    } else {
+                        earliest_eid = 0;
                     }
                     new FormatTask().execute((Void) null);
                 } catch (IllegalStateException e) {
@@ -2050,6 +2053,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private synchronized void refresh(MessageAdapter adapter, TreeMap<Long, Event> events) {
+        earliest_eid = 0;
         pref_24hr = false;
         pref_seconds = false;
         pref_trackUnread = true;
