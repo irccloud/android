@@ -2516,10 +2516,16 @@ public class NetworkConnection {
         put("channel_init", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
+                JsonNode topic = object.getJsonObject("topic");
+                String set_by = "";
+                if(topic != null && topic.has("nick") && !topic.get("nick").isNull())
+                    set_by = topic.get("nick").asText();
+                else if(topic != null && topic.has("server") && !topic.get("server").isNull())
+                    set_by = topic.get("server").asText();
                 Channel channel = mChannels.createChannel(object.cid(), object.bid(), object.getString("chan"),
-                        object.getJsonObject("topic").get("text").isNull() ? "" : object.getJsonObject("topic").get("text").asText(),
-                        object.getJsonObject("topic").get("time").asLong(),
-                        object.getJsonObject("topic").has("nick") ? object.getJsonObject("topic").get("nick").asText() : object.getJsonObject("topic").get("server").asText(), object.getString("channel_type"),
+                        (topic == null || topic.get("text").isNull()) ? "" : topic.get("text").asText(),
+                        topic == null ? 0 : object.getJsonObject("topic").get("time").asLong(),
+                        set_by, object.getString("channel_type"),
                         object.getLong("timestamp"));
                 mChannels.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
                 mUsers.deleteUsersForBuffer(object.bid());
