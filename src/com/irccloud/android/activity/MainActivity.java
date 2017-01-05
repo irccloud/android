@@ -152,6 +152,7 @@ import com.irccloud.android.fragment.ChannelModeListFragment;
 import com.irccloud.android.fragment.ChannelOptionsFragment;
 import com.irccloud.android.fragment.EditConnectionFragment;
 import com.irccloud.android.fragment.IgnoreListFragment;
+import com.irccloud.android.fragment.LinksListFragment;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.irccloud.android.fragment.NamesListFragment;
 import com.irccloud.android.fragment.NickservFragment;
@@ -2567,6 +2568,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             whoList.getArguments().putAll(args);
                             whoList.refresh();
                         }
+                    }
+                });
+                break;
+            case NetworkConnection.EVENT_LINKSRESPONSE:
+                event = (IRCCloudJSONObject) obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bundle args = new Bundle();
+                        args.putString("event", event.toString());
+                        LinksListFragment linksFragment = new LinksListFragment();
+                        linksFragment.setArguments(args);
+                        linksFragment.show(getSupportFragmentManager(), "linkslist");
                     }
                 });
                 break;
