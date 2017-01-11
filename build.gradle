@@ -52,13 +52,13 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.0'
+    buildToolsVersion '25.0.2'
     testBuildType 'debugTest'
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 100
-        versionName "3.13"
+        versionCode 101
+        versionName "3.14"
         minSdkVersion 10
         targetSdkVersion 25
         applicationId "com.irccloud.android"
@@ -322,13 +322,13 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:25.0.1'
-    compile 'com.android.support:support-v13:25.0.1'
-    compile 'com.android.support:appcompat-v7:25.0.1'
-    compile 'com.android.support:cardview-v7:25.0.1'
-    compile 'com.android.support:design:25.0.1'
-    compile 'com.android.support:recyclerview-v7:25.0.1'
-    compile 'com.android.support:customtabs:25.0.1'
+    compile 'com.android.support:support-v4:25.1.0'
+    compile 'com.android.support:support-v13:25.1.0'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:cardview-v7:25.1.0'
+    compile 'com.android.support:design:25.1.0'
+    compile 'com.android.support:recyclerview-v7:25.1.0'
+    compile 'com.android.support:customtabs:25.1.0'
     compile 'com.google.android.gms:play-services-base:9.8.0'
     compile 'com.google.android.gms:play-services-auth:9.8.0'
     compile 'com.google.android.gms:play-services-identity:9.8.0'
