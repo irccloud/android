@@ -40,13 +40,13 @@
             android:defaultValue="true"
             android:summaryOn="Image URLs will open in IRCCloud"
             android:summaryOff="Image URLs will open in your browser"
-            android:title="Image Viewer" />
+            android:title="Image viewer" />
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="videoviewer"
             android:defaultValue="true"
             android:summaryOn="Video URLs will open in IRCCloud"
             android:summaryOff="Video URLs will open in your browser"
-            android:title="Video Player" />
+            android:title="Video player" />
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="browser"
             android:defaultValue="false"
@@ -59,5 +59,11 @@
             android:summaryOn="Prompt before sending multi-line messages"
             android:summaryOff="Always send multi-line messages as text"
             android:title="Ask to pastebin"/>
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="enableAutoSuggest"
+            android:defaultValue="true"
+            android:summaryOn="Nicknames will be suggested automatically as you type"
+            android:summaryOff="Nicknames will not be suggested automatically as you type"
+            android:title="Suggest nicknames as you type"/>
     </PreferenceCategory>
 </PreferenceScreen>

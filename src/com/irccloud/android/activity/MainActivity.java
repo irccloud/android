@@ -952,6 +952,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } catch (JSONException e) {
                     disabled = false;
                 }
+                if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("enableAutoSuggest", true))
+                    disabled = true;
 
                 ArrayList<User> users = sortedUsers;
                 if (users == null && buffer != null && (force || !disabled)) {

@@ -55,6 +55,12 @@
 			android:summaryOn="Prompt before sending multi-line messages"
 			android:summaryOff="Always send multi-line messages as text"
 			android:title="Ask to pastebin"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="enableAutoSuggest"
+			android:defaultValue="true"
+			android:summaryOn="Nicknames will be suggested automatically as you type"
+			android:summaryOff="Nicknames will not be suggested automatically as you type"
+			android:title="Suggest nicknames as you type"/>
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="tabletMode"
             android:defaultValue="true"
