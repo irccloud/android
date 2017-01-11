@@ -35,8 +35,10 @@ import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.text.util.Linkify.MatchFilter;
 import android.text.util.Linkify.TransformFilter;
+import android.util.Log;
 import android.util.Patterns;
 
+import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.model.Server;
@@ -48,6 +50,8 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.fabric.sdk.android.services.common.Crash;
 
 public class ColorFormatter {
     public static String file_uri_template = null;
@@ -1548,27 +1552,38 @@ public class ColorFormatter {
     public static Pattern CONVERSION = null;
 
     public static void init() {
-        StringBuilder sb = new StringBuilder(8192);
-        sb.append("\\B:(");
-        for (String key : emojiMap.keySet()) {
-            if (sb.length() > 4)
-                sb.append("|");
-            sb.append(key.replace("-", "\\-").replace("+", "\\+").replace(")", "\\)").replace("(", "\\("));
+        if(EMOJI == null) {
+            long start = System.currentTimeMillis();
+            StringBuilder sb = new StringBuilder(16384);
+            sb.append("\\B:(");
+            for (String key : emojiMap.keySet()) {
+                if (sb.length() > 4)
+                    sb.append("|");
+                for(int i = 0; i < key.length(); i++) {
+                    char c = key.charAt(i);
+                    if(c == '-' || c == '+' || c == '(' || c == ')')
+                        sb.append('\\');
+                    sb.append(c);
+
+                }
+            }
+            sb.append("):\\B");
+
+            EMOJI = Pattern.compile(sb.toString());
+
+            sb.setLength(0);
+            sb.append("(");
+            for (String key : conversionMap.keySet()) {
+                if (sb.length() > 2)
+                    sb.append("|");
+                sb.append(key);
+            }
+            sb.append(")");
+
+            CONVERSION = Pattern.compile(sb.toString());
+
+            Crashlytics.log(Log.INFO, "IRCCloud", "Compiled :emocode: regex from " + emojiMap.size() + " keys in " + (System.currentTimeMillis() - start) + "ms");
         }
-        sb.append("):\\B");
-
-        EMOJI = Pattern.compile(sb.toString());
-
-        sb.setLength(0);
-        sb.append("(");
-        for (String key : conversionMap.keySet()) {
-            if (sb.length() > 2)
-                sb.append("|");
-            sb.append(key);
-        }
-        sb.append(")");
-
-        CONVERSION = Pattern.compile(sb.toString());
     }
 
     public static String emojify(String msg) {
