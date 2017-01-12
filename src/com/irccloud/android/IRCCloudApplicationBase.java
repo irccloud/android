@@ -55,6 +55,7 @@ public class IRCCloudApplicationBase extends Application {
     public void onCreate() {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
+        Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
         FlowManager.init(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
@@ -227,6 +228,8 @@ public class IRCCloudApplicationBase extends Application {
             }
         } catch (Exception e) {
         }
+
+        Crashlytics.log(Log.INFO, "IRCCloud", "App Initialized");
     }
 
     @Override

@@ -504,6 +504,8 @@ public class NetworkConnection {
 
         useragent += ")";
 
+        Crashlytics.log(Log.INFO, "IRCCloud", useragent);
+
         WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiLock = wfm.createWifiLock(TAG);
 
