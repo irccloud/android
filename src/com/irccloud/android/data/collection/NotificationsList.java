@@ -468,7 +468,7 @@ public class NotificationsList {
     @SuppressLint("NewApi")
     private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, ArrayList<Notification> messages, NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-
+        int defaults = 0;
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
                 .setContentTitle(title + ((network != null && !network.equals(title)) ? (" (" + network + ")") : ""))
                 .setContentText(Html.fromHtml(text))
@@ -484,8 +484,6 @@ public class NotificationsList {
                 .setOnlyAlertOnce(false);
 
         if (ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 2000) {
-            if (prefs.getBoolean("notify_vibrate", true))
-                builder.setDefaults(android.app.Notification.DEFAULT_VIBRATE);
             String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/" + R.raw.digit);
             if (ringtone.length() > 0)
                 builder.setSound(Uri.parse(ringtone));
@@ -493,14 +491,17 @@ public class NotificationsList {
 
         int led_color = Integer.parseInt(prefs.getString("notify_led_color", "1"));
         if (led_color == 1) {
-            if (prefs.getBoolean("notify_vibrate", true) && ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 2000)
-                builder.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE);
-            else
-                builder.setDefaults(android.app.Notification.DEFAULT_LIGHTS);
+            defaults = android.app.Notification.DEFAULT_LIGHTS;
         } else if (led_color == 2) {
             builder.setLights(0xFF0000FF, 500, 500);
         }
 
+        if (prefs.getBoolean("notify_vibrate", true) && ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 2000)
+            defaults |= android.app.Notification.DEFAULT_VIBRATE;
+        else
+            builder.setVibrate(new long[]{0L});
+
+        builder.setDefaults(defaults);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong("lastNotificationTime", System.currentTimeMillis());
         editor.commit();
