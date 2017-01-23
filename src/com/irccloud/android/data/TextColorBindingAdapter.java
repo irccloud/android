@@ -24,13 +24,12 @@ public class TextColorBindingAdapter {
     @BindingAdapter("android:textColor")
     public static void setTextColor(TextView view, int res) {
         try {
-            view.setTextColor(view.getResources().getColorStateList(res));
-        } catch (Resources.NotFoundException e) {
-            try {
+            if(view.getResources().getResourceTypeName(res).equals("color"))
                 view.setTextColor(view.getResources().getColor(res));
-            } catch (Resources.NotFoundException e1) {
-                view.setTextColor(res);
-            }
+            else
+                view.setTextColor(view.getResources().getColorStateList(res));
+        } catch (Resources.NotFoundException e) {
+            view.setTextColor(res);
         }
     }
 }
