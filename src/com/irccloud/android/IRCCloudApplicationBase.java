@@ -89,84 +89,90 @@ public class IRCCloudApplicationBase extends Application {
             editor.commit();
         }
 
-        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            String notification_uri = prefs.getString("notify_ringtone", "");
-            if (notification_uri.startsWith("content://media/external/audio/media/")) {
-                Cursor c = getContentResolver().query(
-                        Uri.parse(notification_uri),
-                        new String[]{MediaStore.Audio.Media.TITLE},
-                        null,
-                        null,
-                        null);
+        if(!prefs.getBoolean("ringtone_migrated", false)) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                String notification_uri = prefs.getString("notify_ringtone", "");
+                if (notification_uri.startsWith("content://media/external/audio/media/")) {
+                    Cursor c = getContentResolver().query(
+                            Uri.parse(notification_uri),
+                            new String[]{MediaStore.Audio.Media.TITLE},
+                            null,
+                            null,
+                            null);
 
-                if (c != null && c.moveToFirst()) {
-                    if (c.getString(0).equals("IRCCloud")) {
-                        Log.d("IRCCloud", "Migrating notification ringtone setting: " + notification_uri);
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.remove("notify_ringtone");
-                        editor.commit();
+                    if (c != null && c.moveToFirst()) {
+                        if (c.getString(0).equals("IRCCloud")) {
+                            Log.d("IRCCloud", "Migrating notification ringtone setting: " + notification_uri);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.remove("notify_ringtone");
+                            editor.commit();
+                        }
+                    }
+                    if (c != null && !c.isClosed()) {
+                        c.close();
                     }
                 }
-                if (c != null && !c.isClosed()) {
-                    c.close();
+
+                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS);
+                File file = new File(path, "IRCCloud.mp3");
+                if (file.exists()) {
+                    file.delete();
+                }
+
+                try {
+                    getContentResolver().delete(
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                            MediaStore.Audio.Media.TITLE + " = 'IRCCloud'",
+                            null);
+                } catch (Exception e) {
+                    // Ringtone not in media DB
                 }
             }
 
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS);
-            File file = new File(path, "IRCCloud.mp3");
-            if(file.exists()) {
-                file.delete();
+            try {
+                String notification_uri = prefs.getString("notify_ringtone", "");
+                if (notification_uri.startsWith("content://media/")) {
+                    Cursor c = getContentResolver().query(
+                            Uri.parse(notification_uri),
+                            new String[]{MediaStore.Audio.Media.TITLE},
+                            null,
+                            null,
+                            null);
+
+                    if (c != null && c.moveToFirst()) {
+                        if (c.getString(0).equals("IRCCloud")) {
+                            Log.d("IRCCloud", "Migrating notification ringtone setting: " + notification_uri);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.remove("notify_ringtone");
+                            editor.commit();
+                        }
+                    }
+                    if (c != null && !c.isClosed()) {
+                        c.close();
+                    }
+                }
+            } catch (Exception e) {
+                //We might not have permission to query the media DB
             }
 
             try {
                 getContentResolver().delete(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        MediaStore.Audio.Media.INTERNAL_CONTENT_URI,
                         MediaStore.Audio.Media.TITLE + " = 'IRCCloud'",
                         null);
-            } catch (Exception e)  {
+            } catch (Exception e) {
                 // Ringtone not in media DB
+                e.printStackTrace();
             }
-        }
 
-        try {
-            String notification_uri = prefs.getString("notify_ringtone", "");
-            if (notification_uri.startsWith("content://media/")) {
-                Cursor c = getContentResolver().query(
-                        Uri.parse(notification_uri),
-                        new String[]{MediaStore.Audio.Media.TITLE},
-                        null,
-                        null,
-                        null);
-
-                if (c != null && c.moveToFirst()) {
-                    if (c.getString(0).equals("IRCCloud")) {
-                        Log.d("IRCCloud", "Migrating notification ringtone setting: " + notification_uri);
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.remove("notify_ringtone");
-                        editor.commit();
-                    }
-                }
-                if (c != null && !c.isClosed()) {
-                    c.close();
-                }
+            File file = new File(getFilesDir(), "IRCCloud.mp3");
+            if (file.exists()) {
+                file.delete();
             }
-        } catch (Exception e) {
-            //We might not have permission to query the media DB
-        }
 
-        try {
-            getContentResolver().delete(
-                    MediaStore.Audio.Media.INTERNAL_CONTENT_URI,
-                    MediaStore.Audio.Media.TITLE + " = 'IRCCloud'",
-                    null);
-        } catch (Exception e)  {
-            // Ringtone not in media DB
-            e.printStackTrace();
-        }
-
-        File file = new File(getFilesDir(), "IRCCloud.mp3");
-        if(file.exists()) {
-            file.delete();
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("ringtone_migrated", true);
+            editor.commit();
         }
 
         if (prefs.contains("notify_pebble")) {
@@ -221,13 +227,13 @@ public class IRCCloudApplicationBase extends Application {
         NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
         NetworkConnection.IRCCLOUD_PATH = prefs.getString("path", "/");
 
-        try {
+        /*try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 if (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE))
                     WebView.setWebContentsDebuggingEnabled(true);
             }
         } catch (Exception e) {
-        }
+        }*/
 
         Crashlytics.log(Log.INFO, "IRCCloud", "App Initialized");
     }
