@@ -702,7 +702,8 @@ public class EventsList {
                 "logged_out",
                 "nick_locked",
                 "text",
-                "admin_info"
+                "admin_info",
+                "error"
         };
         Formatter statusFormatter = new Formatter() {
             @Override
@@ -936,14 +937,6 @@ public class EventsList {
                     e.from = event.getString("charset");
                     e.msg = sb.append("<pre>").append(e.msg).append("</pre>").toString();
                 }
-            }
-        });
-
-        put("error", new Formatter() {
-            @Override
-            public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
-                e.color = colorScheme.networkErrorColor;
-                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
