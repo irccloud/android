@@ -958,6 +958,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 update_global_msg();
             }
         });
+        globalMsg.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         spinner = (ProgressBar) v.findViewById(R.id.spinner);
         suggestionsContainer = v.findViewById(R.id.suggestionsContainer);
         suggestions = (GridView) v.findViewById(R.id.suggestions);

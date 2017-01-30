@@ -835,6 +835,10 @@ public class NetworkConnection {
                 prefs.commit();
                 ColorFormatter.file_uri_template = config.getString("file_uri_template");
                 ColorFormatter.pastebin_uri_template = config.getString("pastebin_uri_template");
+                if(BuildConfig.ENTERPRISE && !config.getBoolean("enterprise")) {
+                    globalMsg = "Some features, such as push notifications, may not work as expected.  Please download the standard IRCCloud app from the <a href=\"" + config.getString("android_app") + "\">Play Store</a>";
+                    notifyHandlers(EVENT_GLOBALMSG, null);
+                }
                 set_pastebin_cookie();
             }
         } catch (Exception e) {
