@@ -2500,7 +2500,8 @@ public class NetworkConnection {
                 "text",
                 "admin_info",
                 "watch_status",
-                "sqline_nick"
+                "sqline_nick",
+                "user_chghost"
         };
         for (String event : msgs) {
             put(event, msg);
