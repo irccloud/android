@@ -4348,8 +4348,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
         if (message != null) {
-            if (message.getSpans(0, message.length(), URLSpan.class).length > 0)
-                itemList.add("Copy URL");
+            if (message.getSpans(0, message.length(), URLSpan.class).length > 0) {
+                itemList.add("Copy URL to clipboard");
+                itemList.add("Share URL…");
+            }
             itemList.add("Copy Message");
         }
 
@@ -4394,7 +4396,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             builder.setTitle("Message");
 
         builder.setItems(items, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int item) {
+            public void onClick(DialogInterface dialogInterface, final int item) {
                 if (conn == null || buffer == null)
                     return;
 
@@ -4430,7 +4432,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         clipboard.setPrimaryClip(clip);
                     }
                     Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Hostmask copied to clipboard", Toast.LENGTH_SHORT).show();
-                } else if (items[item].equals("Copy URL") && text_to_copy != null) {
+                } else if ((items[item].equals("Copy URL to clipboard") || items[item].equals("Share URL…") ) && text_to_copy != null) {
                     final ArrayList<String> urlListItems = new ArrayList<String>();
 
                     for (URLSpan o : text_to_copy.getSpans(0, text_to_copy.length(), URLSpan.class)) {
@@ -4445,15 +4447,26 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         urlListItems.add(url);
                     }
                     if (urlListItems.size() == 1) {
-                        if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                            clipboard.setText(urlListItems.get(0));
+                        if(items[item].equals("Copy URL to clipboard")) {
+                            if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                                clipboard.setText(urlListItems.get(0));
+                            } else {
+                                @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                                android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(0), urlListItems.get(0));
+                                clipboard.setPrimaryClip(clip);
+                            }
+                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                         } else {
-                            @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                            android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(0), urlListItems.get(0));
-                            clipboard.setPrimaryClip(clip);
+                            Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(urlListItems.get(0)));
+                            intent.setType("text/plain");
+                            intent.putExtra(Intent.EXTRA_TEXT, urlListItems.get(0));
+                            intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
+                            intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(Intent.createChooser(intent, "Share URL"));
+                            Answers.getInstance().logShare(new ShareEvent().putContentType("URL"));
                         }
-                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                     } else {
                         builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
@@ -4462,15 +4475,26 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         builder.setItems(urlListItems.toArray(new String[urlListItems.size()]), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                    clipboard.setText(urlListItems.get(i));
+                                if(items[item].equals("Copy URL to clipboard")) {
+                                    if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                                        clipboard.setText(urlListItems.get(i));
+                                    } else {
+                                        @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                                        android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(i), urlListItems.get(i));
+                                        clipboard.setPrimaryClip(clip);
+                                    }
+                                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                    android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(i), urlListItems.get(i));
-                                    clipboard.setPrimaryClip(clip);
+                                    Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(urlListItems.get(i)));
+                                    intent.setType("text/plain");
+                                    intent.putExtra(Intent.EXTRA_TEXT, urlListItems.get(i));
+                                    intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
+                                    intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(Intent.createChooser(intent, "Share URL"));
+                                    Answers.getInstance().logShare(new ShareEvent().putContentType("URL"));
                                 }
-                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                             }
                         });
                         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
