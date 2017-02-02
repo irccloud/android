@@ -5714,7 +5714,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                show_alert("Upload Failed", "Unable to upload file to IRCCloud." + ((error != null) ? ("\n\n" + error) : ""));
+                                show_alert("Upload Failed", (error != null) ? error : "Unable to upload file to IRCCloud.");
                             }
                         });
                 }
@@ -5765,7 +5765,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 } else {
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
-                    NotificationsList.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
+                    NotificationsList.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Sorry, you can’t upload files larger than 15 MB");
                 }
                 return null;
             }
@@ -5824,6 +5824,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             sb.append(scanner.next());
                         }
                         Crashlytics.log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
+                        try {
+                            JSONObject root = new JSONObject(sb.toString());
+                            if (root.has("message")) {
+                                error = root.getString("message");
+                                switch(error) {
+                                    case "upload_limit_reached":
+                                        error = "Sorry, you can't upload more than 100 MB of files.  Delete some uploads and try again.";
+                                        break;
+                                    case "upload_already_exists":
+                                        error = "You've already uploaded this file";
+                                        break;
+                                    case "banned_content":
+                                        error = "Banned content";
+                                        break;
+                                }
+                            }
+                        } catch (JSONException e) {
+                            error = sb.toString();
+                        }
                     }
                 } else {
                     Log.e("IRCCloud", "Upload cancelled");
@@ -6062,7 +6081,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 metadataDialog.dismiss();
             } catch (Exception e) {
-                NotificationsList.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
+                NotificationsList.getInstance().alert(mBuffer.getBid(), title, message);
             }
         }
     }
