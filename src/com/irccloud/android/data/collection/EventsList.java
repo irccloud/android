@@ -526,6 +526,15 @@ public class EventsList {
             }
         });
 
+        put("buffer_msg", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
+                if(event != null) {
+                    e.target_mode = event.getString("statusmsg");
+                }
+            }
+        });
+
         put("newsflash", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
