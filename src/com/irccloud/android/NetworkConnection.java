@@ -27,7 +27,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.TrafficStats;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -3228,8 +3227,6 @@ public class NetworkConnection {
                 long totalJSONTime = 0;
                 long longestEventTime = 0;
                 String longestEventType = "";
-                if (Build.VERSION.SDK_INT >= 14)
-                    TrafficStats.setThreadStatsTag(BACKLOG_TAG);
                 Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url[0]);
                 mUrl = url[0];
                 HttpURLConnection conn = null;
@@ -3343,8 +3340,6 @@ public class NetworkConnection {
                                 }
                                 totalParseTime += t;
                                 count++;
-                                if (Build.VERSION.SDK_INT >= 14)
-                                    TrafficStats.incrementOperationCount(1);
                             }
                             backlog = false;
                             //Debug.stopMethodTracing();
@@ -3388,8 +3383,6 @@ public class NetworkConnection {
                         oobTasks.remove(bid);
                     }
                     Crashlytics.log(Log.DEBUG, TAG, "OOB fetch complete!");
-                    if (Build.VERSION.SDK_INT >= 14)
-                        TrafficStats.clearThreadStatsTag();
                     numbuffers = 0;
                     return true;
                 } else {
@@ -3418,8 +3411,6 @@ public class NetworkConnection {
                     }
                 }
             }
-            if (Build.VERSION.SDK_INT >= 14)
-                TrafficStats.clearThreadStatsTag();
             notifyHandlers(EVENT_BACKLOG_FAILED, null);
             backlog = false;
             if (bid == -1) {
