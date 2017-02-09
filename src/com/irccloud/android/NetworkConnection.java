@@ -27,7 +27,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.TrafficStats;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -3226,8 +3225,6 @@ public class NetworkConnection {
                 long totalJSONTime = 0;
                 long longestEventTime = 0;
                 String longestEventType = "";
-                if (Build.VERSION.SDK_INT >= 14)
-                    TrafficStats.setThreadStatsTag(BACKLOG_TAG);
                 Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url[0]);
                 mUrl = url[0];
                 HttpURLConnection conn = null;
@@ -3303,7 +3300,7 @@ public class NetworkConnection {
                         synchronized (parserLock) {
                             cancel_idle_timer();
                             //if(ready)
-                            //Debug.startMethodTracing("oob", 16*1024*1024);
+                            //android.os.Debug.startMethodTracing("/sdcard/oob", 16*1024*1024);
                             Crashlytics.log(Log.DEBUG, TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
                             Crashlytics.log(Log.DEBUG, TAG, "Beginning backlog...");
                             if (bid > 0)
@@ -3341,11 +3338,9 @@ public class NetworkConnection {
                                 }
                                 totalParseTime += t;
                                 count++;
-                                if (Build.VERSION.SDK_INT >= 14)
-                                    TrafficStats.incrementOperationCount(1);
                             }
                             backlog = false;
-                            //Debug.stopMethodTracing();
+                            //android.os.Debug.stopMethodTracing();
                             totalTime = (System.currentTimeMillis() - totalTime);
                             Crashlytics.log(Log.DEBUG, TAG, "Backlog complete: " + count + " events");
                             Crashlytics.log(Log.DEBUG, TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime / (float) count) + "ms / object)");
@@ -3386,8 +3381,6 @@ public class NetworkConnection {
                         oobTasks.remove(bid);
                     }
                     Crashlytics.log(Log.DEBUG, TAG, "OOB fetch complete!");
-                    if (Build.VERSION.SDK_INT >= 14)
-                        TrafficStats.clearThreadStatsTag();
                     numbuffers = 0;
                     return true;
                 } else {
@@ -3416,8 +3409,6 @@ public class NetworkConnection {
                     }
                 }
             }
-            if (Build.VERSION.SDK_INT >= 14)
-                TrafficStats.clearThreadStatsTag();
             notifyHandlers(EVENT_BACKLOG_FAILED, null);
             backlog = false;
             if (bid == -1) {

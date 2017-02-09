@@ -692,24 +692,18 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
     public void onIRCEvent(int what, Object obj) {
         Buffer b;
-        IRCCloudJSONObject object = null;
-        try {
-            object = (IRCCloudJSONObject) obj;
-        } catch (ClassCastException e) {
-        }
-        Event event = null;
-        try {
-            event = (Event) obj;
-        } catch (ClassCastException e) {
-        }
+        IRCCloudJSONObject object;
+        Event event;
         switch (what) {
             case NetworkConnection.EVENT_CHANNELMODE:
+                object = (IRCCloudJSONObject) obj;
                 b = BuffersList.getInstance().getBuffer(object.bid());
                 if (b != null && adapter != null)
                     adapter.updateBuffer(b);
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
                 if (adapter != null) {
+                    event = (Event) obj;
                     if (event.bid != selected_bid) {
                         b = BuffersList.getInstance().getBuffer(event.bid);
                         if (b != null && event.isImportant(b.getType()))
@@ -719,6 +713,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 break;
             case NetworkConnection.EVENT_HEARTBEATECHO:
                 if (adapter != null) {
+                    object = (IRCCloudJSONObject) obj;
                     JsonNode seenEids = object.getJsonNode("seenEids");
                     Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
                     int count = 0;
@@ -749,6 +744,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             case NetworkConnection.EVENT_PART:
             case NetworkConnection.EVENT_QUIT:
             case NetworkConnection.EVENT_KICK:
+                object = (IRCCloudJSONObject) obj;
                 if (object.type().startsWith("you_") && getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
