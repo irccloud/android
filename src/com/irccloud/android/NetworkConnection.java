@@ -42,17 +42,21 @@ import android.webkit.CookieSyncManager;
 
 import com.codebutler.android_websockets.WebSocketClient;
 import com.crashlytics.android.Crashlytics;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.fasterxml.jackson.jr.ob.JSON;
+import com.fasterxml.jackson.jr.stree.JacksonJrsTreeCodec;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsBoolean;
+import com.fasterxml.jackson.jr.stree.JrsNumber;
+import com.fasterxml.jackson.jr.stree.JrsObject;
+import com.fasterxml.jackson.jr.stree.JrsValue;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.RecentConversationsList;
-import com.irccloud.android.data.model.BackgroundTask;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.model.Channel;
@@ -63,7 +67,6 @@ import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.User;
-import com.raizlabs.android.dbflow.sql.language.Delete;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -164,8 +167,6 @@ public class NetworkConnection {
     public JSONObject config = null;
     public boolean notifier;
 
-    private ObjectMapper mapper = new ObjectMapper();
-
     public static final int EVENT_CONNECTIVITY = 0;
     public static final int EVENT_USERINFO = 1;
     public static final int EVENT_MAKESERVER = 2;
@@ -237,6 +238,7 @@ public class NetworkConnection {
     private final Object parserLock = new Object();
     private WifiManager.WifiLock wifiLock = null;
 
+    private JSON json = JSON.std.with(new JacksonJrsTreeCodec());
     public long clockOffset = 0;
 
     private float numbuffers = 0;
@@ -1201,7 +1203,7 @@ public class NetworkConnection {
                 if (client != null && client.getListener() == this && message.length() > 0) {
                     try {
                         synchronized (parserLock) {
-                            parse_object(new IRCCloudJSONObject(mapper.readValue(message, JsonNode.class)));
+                            parse_object(new IRCCloudJSONObject((JrsObject)json.treeFrom(message)));
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Unable to parse: " + message);
@@ -1882,7 +1884,7 @@ public class NetworkConnection {
     }
 
     public interface Parser {
-        public void parse(IRCCloudJSONObject object) throws JSONException;
+        public void parse(IRCCloudJSONObject object) throws JSONException, IOException;
     }
 
     private class BroadcastParser implements Parser {
@@ -2018,7 +2020,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 if(mServers.getServer(object.cid()) != null)
-                    mServers.getServer(object.cid()).updateIgnores(object.getJsonNode("masks"));
+                    mServers.getServer(object.cid()).updateIgnores(object.getArray("masks"));
                 if (!backlog)
                     notifyHandlers(EVENT_SETIGNORES, object);
             }
@@ -2027,16 +2029,16 @@ public class NetworkConnection {
 
         put("heartbeat_echo", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
-                Iterator<Entry<String, JsonNode>> iterator = object.getJsonNode("seenEids").fields();
+            public void parse(IRCCloudJSONObject object) throws JSONException, IOException {
+                Iterator<Entry<String, JrsValue>> iterator = object.getJrsObject("seenEids").fields();
                 while (iterator.hasNext()) {
-                    Map.Entry<String, JsonNode> entry = iterator.next();
-                    JsonNode eids = entry.getValue();
-                    Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
+                    Map.Entry<String, JrsValue> entry = iterator.next();
+                    JrsObject eids = (JrsObject) entry.getValue();
+                    Iterator<Map.Entry<String, JrsValue>> j = eids.fields();
                     while (j.hasNext()) {
-                        Map.Entry<String, JsonNode> eidentry = j.next();
+                        Map.Entry<String, JrsValue> eidentry = j.next();
                         int bid = Integer.valueOf(eidentry.getKey());
-                        long eid = eidentry.getValue().asLong();
+                        long eid = ((JrsNumber) eidentry.getValue()).asBigInteger().longValue();
                         NotificationsList.getInstance().updateLastSeenEid(bid, eid);
                         Buffer b = mBuffers.getBuffer(bid);
                         if (b != null) {
@@ -2190,7 +2192,7 @@ public class NetworkConnection {
                 Server server = mServers.createServer(object.cid(), object.getString("name"), object.getString("hostname"),
                         object.getInt("port"), object.getString("nick"), object.getString("status"), object.getBoolean("ssl") ? 1 : 0,
                         object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-                        object.getJsonObject("fail_info"), away, object.getJsonNode("ignores"), (object.has("order") && !object.getString("order").equals("undefined")) ? object.getInt("order") : 0, object.getString("server_realname"));
+                        object.getJrsObject("fail_info"), away, object.getArray("ignores"), (object.has("order") && !object.getString("order").equals("undefined")) ? object.getInt("order") : 0, object.getString("server_realname"));
 
                 NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"));
 
@@ -2217,7 +2219,7 @@ public class NetworkConnection {
                 Server s = mServers.getServer(object.cid());
                 if(s != null) {
                     s.setStatus(object.getString("new_status"));
-                    s.setFail_info(object.getJsonObject("fail_info"));
+                    s.setFail_info(object.getJrsObject("fail_info"));
                 }
                 if (!backlog) {
                     if (object.getString("new_status").equals("disconnected")) {
@@ -2242,10 +2244,10 @@ public class NetworkConnection {
         });
         put("reorder_connections", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
-                JsonNode order = object.getJsonNode("order");
+            public void parse(IRCCloudJSONObject object) throws JSONException, IOException {
+                JrsArray order = object.getArray("order");
                 for (int i = 0; i < order.size(); i++) {
-                    mServers.getServer(order.get(i).asInt()).setOrder(i + 1);
+                    mServers.getServer(((JrsNumber)order.get(i)).asBigInteger().intValue()).setOrder(i + 1);
                 }
                 notifyHandlers(EVENT_REORDERCONNECTIONS, object);
             }
@@ -2320,7 +2322,7 @@ public class NetworkConnection {
         });
         Parser msg = new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object) throws JSONException, IOException {
                 boolean newEvent = (mEvents.getEvent(object.eid(), object.bid()) == null);
                 Event event = mEvents.addEvent(object);
                 Buffer b = mBuffers.getBuffer(object.bid());
@@ -2523,24 +2525,25 @@ public class NetworkConnection {
         });
         put("channel_init", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
-                JsonNode topic = object.getJsonObject("topic");
+            public void parse(IRCCloudJSONObject object) throws JSONException, IOException {
+                JrsObject topic = object.getJrsObject("topic");
                 String set_by = "";
-                if(topic != null && topic.has("nick") && !topic.get("nick").isNull())
+                if(topic != null && topic.get("nick") != null)
                     set_by = topic.get("nick").asText();
-                else if(topic != null && topic.has("server") && !topic.get("server").isNull())
+                else if(topic != null && topic.get("server") != null)
                     set_by = topic.get("server").asText();
                 Channel channel = mChannels.createChannel(object.cid(), object.bid(), object.getString("chan"),
-                        (topic == null || topic.get("text").isNull()) ? "" : topic.get("text").asText(),
-                        topic == null ? 0 : object.getJsonObject("topic").get("time").asLong(),
+                        (topic == null || topic.get("text") == null) ? "" : topic.get("text").asText(),
+                        topic == null ? 0 : ((JrsNumber)topic.get("time")).asBigInteger().longValue(),
                         set_by, object.getString("channel_type"),
                         object.getLong("timestamp"));
-                mChannels.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
+                mChannels.updateMode(object.bid(), object.getString("mode"), object.getJrsObject("ops"), true);
                 mUsers.deleteUsersForBuffer(object.bid());
-                JsonNode users = object.getJsonNode("members");
-                for (int i = 0; i < users.size(); i++) {
-                    JsonNode user = users.get(i);
-                    User u = mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("ircserver").asText(), user.get("away").asBoolean() ? 1 : 0, false);
+                JrsArray users = object.getArray("members");
+                Iterator<JrsValue> iterator = users.elements();
+                while(iterator.hasNext()) {
+                    JrsObject user = (JrsObject)iterator.next();
+                    User u = mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("ircserver").asText(), ((JrsBoolean)user.get("away")).booleanValue() ? 1 : 0, false);
                 }
                 mBuffers.dirty = true;
                 if (!backlog)
@@ -2568,7 +2571,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 Event event = mEvents.addEvent(object);
                 if (!backlog) {
-                    mChannels.updateMode(object.bid(), object.getString("newmode"), object.getJsonObject("ops"), false);
+                    mChannels.updateMode(object.bid(), object.getString("newmode"), object.getJrsObject("ops"), false);
                     notifyHandlers(EVENT_CHANNELMODE, object);
                 }
             }
@@ -2676,12 +2679,12 @@ public class NetworkConnection {
         put("member_updates", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                JsonNode updates = object.getJsonObject("updates");
-                Iterator<Map.Entry<String, JsonNode>> i = updates.fields();
+                JrsObject updates = object.getJrsObject("updates");
+                Iterator<Map.Entry<String, JrsValue>> i = updates.fields();
                 while (i.hasNext()) {
-                    Map.Entry<String, JsonNode> e = i.next();
-                    JsonNode user = e.getValue();
-                    mUsers.updateAway(object.bid(), user.get("nick").asText(), user.get("away").asBoolean() ? 1 : 0);
+                    Map.Entry<String, JrsValue> e = i.next();
+                    JrsObject user = (JrsObject)e.getValue();
+                    mUsers.updateAway(object.bid(), user.get("nick").asText(), ((JrsBoolean)(user.get("away"))).booleanValue() ? 1 : 0);
                     mUsers.updateHostmask(object.bid(), user.get("nick").asText(), user.get("usermask").asText());
                 }
                 if (!backlog)
@@ -2787,11 +2790,11 @@ public class NetworkConnection {
                 if (!backlog) {
                     Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("subject"));
                     if (b != null) {
-                        JsonNode users = object.getJsonNode("users");
+                        JrsArray users = object.getArray("users");
                         for (int i = 0; i < users.size(); i++) {
-                            JsonNode user = users.get(i);
+                            JrsObject user = (JrsObject)users.get(i);
                             mUsers.updateHostmask(b.getBid(), user.get("nick").asText(), user.get("usermask").asText());
-                            mUsers.updateAway(b.getBid(), user.get("nick").asText(), user.get("away").asBoolean() ? 1 : 0);
+                            mUsers.updateAway(b.getBid(), user.get("nick").asText(), ((JrsBoolean)(user.get("away"))).booleanValue() ? 1 : 0);
                         }
                     }
                     notifyHandlers(EVENT_WHOLIST, object);
@@ -2826,7 +2829,7 @@ public class NetworkConnection {
         });
     }};
 
-    private synchronized void parse_object(IRCCloudJSONObject object) throws JSONException {
+    private synchronized void parse_object(IRCCloudJSONObject object) throws JSONException, IOException {
         cancel_idle_timer();
         //Log.d(TAG, "Backlog: " + backlog + " count: " + currentcount + " New event: " + object);
         if (!object.has("type")) {
@@ -2844,7 +2847,7 @@ public class NetworkConnection {
             //notifyHandlers(EVENT_DEBUG, "Type: " + type + " BID: " + object.bid() + " EID: " + object.eid());
             //Crashlytics.log("New event: " + type);
             //Log.d(TAG, "New event: " + type);
-            if ((backlog || accrued > 0) && object.bid() > -1 && object.bid() != currentBid && object.eid > 0) {
+            if ((backlog || accrued > 0) && object.bid() > -1 && object.bid() != currentBid && object.eid() > 0) {
                 if(!backlog) {
                     if(firstEid == -1) {
                         firstEid = object.eid();
@@ -3153,7 +3156,7 @@ public class NetworkConnection {
         public long join_date;
         public boolean auto_away;
         public String limits_name;
-        public ObjectNode limits;
+        public JrsObject limits;
         public int num_invites;
         public JSONObject prefs;
         public String highlights;
@@ -3192,10 +3195,10 @@ public class NetworkConnection {
             }
 
             limits_name = object.getString("limits_name");
-            limits = object.getJsonObject("limits");
+            limits = object.getJrsObject("limits");
 
             if (object.has("highlights")) {
-                JsonNode h = object.getJsonNode("highlights");
+                JrsArray h = object.getArray("highlights");
                 highlights = "";
                 for (int i = 0; i < h.size(); i++) {
                     if (highlights.length() > 0)
@@ -3296,7 +3299,7 @@ public class NetworkConnection {
                         }
                     }
 
-                    JsonParser parser = mapper.getFactory().createParser(reader);
+                    JsonParser parser = new JsonFactory().createParser(reader);
 
                     if (reader != null && parser.nextToken() == JsonToken.START_ARRAY) {
                         synchronized (parserLock) {
@@ -3322,7 +3325,7 @@ public class NetworkConnection {
                                     return false;
                                 }
                                 long time = System.currentTimeMillis();
-                                JsonNode e = parser.readValueAsTree();
+                                JrsObject e = (JrsObject)json.treeFrom(parser);
                                 totalJSONTime += (System.currentTimeMillis() - time);
                                 time = System.currentTimeMillis();
                                 IRCCloudJSONObject o = new IRCCloudJSONObject(e);
@@ -3331,7 +3334,7 @@ public class NetworkConnection {
                                 } catch (Exception ex) {
                                     Crashlytics.log(Log.ERROR, TAG, "Unable to parse message type: " + o.type());
                                     printStackTraceToCrashlytics(ex);
-                                    Crashlytics.logException(ex);
+                                    //Crashlytics.logException(ex);
                                 }
                                 long t = (System.currentTimeMillis() - time);
                                 if (t > longestEventTime) {

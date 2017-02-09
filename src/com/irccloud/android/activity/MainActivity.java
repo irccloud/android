@@ -117,6 +117,10 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsNumber;
+import com.fasterxml.jackson.jr.stree.JrsObject;
+import com.fasterxml.jackson.jr.stree.JrsValue;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.ActionEditText;
@@ -2477,7 +2481,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         StringBuilder sb = new StringBuilder();
-                        JsonNode servers = event.getJsonNode("servers");
+                        JrsArray servers = event.getArray("servers");
                         for(int i = 0; i < servers.size(); i++) {
                             sb.append(servers.get(i).asText()).append("\n");
                         }
@@ -2545,9 +2549,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         StringBuilder sb = new StringBuilder();
-                        JsonNode users = event.getJsonNode("users");
+                        JrsArray users = event.getArray("users");
                         for(int i = 0; i < users.size(); i++) {
-                            JsonNode node = users.get(i);
+                            JrsArray node = (JrsArray) users.get(i);
                             for(int j = 0; j < node.size(); j++)
                                 sb.append(node.get(j).asText()).append(" \t");
                             sb.deleteCharAt(sb.length() - 1);
@@ -2592,8 +2596,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         StringBuilder sb = new StringBuilder();
-                        JsonNode modules = event.getJsonNode("modules");
-                        android.util.Log.e("IRCCloud", event.toString());
+                        JrsArray modules = event.getArray("modules");
                         for(int i = 0; i < modules.size(); i++) {
                             sb.append(modules.get(i).asText()).append("\n");
                         }
@@ -2950,15 +2953,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case NetworkConnection.EVENT_HEARTBEATECHO:
                 boolean shouldRefresh = false;
                 event = (IRCCloudJSONObject) obj;
-                JsonNode seenEids = event.getJsonNode("seenEids");
-                Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
+                Iterator<Map.Entry<String, JrsValue>> iterator = event.getJrsObject("seenEids").fields();
                 while (iterator.hasNext()) {
-                    Map.Entry<String, JsonNode> entry = iterator.next();
-                    JsonNode eids = entry.getValue();
-                    Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
+                    Map.Entry<String, JrsValue> entry = iterator.next();
+                    JrsObject eids = (JrsObject) entry.getValue();
+                    Iterator<Map.Entry<String, JrsValue>> j = eids.fields();
                     while (j.hasNext()) {
-                        Map.Entry<String, JsonNode> eidentry = j.next();
-                        Integer bid = Integer.valueOf(eidentry.getKey());
+                        Map.Entry<String, JrsValue> eidentry = j.next();
+                        int bid = Integer.valueOf(eidentry.getKey());
                         if (buffer != null && bid != buffer.getBid()) {
                             shouldRefresh = true;
                         }
@@ -6018,7 +6020,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     message = "";
                 else
                     message += " ";
-                message += event.getJsonObject("file").get("url").asText();
+                message += event.getJrsObject("file").get("url").asText();
                 NetworkConnection.getInstance().say(mBuffer.getCid(), mBuffer.getName(), message);
                 NetworkConnection.getInstance().removeHandler(this);
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());

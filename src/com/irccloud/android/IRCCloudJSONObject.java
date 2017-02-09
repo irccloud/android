@@ -19,31 +19,36 @@ package com.irccloud.android;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.jr.stree.JacksonJrsTreeCodec;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsBoolean;
+import com.fasterxml.jackson.jr.stree.JrsNumber;
+import com.fasterxml.jackson.jr.stree.JrsObject;
+import com.fasterxml.jackson.jr.ob.JSON;
+import com.fasterxml.jackson.jr.stree.JrsValue;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.StringWriter;
 
 public class IRCCloudJSONObject {
-    JsonNode o;
-    int cid = -1;
-    int bid = -1;
-    long eid = -1;
-    String type = null;
+    private JrsObject o;
+    private int cid = -1;
+    private int bid = -1;
+    private long eid = -1;
+    private String type = null;
 
     public IRCCloudJSONObject() {
-        o = new ObjectMapper().createObjectNode();
+        o = new JrsObject();
     }
 
-    public IRCCloudJSONObject(JsonNode object) {
+    public IRCCloudJSONObject(JrsObject object) {
         o = object;
     }
 
     public IRCCloudJSONObject(String message) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            o = mapper.readValue(message, JsonNode.class);
+            o = (JrsObject)JSON.std.with(new JacksonJrsTreeCodec()).treeFrom(message);
         } catch (IOException e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
@@ -51,35 +56,34 @@ public class IRCCloudJSONObject {
 
     public IRCCloudJSONObject(JSONObject object) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            o = mapper.readValue(object.toString(), JsonNode.class);
+            o = (JrsObject)JSON.std.treeFrom(object);
         } catch (IOException e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
     }
 
     public int cid() {
-        if (cid == -1 && o.has("cid"))
-            cid = o.get("cid").asInt();
+        if (cid == -1 && has("cid"))
+            cid = getInt("cid");
         return cid;
     }
 
     public int bid() {
-        if (bid == -1 && o.has("bid"))
-            bid = o.get("bid").asInt();
+        if (bid == -1 && has("bid"))
+            bid = getInt("bid");
         return bid;
     }
 
     public long eid() {
-        if (eid == -1 && o.has("eid"))
-            eid = o.get("eid").asLong();
+        if (eid == -1 && has("eid"))
+            eid = getLong("eid");
         return eid;
     }
 
     public String type() {
         if (type == null) {
-            if (o.has("type"))
-                type = o.get("type").asText();
+            if (has("type"))
+                type = getString("type");
             else
                 type = "undefined";
         }
@@ -87,58 +91,57 @@ public class IRCCloudJSONObject {
     }
 
     public boolean has(String name) {
-        return o.has(name) && !o.get(name).isNull();
+        return o.get(name) != null;
     }
 
     public boolean getBoolean(String name) {
-        return o.path(name).asBoolean(false);
+        return o.get(name) != null && ((JrsBoolean)o.get(name)).booleanValue();
     }
 
     public int getInt(String name) {
-        return o.path(name).asInt(-1);
+        try {
+            return ((JrsNumber)o.get(name)).asBigInteger().intValue();
+        } catch (IOException e) {
+
+        }
+        return -1;
     }
 
     public long getLong(String name) {
-        return o.path(name).asLong(-1);
+        try {
+            return ((JrsNumber)o.get(name)).asBigDecimal().longValue();
+        } catch (IOException e) {
+
+        }
+        return -1;
     }
 
     public String getString(String name) {
-        if(o.path(name).isNull())
-            return null;
+        if(o.get(name) != null)
+            return o.get(name).asText();
         else
-            return o.path(name).asText();
-    }
-
-    public JsonNode getJsonNode(String name) {
-        return o.path(name);
-    }
-
-    public ObjectNode getJsonObject(String name) {
-        try {
-            return (ObjectNode) getJsonNode(name);
-        } catch (ClassCastException e) {
             return null;
-        }
     }
 
-    public JsonNode getObject() {
-        return o;
+    public JrsObject getJrsObject(String name) {
+        return (JrsObject)o.get(name);
+    }
+
+    public JrsArray getArray(String name) {
+        return (JrsArray)o.get(name);
+    }
+
+    private static final ObjectMapper mapper = new ObjectMapper();
+    public ObjectNode getJsonObject(String name) {
+        return mapper.convertValue(o.get(name), ObjectNode.class);
     }
 
     public String toString() {
-        ObjectMapper mapper = new ObjectMapper();
-        StringWriter writer = new StringWriter();
         try {
-            mapper.writeValue(writer, o);
+            return JSON.std.with(new JacksonJrsTreeCodec()).asString(o);
         } catch (IOException e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
-        return writer.toString();
-    }
-
-    public void remove(String key) {
-        if(o instanceof ObjectNode) {
-            ((ObjectNode)o).remove(key);
-        }
+        return null;
     }
 }

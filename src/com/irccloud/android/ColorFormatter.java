@@ -41,6 +41,9 @@ import android.util.Patterns;
 import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsBoolean;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.data.model.Server;
 
 import org.xml.sax.XMLReader;
@@ -1640,7 +1643,7 @@ public class ColorFormatter {
         return html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString();
     }
 
-    public static Spanned html_to_spanned(String msg, boolean linkify, final Server server, final JsonNode entities) {
+    public static Spanned html_to_spanned(String msg, boolean linkify, final Server server, final JrsObject entities) {
         if (msg == null)
             msg = "";
 
@@ -1754,10 +1757,12 @@ public class ColorFormatter {
                             lower = lower.substring(0, lower.indexOf("?"));
 
                         boolean isImageEnt = false;
-                        if (entities != null && entities.has("files")) {
+                        if (entities != null && entities.get("files") != null) {
                             if (file_uri_template != null) {
                                 UriTemplate template = UriTemplate.fromTemplate(file_uri_template);
-                                for (JsonNode file : entities.get("files")) {
+                                JrsArray files = (JrsArray)entities.get("files");
+                                for (int i = 0; i < files.size(); i++) {
+                                    JrsObject file = (JrsObject)files.get(i);
                                     String file_url = template.set("id", file.get("id").asText()).expand();
                                     String u = file_url.toLowerCase();
                                     isImageEnt = ((lower.equals(u) || lower.startsWith(u + "/")) && file.get("mime_type").asText().startsWith("image/"));
@@ -1797,10 +1802,12 @@ public class ColorFormatter {
                             lower = lower.substring(0, lower.indexOf("?"));
 
                         boolean isVideoEnt = false;
-                        if (entities != null && entities.has("files")) {
+                        if (entities != null && entities.get("files") != null) {
                             if (file_uri_template != null) {
                                 UriTemplate template = UriTemplate.fromTemplate(file_uri_template);
-                                for (JsonNode file : entities.get("files")) {
+                                JrsArray files = (JrsArray)entities.get("files");
+                                for (int i = 0; i < files.size(); i++) {
+                                    JrsObject file = (JrsObject)files.get(i);
                                     String file_url = template.set("id", file.get("id").asText()).expand();
                                     String u = file_url.toLowerCase();
                                     String mime = file.get("mime_type").asText();
@@ -1827,16 +1834,18 @@ public class ColorFormatter {
                         }
                     }
 
-                    if (entities != null && entities.has("pastes")) {
+                    if (entities != null && entities.get("pastes") != null) {
                         if (pastebin_uri_template != null) {
                             UriTemplate template = UriTemplate.fromTemplate(pastebin_uri_template);
-                            for (JsonNode paste : entities.get("pastes")) {
+                            JrsArray pastes = (JrsArray)entities.get("pastes");
+                            for (int i = 0; i < pastes.size(); i++) {
+                                JrsObject paste = (JrsObject)pastes.get(i);
                                 String paste_url = template.set("id", paste.get("id").asText()).expand();
                                 if (url.startsWith(paste_url)) {
                                     if (url.toLowerCase().startsWith("http://"))
-                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(7) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean() ? "1" : "0");
+                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(7) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.get("own_paste") != null && ((JrsBoolean)paste.get("own_paste")).booleanValue() ? "1" : "0");
                                     else
-                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(8) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean() ? "1" : "0");
+                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(8) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.get("own_paste") != null && ((JrsBoolean)paste.get("own_paste")).booleanValue() ? "1" : "0");
                                 }
                             }
                         }

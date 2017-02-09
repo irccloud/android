@@ -33,6 +33,7 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -263,7 +264,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
             title.setVisibility(View.VISIBLE);
             channels.setVisibility(View.VISIBLE);
             String channelstxt = "";
-            JsonNode c = event.getJsonNode(field);
+            JrsArray c = event.getArray(field);
             for (int i = 0; i < c.size(); i++) {
                 String chan = c.get(i).asText();
                 channelstxt += "• " + chan + "<br/>";

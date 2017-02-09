@@ -38,6 +38,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsNumber;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -54,7 +57,7 @@ import com.squareup.leakcanary.RefWatcher;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
 public class ChannelModeListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
-    JsonNode data;
+    JrsArray data;
     int cid;
     int bid = -1;
     IRCCloudJSONObject event;
@@ -95,7 +98,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             public void onClick(View v) {
                 Integer position = (Integer) v.getTag();
                 try {
-                    conn.mode(cid, event.getString("channel"), "-" + mode + " " + data.get(position).get(mask).asText());
+                    conn.mode(cid, event.getString("channel"), "-" + mode + " " + ((JrsObject)data.get(position).get(mask)).asText());
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
                     NetworkConnection.printStackTraceToCrashlytics(e);
@@ -112,13 +115,17 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             RowChannelmodeBinding row = holder.binding;
-            JsonNode node = data.get(position);
+            JrsObject node = (JrsObject)data.get(position);
             row.setMask(Html.fromHtml(node.get(mask).asText()));
-            if(node.has("usermask") && node.get("usermask") != null && node.get("usermask").asText() != null)
-                row.setSetBy("Set " + DateUtils.getRelativeTimeSpanString(node.get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
-                    + " by " + node.get("usermask").asText());
-            else
+            try {
+                if (node.get("usermask") != null)
+                    row.setSetBy("Set " + DateUtils.getRelativeTimeSpanString(((JrsNumber) node.get("time")).asBigInteger().intValue() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
+                            + " by " + node.get("usermask").asText());
+                else
+                    row.setSetBy("");
+            } catch (Exception e) {
                 row.setSetBy("");
+            }
             if (canChangeMode) {
                 row.removeBtn.setVisibility(View.VISIBLE);
                 row.removeBtn.setOnClickListener(removeClickListener);
@@ -152,7 +159,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             placeholder = savedInstanceState.getString("placeholder");
             title = savedInstanceState.getString("title");
             mode = savedInstanceState.getString("mode");
-            data = event.getJsonNode(list);
+            data = event.getArray(list);
             adapter = new Adapter();
             recyclerView.setAdapter(adapter);
             if(adapter.getItemCount() > 0) {
@@ -246,7 +253,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
         placeholder = args.getString("placeholder");
         title = args.getString("title");
         mode = args.getString("mode");
-        data = event.getJsonNode(list);
+        data = event.getArray(list);
         Server s = ServersList.getInstance().getServer(cid);
         if(s != null) {
             User self_user = UsersList.getInstance().getUser(bid, s.getNick());

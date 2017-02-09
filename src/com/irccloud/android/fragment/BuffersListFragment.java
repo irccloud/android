@@ -38,6 +38,9 @@ import android.widget.ProgressBar;
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.jr.stree.JrsNumber;
+import com.fasterxml.jackson.jr.stree.JrsObject;
+import com.fasterxml.jackson.jr.stree.JrsValue;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -179,9 +182,9 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 }
 
                 if (e.isConsole()) {
-                    ObjectNode fail_info = ServersList.getInstance().getServer(e.getCid()).getFail_info();
+                    JrsObject fail_info = ServersList.getInstance().getServer(e.getCid()).getFail_info();
 
-                    if (fail_info != null && fail_info.has("type")) {
+                    if (fail_info != null && fail_info.get("type") != null) {
                         if (firstFailurePosition == -1 || firstFailurePosition > pos)
                             firstFailurePosition = pos;
                         if (lastFailurePosition == -1 || lastFailurePosition < pos)
@@ -194,7 +197,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                                 Server s = j.getServer();
                                 if(j.isConsole() && s != null) {
                                     fail_info = s.getFail_info();
-                                    if (fail_info != null && fail_info.has("type")) {
+                                    if (fail_info != null && fail_info.get("type") != null) {
                                         firstFailurePosition = i;
                                         break;
                                     }
@@ -208,7 +211,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                                 Server s = j.getServer();
                                 if(j.isConsole() && s != null) {
                                     fail_info = s.getFail_info();
-                                    if (fail_info != null && fail_info.has("type")) {
+                                    if (fail_info != null && fail_info.get("type") != null) {
                                         lastFailurePosition = i;
                                         break;
                                     }
@@ -719,16 +722,15 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 break;
             case NetworkConnection.EVENT_HEARTBEATECHO:
                 if (adapter != null) {
-                    JsonNode seenEids = object.getJsonNode("seenEids");
-                    Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
+                    Iterator<Map.Entry<String, JrsValue>> iterator = object.getJrsObject("seenEids").fields();
                     int count = 0;
                     while (iterator.hasNext()) {
-                        Map.Entry<String, JsonNode> entry = iterator.next();
-                        JsonNode eids = entry.getValue();
-                        Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
+                        Map.Entry<String, JrsValue> entry = iterator.next();
+                        JrsObject eids = (JrsObject) entry.getValue();
+                        Iterator<Map.Entry<String, JrsValue>> j = eids.fields();
                         while (j.hasNext()) {
-                            Map.Entry<String, JsonNode> eidentry = j.next();
-                            Integer bid = Integer.valueOf(eidentry.getKey());
+                            Map.Entry<String, JrsValue> eidentry = j.next();
+                            int bid = Integer.valueOf(eidentry.getKey());
                             b = BuffersList.getInstance().getBuffer(bid);
                             if (b != null)
                                 adapter.updateBuffer(b);

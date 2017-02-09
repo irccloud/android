@@ -35,6 +35,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -48,7 +49,7 @@ import com.squareup.leakcanary.RefWatcher;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
 public class AcceptListFragment extends DialogFragment {
-    JsonNode acceptList;
+    JrsArray acceptList;
     int cid;
     IRCCloudJSONObject event;
     AcceptListAdapter adapter;
@@ -122,7 +123,7 @@ public class AcceptListFragment extends DialogFragment {
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             cid = savedInstanceState.getInt("cid");
             event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
-            acceptList = event.getJsonNode("nicks");
+            acceptList = event.getArray("nicks");
             adapter = new AcceptListAdapter();
             recyclerView.setAdapter(adapter);
             if(adapter.getItemCount() > 0) {
@@ -202,7 +203,7 @@ public class AcceptListFragment extends DialogFragment {
     public void setArguments(Bundle args) {
         cid = args.getInt("cid", 0);
         event = new IRCCloudJSONObject(args.getString("event"));
-        acceptList = event.getJsonNode("nicks");
+        acceptList = event.getArray("nicks");
         if (getActivity() != null && cid > 0 && recyclerView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override

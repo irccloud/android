@@ -22,6 +22,8 @@ import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.R;
@@ -413,11 +415,11 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
                 if(event != null) {
                     boolean unknown = true;
-                    JsonNode ops = event.getJsonObject("ops");
+                    JrsObject ops = event.getJrsObject("ops");
                     if (ops != null) {
-                        JsonNode add = ops.get("add");
+                        JrsArray add = (JrsArray)ops.get("add");
                         if (add != null && add.size() > 0) {
-                            JsonNode op = add.get(0);
+                            JrsObject op = (JrsObject)add.get(0);
                             if (op.get("mode").asText().equals("b")) {
                                 e.nick = e.from;
                                 e.from = "";
@@ -446,9 +448,9 @@ public class EventsList {
                                 unknown = false;
                             }
                         }
-                        JsonNode remove = ops.get("remove");
+                        JrsArray remove = (JrsArray)ops.get("remove");
                         if (remove != null && remove.size() > 0) {
-                            JsonNode op = remove.get(0);
+                            JrsObject op = (JrsObject)remove.get(0);
                             if (op.get("mode").asText().equals("b")) {
                                 e.nick = e.from;
                                 e.from = "";
@@ -494,7 +496,7 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
                 if(event != null) {
-                    JsonNode lines = event.getJsonNode("lines");
+                    JrsArray lines = event.getArray("lines");
                     e.from = "";
                     if (lines != null) {
                         sb.append("<pre>");
@@ -783,7 +785,7 @@ public class EventsList {
                             sb.append("<b>CAP</b> Server removed: ");
                             break;
                     }
-                    JsonNode caps = event.getJsonNode("caps");
+                    JrsArray caps = event.getArray("caps");
                     if (caps != null) {
                         for (int i = 0; i < caps.size(); i++) {
                             if (i > 0)
@@ -1043,8 +1045,8 @@ public class EventsList {
             e.self = event.getBoolean("self");
             e.to_chan = event.getBoolean("to_chan");
             e.to_buffer = event.getBoolean("to_buffer");
-            e.ops = event.getJsonNode("ops");
-            e.entities = event.getJsonNode("entities");
+            e.ops = event.getJrsObject("ops");
+            e.entities = event.getJrsObject("entities");
 
             if (event.has("reqid"))
                 e.reqid = event.getInt("reqid");

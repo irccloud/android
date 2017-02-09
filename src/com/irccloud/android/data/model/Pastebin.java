@@ -328,7 +328,7 @@ public class Pastebin extends BaseObservable implements Serializable, NetworkCon
     @Override
     public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
         if(reqid == savereqid) {
-            ObjectNode o = object.getJsonObject("paste");
+            /*ObjectNode o = object.getJsonObject("paste");
             if(o == null && object.has("id"))
                 o = (ObjectNode)object.getObject();
             if(o != null) {
@@ -340,7 +340,7 @@ public class Pastebin extends BaseObservable implements Serializable, NetworkCon
                 setOwn_paste(o.get("own_paste").asBoolean());
                 setDate(new Date(o.get("date").asLong() * 1000L));
                 setUrl(o.get("url").asText());
-            }
+            }*/
             NetworkConnection.getInstance().removeHandler(this);
             if(onSaveListener != null)
                 onSaveListener.onSuccess(this);

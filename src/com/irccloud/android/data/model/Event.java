@@ -19,6 +19,7 @@ package com.irccloud.android.data.model;
 import android.text.Spanned;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -110,7 +111,7 @@ public class Event /*extends ObservableBaseModel*/ {
     public int bg_color;
 
     @Column
-    public JsonNode ops;
+    public JrsObject ops;
 
     @Column
     public long group_eid;
@@ -146,7 +147,7 @@ public class Event /*extends ObservableBaseModel*/ {
     public String contentDescription;
 
     @Column
-    public JsonNode entities;
+    public JrsObject entities;
 
     public String timestamp;
     public String html;
@@ -183,7 +184,7 @@ public class Event /*extends ObservableBaseModel*/ {
         to_buffer = e.to_buffer;
         color = e.color;
         bg_color = e.bg_color;
-        ops = e.ops.deepCopy();
+        ops = e.ops;
         group_eid = e.group_eid;
         row_type = e.row_type;
         group_msg = e.group_msg;

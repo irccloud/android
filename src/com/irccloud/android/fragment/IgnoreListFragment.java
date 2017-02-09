@@ -36,6 +36,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -49,7 +50,7 @@ import com.squareup.leakcanary.RefWatcher;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
 public class IgnoreListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
-    JsonNode ignores;
+    JrsArray ignores;
     int cid;
     IgnoresAdapter adapter;
     NetworkConnection conn;

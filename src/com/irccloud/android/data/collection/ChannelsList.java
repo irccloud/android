@@ -21,6 +21,8 @@ import android.database.sqlite.SQLiteException;
 import android.util.SparseArray;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.data.model.Channel;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -92,7 +94,7 @@ public class ChannelsList {
         c.bid = bid;
         c.name = name;
         c.topic_author = topic_author;
-        c.topic_text = ColorFormatter.emojify(topic_text);
+        c.topic_text = topic_text;
         c.topic_time = topic_time;
         c.type = type;
         c.timestamp = timestamp;
@@ -115,22 +117,21 @@ public class ChannelsList {
         }
     }
 
-    public synchronized void updateMode(int bid, String mode, JsonNode ops, boolean init) {
+    public synchronized void updateMode(int bid, String mode, JrsObject ops, boolean init) {
         Channel c = getChannelForBuffer(bid);
         if (c != null) {
             c.key = false;
-            JsonNode add = ops.get("add");
+            JrsArray add = (JrsArray)ops.get("add");
             for (int i = 0; i < add.size(); i++) {
-                JsonNode m = add.get(i);
+                JrsObject m = (JrsObject)add.get(i);
                 c.addMode(m.get("mode").asText(), m.get("param").asText(), init);
             }
-            JsonNode remove = ops.get("remove");
+            JrsArray remove = (JrsArray)ops.get("remove");
             for (int i = 0; i < remove.size(); i++) {
-                JsonNode m = remove.get(i);
+                JrsObject m = (JrsObject)remove.get(i);
                 c.removeMode(m.get("mode").asText());
             }
             c.mode = mode;
-            c.ops = ops;
         }
     }
 

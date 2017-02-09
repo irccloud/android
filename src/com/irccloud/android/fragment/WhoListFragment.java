@@ -37,6 +37,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -48,7 +50,7 @@ import com.squareup.leakcanary.RefWatcher;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
 public class WhoListFragment extends DialogFragment {
-    JsonNode users;
+    JrsArray users;
     UsersAdapter adapter;
     NetworkConnection conn;
     RecyclerView recyclerView;
@@ -85,14 +87,14 @@ public class WhoListFragment extends DialogFragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             RowWhoBinding row = holder.binding;
-            row.setNick(users.get(position).get("nick").asText());
-            row.setName(ColorFormatter.html_to_spanned("&nbsp;(" + ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(users.get(position).get("realname").asText()))) + ")"));
-            row.setServer("Connected via " + users.get(position).get("ircserver").asText());
-            row.setMask(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(users.get(position).get("usermask").asText())));
+            row.setNick(((JrsObject)users.get(position).get("nick")).asText());
+            row.setName(ColorFormatter.html_to_spanned("&nbsp;(" + ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(((JrsObject)users.get(position).get("realname")).asText()))) + ")"));
+            row.setServer("Connected via " + ((JrsObject)users.get(position).get("ircserver")).asText());
+            row.setMask(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(((JrsObject)users.get(position).get("usermask")).asText())));
             row.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    final JsonNode user = users.get(position);
+                    final JrsObject user = (JrsObject)users.get(position);
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
@@ -147,7 +149,7 @@ public class WhoListFragment extends DialogFragment {
         empty.setText("No results found.");
         if (savedInstanceState != null && savedInstanceState.containsKey("event")) {
             event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
-            users = event.getJsonNode("users");
+            users = event.getArray("users");
             adapter = new UsersAdapter();
             recyclerView.setAdapter(adapter);
             if(adapter.getItemCount() > 0) {
@@ -180,7 +182,7 @@ public class WhoListFragment extends DialogFragment {
     @Override
     public void setArguments(Bundle args) {
         event = new IRCCloudJSONObject(args.getString("event"));
-        users = event.getJsonNode("users");
+        users = event.getArray("users");
         if (getActivity() != null && recyclerView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override

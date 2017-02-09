@@ -32,6 +32,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -43,7 +45,7 @@ import com.squareup.leakcanary.RefWatcher;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
 public class NamesListFragment extends DialogFragment {
-    JsonNode users;
+    JrsArray users;
     UsersAdapter adapter;
     NetworkConnection conn;
     RecyclerView recyclerView;
@@ -80,13 +82,13 @@ public class NamesListFragment extends DialogFragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             RowWhoBinding row = holder.binding;
-            row.setNick(users.get(position).get("nick").asText());
-            if (users.get(position).get("mode").asText().length() > 0)
-                row.setName(new SpannableString(" (+" + users.get(position).get("mode").asText() + ")"));
+            row.setNick(((JrsObject)users.get(position).get("nick")).asText());
+            if (((JrsObject)users.get(position).get("mode")).asText().length() > 0)
+                row.setName(new SpannableString(" (+" + ((JrsObject)users.get(position).get("mode")).asText() + ")"));
             else
                 row.setName(new SpannableString(""));
             row.setServer("");
-            row.setMask(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(users.get(position).get("usermask").asText())));
+            row.setMask(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(((JrsObject)users.get(position).get("usermask")).asText())));
             row.executePendingBindings();
         }
     }
@@ -105,7 +107,7 @@ public class NamesListFragment extends DialogFragment {
         empty.setText("No results found.");
         if (savedInstanceState != null && savedInstanceState.containsKey("event")) {
             event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
-            users = event.getJsonNode("members");
+            users = event.getArray("members");
             adapter = new UsersAdapter();
             recyclerView.setAdapter(adapter);
             if(adapter.getItemCount() > 0) {
@@ -138,7 +140,7 @@ public class NamesListFragment extends DialogFragment {
     @Override
     public void setArguments(Bundle args) {
         event = new IRCCloudJSONObject(args.getString("event"));
-        users = event.getJsonNode("members");
+        users = event.getArray("members");
         if (getActivity() != null && recyclerView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override

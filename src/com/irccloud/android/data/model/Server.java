@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.FontAwesome;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
@@ -65,7 +67,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     private String server_realname;
 
     @Column
-    private ObjectNode fail_info;
+    private JrsObject fail_info;
 
     @Column
     private String away;
@@ -80,7 +82,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     public ObjectNode isupport = new ObjectMapper().createObjectNode();
 
     @Column
-    public JsonNode raw_ignores;
+    public JrsArray raw_ignores;
 
     @Column(name = "server_order")
     private int order;
@@ -172,11 +174,11 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
         this.status = status;
     }
 
-    public ObjectNode getFail_info() {
+    public JrsObject getFail_info() {
         return fail_info;
     }
 
-    public void setFail_info(ObjectNode fail_info) {
+    public void setFail_info(JrsObject fail_info) {
         this.fail_info = fail_info;
     }
 
@@ -199,7 +201,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     }
 
     public boolean isFailed() {
-        return (this.status.equals("waiting_to_retry") || this.status.equals("pool_unavailable") || (this.status.equals("disconnected") && this.getFail_info() != null && this.getFail_info().has("type")));
+        return (this.status.equals("waiting_to_retry") || this.status.equals("pool_unavailable") || (this.status.equals("disconnected") && this.getFail_info() != null && this.getFail_info().get("type") != null));
     }
 
     @Bindable
@@ -323,7 +325,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
             CHANTYPES = null;
     }
 
-    public void updateIgnores(JsonNode ignores) {
+    public void updateIgnores(JrsArray ignores) {
         this.raw_ignores = ignores;
         this.ignores = new ArrayList<>();
         if(ignores != null) {

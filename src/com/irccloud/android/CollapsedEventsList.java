@@ -21,6 +21,8 @@ import android.text.TextUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.Server;
 
@@ -304,7 +306,7 @@ public class CollapsedEventsList {
         } else if (type.equalsIgnoreCase("socket_closed") || type.equalsIgnoreCase("connecting_failed") || type.equalsIgnoreCase("connecting_cancelled")) {
             addEvent(event.eid, CollapsedEventsList.TYPE_CONNECTIONSTATUS, null, null, null, null, event.msg, null);
         } else if (type.equalsIgnoreCase("user_channel_mode")) {
-            JsonNode ops = event.ops;
+            JrsObject ops = event.ops;
             if (ops != null) {
                 CollapsedEvent e = findEvent(event.nick, event.chan);
                 if (e == null) {
@@ -315,9 +317,9 @@ public class CollapsedEventsList {
                     e.nick = event.nick;
                     e.chan = event.chan;
                 }
-                JsonNode add = ops.get("add");
+                JrsArray add = (JrsArray)ops.get("add");
                 for (int i = 0; i < add.size(); i++) {
-                    JsonNode op = add.get(i);
+                    JrsObject op = (JrsObject)add.get(i);
                     if (!e.addMode(op.get("mode").asText()))
                         return false;
                     if (e.type == TYPE_MODE) {
@@ -332,9 +334,9 @@ public class CollapsedEventsList {
                         e.from_mode = event.target_mode;
                     }
                 }
-                JsonNode remove = ops.get("remove");
+                JrsArray remove = (JrsArray)ops.get("remove");
                 for (int i = 0; i < remove.size(); i++) {
-                    JsonNode op = remove.get(i);
+                    JrsObject op = (JrsObject)remove.get(i);
                     if (!e.removeMode(op.get("mode").asText()))
                         return false;
                     if (e.type == TYPE_MODE) {

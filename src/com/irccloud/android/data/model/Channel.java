@@ -19,6 +19,7 @@ package com.irccloud.android.data.model;
 import android.databinding.BaseObservable;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -71,9 +72,6 @@ public class Channel extends BaseObservable /*extends ObservableBaseModel*/ {
 
     @Column
     public String url;
-
-    @Column
-    public JsonNode ops;
 
     @Column
     public boolean key;

@@ -31,6 +31,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsNumber;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -70,25 +73,29 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
 
     private class ChannelsAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-        public void set(JsonNode json) {
+        public void set(JrsArray json) {
             channels = new ArrayList<>(json.size());
 
-            for (int i = 0; i < json.size(); i++) {
-                ChannelRow c = new ChannelRow();
-                JsonNode o = json.get(i);
-                String channel = o.get("name").asText() + " (" + o.get("num_members").asInt() + " member";
-                if (o.get("num_members").asInt() != 1)
-                    channel += "s";
-                channel += ")";
-                c.name = ColorFormatter.html_to_spanned(channel, true, server);
+            try {
+                for (int i = 0; i < json.size(); i++) {
+                    ChannelRow c = new ChannelRow();
+                    JrsObject o = (JrsObject) json.get(i);
+                    String channel = o.get("name").asText() + " (" + ((JrsNumber) o.get("num_members")).asBigInteger().intValue() + " member";
+                    if (((JrsNumber) o.get("num_members")).asBigInteger().intValue() != 1)
+                        channel += "s";
+                    channel += ")";
+                    c.name = ColorFormatter.html_to_spanned(channel, true, server);
 
-                String topic = o.get("topic").asText();
-                if (topic.length() > 0) {
-                    c.topic = ColorFormatter.html_to_spanned(topic, true, server);
-                } else {
-                    c.topic = null;
+                    String topic = o.get("topic").asText();
+                    if (topic.length() > 0) {
+                        c.topic = ColorFormatter.html_to_spanned(topic, true, server);
+                    } else {
+                        c.topic = null;
+                    }
+                    channels.add(c);
                 }
-                channels.add(c);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -199,7 +206,7 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            adapter.set(o.getJsonNode("channels"));
+                            adapter.set(o.getArray("channels"));
                             adapter.notifyDataSetChanged();
                             if(adapter.getItemCount() > 0) {
                                 empty.setVisibility(View.GONE);

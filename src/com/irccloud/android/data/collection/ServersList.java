@@ -23,6 +23,8 @@ import android.util.SparseArray;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.jr.stree.JrsArray;
+import com.fasterxml.jackson.jr.stree.JrsObject;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Server;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -85,7 +87,7 @@ public class ServersList {
         TransactionManager.getInstance().saveOnSaveQueue(s);*/
     }
 
-    public Server createServer(int cid, String name, String hostname, int port, String nick, String status, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, ObjectNode fail_info, String away, JsonNode ignores, int order, String server_realname) {
+    public Server createServer(int cid, String name, String hostname, int port, String nick, String status, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, JrsObject fail_info, String away, JrsArray ignores, int order, String server_realname) {
         Server s = getServer(cid);
         if (s == null) {
             s = new Server();
