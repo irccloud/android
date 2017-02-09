@@ -2532,14 +2532,15 @@ public class NetworkConnection {
                     set_by = topic.get("server").asText();
                 Channel channel = mChannels.createChannel(object.cid(), object.bid(), object.getString("chan"),
                         (topic == null || topic.get("text").isNull()) ? "" : topic.get("text").asText(),
-                        topic == null ? 0 : object.getJsonObject("topic").get("time").asLong(),
+                        topic == null ? 0 : topic.get("time").asLong(),
                         set_by, object.getString("channel_type"),
                         object.getLong("timestamp"));
                 mChannels.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
                 mUsers.deleteUsersForBuffer(object.bid());
                 JsonNode users = object.getJsonNode("members");
-                for (int i = 0; i < users.size(); i++) {
-                    JsonNode user = users.get(i);
+                Iterator<JsonNode> iterator = users.elements();
+                while(iterator.hasNext()) {
+                    JsonNode user = iterator.next();
                     User u = mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("ircserver").asText(), user.get("away").asBoolean() ? 1 : 0, false);
                 }
                 mBuffers.dirty = true;
@@ -2844,7 +2845,7 @@ public class NetworkConnection {
             //notifyHandlers(EVENT_DEBUG, "Type: " + type + " BID: " + object.bid() + " EID: " + object.eid());
             //Crashlytics.log("New event: " + type);
             //Log.d(TAG, "New event: " + type);
-            if ((backlog || accrued > 0) && object.bid() > -1 && object.bid() != currentBid && object.eid > 0) {
+            if ((backlog || accrued > 0) && object.bid() > -1 && object.bid() != currentBid && object.eid() > 0) {
                 if(!backlog) {
                     if(firstEid == -1) {
                         firstEid = object.eid();

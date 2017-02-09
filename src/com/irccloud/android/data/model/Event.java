@@ -183,7 +183,7 @@ public class Event /*extends ObservableBaseModel*/ {
         to_buffer = e.to_buffer;
         color = e.color;
         bg_color = e.bg_color;
-        ops = e.ops.deepCopy();
+        ops = e.ops;
         group_eid = e.group_eid;
         row_type = e.row_type;
         group_msg = e.group_msg;

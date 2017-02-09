@@ -30,6 +30,7 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class ChannelsList {
     private SparseArray<Channel> channels;
@@ -92,7 +93,7 @@ public class ChannelsList {
         c.bid = bid;
         c.name = name;
         c.topic_author = topic_author;
-        c.topic_text = ColorFormatter.emojify(topic_text);
+        c.topic_text = topic_text;
         c.topic_time = topic_time;
         c.type = type;
         c.timestamp = timestamp;
@@ -119,18 +120,17 @@ public class ChannelsList {
         Channel c = getChannelForBuffer(bid);
         if (c != null) {
             c.key = false;
-            JsonNode add = ops.get("add");
-            for (int i = 0; i < add.size(); i++) {
-                JsonNode m = add.get(i);
+            Iterator<JsonNode> iterator = ops.get("add").elements();
+            while(iterator.hasNext()) {
+                JsonNode m = iterator.next();
                 c.addMode(m.get("mode").asText(), m.get("param").asText(), init);
             }
-            JsonNode remove = ops.get("remove");
-            for (int i = 0; i < remove.size(); i++) {
-                JsonNode m = remove.get(i);
+            iterator = ops.get("remove").elements();
+            while(iterator.hasNext()) {
+                JsonNode m = iterator.next();
                 c.removeMode(m.get("mode").asText());
             }
             c.mode = mode;
-            c.ops = ops;
         }
     }
 

@@ -73,9 +73,6 @@ public class Channel extends BaseObservable /*extends ObservableBaseModel*/ {
     public String url;
 
     @Column
-    public JsonNode ops;
-
-    @Column
     public boolean key;
 
     public ArrayList<Mode> modes = new ArrayList<>();

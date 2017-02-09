@@ -26,11 +26,11 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 public class IRCCloudJSONObject {
-    JsonNode o;
-    int cid = -1;
-    int bid = -1;
-    long eid = -1;
-    String type = null;
+    private JsonNode o;
+    private int cid = -1;
+    private int bid = -1;
+    private long eid = -1;
+    private String type = null;
 
     public IRCCloudJSONObject() {
         o = new ObjectMapper().createObjectNode();
@@ -59,20 +59,20 @@ public class IRCCloudJSONObject {
     }
 
     public int cid() {
-        if (cid == -1 && o.has("cid"))
-            cid = o.get("cid").asInt();
+        if (cid == -1)
+            cid = getInt("cid");
         return cid;
     }
 
     public int bid() {
-        if (bid == -1 && o.has("bid"))
-            bid = o.get("bid").asInt();
+        if (bid == -1)
+            bid = getInt("bid");
         return bid;
     }
 
     public long eid() {
-        if (eid == -1 && o.has("eid"))
-            eid = o.get("eid").asLong();
+        if (eid == -1)
+            eid = getLong("eid");
         return eid;
     }
 
@@ -110,7 +110,7 @@ public class IRCCloudJSONObject {
     }
 
     public JsonNode getJsonNode(String name) {
-        return o.path(name);
+        return o.get(name);
     }
 
     public ObjectNode getJsonObject(String name) {
