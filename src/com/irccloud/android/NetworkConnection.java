@@ -3299,7 +3299,6 @@ public class NetworkConnection {
                     if (reader != null && parser.nextToken() == JsonToken.START_ARRAY) {
                         synchronized (parserLock) {
                             cancel_idle_timer();
-                            //if(ready)
                             //android.os.Debug.startMethodTracing("/sdcard/oob", 16*1024*1024);
                             Crashlytics.log(Log.DEBUG, TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
                             Crashlytics.log(Log.DEBUG, TAG, "Beginning backlog...");

@@ -91,22 +91,35 @@ public class IRCCloudJSONObject {
     }
 
     public boolean getBoolean(String name) {
-        return o.path(name).asBoolean(false);
+        JsonNode node = o.get(name);
+        if(node != null)
+            return node.asBoolean(false);
+        else
+            return false;
     }
 
     public int getInt(String name) {
-        return o.path(name).asInt(-1);
+        JsonNode node = o.get(name);
+        if(node != null)
+            return node.asInt(-1);
+        else
+            return -1;
     }
 
     public long getLong(String name) {
-        return o.path(name).asLong(-1);
+        JsonNode node = o.get(name);
+        if(node != null)
+            return node.asLong(-1);
+        else
+            return -1;
     }
 
     public String getString(String name) {
-        if(o.path(name).isNull())
+        JsonNode node = o.get(name);
+        if(node == null || node.isNull())
             return null;
         else
-            return o.path(name).asText();
+            return node.asText();
     }
 
     public JsonNode getJsonNode(String name) {

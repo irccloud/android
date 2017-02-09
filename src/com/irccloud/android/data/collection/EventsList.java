@@ -1084,24 +1084,27 @@ public class EventsList {
     public int getSizeOfBuffer(int bid) {
         synchronized (events) {
             load(bid);
-            if (events.containsKey(bid) && events.get(bid) != null)
-                return events.get(bid).size();
+            TreeMap<Long, Event> buffer = events.get(bid);
+            if(buffer != null)
+                return buffer.size();
         }
         return 0;
     }
 
     public Event getEvent(long eid, int bid) {
         synchronized (events) {
-            if (events.containsKey(bid) && events.get(bid) != null)
-                return events.get(bid).get(eid);
+            TreeMap<Long, Event> buffer = events.get(bid);
+            if(buffer != null)
+                return buffer.get(eid);
         }
         return null;
     }
 
     public void deleteEvent(long eid, int bid) {
         synchronized (events) {
-            if (events.containsKey(bid) && events.get(bid) != null && events.get(bid).containsKey(eid))
-                events.get(bid).remove(eid);
+            TreeMap<Long, Event> buffer = events.get(bid);
+            if(buffer != null)
+                buffer.remove(eid);
         }
         //new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).is(eid)).queryClose();
     }
