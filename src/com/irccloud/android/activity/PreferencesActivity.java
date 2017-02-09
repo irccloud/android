@@ -258,6 +258,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         if (findPreference("emoji-disableconvert") != null) {
             findPreference("emoji-disableconvert").setOnPreferenceChangeListener(prefstoggle);
             findPreference("emoji-disableconvert").setSummary(":thumbsup: → \uD83D\uDC4D");
+            findPreference("emoji-nobig").setOnPreferenceChangeListener(prefstoggle);
         }
         findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-left").setOnPreferenceChangeListener(messagelayouttoggle);
@@ -451,8 +452,10 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                                     ((SwitchPreferenceCompat) findPreference("time-seconds")).setChecked(prefs.has("time-seconds") && prefs.get("time-seconds").getClass().equals(Boolean.class) && prefs.getBoolean("time-seconds"));
                                     ((SwitchPreferenceCompat) findPreference("mode-showsymbol")).setChecked(prefs.has("mode-showsymbol") && prefs.get("mode-showsymbol").getClass().equals(Boolean.class) && prefs.getBoolean("mode-showsymbol"));
                                     ((SwitchPreferenceCompat) findPreference("pastebin-disableprompt")).setChecked(!(prefs.has("pastebin-disableprompt") && prefs.get("pastebin-disableprompt").getClass().equals(Boolean.class) && prefs.getBoolean("pastebin-disableprompt")));
-                                    if (findPreference("emoji-disableconvert") != null)
+                                    if (findPreference("emoji-disableconvert") != null) {
                                         ((SwitchPreferenceCompat) findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert") && prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-disableconvert")));
+                                        ((SwitchPreferenceCompat) findPreference("emoji-nobig")).setChecked(!(prefs.has("emoji-nobig") && prefs.get("emoji-nobig").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-nobig")));
+                                    }
                                     ((SwitchPreferenceCompat) findPreference("hideJoinPart")).setChecked(!(prefs.has("hideJoinPart") && prefs.get("hideJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("hideJoinPart")));
                                     ((SwitchPreferenceCompat) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
                                 } catch (JSONException e) {
@@ -579,7 +582,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     conn.getUserInfo().prefs = prefs;
                 }
 
-                if (preference.getKey().equals("disableTrackUnread") || preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left") || preference.getKey().equals("avatars-off") || preference.getKey().equals("chat-oneline") || preference.getKey().equals("chat-norealname"))
+                if (preference.getKey().equals("disableTrackUnread") || preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left") || preference.getKey().equals("avatars-off") || preference.getKey().equals("chat-oneline") || preference.getKey().equals("chat-norealname") || preference.getKey().equals("emoji-nobig"))
                     prefs.put(preference.getKey(), !(Boolean) newValue);
                 else if(preference.getKey().equals("monospace"))
                     prefs.put("font", ((Boolean)newValue)?"mono":"sans");

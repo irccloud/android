@@ -37,8 +37,10 @@ import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
+import android.text.style.MetricAffectingSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -181,6 +183,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_chatOneLine = false;
     private boolean pref_norealname = false;
     private boolean pref_compact = false;
+    private boolean pref_disableLargeEmoji = false;
 
     private class LinkMovementMethodNoLongPress extends IRCCloudLinkMovementMethod {
         @Override
@@ -741,7 +744,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     Drawable b = getDrawable();
                                     canvas.save();
 
-                                    canvas.translate(x, top + ((paint.getFontMetricsInt().descent - paint.getFontMetricsInt().ascent) / 2) - ((b.getBounds().bottom - b.getBounds().top) / 2) - (((int)textSize - b.getIntrinsicHeight() / 2)));
+                                    canvas.translate(x, y - b.getIntrinsicHeight() + paint.getFontMetricsInt().descent);
                                     b.draw(canvas);
                                     canvas.restore();
                                 }
@@ -1494,12 +1497,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     lastCollapsedEid = -1;
                     collapsedEvents.clear();
                     if (event.html == null) {
+                        String msg = event.msg;
+                        if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                            msg = "<large>" + msg + "</large>";
+
                         if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + event.msg;
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
                         else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
-                            event.html = "<b>" + event.server + "</b> " + event.msg;
+                            event.html = "<b>" + event.server + "</b> " + msg;
                         else
-                            event.html = event.msg;
+                            event.html = msg;
                     }
 
                     if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
@@ -1511,6 +1518,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
+                String msg;
                 String from = event.from;
                 if (from == null || from.length() == 0)
                     from = event.nick;
@@ -1536,10 +1544,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.html = event.msg + " by the server <b>" + event.server + "</b>";
                         break;
                     case "buffer_me_msg":
-                        event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + event.msg + "</i>";
+                        msg = event.msg;
+                        if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                            msg = "<large>" + msg + "</large>";
+                        event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg + "</i>";
                         break;
                     case "buffer_msg":
                     case "notice":
+                        msg = event.msg;
+                        if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                            msg = "<large>" + msg + "</large>";
+
                         if (pref_chatOneLine && event.from != null && event.from.length() > 0)
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> ";
                         else
@@ -1559,11 +1574,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 event.html += collapsedEvents.formatNick("Voiced", server.MODE_VOICED, false) + " ";
                         }
                         if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
-                            event.html += "<b>" + event.chan + "</b>: " + event.msg;
+                            event.html += "<b>" + event.chan + "</b>: " + msg;
                         } else if (buffer.isConsole() && event.self && event.nick != null && event.nick.length() > 0) {
-                            event.html += "<b>" + event.nick + "</b>: " + event.msg;
+                            event.html += "<b>" + event.nick + "</b>: " + msg;
                         } else {
-                            event.html += event.msg;
+                            event.html += msg;
                         }
                         break;
                     case "kicked_channel":
@@ -2066,6 +2081,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_chatOneLine = false;
         pref_norealname = false;
         pref_compact = false;
+        pref_disableLargeEmoji = false;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -2077,6 +2093,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_avatarsOff = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("avatars-off", true);
                 pref_chatOneLine = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-oneline", true);
                 pref_norealname = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-norealname", true);
+                pref_disableLargeEmoji = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("emoji-nobig", true);
                 if(prefs.has("channel-disableTrackUnread")) {
                     JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
                     if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {

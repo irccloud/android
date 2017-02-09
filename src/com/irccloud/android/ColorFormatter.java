@@ -1551,6 +1551,8 @@ public class ColorFormatter {
 
     public static Pattern CONVERSION = null;
 
+    public static Pattern IS_EMOJI = null;
+
     public static void init() {
         if(EMOJI == null) {
             long start = System.currentTimeMillis();
@@ -1581,6 +1583,17 @@ public class ColorFormatter {
             sb.append(")");
 
             CONVERSION = Pattern.compile(sb.toString());
+
+            sb.setLength(0);
+            sb.append("(?:");
+            for (String key : emojiMap.keySet()) {
+                if (sb.length() > 2)
+                    sb.append("|");
+                sb.append(emojiMap.get(key));
+            }
+            sb.append(")+");
+
+            IS_EMOJI = Pattern.compile(sb.toString().replace(":)|","").replace("*", "\\*"));
 
             Crashlytics.log(Log.INFO, "IRCCloud", "Compiled :emocode: regex from " + emojiMap.size() + " keys in " + (System.currentTimeMillis() - start) + "ms");
         }
@@ -1628,6 +1641,10 @@ public class ColorFormatter {
         return msg;
     }
 
+    public static boolean is_emoji(String text) {
+        return text != null && text.length() > 0 && IS_EMOJI.matcher(text).matches();
+    }
+
     public static Spanned html_to_spanned(String msg) {
         return html_to_spanned(msg, false, null, null);
     }
@@ -1673,6 +1690,19 @@ public class ColorFormatter {
                             } catch (IllegalArgumentException e) {
                                 output.setSpan(new BackgroundColorSpan(Color.parseColor("#ffffff")), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             }
+                        }
+                    }
+                } else if(tag.equals("large")) {
+                    if (opening) {
+                        output.setSpan(new LargeSpan(), len, len, Spannable.SPAN_MARK_MARK);
+                    } else {
+                        Object obj = getLast(output, LargeSpan.class);
+                        int where = output.getSpanStart(obj);
+
+                        output.removeSpan(obj);
+
+                        if (where != len) {
+                            output.setSpan(new LargeSpan(), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
                 }
@@ -1929,6 +1959,21 @@ public class ColorFormatter {
         @Override
         public void updateDrawState(TextPaint textPaint) {
             textPaint.setTypeface(sourceSansPro);
+        }
+    }
+
+    private static class LargeSpan extends MetricAffectingSpan {
+        public LargeSpan() {
+        }
+
+        @Override
+        public void updateMeasureState(TextPaint textPaint) {
+            textPaint.setTextSize(textPaint.getTextSize() * 2);
+        }
+
+        @Override
+        public void updateDrawState(TextPaint textPaint) {
+            textPaint.setTextSize(textPaint.getTextSize() * 2);
         }
     }
 

@@ -1974,25 +1974,22 @@ public class NetworkConnection {
                     editor.putBoolean("disableTrackUnread", !(userInfo.prefs.has("disableTrackUnread") && userInfo.prefs.get("disableTrackUnread") instanceof Boolean && userInfo.prefs.getBoolean("disableTrackUnread")));
                     editor.putBoolean("enableReadOnSelect", (userInfo.prefs.has("enableReadOnSelect") && userInfo.prefs.get("enableReadOnSelect") instanceof Boolean && userInfo.prefs.getBoolean("enableReadOnSelect")));
                     editor.putBoolean("ascii-compact", (userInfo.prefs.has("ascii-compact") && userInfo.prefs.get("ascii-compact") instanceof Boolean && userInfo.prefs.getBoolean("ascii-compact")));
+                    editor.putBoolean("emoji-nobig", !(userInfo.prefs.has("emoji-nobig") && userInfo.prefs.get("emoji-nobig") instanceof Boolean && userInfo.prefs.getBoolean("emoji-nobig")));
                     if(userInfo.prefs.has("theme") && !prefs.contains("theme"))
                         editor.putString("theme", userInfo.prefs.getString("theme"));
                     if(userInfo.prefs.has("font") && !prefs.contains("monospace"))
                         editor.putBoolean("monospace", userInfo.prefs.getString("font").equals("mono"));
                     if(userInfo.prefs.has("time-left") && !prefs.contains("time-left")) {
                         editor.putBoolean("time-left", !(userInfo.prefs.has("time-left") && userInfo.prefs.get("time-left") instanceof Boolean && userInfo.prefs.getBoolean("time-left")));
-                        editor.putBoolean("greeting_3.0", true);
                     }
                     if(userInfo.prefs.has("avatars-off") && !prefs.contains("avatars-off")) {
                         editor.putBoolean("avatars-off", !(userInfo.prefs.has("avatars-off") && userInfo.prefs.get("avatars-off") instanceof Boolean && userInfo.prefs.getBoolean("avatars-off")));
-                        editor.putBoolean("greeting_3.0", true);
                     }
                     if(userInfo.prefs.has("chat-oneline") && !prefs.contains("chat-oneline")) {
                         editor.putBoolean("chat-oneline", !(userInfo.prefs.has("chat-oneline") && userInfo.prefs.get("chat-oneline") instanceof Boolean && userInfo.prefs.getBoolean("chat-oneline")));
-                        editor.putBoolean("greeting_3.0", true);
                     }
                     if(userInfo.prefs.has("chat-norealname") && !prefs.contains("chat-norealname")) {
                         editor.putBoolean("chat-norealname", !(userInfo.prefs.has("chat-norealname") && userInfo.prefs.get("chat-norealname") instanceof Boolean && userInfo.prefs.getBoolean("chat-norealname")));
-                        editor.putBoolean("greeting_3.0", true);
                     }
                 } else {
                     editor.putBoolean("time-24hr", false);
@@ -2006,6 +2003,7 @@ public class NetworkConnection {
                     editor.putBoolean("emoji-disableconvert", true);
                     editor.putBoolean("pastebin-disableprompt", true);
                     editor.putBoolean("ascii-compact", false);
+                    editor.putBoolean("emoji-nobig", true);
                 }
                 editor.commit();
                 mEvents.clearCaches();

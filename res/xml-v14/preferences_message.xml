@@ -57,6 +57,10 @@
             android:key="emoji-disableconvert"
             android:defaultValue="true"
             android:title="Convert :emocodes: to emoji"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="emoji-nobig"
+			android:defaultValue="true"
+			android:title="Enlarge emoji-only messages"/>
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="nick-colors"
             android:defaultValue="false"
