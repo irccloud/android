@@ -112,9 +112,12 @@ public class UsersList {
         if (u == null) {
             u = new User();
 
-            if (!users.containsKey(bid) || users.get(bid) == null)
-                users.put(bid, new TreeMap<String, User>(comparator));
-            users.get(bid).put(nick.toLowerCase(), u);
+            TreeMap<String, User> usersList = users.get(bid);
+            if (users.get(bid) == null) {
+                usersList = new TreeMap<>(comparator);
+                users.put(bid, usersList);
+            }
+            usersList.put(nick.toLowerCase(), u);
         }
         u.cid = cid;
         u.bid = bid;
