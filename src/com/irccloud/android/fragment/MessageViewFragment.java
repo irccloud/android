@@ -244,6 +244,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             ImageView failed;
             ImageView avatar;
             ImageView thumbnail;
+            ProgressBar progress;
         }
 
         public MessageAdapter(ListFragment context, int capacity) {
@@ -653,6 +654,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.filename = (TextView) row.findViewById(R.id.filename);
                     holder.metadata = (TextView) row.findViewById(R.id.metadata);
                     holder.extension = (TextView) row.findViewById(R.id.extension);
+                    holder.progress = (ProgressBar) row.findViewById(R.id.progress);
                     holder.type = e.row_type;
 
                     row.setTag(holder);
@@ -911,6 +913,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         Bitmap b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
                         if (b != null) {
                             holder.thumbnail.setImageBitmap(b);
+                            holder.thumbnail.setVisibility(View.VISIBLE);
+                            holder.progress.setVisibility(View.GONE);
                         } else {
                             ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
                                 @Override
@@ -923,6 +927,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     });
                                 }
                             });
+                            holder.thumbnail.setVisibility(View.GONE);
+                            holder.progress.setVisibility(View.VISIBLE);
                         }
                         holder.thumbnail.setVisibility(View.VISIBLE);
                         holder.extension.setVisibility(View.GONE);
@@ -940,6 +946,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.extension.setText(ext.toUpperCase());
                         holder.thumbnail.setVisibility(View.GONE);
                         holder.extension.setVisibility(View.VISIBLE);
+                        holder.progress.setVisibility(View.GONE);
                     }
 
                     if(e.entities.get("name") != null) {

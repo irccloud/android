@@ -78,11 +78,21 @@
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+                <ProgressBar
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/progress"
+                    android:indeterminate="true"
+                    android:layout_weight="0"
+                    android:padding="16dp"
+                    android:visibility="visible" />
+
                 <ImageView
                     android:id="@+id/thumbnail"
                     android:layout_marginBottom="6dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"/>
 
                 <TextView
                     android:id="@+id/filename"
