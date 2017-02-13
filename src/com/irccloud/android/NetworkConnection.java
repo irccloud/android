@@ -1990,6 +1990,7 @@ public class NetworkConnection {
                     editor.putBoolean("enableReadOnSelect", (userInfo.prefs.has("enableReadOnSelect") && userInfo.prefs.get("enableReadOnSelect") instanceof Boolean && userInfo.prefs.getBoolean("enableReadOnSelect")));
                     editor.putBoolean("ascii-compact", (userInfo.prefs.has("ascii-compact") && userInfo.prefs.get("ascii-compact") instanceof Boolean && userInfo.prefs.getBoolean("ascii-compact")));
                     editor.putBoolean("emoji-nobig", !(userInfo.prefs.has("emoji-nobig") && userInfo.prefs.get("emoji-nobig") instanceof Boolean && userInfo.prefs.getBoolean("emoji-nobig")));
+                    editor.putBoolean("files-disableinline", !(userInfo.prefs.has("files-disableinline") && userInfo.prefs.get("files-disableinline") instanceof Boolean && userInfo.prefs.getBoolean("files-disableinline")));
                     if(userInfo.prefs.has("theme") && !prefs.contains("theme"))
                         editor.putString("theme", userInfo.prefs.getString("theme"));
                     if(userInfo.prefs.has("font") && !prefs.contains("monospace"))
@@ -2019,6 +2020,7 @@ public class NetworkConnection {
                     editor.putBoolean("pastebin-disableprompt", true);
                     editor.putBoolean("ascii-compact", false);
                     editor.putBoolean("emoji-nobig", true);
+                    editor.putBoolean("files-disableinline", true);
                 }
                 editor.commit();
                 mEvents.clearCaches();

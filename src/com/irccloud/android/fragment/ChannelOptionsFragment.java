@@ -47,6 +47,7 @@ public class ChannelOptionsFragment extends DialogFragment {
     SwitchCompat notifyAll;
     SwitchCompat autosuggest;
     SwitchCompat readOnSelect;
+    SwitchCompat inlineFiles;
     int cid;
     int bid;
 
@@ -100,6 +101,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     prefs = updatePref(prefs, autosuggest.isChecked(), "channel-disableAutoSuggest");
                     prefs = updatePref(prefs, readOnSelect.isChecked(), "channel-disableReadOnSelect");
                     prefs = updatePref(prefs, !readOnSelect.isChecked(), "channel-enableReadOnSelect");
+                    prefs = updatePref(prefs, inlineFiles.isChecked(), "channel-files-disableinline");
 
                     NetworkConnection.getInstance().set_prefs(prefs.toString());
                 } else {
@@ -180,6 +182,15 @@ public class ChannelOptionsFragment extends DialogFragment {
                     } else {
                         autosuggest.setChecked(true);
                     }
+                    if (prefs.has("channel-files-disableinline")) {
+                        JSONObject inlineMap = prefs.getJSONObject("channel-files-disableinline");
+                        if (inlineMap.has(String.valueOf(bid)) && inlineMap.getBoolean(String.valueOf(bid)))
+                            inlineFiles.setChecked(false);
+                        else
+                            inlineFiles.setChecked(true);
+                    } else {
+                        inlineFiles.setChecked(true);
+                    }
                     enabled = !(prefs.has("disableTrackUnread") && prefs.get("disableTrackUnread") instanceof Boolean && prefs.getBoolean("disableTrackUnread"));
                     if (prefs.has("channel-enableReadOnSelect")) {
                         JSONObject readOnSelectMap = prefs.getJSONObject("channel-enableReadOnSelect");
@@ -200,6 +211,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     collapse.setChecked(true);
                     autosuggest.setChecked(true);
                     readOnSelect.setChecked(false);
+                    inlineFiles.setChecked(true);
                 }
             } else {
                 notifyAll.setChecked(false);
@@ -235,6 +247,7 @@ public class ChannelOptionsFragment extends DialogFragment {
         collapse = (SwitchCompat) v.findViewById(R.id.collapse);
         autosuggest = (SwitchCompat) v.findViewById(R.id.autosuggest);
         readOnSelect = (SwitchCompat) v.findViewById(R.id.readOnSelect);
+        inlineFiles = (SwitchCompat) v.findViewById(R.id.inlineFiles);
 
         return new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)

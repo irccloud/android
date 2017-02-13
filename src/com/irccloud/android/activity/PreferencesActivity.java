@@ -260,6 +260,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             findPreference("emoji-disableconvert").setSummary(":thumbsup: → \uD83D\uDC4D");
             findPreference("emoji-nobig").setOnPreferenceChangeListener(prefstoggle);
         }
+        findPreference("files-disableinline").setOnPreferenceChangeListener(prefstoggle);
         findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-left").setOnPreferenceChangeListener(messagelayouttoggle);
         findPreference("avatars-off").setOnPreferenceChangeListener(messagelayouttoggle);
@@ -458,6 +459,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                                     }
                                     ((SwitchPreferenceCompat) findPreference("hideJoinPart")).setChecked(!(prefs.has("hideJoinPart") && prefs.get("hideJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("hideJoinPart")));
                                     ((SwitchPreferenceCompat) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
+                                    ((SwitchPreferenceCompat) findPreference("files-disableinline")).setChecked(!(prefs.has("files-disableinline") && prefs.get("files-disableinline").getClass().equals(Boolean.class) && prefs.getBoolean("files-disableinline")));
                                 } catch (JSONException e) {
                                     NetworkConnection.printStackTraceToCrashlytics(e);
                                 }
@@ -582,7 +584,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     conn.getUserInfo().prefs = prefs;
                 }
 
-                if (preference.getKey().equals("disableTrackUnread") || preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left") || preference.getKey().equals("avatars-off") || preference.getKey().equals("chat-oneline") || preference.getKey().equals("chat-norealname") || preference.getKey().equals("emoji-nobig"))
+                if (preference.getKey().equals("disableTrackUnread") || preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left") || preference.getKey().equals("avatars-off") || preference.getKey().equals("chat-oneline") || preference.getKey().equals("chat-norealname") || preference.getKey().equals("emoji-nobig") || preference.getKey().equals("files-disableinline"))
                     prefs.put(preference.getKey(), !(Boolean) newValue);
                 else if(preference.getKey().equals("monospace"))
                     prefs.put("font", ((Boolean)newValue)?"mono":"sans");

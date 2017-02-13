@@ -45,6 +45,7 @@ public class BufferOptionsFragment extends DialogFragment {
     SwitchCompat collapse;
     SwitchCompat expandDisco;
     SwitchCompat readOnSelect;
+    SwitchCompat inlineFiles;
     int cid;
     int bid;
     String type;
@@ -97,6 +98,7 @@ public class BufferOptionsFragment extends DialogFragment {
                     if (!type.equalsIgnoreCase("console")) {
                         prefs = updatePref(prefs, joinpart.isChecked(), "buffer-hideJoinPart");
                         prefs = updatePref(prefs, collapse.isChecked(), "buffer-expandJoinPart");
+                        prefs = updatePref(prefs, inlineFiles.isChecked(), "buffer-files-disableinline");
                     } else {
                         prefs = updatePref(prefs, expandDisco.isChecked(), "buffer-expandDisco");
                     }
@@ -158,6 +160,15 @@ public class BufferOptionsFragment extends DialogFragment {
                     } else {
                         expandDisco.setChecked(true);
                     }
+                    if (prefs.has("buffer-files-disableinline")) {
+                        JSONObject inlineMap = prefs.getJSONObject("buffer-files-disableinline");
+                        if (inlineMap.has(String.valueOf(bid)) && inlineMap.getBoolean(String.valueOf(bid)))
+                            inlineFiles.setChecked(false);
+                        else
+                            inlineFiles.setChecked(true);
+                    } else {
+                        inlineFiles.setChecked(true);
+                    }
                     enabled = (prefs.has("enableReadOnSelect") && prefs.get("enableReadOnSelect") instanceof Boolean && prefs.getBoolean("enableReadOnSelect"));
                     if (prefs.has("buffer-enableReadOnSelect")) {
                         JSONObject readOnSelectMap = prefs.getJSONObject("buffer-enableReadOnSelect");
@@ -176,6 +187,7 @@ public class BufferOptionsFragment extends DialogFragment {
                     collapse.setChecked(true);
                     expandDisco.setChecked(true);
                     readOnSelect.setChecked(false);
+                    inlineFiles.setChecked(true);
                 }
             }
         } catch (JSONException e) {
@@ -195,6 +207,7 @@ public class BufferOptionsFragment extends DialogFragment {
         collapse = (SwitchCompat) v.findViewById(R.id.collapse);
         expandDisco = (SwitchCompat) v.findViewById(R.id.expandDisco);
         readOnSelect = (SwitchCompat) v.findViewById(R.id.readOnSelect);
+        inlineFiles = (SwitchCompat) v.findViewById(R.id.inlineFiles);
 
         if (savedInstanceState != null && bid == -1 && savedInstanceState.containsKey("bid")) {
             bid = savedInstanceState.getInt("bid");
@@ -205,6 +218,7 @@ public class BufferOptionsFragment extends DialogFragment {
         if (type != null && type.equalsIgnoreCase("console")) {
             joinpart.setVisibility(View.GONE);
             collapse.setVisibility(View.GONE);
+            inlineFiles.setVisibility(View.GONE);
         } else {
             expandDisco.setVisibility(View.GONE);
         }

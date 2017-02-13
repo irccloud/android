@@ -74,6 +74,11 @@
             android:defaultValue="true"
             android:dependency="hideJoinPart"
             android:title="Collapse nick changes, joins, parts"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="files-disableinline"
+			android:defaultValue="true"
+			android:summary="Not including 3rd party images"
+			android:title="Embed uploaded files"/>
 	</PreferenceCategory>
 
 </PreferenceScreen>

@@ -202,6 +202,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_norealname = false;
     private boolean pref_compact = false;
     private boolean pref_disableLargeEmoji = false;
+    private boolean pref_disableInlineFiles = false;
 
     private class LinkMovementMethodNoLongPress extends IRCCloudLinkMovementMethod {
         @Override
@@ -907,7 +908,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
                     if(e.row_type == ROW_THUMBNAIL) {
-                        int width = getListView().getWidth() / 2;
+                        int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
+                        if(getActivity().getWindowManager().getDefaultDisplay().getHeight() < width)
+                            width = getActivity().getWindowManager().getDefaultDisplay().getHeight();
+                        width /= 2;
                         if (e.entities.get("properties") != null && e.entities.get("properties").get("width") != null && width > e.entities.get("properties").get("width").asInt())
                             width = e.entities.get("properties").get("width").asInt();
                         Bitmap b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
@@ -1757,7 +1761,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if(event.entities != null && event.entities.get("files") != null) {
+                if(!pref_disableInlineFiles && event.entities != null && event.entities.get("files") != null) {
                     JsonNode files = event.entities.get("files");
                     long entity_eid = event.eid;
 
@@ -2271,6 +2275,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_norealname = false;
         pref_compact = false;
         pref_disableLargeEmoji = false;
+        pref_disableInlineFiles = false;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -2313,6 +2318,20 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 pref_expandJoinPart = ((prefs.has("expandJoinPart") && prefs.get("expandJoinPart") instanceof Boolean && prefs.getBoolean("expandJoinPart")) || (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid()))));
+
+                JSONObject disableFilesMap = null;
+                if (buffer.isChannel()) {
+                    if (prefs.has("channel-files-disableinline"))
+                        disableFilesMap = prefs.getJSONObject("channel-files-disableinline");
+                } else if (buffer.isConsole()) {
+                    if (prefs.has("buffer-files-disableinline"))
+                        disableFilesMap = prefs.getJSONObject("buffer-files-disableinline");
+                } else {
+                    if (prefs.has("buffer-files-disableinline"))
+                        disableFilesMap = prefs.getJSONObject("buffer-files-disableinline");
+                }
+
+                pref_disableInlineFiles = ((prefs.has("files-disableinline") && prefs.get("files-disableinline") instanceof Boolean && prefs.getBoolean("files-disableinline")) || (disableFilesMap != null && disableFilesMap.has(String.valueOf(buffer.getBid())) && disableFilesMap.getBoolean(String.valueOf(buffer.getBid()))));
             } catch (JSONException e1) {
                 NetworkConnection.printStackTraceToCrashlytics(e1);
             }
