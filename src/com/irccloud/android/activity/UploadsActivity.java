@@ -58,6 +58,7 @@ import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.collection.ImageList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -84,16 +85,6 @@ public class UploadsActivity extends BaseActivity {
     private String to;
     private int cid = -1;
     private String msg;
-
-    private final BlockingQueue<Runnable> mDecodeWorkQueue = new LinkedBlockingQueue<>();
-    private static final int KEEP_ALIVE_TIME = 10;
-    private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
-    private final ThreadPoolExecutor mDownloadThreadPool = new ThreadPoolExecutor(
-            4,       // Initial pool size
-            8,       // Max pool size
-            KEEP_ALIVE_TIME,
-            KEEP_ALIVE_TIME_UNIT,
-            mDecodeWorkQueue);
 
     private UriTemplate template;
 
@@ -132,8 +123,6 @@ public class UploadsActivity extends BaseActivity {
 
         public void clear() {
             for(File f : files) {
-                if(f.image != null && !f.image.isRecycled())
-                    f.image.recycle();
                 f.image = null;
             }
             files.clear();
@@ -162,40 +151,44 @@ public class UploadsActivity extends BaseActivity {
             f.position = files.size();
             files.add(f);
 
-            try {
-                if(f.image == null && f.mime_type.startsWith("image/")) {
-                    mDownloadThreadPool.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-                            try {
-                                if(ColorFormatter.file_uri_template != null) {
-                                    f.url = template.set("id", f.id).set("name", f.name).expand();
-                                    f.image = NetworkConnection.getInstance().fetchImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", f.id).set("modifiers", "w320").expand()), false);
-                                }
-                                if (f.image == null)
-                                    f.image_failed = true;
-                            } catch (Exception e) {
-                                f.image_failed = true;
-                                NetworkConnection.printStackTraceToCrashlytics(e);
-                            }
-                            if (f.image_failed && (f.extension == null || f.extension.length() == 0))
-                                f.extension = "IMAGE";
-                            runOnUiThread(new Runnable() {
+            if(f.image == null && f.mime_type.startsWith("image/")) {
+                try {
+                    if(ColorFormatter.file_uri_template != null) {
+                        f.url = template.set("id", f.id).set("name", f.name).expand();
+                        f.image = ImageList.getInstance().getImage(f.id, 320);
+                        if(f.image == null)
+                            ImageList.getInstance().fetchImage(f.id, 320, new ImageList.OnImageFetchedListener() {
+
                                 @Override
-                                public void run() {
-                                    notifyDataSetChanged();
+                                public void onImageFetched(Bitmap image) {
+                                    f.image = image;
+                                    if (f.image == null)
+                                        f.image_failed = true;
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            notifyDataSetChanged();
+                                        }
+                                    });
                                 }
                             });
-                        }
-                    });
-                } else {
-                    if (ColorFormatter.file_uri_template != null) {
-                        f.url = template.set("id", f.id).set("name", f.name).expand();
                     }
+                } catch (Exception e) {
+                    f.image_failed = true;
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
-            } catch (Exception e) {
-                //Thread pool has shut down
+                if (f.image_failed && (f.extension == null || f.extension.length() == 0))
+                    f.extension = "IMAGE";
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
+            } else {
+                if (ColorFormatter.file_uri_template != null) {
+                    f.url = template.set("id", f.id).set("name", f.name).expand();
+                }
             }
         }
 
@@ -608,8 +601,6 @@ public class UploadsActivity extends BaseActivity {
         if(adapter != null)
             adapter.clear();
 
-        if(mDownloadThreadPool != null)
-            mDownloadThreadPool.shutdownNow();
         if(Build.VERSION.SDK_INT >= 14) {
             HttpResponseCache cache = HttpResponseCache.getInstalled();
             if (cache != null) {

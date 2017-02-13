@@ -35,6 +35,7 @@ import android.util.Log;
 import android.webkit.WebView;
 
 import com.crashlytics.android.Crashlytics;
+import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;

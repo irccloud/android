@@ -28,6 +28,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -64,6 +65,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.EventsList;
+import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.samsung.android.sdk.SsdkUnsupportedException;
@@ -247,6 +249,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             android.util.Log.d("IRCCloud", "Removing stale log file");
             f.delete();
         }
+        new ImageListPruneTask().execute((Void)null);
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
         if (session.length() > 0) {
             if(conn.notifier) {
@@ -664,5 +667,14 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private class ImageListPruneTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            ImageList.getInstance().prune();
+            return null;
+        }
     }
 }

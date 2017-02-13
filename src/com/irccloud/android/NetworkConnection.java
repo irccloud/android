@@ -49,6 +49,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
+import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.RecentConversationsList;
 import com.irccloud.android.data.model.BackgroundTask;
@@ -1334,6 +1335,7 @@ public class NetworkConnection {
         NotificationsList.getInstance().clear();
         userInfo = null;
         session = null;
+        ImageList.getInstance().purge();
         save(100);
     }
 
@@ -3010,82 +3012,6 @@ public class NetworkConnection {
             sb.append(line).append('\n');
         }
         return sb.toString();
-    }
-
-    public Bitmap fetchImage(URL url, boolean cacheOnly) throws Exception {
-        HttpURLConnection conn = null;
-
-        Proxy proxy = null;
-        String host = null;
-        int port = -1;
-
-        if (Build.VERSION.SDK_INT < 11) {
-            Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
-            if (ctx != null) {
-                host = android.net.Proxy.getHost(ctx);
-                port = android.net.Proxy.getPort(ctx);
-            }
-        } else {
-            host = System.getProperty("http.proxyHost", null);
-            try {
-                port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
-            } catch (NumberFormatException e) {
-                port = -1;
-            }
-        }
-
-        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-            InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
-            proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
-        }
-
-        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-            Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url + " via proxy: " + host);
-        } else {
-            Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url);
-        }
-
-        if (url.getProtocol().toLowerCase().equals("https")) {
-            HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N && url.getHost().equals(IRCCLOUD_HOST))
-                https.setSSLSocketFactory(IRCCloudSocketFactory);
-            conn = https;
-        } else {
-            conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-        }
-
-        conn.setConnectTimeout(30000);
-        conn.setReadTimeout(30000);
-        conn.setUseCaches(true);
-        conn.setRequestProperty("User-Agent", useragent);
-        if(cacheOnly)
-            conn.addRequestProperty("Cache-Control", "only-if-cached");
-        Bitmap bitmap = null;
-
-        try {
-            ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo ni = cm.getActiveNetworkInfo();
-            if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
-                Crashlytics.log(Log.DEBUG, TAG, "Loading via WiFi");
-            } else {
-                Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
-            }
-        } catch (Exception e) {
-            printStackTraceToCrashlytics(e);
-        }
-
-        try {
-            if (conn.getInputStream() != null) {
-                bitmap = BitmapFactory.decodeStream(conn.getInputStream());
-            }
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (IOException e) {
-            printStackTraceToCrashlytics(e);
-        }
-
-        conn.disconnect();
-        return bitmap;
     }
 
     public synchronized void addHandler(IRCEventHandler handler) {
