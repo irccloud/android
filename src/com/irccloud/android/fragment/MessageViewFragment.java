@@ -908,7 +908,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
                     if(e.row_type == ROW_THUMBNAIL) {
                         int width = getListView().getWidth() / 2;
-                        if (width > e.entities.get("properties").get("width").asInt())
+                        if (e.entities.get("properties") != null && e.entities.get("properties").get("width") != null && width > e.entities.get("properties").get("width").asInt())
                             width = e.entities.get("properties").get("width").asInt();
                         Bitmap b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
                         if (b != null) {
@@ -1712,13 +1712,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 avgInsertTime /= 2.0;
                 //Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
                 if (!backlog && buffer.getScrolledUp() && !event.self && event.isImportant(type)) {
-                    if (newMsgTime == 0)
-                        newMsgTime = System.currentTimeMillis();
-                    newMsgs++;
-                    if (event.highlight)
-                        newHighlights++;
-                    update_unread();
-                    adapter.insertLastSeenEIDMarker();
+                    if(event.row_type != ROW_THUMBNAIL && event.row_type != ROW_FILE) {
+                        if (newMsgTime == 0)
+                            newMsgTime = System.currentTimeMillis();
+                        newMsgs++;
+                        if (event.highlight)
+                            newHighlights++;
+                        update_unread();
+                        adapter.insertLastSeenEIDMarker();
+                    }
                     adapter.notifyDataSetChanged();
                 }
                 if (!backlog && !buffer.getScrolledUp()) {
