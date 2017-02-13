@@ -108,9 +108,11 @@ public class ImageList {
         if(bitmap != null)
             return bitmap;
 
-        bitmap = BitmapFactory.decodeFile(cacheFile(url).getAbsolutePath());
-        if(bitmap != null)
-            images.put(MD5(url.toString()), bitmap);
+        if(cacheFile(url).exists()) {
+            bitmap = BitmapFactory.decodeFile(cacheFile(url).getAbsolutePath());
+            if (bitmap != null)
+                images.put(MD5(url.toString()), bitmap);
+        }
         return bitmap;
     }
 

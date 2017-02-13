@@ -116,6 +116,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
+import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -191,6 +192,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.UUID;
+
+import static com.irccloud.android.fragment.MessageViewFragment.ROW_FILE;
+import static com.irccloud.android.fragment.MessageViewFragment.ROW_THUMBNAIL;
 
 public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler {
     Buffer buffer;
@@ -4260,7 +4264,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (event.hostmask != null && event.hostmask.length() > 0)
             user.hostmask = event.hostmask;
 
-        if (event.html != null) {
+        if (event.row_type == ROW_FILE || event.row_type == ROW_THUMBNAIL) {
+            showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)));
+        } else if (event.html != null) {
             String html = event.html;
 
             if ((event.type.equals("buffer_msg") || event.type.equals("notice")) && user != null) {

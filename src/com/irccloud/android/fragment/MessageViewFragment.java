@@ -17,7 +17,9 @@
 package com.irccloud.android.fragment;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -26,10 +28,13 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.Network;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Browser;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.DrawerLayout;
@@ -66,6 +71,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.CollapsedEventsList;
@@ -80,7 +86,10 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.OffsetLinearLayout;
 import com.irccloud.android.R;
 import com.irccloud.android.activity.BaseActivity;
+import com.irccloud.android.activity.ImageViewerActivity;
+import com.irccloud.android.activity.UploadsActivity;
 import com.irccloud.android.data.collection.AvatarsList;
+import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -93,11 +102,15 @@ import com.squareup.leakcanary.RefWatcher;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Timer;
@@ -142,15 +155,20 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private final Handler mHandler = new Handler();
     private ColorScheme colorScheme = ColorScheme.getInstance();
     private Typeface hackRegular;
+    private HashMap<String, JsonNode> filePropsCache = new HashMap<>();
 
     public static final int ROW_MESSAGE = 0;
     public static final int ROW_TIMESTAMP = 1;
     public static final int ROW_BACKLOGMARKER = 2;
     public static final int ROW_SOCKETCLOSED = 3;
     public static final int ROW_LASTSEENEID = 4;
+    public static final int ROW_THUMBNAIL = 5;
+    public static final int ROW_FILE = 6;
     private static final String TYPE_TIMESTAMP = "__timestamp__";
     private static final String TYPE_BACKLOGMARKER = "__backlog__";
     private static final String TYPE_LASTSEENEID = "__lastseeneid__";
+    private static final String TYPE_THUMBNAIL = "__thumbnail__";
+    private static final String TYPE_FILE = "__file__";
 
     private MessageAdapter adapter;
 
@@ -212,6 +230,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             LinearLayout lastSeenEidWrapper;
             LinearLayout messageContainer;
             LinearLayout socketClosedBar;
+            LinearLayout thumbnailWrapper;
             TextView timestamp;
             TextView timestamp_left;
             TextView timestamp_right;
@@ -219,8 +238,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             TextView expandable;
             TextView nickname;
             TextView realname;
+            TextView filename;
+            TextView metadata;
+            TextView extension;
             ImageView failed;
             ImageView avatar;
+            ImageView thumbnail;
         }
 
         public MessageAdapter(ListFragment context, int capacity) {
@@ -605,6 +628,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         row = inflater.inflate(R.layout.row_socketclosed, parent, false);
                     else if (e.row_type == ROW_LASTSEENEID)
                         row = inflater.inflate(R.layout.row_lastseeneid, parent, false);
+                    else if (e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE)
+                        row = inflater.inflate(R.layout.row_thumbnail, parent, false);
                     else
                         row = inflater.inflate(R.layout.row_message, parent, false);
 
@@ -623,6 +648,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.lastSeenEidWrapper = (LinearLayout) row.findViewById(R.id.lastSeenEidWrapper);
                     holder.messageContainer = (LinearLayout) row.findViewById(R.id.messageContainer);
                     holder.socketClosedBar = (LinearLayout) row.findViewById(R.id.socketClosedBar);
+                    holder.thumbnailWrapper = (LinearLayout) row.findViewById(R.id.thumbnailWrapper);
+                    holder.thumbnail = (ImageView) row.findViewById(R.id.thumbnail);
+                    holder.filename = (TextView) row.findViewById(R.id.filename);
+                    holder.metadata = (TextView) row.findViewById(R.id.metadata);
+                    holder.extension = (TextView) row.findViewById(R.id.extension);
                     holder.type = e.row_type;
 
                     row.setTag(holder);
@@ -873,6 +903,56 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(e.row_type == ROW_BACKLOGMARKER)
                     row.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pref_compact?4:(textSize + 2), getResources().getDisplayMetrics()));
 
+                if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
+                    if(e.row_type == ROW_THUMBNAIL) {
+                        int width = getListView().getWidth() / 2;
+                        if (width > e.entities.get("properties").get("width").asInt())
+                            width = e.entities.get("properties").get("width").asInt();
+                        Bitmap b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
+                        if (b != null) {
+                            holder.thumbnail.setImageBitmap(b);
+                        } else {
+                            ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
+                                @Override
+                                public void onImageFetched(Bitmap image) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        holder.thumbnail.setVisibility(View.VISIBLE);
+                        holder.extension.setVisibility(View.GONE);
+                    } else {
+                        String ext = "???";
+
+                        if (e.entities.get("extension") != null) {
+                            ext = e.entities.get("extension").asText();
+                        } else {
+                            ext = e.entities.get("mime_type").asText();
+                            ext = ext.substring(ext.indexOf("/") + 1);
+                        }
+                        if(ext.startsWith("."))
+                            ext = ext.substring(1);
+                        holder.extension.setText(ext.toUpperCase());
+                        holder.thumbnail.setVisibility(View.GONE);
+                        holder.extension.setVisibility(View.VISIBLE);
+                    }
+
+                    if(e.entities.get("name") != null) {
+                        holder.filename.setText(e.entities.get("name").asText());
+                        holder.filename.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.filename.setVisibility(View.GONE);
+                    }
+
+                    holder.metadata.setText(e.msg);
+                    holder.timestamp.setVisibility(View.GONE);
+                    row.setBackgroundColor(e.bg_color);
+                }
                 return row;
             }
         }
@@ -1667,11 +1747,67 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
                     }
                 }
+
+                if(event.entities != null && event.entities.get("files") != null) {
+                    JsonNode files = event.entities.get("files");
+                    long entity_eid = event.eid;
+
+                    for(int i = 0; i < files.size(); i++) {
+                        entity_eid++;
+                        JsonNode entity = files.get(i);
+                        String fileID = entity.get("id").asText();
+                        JsonNode properties = filePropsCache.get(fileID);
+
+                        if(properties != null) {
+                            insertEntity(adapter, event, entity_eid, properties, backlog);
+                        } else {
+                            new FilePropsTask(adapter, fileID, event, entity_eid).execute((Void)null);
+                        }
+                    }
+                }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 NetworkConnection.printStackTraceToCrashlytics(e);
             }
         }
+    }
+
+    private synchronized void insertEntity(MessageAdapter adapter, Event parent, long eid, JsonNode properties, boolean backlog) {
+        Event e = new Event();
+        e.cid = parent.cid;
+        e.bid = parent.bid;
+        e.eid = eid;
+        e.from = parent.from;
+        e.self = parent.self;
+        e.from_mode = parent.from_mode;
+        e.from_realname = parent.from_realname;
+        e.hostmask = parent.hostmask;
+
+        if(properties.get("mime_type").asText().startsWith("image/"))
+            e.row_type = ROW_THUMBNAIL;
+        else
+            e.row_type = ROW_FILE;
+
+        e.bg_color = e.self ? ColorScheme.getInstance().selfBackgroundColor : parent.bg_color;
+        e.type = parent.type;
+        e.entities = properties;
+
+        int size = properties.get("size").asInt();
+        if (size < 1024) {
+            e.msg = size + " B";
+        } else {
+            int exp = (int) (Math.log(size) / Math.log(1024));
+            e.msg = String.format("%.1f ", size / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
+        }
+
+        if(e.row_type == ROW_THUMBNAIL)
+            e.msg += " • ";
+        else
+            e.msg += "\n";
+
+        e.msg += properties.get("mime_type").asText();
+
+        insertEvent(adapter, e, backlog, false);
     }
 
     private class OnItemLongClickListener implements View.OnLongClickListener {
@@ -1733,6 +1869,27 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                     mListener.onBufferSelected(b.getBid());
                                                 } else {
                                                     conn.say(buffer.getCid(), null, "/query " + e.from);
+                                                }
+                                            } else if (e.row_type == ROW_THUMBNAIL) {
+                                                try {
+                                                    Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
+                                                    intent.setData(Uri.parse(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", e.entities.get("id").asText()).expand()));
+                                                    startActivity(intent);
+                                                } catch (Exception ex) {
+                                                    ex.printStackTrace();
+                                                }
+                                            } else if (e.row_type == ROW_FILE) {
+                                                try {
+                                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", e.entities.get("id").asText()).expand()));
+                                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                    intent.putExtra(Browser.EXTRA_APPLICATION_ID, getActivity().getPackageName());
+                                                    if (Build.VERSION.SDK_INT >= 22)
+                                                        intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getActivity().getPackageName()));
+                                                    startActivity(intent);
+                                                } catch (ActivityNotFoundException ex) {
+                                                    Toast.makeText(getActivity(), "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
+                                                } catch (Exception ex) {
+                                                    ex.printStackTrace();
                                                 }
                                             } else if (e.failed) {
                                                 if(mListener != null)
@@ -1873,20 +2030,43 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    private class FormatTask extends AsyncTaskEx<Void, Void, Void> {
+    private class FilePropsTask extends AsyncTaskEx<Void, Void, JsonNode> {
+        private Event event;
+        private long eid;
+        private String fileID;
+        private MessageAdapter adapter;
 
-        @Override
-        protected void onPreExecute() {
+        FilePropsTask(MessageAdapter adapter, String fileID, Event event, long eid) {
+            this.fileID = fileID;
+            this.event = event;
+            this.eid = eid;
+            this.adapter = adapter;
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
-            adapter.format();
+        protected JsonNode doInBackground(Void... params) {
+            try {
+                return NetworkConnection.getInstance().propertiesForFile(fileID);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return null;
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(JsonNode result) {
+            if(result != null) {
+                filePropsCache.put(fileID, result);
+                insertEntity(adapter, event, eid, result, false);
+            }
+        }
+    }
+
+    private class FormatTask extends AsyncTaskEx<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            adapter.format();
+            return null;
         }
     }
 

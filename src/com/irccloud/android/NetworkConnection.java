@@ -71,8 +71,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -892,6 +894,17 @@ public class NetworkConnection {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/files?page=" + page), null, session, null, null);
             if(response.length() > 0)
                 return new JSONObject(response);
+        } catch (Exception e) {
+            printStackTraceToCrashlytics(e);
+        }
+        return null;
+    }
+
+    public JsonNode propertiesForFile(String fileID) throws IOException {
+        try {
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/file/json/" + fileID), null, session, null, null);
+            if(response.length() > 0)
+                return new ObjectMapper().readValue(response, JsonNode.class);
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
         }
@@ -2971,7 +2984,7 @@ public class NetworkConnection {
                     ostr.close();
             }
         }
-        BufferedReader reader = null;
+        InputStream is = null;
         String response = "";
 
         try {
@@ -2987,31 +3000,28 @@ public class NetworkConnection {
 
         try {
             if (conn.getInputStream() != null) {
-                reader = new BufferedReader(new InputStreamReader(conn.getInputStream()), 512);
+                is = conn.getInputStream();
             }
         } catch (IOException e) {
             if (conn.getErrorStream() != null) {
-                reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()), 512);
+                is = conn.getErrorStream();
             } else {
                 printStackTraceToCrashlytics(e);
             }
         }
 
-        if (reader != null) {
-            response = toString(reader);
-            reader.close();
+        if (is != null) {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = is.read(buffer)) != -1) {
+                os.write(buffer, 0, len);
+            }
+            response = os.toString("UTF-8");
+            is.close();
         }
         conn.disconnect();
         return response;
-    }
-
-    private static String toString(BufferedReader reader) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line).append('\n');
-        }
-        return sb.toString();
     }
 
     public synchronized void addHandler(IRCEventHandler handler) {
