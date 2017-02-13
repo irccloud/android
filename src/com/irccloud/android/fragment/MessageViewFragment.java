@@ -950,7 +950,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
 
                     holder.metadata.setText(e.msg);
-                    holder.timestamp.setVisibility(View.GONE);
+                    holder.timestamp.setVisibility(View.INVISIBLE);
                     row.setBackgroundColor(e.bg_color);
                 }
                 return row;
