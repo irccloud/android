@@ -1777,6 +1777,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             new FilePropsTask(adapter, fileID, event, entity_eid).execute((Void)null);
                         }
                     }
+
+                    if(buffer.getLast_seen_eid() == event.eid)
+                        buffer.setLast_seen_eid(entity_eid);
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
