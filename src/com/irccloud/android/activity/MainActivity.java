@@ -132,6 +132,7 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.RecentConversationsList;
@@ -4803,6 +4804,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             ulf2.setArguments(b);
 
         if (shouldFadeIn) {
+            ImageList.getInstance().prune();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Fade Out");
             if (Build.VERSION.SDK_INT < 16) {
                 AlphaAnimation anim = new AlphaAnimation(1, 0);
