@@ -87,19 +87,27 @@ public class ImageList {
     }
 
     public void purge() {
-        for(File file : new File(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir(), "ImageCache").listFiles()) {
-            file.delete();
+        try {
+            for (File file : new File(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir(), "ImageCache").listFiles()) {
+                file.delete();
+            }
+        } catch (Exception e) {
+            printStackTraceToCrashlytics(e);
         }
         clear();
     }
 
     public void prune() {
-        long olde = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7);
-        for(File file : new File(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir(), "ImageCache").listFiles()) {
-            if(file.lastModified() < olde) {
-                Crashlytics.log(Log.INFO, "IRCCloud", "Removing stale cache file: " + file.getAbsolutePath());
-                file.delete();
+        try {
+            long olde = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7);
+            for (File file : new File(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir(), "ImageCache").listFiles()) {
+                if (file.lastModified() < olde) {
+                    Crashlytics.log(Log.INFO, "IRCCloud", "Removing stale cache file: " + file.getAbsolutePath());
+                    file.delete();
+                }
             }
+        } catch (Exception e) {
+            printStackTraceToCrashlytics(e);
         }
     }
 
