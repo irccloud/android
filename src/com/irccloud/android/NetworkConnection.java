@@ -2915,6 +2915,12 @@ public class NetworkConnection {
             schedule_idle_timer();
     }
 
+    public boolean isWifi() {
+        ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        return ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
     public String fetch(URL url, String postdata, String sk, String token, HashMap<String, String>headers) throws Exception {
         HttpURLConnection conn = null;
 

@@ -2335,6 +2335,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 pref_disableInlineFiles = ((prefs.has("files-disableinline") && prefs.get("files-disableinline") instanceof Boolean && prefs.getBoolean("files-disableinline")) || (disableFilesMap != null && disableFilesMap.has(String.valueOf(buffer.getBid())) && disableFilesMap.getBoolean(String.valueOf(buffer.getBid()))));
+
+                if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("files-wifionly", false) && !conn.isWifi())
+                    pref_disableInlineFiles = true;
             } catch (JSONException e1) {
                 NetworkConnection.printStackTraceToCrashlytics(e1);
             }
