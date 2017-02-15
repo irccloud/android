@@ -111,7 +111,7 @@
                     android:host="cid"
                     android:scheme="@string/IRCCLOUD_SCHEME" />
             </intent-filter>
-            <intent-filter>
+            <intent-filter android:label="@string/app_name" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -138,7 +138,7 @@
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
                     android:minWidth="260dp"/>
-            <intent-filter>
+            <intent-filter android:label="@string/app_name" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -149,7 +149,7 @@
                     android:path="/access-link"
                     android:scheme="@string/IRCCLOUD_SCHEME" />
             </intent-filter>
-            <intent-filter>
+            <intent-filter android:label="@string/app_name" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -159,7 +159,7 @@
                     android:host="referral"
                     android:scheme="@string/IRCCLOUD_SCHEME" />
             </intent-filter>
-            <intent-filter>
+            <intent-filter android:label="@string/app_name" android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -248,6 +248,17 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="@string/PASTE_SCHEME" />
+            </intent-filter>
+            <intent-filter android:label="@string/app_name" android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="www.irccloud.com"
+                    android:pathPrefix="/pastebin"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
         <activity

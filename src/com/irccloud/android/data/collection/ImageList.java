@@ -87,27 +87,38 @@ public class ImageList {
     }
 
     public void purge() {
-        try {
-            for (File file : new File(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir(), "ImageCache").listFiles()) {
-                file.delete();
+        Context context = IRCCloudApplication.getInstance().getApplicationContext();
+        if(context != null) {
+            File[] files = new File(context.getCacheDir(), "ImageCache").listFiles();
+            if(files != null && files.length > 0) {
+                for (File file : files) {
+                    try {
+                        file.delete();
+                    } catch (Exception e) {
+                        printStackTraceToCrashlytics(e);
+                    }
+                }
             }
-        } catch (Exception e) {
-            printStackTraceToCrashlytics(e);
         }
         clear();
     }
 
     public void prune() {
-        try {
-            long olde = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7);
-            for (File file : new File(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir(), "ImageCache").listFiles()) {
-                if (file.lastModified() < olde) {
-                    Crashlytics.log(Log.INFO, "IRCCloud", "Removing stale cache file: " + file.getAbsolutePath());
-                    file.delete();
+        long olde = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(7);
+        Context context = IRCCloudApplication.getInstance().getApplicationContext();
+        if(context != null) {
+            File[] files = new File(context.getCacheDir(), "ImageCache").listFiles();
+            if(files != null && files.length > 0) {
+                for (File file : files) {
+                    if (file.lastModified() < olde) {
+                        try {
+                            file.delete();
+                        } catch (Exception e) {
+                            printStackTraceToCrashlytics(e);
+                        }
+                    }
                 }
             }
-        } catch (Exception e) {
-            printStackTraceToCrashlytics(e);
         }
     }
 
