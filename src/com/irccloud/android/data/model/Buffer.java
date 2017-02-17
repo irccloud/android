@@ -81,6 +81,9 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     private long last_seen_eid;
 
     @Column
+    private long created;
+
+    @Column
     private String name;
 
     @Column
@@ -170,6 +173,14 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public void setLast_seen_eid(long last_seen_eid) {
         if(this.last_seen_eid < last_seen_eid)
             this.last_seen_eid = last_seen_eid;
+    }
+
+    public long getCreated() {
+        return created;
+    }
+
+    public void setCreated(long created) {
+        this.created = created;
     }
 
     @Bindable

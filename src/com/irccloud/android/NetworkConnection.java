@@ -2112,6 +2112,9 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mEvents.deleteEventsForBuffer(object.bid());
+                Buffer b = mBuffers.getBuffer(object.bid());
+                if(b != null && b.getCreated() < object.eid())
+                    b.setDeferred(1);
             }
         });
 
@@ -2273,7 +2276,7 @@ public class NetworkConnection {
                 Buffer buffer = mBuffers.createBuffer(object.bid(), object.cid(),
                         (object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined")) ? object.getLong("min_eid") : 0,
                         (object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined")) ? object.getLong("last_seen_eid") : -1, object.getString("name"), object.getString("buffer_type"),
-                        (object.has("archived") && object.getBoolean("archived")) ? 1 : 0, (object.has("deferred") && object.getBoolean("deferred")) ? 1 : 0, (object.has("timeout") && object.getBoolean("timeout")) ? 1 : 0);
+                        (object.has("archived") && object.getBoolean("archived")) ? 1 : 0, (object.has("deferred") && object.getBoolean("deferred")) ? 1 : 0, (object.has("timeout") && object.getBoolean("timeout")) ? 1 : 0, object.getLong("created"));
                 if(buffer.getTimeout() == 1 || buffer.getDeferred() == 1)
                     mEvents.deleteEventsForBuffer(buffer.getBid());
                 NotificationsList.getInstance().updateLastSeenEid(buffer.getBid(), buffer.getLast_seen_eid());

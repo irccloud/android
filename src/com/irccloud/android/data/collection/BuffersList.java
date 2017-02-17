@@ -137,7 +137,7 @@ public class BuffersList {
             return -1;
     }
 
-    public synchronized Buffer createBuffer(int bid, int cid, long min_eid, long last_seen_eid, String name, String type, int archived, int deferred, int timeout) {
+    public synchronized Buffer createBuffer(int bid, int cid, long min_eid, long last_seen_eid, String name, String type, int archived, int deferred, int timeout, long created) {
         Buffer b = getBuffer(bid);
         if (b == null) {
             b = new Buffer();
@@ -154,6 +154,7 @@ public class BuffersList {
         b.setDeferred(deferred);
         b.setTimeout(timeout);
         b.setValid(1);
+        b.setCreated(created);
         if(EventsList.getInstance().lastEidForBuffer(bid) <= last_seen_eid) {
             b.setUnread(0);
             b.setHighlights(0);

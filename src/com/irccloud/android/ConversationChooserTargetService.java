@@ -49,7 +49,7 @@ public class ConversationChooserTargetService extends ChooserTargetService {
         for(RecentConversation c : conversations) {
             Buffer b = BuffersList.getInstance().getBuffer(c.bid);
             if(b == null) {
-                BuffersList.getInstance().createBuffer(c.bid, c.cid, 0, 0, c.name, c.type, 0, 1, 0);
+                BuffersList.getInstance().createBuffer(c.bid, c.cid, 0, 0, c.name, c.type, 0, 1, 0, 0);
             }
             Bundle extras = new Bundle();
             extras.putInt("bid", c.bid);

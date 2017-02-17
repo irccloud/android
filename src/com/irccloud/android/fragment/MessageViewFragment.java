@@ -1415,6 +1415,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (buffer == null || buffer.getMin_eid() == 0 || earliest_eid == buffer.getMin_eid() || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
                 headerView.setVisibility(View.GONE);
                 loadBacklogButton.setVisibility(View.GONE);
+            } else if (buffer != null && buffer.getDeferred() > 0) {
+                backlogFailed.setVisibility(View.GONE);
+                loadBacklogButton.setVisibility(View.GONE);
+                headerView.setVisibility(View.VISIBLE);
+                requestingBacklog = true;
+                NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), 0);
             } else {
                 headerView.setVisibility(View.GONE);
                 loadBacklogButton.setVisibility(View.VISIBLE);
@@ -2353,14 +2359,27 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             lastCollapsedDay = -1;
 
             if (events == null || (events.size() == 0 && buffer.getMin_eid() > 0)) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        headerView.setVisibility(View.GONE);
-                        backlogFailed.setVisibility(View.GONE);
-                        loadBacklogButton.setVisibility(View.GONE);
-                    }
-                });
+                if(buffer.getDeferred() > 0) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            backlogFailed.setVisibility(View.GONE);
+                            loadBacklogButton.setVisibility(View.GONE);
+                            headerView.setVisibility(View.VISIBLE);
+                            requestingBacklog = true;
+                        }
+                    });
+                    NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), 0);
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            headerView.setVisibility(View.GONE);
+                            backlogFailed.setVisibility(View.GONE);
+                            loadBacklogButton.setVisibility(View.GONE);
+                        }
+                    });
+                }
             } else if (events.size() > 0) {
                 if (server != null) {
                     ignore.setIgnores(server.ignores);
