@@ -73,12 +73,11 @@ public class CollapsedEventsList {
         String from_nick;
         String target_mode;
         String chan;
-        boolean netsplit;
         boolean operIsLower;
         int count;
 
         public String toString() {
-            return "{type: " + type + ", nick: " + nick + ", old_nick: " + old_nick + ", hostmask: " + hostmask + ", msg: " + msg + ", chan: " + chan + ", netsplit: " + netsplit + "}";
+            return "{type: " + type + ", nick: " + nick + ", old_nick: " + old_nick + ", hostmask: " + hostmask + ", msg: " + msg + ", chan: " + chan + "}";
         }
 
         public int modeCount() {
@@ -517,7 +516,6 @@ public class CollapsedEventsList {
             if (msg.matches("(?:[^\\s:\\/.]+\\.)+[a-z]{2,} (?:[^\\s:\\/.]+\\.)+[a-z]{2,}")) {
                 String[] parts = msg.split(" ");
                 if (parts.length > 1 && !parts[0].equals(parts[1])) {
-                    e.netsplit = true;
                     boolean found = false;
                     for (CollapsedEvent c : data) {
                         if (c.type == TYPE_NETSPLIT && c.msg.equalsIgnoreCase(msg))
@@ -727,7 +725,6 @@ public class CollapsedEventsList {
                     break;
             }
         } else {
-            boolean netsplit = false;
             Collections.sort(data, new comparator());
             Iterator<CollapsedEvent> i = data.iterator();
             CollapsedEvent last = null;
@@ -738,12 +735,10 @@ public class CollapsedEventsList {
             while (next != null) {
                 e = next;
 
-                do {
-                    if (i.hasNext())
-                        next = i.next();
-                    else
-                        next = null;
-                } while (next != null && netsplit && next.netsplit);
+                if (i.hasNext())
+                    next = i.next();
+                else
+                    next = null;
 
                 if (message.length() > 0 && e.type < TYPE_NICKCHANGE && ((next == null || next.type != e.type) && last != null && last.type == e.type)) {
                     if (groupcount == 1)
@@ -753,9 +748,6 @@ public class CollapsedEventsList {
 
                 if (last == null || last.type != e.type) {
                     switch (e.type) {
-                        case TYPE_NETSPLIT:
-                            netsplit = true;
-                            break;
                         case TYPE_MODE:
                             if (message.length() > 0)
                                 message.append("• ");

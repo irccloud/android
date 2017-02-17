@@ -435,7 +435,7 @@ public class CollapsedEventsTests extends AndroidTestCase {
         list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "RJ", null, "RJ@example.net", null, "irc3.example.net irc2.example.net", null);
         list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "russ", null, "russ@example.net", null, "fake.net fake.net", null);
         list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-        assertEquals("irc.example.net ↮ irc2.example.net and irc3.example.net ↮ irc2.example.net ⇐ russ quit", list.getCollapsedMessage());
+        assertEquals("irc.example.net ↮ irc2.example.net and irc3.example.net ↮ irc2.example.net ⇐ james, RJ, and russ quit ↔ sam nipped out", list.getCollapsedMessage());
     }
 
     public void testChanServJoin() {
