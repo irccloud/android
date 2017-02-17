@@ -101,31 +101,6 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
             ctx = context;
             data = new ArrayList<PresetServer>();
             data.add(new PresetServer(null, null, 0));
-            data.add(new PresetServer("IRCCloud", "irc.irccloud.com", 6667));
-            data.add(new PresetServer("Freenode", "irc.freenode.net", 6697));
-            data.add(new PresetServer("QuakeNet", "blacklotus.ca.us.quakenet.org", 6667));
-            data.add(new PresetServer("IRCNet", "ircnet.blacklotus.net", 6667));
-            data.add(new PresetServer("Undernet", "losangeles.ca.us.undernet.org", 6667));
-            data.add(new PresetServer("DALNet", "dalnet.blacklotus.net", 6667));
-            data.add(new PresetServer("OFTC", "irc.oftc.net", 6667));
-            data.add(new PresetServer("GameSurge", "irc.gamesurge.net", 6667));
-            data.add(new PresetServer("Efnet", "efnet.port80.se", 6667));
-            data.add(new PresetServer("Mozilla", "irc.mozilla.org", 6697));
-            data.add(new PresetServer("Rizon", "irc6.rizon.net", 6697));
-            data.add(new PresetServer("Espernet", "irc.esper.net", 6667));
-            data.add(new PresetServer("ReplayIRC", "irc.replayirc.com", 6667));
-            data.add(new PresetServer("synIRC", "naamio.fi.eu.synirc.net", 6697));
-            data.add(new PresetServer("fossnet", "irc.fossnet.info", 6697));
-            data.add(new PresetServer("P2P-NET", "irc.p2p-network.net", 6697));
-            data.add(new PresetServer("euIRCnet", "irc.euirc.net", 6697));
-            data.add(new PresetServer("SlashNET", "irc.slashnet.org", 6697));
-            data.add(new PresetServer("Atrum", "irc.atrum.org", 6697));
-            data.add(new PresetServer("Indymedia", "irc.indymedia.org", 6697));
-            data.add(new PresetServer("TWiT", "irc.twit.tv", 6697));
-            data.add(new PresetServer("Snoonet", "irc.snoonet.org", 6697));
-            data.add(new PresetServer("BrasIRC", "irc.brasirc.org", 6667));
-            data.add(new PresetServer("darkscience", "irc.darkscience.net", 6697));
-            data.add(new PresetServer("Techman's World", "irc.techmansworld.com", 6697));
         }
 
         @Override
@@ -476,16 +451,19 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
                     public void run() {
                         switch (message) {
                             case "passworded_servers":
-                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_LONG).show();
                                 break;
                             case "networks":
-                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You've exceeded the connection limit for free accounts.", Toast.LENGTH_LONG).show();
                                 break;
                             case "unverified":
-                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_LONG).show();
+                                break;
+                            case "sts_policy":
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t disable secure connections to this network because it’s using a strict transport security policy.", Toast.LENGTH_LONG).show();
                                 break;
                             default:
-                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_LONG).show();
                                 break;
                         }
                     }

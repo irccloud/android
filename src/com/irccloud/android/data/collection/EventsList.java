@@ -209,7 +209,12 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
                 e.from = "";
-                e.msg = "Cancelled";
+                if(event != null) {
+                    if(event.has("sts"))
+                        e.msg = "Upgrading connection security";
+                    else
+                        e.msg = "Cancelled";
+                }
                 e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
@@ -225,7 +230,15 @@ public class EventsList {
                 if(event != null) {
                     String reason = reason(event.getString("reason"));
                     if (reason != null) {
-                        e.msg = sb.append("Failed to connect: ").append(reason).toString();
+                        if(reason.equals("ssl_verify_error")) {
+                            String error = SSLreason(event.getJsonNode("ssl_verify_error"));
+                            if(error != null && error.length() > 0)
+                                e.msg = sb.append("Strict transport security error: ").append(error).toString();
+                            else
+                                e.msg = "Strict transport security error";
+                        } else {
+                            e.msg = sb.append("Failed to connect: ").append(reason).toString();
+                        }
                     } else {
                         e.msg = "Failed to connect.";
                     }
@@ -970,36 +983,6 @@ public class EventsList {
 
     }};
 
-    private String reason(String reason) {
-        if (reason != null) {
-            if (reason.equalsIgnoreCase("pool_lost")) {
-                return "Connection pool failed";
-            } else if (reason.equalsIgnoreCase("no_pool")) {
-                return "No available connection pools";
-            } else if (reason.equalsIgnoreCase("enetdown")) {
-                return "Network down";
-            } else if (reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
-                return "Timed out";
-            } else if (reason.equalsIgnoreCase("ehostunreach")) {
-                return "Host unreachable";
-            } else if (reason.equalsIgnoreCase("econnrefused")) {
-                return "Connection refused";
-            } else if (reason.equalsIgnoreCase("nxdomain")) {
-                return "Invalid hostname";
-            } else if (reason.equalsIgnoreCase("server_ping_timeout")) {
-                return "PING timeout";
-            } else if (reason.equalsIgnoreCase("ssl_certificate_error")) {
-                return "SSL certificate error";
-            } else if (reason.equalsIgnoreCase("ssl_error")) {
-                return "SSL error";
-            } else if (reason.equalsIgnoreCase("crash")) {
-                return "Connection crashed";
-            }
-        }
-        return reason;
-    }
-
-    
     private final StringBuilder eventStringBuilder = new StringBuilder(1024);
     public Event addEvent(IRCCloudJSONObject event) {
         synchronized (events) {
@@ -1214,5 +1197,55 @@ public class EventsList {
                 deleteEvent(e.eid, e.bid);
             }
         }
+    }
+
+    private static final HashMap<String, String> REASONS = new HashMap<String, String>() {{
+        put("pool_lost", "Connection pool failed");
+        put("no_pool", "No available connection pools");
+        put("enetdown", "Network down");
+        put("etimedout", "Timed out");
+        put("timeout", "Timed out");
+        put("ehostunreach", "Host unreachable");
+        put("econnrefused", "Connection refused");
+        put("nxdomain", "Invalid hostname");
+        put("server_ping_timeout", "PING timeout");
+        put("ssl_certificate_error", "SSL certificate error");
+        put("ssl_error", "SSL error");
+        put("crash", "Connection crashed");
+        put("networks", "You've exceeded the connection limit for free accounts.");
+        put("passworded_servers", "You can't connect to passworded servers with free accounts.");
+        put("unverified", "You can’t connect to external servers until you confirm your email address.");
+    }};
+
+    private static final HashMap<String, HashMap<String, String>> SSL_REASONS = new HashMap<String, HashMap<String, String>>() {{
+        put("bad_cert", new HashMap<String, String>() {{
+            put("unknown_ca", "Unknown certificate authority");
+            put("selfsigned_peer", "Self signed certificate");
+            put("cert_expired", "Certificate expired");
+            put("invalid_issuer", "Invalid certificate issuer");
+            put("invalid_signature", "Invalid certificate signature");
+            put("name_not_permitted", "Invalid certificate alternative hostname");
+            put("missing_basic_constraint", "Missing certificate basic contraints");
+            put("invalid_key_usage", "Invalid certificate key usage");
+        }});
+        put("ssl_verify_hostname", new HashMap<String, String>() {{
+            put("unable_to_match_altnames", "Certificate hostname mismatch");
+            put("unable_to_match_common_name", "Certificate hostname mismatch");
+            put("unable_to_decode_common_name", "Invalid certificate hostname");
+        }});
+    }};
+
+    public static String reason(String reason) {
+        if(reason != null && reason.length() > 0 && REASONS.containsKey(reason))
+            return REASONS.get(reason);
+        return reason;
+    }
+
+    public static String SSLreason(JsonNode info) {
+        if(SSL_REASONS.containsKey(info.get("type").asText()) && SSL_REASONS.get(info.get("type").asText()).containsKey(info.get("error").asText())) {
+            return SSL_REASONS.get(info.get("type").asText()).get(info.get("error").asText());
+        }
+
+        return info.get("type").asText() + ": " + info.get("error").asText();
     }
 }

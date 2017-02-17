@@ -177,16 +177,19 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
                 public void run() {
                     switch (message) {
                         case "passworded_servers":
-                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_LONG).show();
                             break;
                         case "networks":
-                            Toast.makeText(EditConnectionActivity.this, "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditConnectionActivity.this, "You've exceeded the connection limit for free accounts.", Toast.LENGTH_LONG).show();
                             break;
                         case "unverified":
-                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_LONG).show();
+                            break;
+                        case "sts_policy":
+                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t disable secure connections to this network because it’s using a strict transport security policy.", Toast.LENGTH_LONG).show();
                             break;
                         default:
-                            Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_LONG).show();
                             break;
                     }
                 }

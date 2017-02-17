@@ -2602,56 +2602,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    private String reason_txt(String reason) {
-        String r = reason;
-        switch (reason.toLowerCase()) {
-            case "pool_lost":
-                r = "Connection pool failed";
-            case "no_pool":
-                r = "No available connection pools";
-                break;
-            case "enetdown":
-                r = "Network down";
-                break;
-            case "etimedout":
-            case "timeout":
-                r = "Timed out";
-                break;
-            case "ehostunreach":
-                r = "Host unreachable";
-                break;
-            case "econnrefused":
-                r = "Connection refused";
-                break;
-            case "nxdomain":
-            case "einval":
-                r = "Invalid hostname";
-                break;
-            case "server_ping_timeout":
-                r = "PING timeout";
-                break;
-            case "ssl_certificate_error":
-                r = "SSL certificate error";
-                break;
-            case "ssl_error":
-                r = "SSL error";
-                break;
-            case "crash":
-                r = "Connection crashed";
-                break;
-            case "networks":
-                r = "You've exceeded the connection limit for free accounts.";
-                break;
-            case "passworded_servers":
-                r = "You can't connect to passworded servers with free accounts.";
-                break;
-            case "unverified":
-                r = "You can’t connect to external servers until you confirm your email address.";
-                break;
-        }
-        return r;
-    }
-
     private void update_status(String status, JsonNode fail_info) {
         if (statusRefreshRunnable != null) {
             mHandler.removeCallbacks(statusRefreshRunnable);
@@ -2675,7 +2625,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (fail_info.has("type") && fail_info.get("type").asText().length() > 0) {
                     String text = "Disconnected: ";
                     if (fail_info.get("type").asText().equals("connecting_restricted")) {
-                        text = reason_txt(fail_info.get("reason").asText());
+                        text = EventsList.reason(fail_info.get("reason").asText());
                         if (text.equals(fail_info.get("reason").asText()))
                             text = "You can’t connect to this server with a free account.";
                     } else if (fail_info.get("type").asText().equals("connection_blocked")) {
@@ -2685,8 +2635,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             text = "Disconnected - Killed: ";
                         else if (fail_info.has("type") && fail_info.get("type").asText().equals("connecting_failed"))
                             text = "Disconnected: Failed to connect - ";
-                        if (fail_info.has("reason"))
-                            text += reason_txt(fail_info.get("reason").asText());
+                        if (fail_info.has("reason")) {
+                            if(fail_info.get("reason").asText().equals("ssl_verify_error")) {
+                                text = "Strict transport security error: " + EventsList.SSLreason(fail_info.get("ssl_verify_error"));
+                            } else {
+                                text += EventsList.reason(fail_info.get("reason").asText());
+                            }
+                        }
                     }
                     statusView.setText(text);
                     statusView.setTextColor(colorScheme.networkErrorColor);
@@ -2725,7 +2680,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         String text = "Disconnected";
                         if (fail_info.has("reason") && fail_info.get("reason").asText().length() > 0) {
                             String reason = fail_info.get("reason").asText();
-                            reason = reason_txt(reason);
+                            reason = EventsList.reason(reason);
                             text += ": " + reason + ". ";
                         } else
                             text += "; ";
