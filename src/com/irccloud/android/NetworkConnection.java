@@ -1179,33 +1179,37 @@ public class NetworkConnection {
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
             @Override
             public void onConnect() {
-                Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
-                state = STATE_CONNECTED;
-                Crashlytics.log(Log.DEBUG, TAG, "Emptying cache");
-                if (saveTimerTask != null)
-                    saveTimerTask.cancel();
-                saveTimerTask = null;
-                final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-                editor.remove("streamId");
-                editor.remove("highest_eid");
-                editor.commit();
-                //Delete.tables(Server.class, Buffer.class, Channel.class);
-                notifyHandlers(EVENT_CONNECTIVITY, null);
-                fetchConfig();
-                if (disconnectSockerTimerTask != null)
-                    disconnectSockerTimerTask.cancel();
-                if(notifier) {
-                    disconnectSockerTimerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            disconnectSockerTimerTask = null;
-                            if(notifier) {
-                                Log.d("IRCCloud", "Notifier socket expired");
-                                disconnect();
+                if (client != null && client.getListener() == this) {
+                    Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
+                    state = STATE_CONNECTED;
+                    Crashlytics.log(Log.DEBUG, TAG, "Emptying cache");
+                    if (saveTimerTask != null)
+                        saveTimerTask.cancel();
+                    saveTimerTask = null;
+                    final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+                    editor.remove("streamId");
+                    editor.remove("highest_eid");
+                    editor.commit();
+                    //Delete.tables(Server.class, Buffer.class, Channel.class);
+                    notifyHandlers(EVENT_CONNECTIVITY, null);
+                    fetchConfig();
+                    if (disconnectSockerTimerTask != null)
+                        disconnectSockerTimerTask.cancel();
+                    if (notifier) {
+                        disconnectSockerTimerTask = new TimerTask() {
+                            @Override
+                            public void run() {
+                                disconnectSockerTimerTask = null;
+                                if (notifier) {
+                                    Log.d("IRCCloud", "Notifier socket expired");
+                                    disconnect();
+                                }
                             }
-                        }
-                    };
-                    idleTimer.schedule(disconnectSockerTimerTask, 600000);
+                        };
+                        idleTimer.schedule(disconnectSockerTimerTask, 600000);
+                    }
+                } else {
+                    Crashlytics.log(Log.WARN, "IRCCloud", "Got websocket onConnect for inactive websocket");
                 }
             }
 
@@ -1231,69 +1235,97 @@ public class NetworkConnection {
 
             @Override
             public void onDisconnect(int code, String reason) {
-                Crashlytics.log(Log.DEBUG, TAG, "WebSocket disconnected");
-                try {
-                    if (wifiLock.isHeld())
-                        wifiLock.release();
-                } catch (RuntimeException e) {
-
-                }
-                ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo ni = cm.getActiveNetworkInfo();
-                if (state == STATE_DISCONNECTING || ni == null || !ni.isConnected())
-                    cancel_idle_timer();
-                else {
-                    failCount++;
-                    if (failCount < 4)
-                        idle_interval = failCount * 1000;
-                    else if (failCount < 10)
-                        idle_interval = 10000;
-                    else
-                        idle_interval = 30000;
-                    schedule_idle_timer();
-                    Crashlytics.log(Log.DEBUG, TAG, "Reconnecting in " + idle_interval / 1000 + " seconds");
-                }
-
-                state = STATE_DISCONNECTED;
-                notifyHandlers(EVENT_CONNECTIVITY, null);
-
-                if (reason != null && reason.equals("SSL")) {
-                    Crashlytics.log(Log.ERROR, TAG, "The socket was disconnected due to an SSL error");
+                if (client != null && client.getListener() == this) {
+                    Crashlytics.log(Log.DEBUG, TAG, "WebSocket disconnected");
                     try {
-                        JSONObject o = new JSONObject();
-                        o.put("message", "Unable to establish a secure connection to the IRCCloud servers.");
-                        notifyHandlers(EVENT_FAILURE_MSG, new IRCCloudJSONObject(o));
-                    } catch (JSONException e) {
-                        printStackTraceToCrashlytics(e);
+                        if (wifiLock.isHeld())
+                            wifiLock.release();
+                    } catch (RuntimeException e) {
+
                     }
+
+                    Crashlytics.log(Log.DEBUG, TAG, "Clearing OOB tasks");
+                    for (Integer bid : oobTasks.keySet()) {
+                        try {
+                            oobTasks.get(bid).cancel(true);
+                        } catch (Exception e) {
+                            printStackTraceToCrashlytics(e);
+                        }
+                    }
+                    oobTasks.clear();
+
+                    ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo ni = cm.getActiveNetworkInfo();
+                    if (state == STATE_DISCONNECTING || ni == null || !ni.isConnected())
+                        cancel_idle_timer();
+                    else {
+                        failCount++;
+                        if (failCount < 4)
+                            idle_interval = failCount * 1000;
+                        else if (failCount < 10)
+                            idle_interval = 10000;
+                        else
+                            idle_interval = 30000;
+                        schedule_idle_timer();
+                        Crashlytics.log(Log.DEBUG, TAG, "Reconnecting in " + idle_interval / 1000 + " seconds");
+                    }
+
+                    state = STATE_DISCONNECTED;
+                    notifyHandlers(EVENT_CONNECTIVITY, null);
+
+                    if (reason != null && reason.equals("SSL")) {
+                        Crashlytics.log(Log.ERROR, TAG, "The socket was disconnected due to an SSL error");
+                        try {
+                            JSONObject o = new JSONObject();
+                            o.put("message", "Unable to establish a secure connection to the IRCCloud servers.");
+                            notifyHandlers(EVENT_FAILURE_MSG, new IRCCloudJSONObject(o));
+                        } catch (JSONException e) {
+                            printStackTraceToCrashlytics(e);
+                        }
+                    }
+                } else {
+                    Crashlytics.log(Log.WARN, "IRCCloud", "Got websocket onDisconnect for inactive websocket");
                 }
             }
 
             @Override
             public void onError(Exception error) {
-                Crashlytics.log(Log.ERROR, TAG, "The WebSocket encountered an error: " + error.toString());
-                try {
-                    if (wifiLock.isHeld())
-                        wifiLock.release();
-                } catch (RuntimeException e) {
+                if (client != null && client.getListener() == this) {
+                    Crashlytics.log(Log.ERROR, TAG, "The WebSocket encountered an error: " + error.toString());
+                    try {
+                        if (wifiLock.isHeld())
+                            wifiLock.release();
+                    } catch (RuntimeException e) {
 
-                }
-                if (state == STATE_DISCONNECTING)
-                    cancel_idle_timer();
-                else {
-                    failCount++;
-                    if (failCount < 4)
-                        idle_interval = failCount * 1000;
-                    else if (failCount < 10)
-                        idle_interval = 10000;
-                    else
-                        idle_interval = 30000;
-                    schedule_idle_timer();
-                    Crashlytics.log(Log.DEBUG, TAG, "Reconnecting in " + idle_interval / 1000 + " seconds");
-                }
+                    }
+                    Crashlytics.log(Log.DEBUG, TAG, "Clearing OOB tasks");
+                    for (Integer bid : oobTasks.keySet()) {
+                        try {
+                            oobTasks.get(bid).cancel(true);
+                        } catch (Exception e) {
+                            printStackTraceToCrashlytics(e);
+                        }
+                    }
+                    oobTasks.clear();
+                    if (state == STATE_DISCONNECTING)
+                        cancel_idle_timer();
+                    else {
+                        failCount++;
+                        if (failCount < 4)
+                            idle_interval = failCount * 1000;
+                        else if (failCount < 10)
+                            idle_interval = 10000;
+                        else
+                            idle_interval = 30000;
+                        schedule_idle_timer();
+                        Crashlytics.log(Log.DEBUG, TAG, "Reconnecting in " + idle_interval / 1000 + " seconds");
+                    }
 
-                state = STATE_DISCONNECTED;
-                notifyHandlers(EVENT_CONNECTIVITY, null);
+                    state = STATE_DISCONNECTED;
+                    notifyHandlers(EVENT_CONNECTIVITY, null);
+                } else {
+                    Crashlytics.log(Log.WARN, "IRCCloud", "Got websocket onError for inactive websocket");
+                }
             }
         }, extraHeaders);
 
@@ -1925,7 +1957,7 @@ public class NetworkConnection {
                     Log.d("IRCCloud", "Socket was not resumed");
                     NotificationsList.getInstance().clearLastSeenEIDs();
                     mEvents.clear();
-                    if(streamId != null || highest_eid > 0) {
+                    if(streamId != null) {
                         Crashlytics.log(Log.WARN, "IRCCloud", "Unable to resume socket, requesting full OOB load");
                         highest_eid = 0;
                         streamId = null;
@@ -3163,8 +3195,9 @@ public class NetworkConnection {
         @SuppressLint("NewApi")
         @Override
         protected Boolean doInBackground(URL... url) {
+            if(isCancelled())
+                return false;
             try {
-                Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
                 long totalTime = System.currentTimeMillis();
                 long totalParseTime = 0;
                 long totalJSONTime = 0;
@@ -3215,7 +3248,7 @@ public class NetworkConnection {
                     } else {
                         Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
                     }
-                    conn.setConnectTimeout(15000);
+                    conn.setConnectTimeout(30000);
                     conn.setReadTimeout(30000);
                 } catch (Exception e) {
                 }
@@ -3241,7 +3274,7 @@ public class NetworkConnection {
 
                     JsonParser parser = mapper.getFactory().createParser(reader);
 
-                    if (reader != null && parser.nextToken() == JsonToken.START_ARRAY) {
+                    if (reader != null && parser.nextToken() == JsonToken.START_ARRAY && !isCancelled()) {
                         synchronized (parserLock) {
                             cancel_idle_timer();
                             //android.os.Debug.startMethodTracing("/sdcard/oob", 16*1024*1024);
@@ -3327,7 +3360,7 @@ public class NetworkConnection {
                     Crashlytics.log(Log.DEBUG, TAG, "OOB fetch complete!");
                     numbuffers = 0;
                     return true;
-                } else {
+                } else if(!isCancelled()) {
                     Log.e(TAG, "Invalid response code: " + conn.getResponseCode());
                     throw new Exception("Invalid response code: " + conn.getResponseCode());
                 }
@@ -3353,13 +3386,16 @@ public class NetworkConnection {
                     }
                 }
             }
-            notifyHandlers(EVENT_BACKLOG_FAILED, null);
-            backlog = false;
-            if (bid == -1) {
-                Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
-                streamId = null;
-                if (client != null)
-                    client.disconnect();
+            if(!isCancelled()) {
+                notifyHandlers(EVENT_BACKLOG_FAILED, null);
+                backlog = false;
+                if (bid == -1) {
+                    Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
+                    streamId = null;
+                    highest_eid = 0;
+                    if (client != null)
+                        client.disconnect();
+                }
             }
             return false;
         }
