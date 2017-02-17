@@ -3351,8 +3351,10 @@ public class NetworkConnection {
 
                     if (bid != -1) {
                         Buffer b = mBuffers.getBuffer(bid);
-                        if(b != null)
+                        if(b != null) {
                             b.setTimeout(0);
+                            b.setDeferred(0);
+                        }
                     }
                     synchronized (oobTasks) {
                         oobTasks.remove(bid);

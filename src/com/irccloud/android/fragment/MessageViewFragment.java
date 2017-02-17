@@ -2359,27 +2359,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             lastCollapsedDay = -1;
 
             if (events == null || (events.size() == 0 && buffer.getMin_eid() > 0)) {
-                if(buffer.getDeferred() > 0) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            backlogFailed.setVisibility(View.GONE);
-                            loadBacklogButton.setVisibility(View.GONE);
-                            headerView.setVisibility(View.VISIBLE);
-                            requestingBacklog = true;
-                        }
-                    });
-                    NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), 0);
-                } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            headerView.setVisibility(View.GONE);
-                            backlogFailed.setVisibility(View.GONE);
-                            loadBacklogButton.setVisibility(View.GONE);
-                        }
-                    });
-                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerView.setVisibility(View.GONE);
+                        backlogFailed.setVisibility(View.GONE);
+                        loadBacklogButton.setVisibility(View.GONE);
+                    }
+                });
             } else if (events.size() > 0) {
                 if (server != null) {
                     ignore.setIgnores(server.ignores);
@@ -2416,10 +2403,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         @Override
                         public void run() {
                             headerView.setVisibility(View.GONE);
-                            if(buffer.getMin_eid() > 0 && earliest_eid > buffer.getMin_eid() && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED)
-                                loadBacklogButton.setVisibility(View.VISIBLE);
-                            else
+                            if(buffer.getMin_eid() > 0 && earliest_eid > buffer.getMin_eid() && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                                if(buffer.getDeferred() > 0) {
+                                    backlogFailed.setVisibility(View.GONE);
+                                    loadBacklogButton.setVisibility(View.GONE);
+                                    headerView.setVisibility(View.VISIBLE);
+                                    requestingBacklog = true;
+                                    NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
+                                } else {
+                                    loadBacklogButton.setVisibility(View.VISIBLE);
+                                }
+                            } else {
                                 loadBacklogButton.setVisibility(View.GONE);
+                            }
                         }
                     });
                 }
