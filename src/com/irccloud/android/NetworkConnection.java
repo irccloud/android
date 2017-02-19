@@ -1108,6 +1108,9 @@ public class NetworkConnection {
             Crashlytics.log(Log.INFO, TAG, "Ignoring duplicate connect request");
             return;
         }
+
+        new FetchConfigTask().execute((Void)null);
+
         state = STATE_CONNECTING;
         ready = false;
 
@@ -1192,7 +1195,6 @@ public class NetworkConnection {
                     editor.commit();
                     //Delete.tables(Server.class, Buffer.class, Channel.class);
                     notifyHandlers(EVENT_CONNECTIVITY, null);
-                    fetchConfig();
                     if (disconnectSockerTimerTask != null)
                         disconnectSockerTimerTask.cancel();
                     if (notifier) {
@@ -3409,6 +3411,15 @@ public class NetworkConnection {
         String stack = sw.toString();
         for(String s : stack.split("\n")) {
             Crashlytics.log(Log.WARN, TAG, s);
+        }
+    }
+
+    private class FetchConfigTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            fetchConfig();
+            return null;
         }
     }
 }
