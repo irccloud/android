@@ -1481,6 +1481,7 @@ public class ColorFormatter {
         put("woman-kiss-woman", "\uD83D\uDC69\u200D\u2764\uFE0F\u200D\uD83D\uDC8B\u200D\uD83D\uDC69");
 
         put("doge", "\uD83D\uDC36");
+        put("like", "\uD83D\uDC4D");
         put("&lt;3", "\u2764");
         put("&lt;/3", "\uD83D\uDC94");
         put(")", "\uD83D\uDE03");
@@ -1591,6 +1592,11 @@ public class ColorFormatter {
                     sb.append("|");
                 sb.append(emojiMap.get(key));
             }
+            for (String value : conversionMap.values()) {
+                if (sb.length() > 2)
+                    sb.append("|");
+                sb.append(value);
+            }
             sb.append(")+");
 
             IS_EMOJI = Pattern.compile(sb.toString().replace(":)|","").replace("*", "\\*"));
@@ -1642,7 +1648,7 @@ public class ColorFormatter {
     }
 
     public static boolean is_emoji(String text) {
-        return text != null && text.length() > 0 && IS_EMOJI.matcher(text).matches();
+        return text != null && text.length() > 0 && IS_EMOJI.matcher(text.trim()).matches();
     }
 
     public static Spanned html_to_spanned(String msg) {
