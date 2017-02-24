@@ -32,6 +32,14 @@
 			android:key="autoaway"
 			android:defaultValue="true"
 			android:summary="Set your away status when you leave the app" android:title="Auto-away"/>
+		<Preference
+			android:title="Change your password"
+			android:key="change_password"
+			/>
+		<Preference
+			android:title="Delete your account"
+			android:key="delete_account"
+			/>
 	</PreferenceCategory>
 
 </PreferenceScreen>

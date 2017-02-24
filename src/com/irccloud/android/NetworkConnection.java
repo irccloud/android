@@ -1409,7 +1409,7 @@ public class NetworkConnection {
         try {
             params.put("_reqid", ++last_reqid);
             params.put("_method", method);
-            //Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method);
+            //Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method + " Params: " + params.toString());
             client.send(params.toString());
             return last_reqid;
         } catch (Exception e) {
@@ -1699,6 +1699,29 @@ public class NetworkConnection {
             o.put("hwords", hwords);
             o.put("autoaway", autoaway ? "1" : "0");
             return send("user-settings", o);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
+    public int change_password(String oldPassword, String newPassword) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("password", oldPassword);
+            o.put("newpassword", newPassword);
+            return send("change-password", o);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
+    public int delete_account(String password) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("password", password);
+            return send("delete-account", o);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;

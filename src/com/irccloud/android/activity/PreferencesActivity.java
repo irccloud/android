@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -39,6 +40,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.ActivityCompat;
@@ -47,10 +49,12 @@ import android.support.v7.app.AppCompatCallback;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -61,7 +65,12 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.irccloud.android.AppCompatEditTextPreference;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
@@ -87,12 +96,16 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class PreferencesActivity extends PreferenceActivity implements AppCompatCallback, NetworkConnection.IRCEventHandler {
-    NetworkConnection conn;
-    SaveSettingsTask saveSettingsTask = null;
-    SavePreferencesTask savePreferencesTask = null;
-    int save_prefs_reqid = -1;
-    int save_settings_reqid = -1;
+    private NetworkConnection conn;
+    private SaveSettingsTask saveSettingsTask = null;
+    private SavePreferencesTask savePreferencesTask = null;
+    private int save_prefs_reqid = -1;
+    private int save_settings_reqid = -1;
+    private int change_password_reqid = -1;
+    private String newpassword;
+    private int delete_account_reqid = -1;
     private AppCompatDelegate appCompatDelegate;
+    private GoogleApiClient mGoogleApiClient;
 
     private AppCompatDelegate getDelegate() {
         if(appCompatDelegate == null) {
@@ -102,9 +115,17 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         getDelegate().onStop();
+        if(mGoogleApiClient.isConnected())
+            mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -245,6 +266,8 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
         findPreference("name").setOnPreferenceChangeListener(settingstoggle);
         findPreference("autoaway").setOnPreferenceChangeListener(settingstoggle);
+        findPreference("change_password").setOnPreferenceClickListener(changePasswordClick);
+        findPreference("delete_account").setOnPreferenceClickListener(deleteAccountPasswordClick);
         findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
         findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
@@ -320,6 +343,10 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
         getListView().setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
         getListView().setCacheColorHint(ColorScheme.getInstance().contentBackgroundColor);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Auth.CREDENTIALS_API)
+                .build();
     }
 
     @Override
@@ -477,22 +504,133 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             save_settings_reqid = -1;
         } else if (reqid == save_prefs_reqid) {
             save_prefs_reqid = -1;
+        } else if (reqid == change_password_reqid) {
+            change_password_reqid = -1;
+            if (mGoogleApiClient.isConnected()) {
+                Credential.Builder builder = new Credential.Builder(conn.getUserInfo().email).setPassword(newpassword);
+                if (conn.getUserInfo().name != null && conn.getUserInfo().name.length() > 0)
+                    builder.setName(conn.getUserInfo().name);
+                Auth.CredentialsApi.save(mGoogleApiClient, builder.build()).setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(com.google.android.gms.common.api.Status status) {
+                        if (status.isSuccess()) {
+                            Log.e("IRCCloud", "Credentials saved");
+                        } else if (status.hasResolution()) {
+                            Log.e("IRCCloud", "Credentials require resolution");
+                            try {
+                                startIntentSenderForResult(status.getResolution().getIntentSender(), 1000, null, 0, 0, 0);
+                            } catch (IntentSender.SendIntentException e) {
+                            }
+                        } else {
+                            Log.e("IRCCloud", "Credentials request failed");
+                        }
+                        newpassword = null;
+                    }
+                });
+            } else {
+                newpassword = null;
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(PreferencesActivity.this, "Your password has been successfully updated and all your other sessions have been logged out", Toast.LENGTH_LONG).show();
+                }
+            });
+        } else if (reqid == delete_account_reqid) {
+            conn.logout();
+            delete_account_reqid = -1;
+            if (mGoogleApiClient.isConnected() && conn.getUserInfo() != null) {
+                Credential.Builder builder = new Credential.Builder(conn.getUserInfo().email);
+                if (conn.getUserInfo().name != null && conn.getUserInfo().name.length() > 0)
+                    builder.setName(conn.getUserInfo().name);
+                Auth.CredentialsApi.delete(mGoogleApiClient, builder.build()).setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(com.google.android.gms.common.api.Status status) {
+                        Auth.CredentialsApi.disableAutoSignIn(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                            @Override
+                            public void onResult(@NonNull Status status) {
+                                Intent i = new Intent(PreferencesActivity.this, LoginActivity.class);
+                                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                                    i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                                startActivity(i);
+                                finish();
+                            }
+                        });
+                    }
+                });
+            } else {
+                Intent i = new Intent(this, LoginActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                    i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                startActivity(i);
+                finish();
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(PreferencesActivity.this, "Your account has been deleted", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
     @Override
     public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
+        String error = "An error occurred while saving settings.  Please try again.";
+
         if (reqid == save_settings_reqid) {
             save_settings_reqid = -1;
-            Log.e("IRCCloud", "Settings not updated: " + object.getString("message"));
+            Crashlytics.log(Log.ERROR, "IRCCloud", "Settings not updated: " + object.getString("message"));
         } else if (reqid == save_prefs_reqid) {
             save_prefs_reqid = -1;
-            Log.e("IRCCloud", "Prefs not updated: " + object.getString("message"));
+            Crashlytics.log(Log.ERROR, "IRCCloud", "Prefs not updated: " + object.getString("message"));
+        } else if (reqid == change_password_reqid) {
+            newpassword = null;
+            change_password_reqid = -1;
+            Crashlytics.log(Log.ERROR, "IRCCloud", "Password not changed: " + object.getString("message"));
+            switch(object.getString("message")) {
+                case "oldpassword":
+                    error = "Current password incorrect";
+                    break;
+                case "rate_limited":
+                    error = "Rate limited, try again in a few minutes";
+                    break;
+                case "newpassword":
+                case "password_error":
+                    error = "Invalid password, please try again";
+                    break;
+                default:
+                    error = object.getString("message");
+                    break;
+            }
+            error = "Error changing password: " + error;
+        } else if (reqid == delete_account_reqid) {
+            delete_account_reqid = -1;
+            Crashlytics.log(Log.ERROR, "IRCCloud", "Account not deleted: " + object.getString("message"));
+            switch(object.getString("message")) {
+                case "bad_pass":
+                    error = "Incorrect password, please try again";
+                    break;
+                case "rate_limited":
+                    error = "Rate limited, try again in a few minutes";
+                    break;
+                case "last_admin_cant_leave":
+                    error = "You can’t delete your account as the last admin of a team.  Please transfer ownership before continuing.";
+                    break;
+                default:
+                    error = object.getString("message");
+                    break;
+            }
+            error = "Error deleting account: " + error;
         }
+
+        final String toast = error;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PreferencesActivity.this, toast, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -1073,4 +1211,63 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         }
     };
 
+    Preference.OnPreferenceClickListener changePasswordClick = new Preference.OnPreferenceClickListener() {
+
+        public boolean onPreferenceClick(Preference preference) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
+            builder.setTitle("Change Password");
+
+            View v = getLayoutInflater().inflate(R.layout.dialog_change_password, null);
+            final EditText oldPassword = (EditText)v.findViewById(R.id.oldpassword);
+            final EditText newPassword = (EditText)v.findViewById(R.id.newpassword);
+
+            builder.setPositiveButton("Change Password", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    newpassword = newPassword.getText().toString();
+                    change_password_reqid = conn.change_password(oldPassword.getText().toString(), newpassword);
+                    Answers.getInstance().logCustom(new CustomEvent("change-password"));
+                }
+            });
+            builder.setNegativeButton("Cancel", null);
+            builder.setView(v);
+
+            builder.show();
+            return false;
+        }
+    };
+
+    Preference.OnPreferenceClickListener deleteAccountPasswordClick = new Preference.OnPreferenceClickListener() {
+
+        public boolean onPreferenceClick(Preference preference) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
+            builder.setTitle("Delete Your Account");
+
+            View v = getLayoutInflater().inflate(R.layout.dialog_textprompt, null);
+            final TextView prompt = (TextView) v.findViewById(R.id.prompt);
+            prompt.setText("Re-enter your password to confirm");
+            final EditText textInput = (EditText)v.findViewById(R.id.textInput);
+            textInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
+            builder.setPositiveButton("Delete Account", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    delete_account_reqid = conn.delete_account(textInput.getText().toString());
+                    Answers.getInstance().logCustom(new CustomEvent("delete-account"));
+                }
+            });
+            builder.setNegativeButton("Cancel", null);
+            builder.setView(v);
+
+            final AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialogInterface) {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(0xFFFF0000);
+                }
+            });
+            dialog.show();
+            return false;
+        }
+    };
 }

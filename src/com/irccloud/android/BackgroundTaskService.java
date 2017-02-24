@@ -268,7 +268,7 @@ public class BackgroundTaskService extends GcmTaskService {
             }
             JSONObject result = NetworkConnection.getInstance().unregisterGCM(token, session);
             if (result != null && result.has("success")) {
-                if(result.getBoolean("success")) {
+                if(result.getBoolean("success") || result.getString("message").equals("auth")) {
                     Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully unregistered");
                     SharedPreferences.Editor e = context.getSharedPreferences("prefs", 0).edit();
                     e.remove(session);
