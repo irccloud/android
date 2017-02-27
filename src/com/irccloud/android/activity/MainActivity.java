@@ -198,19 +198,19 @@ import static com.irccloud.android.fragment.MessageViewFragment.ROW_FILE;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_THUMBNAIL;
 
 public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler {
-    Buffer buffer;
-    Server server;
-    ActionEditText messageTxt;
-    ImageButton sendBtn;
-    ImageButton photoBtn;
-    User selected_user;
-    View userListView;
-    View buffersListView;
-    TextView title;
-    TextView subtitle;
-    TextView key;
-    DrawerLayout drawerLayout;
-    NetworkConnection conn;
+    private Buffer buffer;
+    private Server server;
+    private ActionEditText messageTxt;
+    private ImageButton sendBtn;
+    private ImageButton photoBtn;
+    private User selected_user;
+    private View userListView;
+    private View buffersListView;
+    private TextView title;
+    private TextView subtitle;
+    private TextView key;
+    private DrawerLayout drawerLayout;
+    private NetworkConnection conn;
     private boolean shouldFadeIn = false;
     private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
     private ExcludeBIDTask excludeBIDTask = null;
@@ -218,8 +218,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private int launchBid = -1;
     private Uri launchURI = null;
     private AlertDialog channelsListDialog;
-    String bufferToOpen = null;
-    int cidToOpen = -1;
+    private String bufferToOpen = null;
+    private int cidToOpen = -1;
     private Uri imageCaptureURI = null;
     private ProgressBar progressBar;
     private TextView errorMsg = null;
@@ -243,6 +243,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT = 6;
 
     private String theme;
+
+    private String deleteFileId;
+    private int deleteReqId = -1;
 
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
@@ -2981,11 +2984,33 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 }
                 break;
+            case NetworkConnection.EVENT_SUCCESS:
+                event = (IRCCloudJSONObject) obj;
+                if (event != null && event.has("_reqid")) {
+                    int reqid = event.getInt("_reqid");
+                    if (reqid == deleteReqId) {
+                        MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+                        if (mvf != null)
+                            mvf.uncacheFileId(deleteFileId);
+                        deleteReqId = -1;
+                        deleteFileId = null;
+                    }
+                }
+                break;
             case NetworkConnection.EVENT_FAILURE_MSG:
                 event = (IRCCloudJSONObject) obj;
                 if (event != null && event.has("_reqid")) {
                     int reqid = event.getInt("_reqid");
-                    if (pendingEvents.containsKey(reqid)) {
+                    if (reqid == deleteReqId) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainActivity.this, "Unable to delete file. Please try again shortly.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        deleteReqId = -1;
+                        deleteFileId = null;
+                    } else if (pendingEvents.containsKey(reqid)) {
                         Event e = pendingEvents.get(reqid);
                         EventsList.getInstance().deleteEvent(e.eid, e.bid);
                         pendingEvents.remove(event.getInt("_reqid"));
@@ -4266,7 +4291,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             user.hostmask = event.hostmask;
 
         if (event.row_type == ROW_FILE || event.row_type == ROW_THUMBNAIL) {
-            showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)));
+            showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)), event.entities);
         } else if (event.html != null) {
             String html = event.html;
 
@@ -4274,9 +4299,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 CollapsedEventsList c = new CollapsedEventsList();
                 html = "<b>&lt;" + ColorFormatter.irc_to_html(c.formatNick(event.from, event.from_mode, false)) + "&gt;</b> " + ColorFormatter.irc_to_html(event.msg);
             }
-            showUserPopup(user, ColorFormatter.html_to_spanned(event.timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)));
+            showUserPopup(user, ColorFormatter.html_to_spanned(event.timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)), null);
         } else {
-            showUserPopup(user, null);
+            showUserPopup(user, null, null);
         }
         return true;
     }
@@ -4339,12 +4364,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onUserSelected(int c, String chan, String nick) {
         UsersList u = UsersList.getInstance();
-        showUserPopup(u.getUser(buffer.getBid(), nick), null);
+        showUserPopup(u.getUser(buffer.getBid(), nick), null, null);
     }
 
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
-    private void showUserPopup(User user, Spanned message) {
+    private void showUserPopup(User user, Spanned message, final JsonNode entities) {
         ArrayList<String> itemList = new ArrayList<String>();
         final String[] items;
         final Spanned text_to_copy = message;
@@ -4359,6 +4384,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 itemList.add("Copy URL to clipboard");
                 itemList.add("Share URL…");
             }
+            if(entities != null && entities.has("own_file") && entities.get("own_file").asBoolean())
+                itemList.add("Delete File");
             itemList.add("Copy Message");
         }
 
@@ -4515,6 +4542,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                         dialog.show();
                     }
+                } else if (items[item].equals("Delete File")) {
+                    deleteFileId = entities.get("id").asText();
+                    deleteReqId = conn.deleteFile(deleteFileId);
                 } else if (items[item].equals("Whois…")) {
                     if(selected_user.ircserver != null && selected_user.ircserver.length() > 0)
                         conn.whois(buffer.getCid(), selected_user.nick, selected_user.ircserver);

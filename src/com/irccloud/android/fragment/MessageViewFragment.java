@@ -2077,7 +2077,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected void onPostExecute(JsonNode result) {
-            if(result != null) {
+            if(result != null && !filePropsCache.containsKey(fileID)) {
                 filePropsCache.put(fileID, result);
                 insertEntity(adapter, event, eid, result, false);
             }
@@ -2755,6 +2755,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
             ready = false;
         }
+    }
+
+    public void uncacheFileId(String fileID) {
+        filePropsCache.remove(fileID);
+        new RefreshTask().execute((Void)null);
     }
 
     public void onIRCEvent(int what, final Object obj) {
