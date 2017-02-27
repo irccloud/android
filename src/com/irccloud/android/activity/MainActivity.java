@@ -163,6 +163,7 @@ import com.irccloud.android.fragment.TextListFragment;
 import com.irccloud.android.fragment.ServerReorderFragment;
 import com.irccloud.android.fragment.UsersListFragment;
 import com.irccloud.android.fragment.WhoListFragment;
+import com.irccloud.android.fragment.WhoWasFragment;
 import com.irccloud.android.fragment.WhoisFragment;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
@@ -2643,6 +2644,29 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                         } else {
                             whois.setArguments(args);
+                        }
+                    }
+                });
+                break;
+            case NetworkConnection.EVENT_WHOWAS:
+                event = (IRCCloudJSONObject) obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bundle args = new Bundle();
+                        args.putString("title", "WHOWAS response for " + event.getString("nick"));
+                        args.putString("event", event.toString());
+                        WhoWasFragment whoWas = (WhoWasFragment) getSupportFragmentManager().findFragmentByTag("whowas");
+                        if (whoWas == null) {
+                            whoWas = new WhoWasFragment();
+                            whoWas.setArguments(args);
+                            try {
+                                whoWas.show(getSupportFragmentManager(), "whowas");
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
+                            }
+                        } else {
+                            whoWas.setArguments(args);
                         }
                     }
                 });

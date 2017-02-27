@@ -220,6 +220,7 @@ public class NetworkConnection {
     public static final int EVENT_WHOSPECIALRESPONSE = 49;
     public static final int EVENT_MODULESLIST = 50;
     public static final int EVENT_LINKSRESPONSE = 51;
+    public static final int EVENT_WHOWAS = 52;
 
     public static final int EVENT_BACKLOG_START = 100;
     public static final int EVENT_BACKLOG_END = 101;
@@ -2856,6 +2857,7 @@ public class NetworkConnection {
         put("who_special_response", new BroadcastParser(EVENT_WHOSPECIALRESPONSE));
         put("modules_list", new BroadcastParser(EVENT_MODULESLIST));
         put("links_response", new BroadcastParser(EVENT_LINKSRESPONSE));
+        put("whowas_response", new BroadcastParser(EVENT_WHOWAS));
         put("who_response", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
