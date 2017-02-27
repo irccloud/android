@@ -542,6 +542,28 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         }
 
+        public void insertAbove(long eid, Event e) {
+            synchronized (data) {
+                for (int i = 0; i < data.size(); i++) {
+                    if(data.get(i).eid == eid) {
+                        data.add(i, e);
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void insertBelow(long eid, Event e) {
+            synchronized (data) {
+                for (int i = 0; i < data.size(); i++) {
+                    if(data.get(i).eid == eid) {
+                        data.add(i+1, e);
+                        break;
+                    }
+                }
+            }
+        }
+
         @Override
         public int getCount() {
             synchronized (data) {
@@ -1769,23 +1791,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(!pref_disableInlineFiles && event.entities != null && event.entities.get("files") != null) {
                     JsonNode files = event.entities.get("files");
-                    long entity_eid = event.eid;
 
                     for(int i = 0; i < files.size(); i++) {
-                        entity_eid++;
                         JsonNode entity = files.get(i);
                         String fileID = entity.get("id").asText();
                         JsonNode properties = filePropsCache.get(fileID);
 
                         if(properties != null) {
-                            insertEntity(adapter, event, entity_eid, properties, backlog);
+                            insertEntity(adapter, event, properties, backlog);
                         } else {
-                            new FilePropsTask(adapter, fileID, event, entity_eid).execute((Void)null);
+                            new FilePropsTask(adapter, fileID, event).execute((Void)null);
                         }
                     }
-
-                    if(buffer.getLast_seen_eid() == event.eid)
-                        buffer.setLast_seen_eid(entity_eid);
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
@@ -1794,11 +1811,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    private synchronized void insertEntity(MessageAdapter adapter, Event parent, long eid, JsonNode properties, boolean backlog) {
+    private synchronized void insertEntity(MessageAdapter adapter, Event parent, JsonNode properties, boolean backlog) {
         Event e = new Event();
         e.cid = parent.cid;
         e.bid = parent.bid;
-        e.eid = eid;
+        e.eid = parent.eid;
         e.from = parent.from;
         e.self = parent.self;
         e.from_mode = parent.from_mode;
@@ -1829,7 +1846,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         e.msg += properties.get("mime_type").asText();
 
-        insertEvent(adapter, e, backlog, false);
+        adapter.insertBelow(parent.eid, e);
+        if(!backlog)
+            adapter.notifyDataSetChanged();
     }
 
     private class OnItemLongClickListener implements View.OnLongClickListener {
@@ -2054,14 +2073,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     private class FilePropsTask extends AsyncTaskEx<Void, Void, JsonNode> {
         private Event event;
-        private long eid;
         private String fileID;
         private MessageAdapter adapter;
 
-        FilePropsTask(MessageAdapter adapter, String fileID, Event event, long eid) {
+        FilePropsTask(MessageAdapter adapter, String fileID, Event event) {
             this.fileID = fileID;
             this.event = event;
-            this.eid = eid;
             this.adapter = adapter;
         }
 
@@ -2079,7 +2096,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         protected void onPostExecute(JsonNode result) {
             if(result != null && !filePropsCache.containsKey(fileID)) {
                 filePropsCache.put(fileID, result);
-                insertEntity(adapter, event, eid, result, false);
+                insertEntity(adapter, event, result, false);
             }
         }
     }
