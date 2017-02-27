@@ -57,7 +57,7 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 107
+        versionCode 108
         versionName "3.15"
         minSdkVersion 10
         targetSdkVersion 25
