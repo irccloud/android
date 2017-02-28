@@ -2487,8 +2487,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     public void run() {
                         StringBuilder sb = new StringBuilder();
                         JsonNode servers = event.getJsonNode("servers");
-                        for(int i = 0; i < servers.size(); i++) {
-                            sb.append(servers.get(i).asText()).append("\n");
+                        if(servers != null) {
+                            for (int i = 0; i < servers.size(); i++) {
+                                sb.append(servers.get(i).asText()).append("\n");
+                            }
                         }
 
                         Bundle args = new Bundle();
