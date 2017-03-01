@@ -555,6 +555,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         public void insertBelow(long eid, Event e) {
             synchronized (data) {
+                if(data.get(data.size() - 1).eid == eid) {
+                    data.add(e);
+                    return;
+                }
+
                 for (int i = 0; i < data.size(); i++) {
                     if(data.get(i).eid == eid) {
                         data.add(i+1, e);
@@ -1811,7 +1816,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    private synchronized void insertEntity(MessageAdapter adapter, Event parent, JsonNode properties, boolean backlog) {
+    private synchronized void insertEntity(final MessageAdapter adapter, Event parent, JsonNode properties, boolean backlog) {
         Event e = new Event();
         e.cid = parent.cid;
         e.bid = parent.bid;
@@ -1847,8 +1852,29 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         e.msg += properties.get("mime_type").asText();
 
         adapter.insertBelow(parent.eid, e);
-        if(!backlog)
+        if(!backlog) {
+            if (!buffer.getScrolledUp()) {
+                getListView().setSelection(adapter.getCount() - 1);
+                if (tapTimer != null) {
+                    tapTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        getListView().setSelection(adapter.getCount() - 1);
+                                    } catch (Exception e) {
+                                        //List view isn't ready yet
+                                    }
+                                }
+                            });
+                        }
+                    }, 200);
+                }
+            }
             adapter.notifyDataSetChanged();
+        }
     }
 
     private class OnItemLongClickListener implements View.OnLongClickListener {
@@ -2094,7 +2120,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected void onPostExecute(JsonNode result) {
-            if(result != null && !filePropsCache.containsKey(fileID)) {
+            if(result != null) {
                 filePropsCache.put(fileID, result);
                 insertEntity(adapter, event, result, false);
             }
