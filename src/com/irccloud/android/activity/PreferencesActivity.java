@@ -193,7 +193,19 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
         conn = NetworkConnection.getInstance();
         conn.addHandler(this);
-        addPreferencesFromResource(R.xml.preferences_account);
+        if(BuildConfig.ENTERPRISE) {
+            JSONObject config = NetworkConnection.getInstance().config;
+            try {
+                if(config != null && config.has("auth_mechanism") && config.getString("auth_mechanism").equals("internal"))
+                    addPreferencesFromResource(R.xml.preferences_account);
+                else
+                    addPreferencesFromResource(R.xml.preferences_account_enterprise);
+            } catch (JSONException e) {
+                addPreferencesFromResource(R.xml.preferences_account_enterprise);
+            }
+        } else {
+            addPreferencesFromResource(R.xml.preferences_account);
+        }
         addPreferencesFromResource(R.xml.preferences_display);
         addPreferencesFromResource(R.xml.preferences_message);
         addPreferencesFromResource(R.xml.preferences_device);
@@ -266,8 +278,10 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
         findPreference("name").setOnPreferenceChangeListener(settingstoggle);
         findPreference("autoaway").setOnPreferenceChangeListener(settingstoggle);
-        findPreference("change_password").setOnPreferenceClickListener(changePasswordClick);
-        findPreference("delete_account").setOnPreferenceClickListener(deleteAccountPasswordClick);
+        if(findPreference("change_password") != null)
+            findPreference("change_password").setOnPreferenceClickListener(changePasswordClick);
+        if(findPreference("delete_account") != null)
+            findPreference("delete_account").setOnPreferenceClickListener(deleteAccountPasswordClick);
         findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
         findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
@@ -376,11 +390,13 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 findPreference("name").setSummary(conn.getUserInfo().name);
             else
                 findPreference("name").setSummary(((AppCompatEditTextPreference) findPreference("name")).getText());
-            findPreference("email").setOnPreferenceChangeListener(settingstoggle);
-            if (conn.getUserInfo() != null)
-                findPreference("email").setSummary(conn.getUserInfo().email);
-            else
-                findPreference("email").setSummary(((AppCompatEditTextPreference) findPreference("email")).getText());
+            if(findPreference("email") != null) {
+                findPreference("email").setOnPreferenceChangeListener(settingstoggle);
+                if (conn.getUserInfo() != null)
+                    findPreference("email").setSummary(conn.getUserInfo().email);
+                else
+                    findPreference("email").setSummary(((AppCompatEditTextPreference) findPreference("email")).getText());
+            }
             findPreference("highlights").setOnPreferenceChangeListener(settingstoggle);
             if (conn.getUserInfo() != null)
                 findPreference("highlights").setSummary(conn.getUserInfo().highlights);
@@ -469,8 +485,10 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                         public void run() {
                             ((AppCompatEditTextPreference) findPreference("name")).setText(userInfo.name);
                             findPreference("name").setSummary(userInfo.name);
-                            ((AppCompatEditTextPreference) findPreference("email")).setText(userInfo.email);
-                            findPreference("email").setSummary(userInfo.email);
+                            if(findPreference("email") != null) {
+                                ((AppCompatEditTextPreference) findPreference("email")).setText(userInfo.email);
+                                findPreference("email").setSummary(userInfo.email);
+                            }
                             ((AppCompatEditTextPreference) findPreference("highlights")).setText(userInfo.highlights);
                             findPreference("highlights").setSummary(userInfo.highlights);
                             ((CheckBoxPreference) findPreference("autoaway")).setChecked(userInfo.auto_away);
@@ -1253,7 +1271,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     delete_account_reqid = conn.delete_account(textInput.getText().toString());
-                    Answers.getInstance().logCustom(new CustomEvent("delete-account"));
                 }
             });
             builder.setNegativeButton("Cancel", null);
