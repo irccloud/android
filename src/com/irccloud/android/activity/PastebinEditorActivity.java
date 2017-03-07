@@ -122,6 +122,7 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
         filename = (EditText) findViewById(R.id.filename);
         message = (EditText) findViewById(R.id.message);
         messages_count = (TextView) findViewById(R.id.messages_count);
+        final TabLayout tabHost = (TabLayout) findViewById(android.R.id.tabhost);
 
         if (savedInstanceState != null && savedInstanceState.containsKey("message"))
             message.setText(savedInstanceState.getString("message"));
@@ -147,12 +148,14 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
 
             @Override
             public void afterTextChanged(Editable editable) {
-                int count = 0;
-                String lines[] = editable.toString().split("\n");
-                for(String line : lines) {
-                    count += Math.ceil(line.length() / 1080.0f);
+                if(tabHost.getSelectedTabPosition() == 1) {
+                    int count = 0;
+                    String lines[] = editable.toString().split("\n");
+                    for (String line : lines) {
+                        count += Math.ceil(line.length() / 1080.0f);
+                    }
+                    messages_count.setText("Text will be sent as " + count + " message" + (count == 1 ? "" : "s"));
                 }
-                messages_count.setText("Text will be sent as " + count + " message" + (count==1?"":"s"));
             }
         });
         paste.setText(pastebin.getBody());
@@ -160,7 +163,6 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
         if (getIntent() != null && getIntent().hasExtra("filename"))
             filename.setText(getIntent().getStringExtra("filename"));
 
-        TabLayout tabHost = (TabLayout) findViewById(android.R.id.tabhost);
         ViewCompat.setElevation(toolbar, ViewCompat.getElevation(tabHost));
 
         if (pastebin.getId() != null) {
@@ -179,12 +181,19 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
                     if (current_tab == 0) {
                         filename.setVisibility(View.VISIBLE);
                         message.setVisibility(View.VISIBLE);
-                        messages_count.setVisibility(View.GONE);
+                        messages_count.setText("Text snippets are visible to anyone with the URL but are not publicly listed or indexed.");
+                        messages_count.setVisibility(View.VISIBLE);
                         findViewById(R.id.filename_heading).setVisibility(View.VISIBLE);
                         findViewById(R.id.message_heading).setVisibility(View.VISIBLE);
                     } else {
                         filename.setVisibility(View.GONE);
                         message.setVisibility(View.GONE);
+                        int count = 0;
+                        String lines[] = paste.getText().toString().split("\n");
+                        for(String line : lines) {
+                            count += Math.ceil(line.length() / 1080.0f);
+                        }
+                        messages_count.setText("Text will be sent as " + count + " message" + (count==1?"":"s"));
                         messages_count.setVisibility(View.VISIBLE);
                         findViewById(R.id.filename_heading).setVisibility(View.GONE);
                         findViewById(R.id.message_heading).setVisibility(View.GONE);

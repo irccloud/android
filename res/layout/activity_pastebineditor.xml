@@ -59,6 +59,18 @@
                     android:inputType="textMultiLine"><requestFocus/></EditText>
             </android.support.design.widget.TextInputLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:textColor="?timestampColor"
+                android:text="Text snippets are visible to anyone with the URL but are not publicly listed or indexed."
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:id="@+id/messages_count"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center" />
+
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/filename_heading"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -94,19 +106,6 @@
                     android:inputType="text" />
 
             </android.support.design.widget.TextInputLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="4dp"
-                android:textColor="?timestampColor"
-                android:text="Text will be sent as 1 message"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:id="@+id/messages_count"
-                android:layout_gravity="center_horizontal"
-                android:visibility="gone" />
-
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
