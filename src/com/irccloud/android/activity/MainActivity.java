@@ -3581,7 +3581,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         AlertDialog dialog;
         builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing", "Start a Pastebin", "Pastebins"} : new String[]{"Take a Photo", "Record a Video", "Choose Existing Photo", "Choose Existing Document", "Start a Pastebin", "Pastebins"};
+        String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing", "Post a Text Snippet", "Text Snippets"} : new String[]{"Take a Photo", "Record a Video", "Choose Existing Photo", "Choose Existing Document", "Post a Text Snippet", "Text Snippets"};
         if(NetworkConnection.getInstance().uploadsAvailable()) {
             items = Arrays.copyOf(items, items.length + 1);
             items[items.length - 1] = "File Uploads";
@@ -3664,10 +3664,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 startActivityForResult(Intent.createChooser(i, "Select A Document"), REQUEST_DOCUMENT);
                             }
                             break;
-                        case "Start a Pastebin":
+                        case "Post a Text Snippet":
                             show_pastebin_prompt();
                             break;
-                        case "Pastebins":
+                        case "Text Snippets":
                             i = new Intent(MainActivity.this, PastebinsActivity.class);
                             startActivity(i);
                             break;

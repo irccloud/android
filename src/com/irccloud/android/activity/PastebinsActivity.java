@@ -98,11 +98,11 @@ public class PastebinsActivity extends BaseActivity {
             public void onClick(View view) {
                 final Pastebin pasteToDelete = (Pastebin)getItem((Integer)view.getTag());
                 AlertDialog.Builder builder = new AlertDialog.Builder(PastebinsActivity.this);
-                builder.setTitle("Delete Pastebin");
+                builder.setTitle("Delete Snippet");
                 if(pasteToDelete.getName() != null && pasteToDelete.getName().length() > 0) {
                     builder.setMessage("Are you sure you want to delete '" + pasteToDelete.getName() + "'?");
                 } else {
-                    builder.setMessage("Are you sure you want to delete this pastebin?");
+                    builder.setMessage("Are you sure you want to delete this snippet?");
                 }
                 builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
@@ -127,7 +127,7 @@ public class PastebinsActivity extends BaseActivity {
                                     public void run() {
                                         AlertDialog.Builder builder = new AlertDialog.Builder(PastebinsActivity.this);
                                         builder.setTitle("Error");
-                                        builder.setMessage("Unable to delete this pastebin.  Please try again shortly.");
+                                        builder.setMessage("Unable to delete this snippet.  Please try again shortly.");
                                         builder.setPositiveButton("Close", null);
                                         builder.show();
                                     }
@@ -305,7 +305,7 @@ public class PastebinsActivity extends BaseActivity {
             }
         });
 
-        Toast.makeText(this, "Tap a pastebin to view full text with syntax highlighting", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Tap a snippet to view full text with syntax highlighting", Toast.LENGTH_LONG).show();
         NetworkConnection.getInstance().addHandler(this);
     }
 

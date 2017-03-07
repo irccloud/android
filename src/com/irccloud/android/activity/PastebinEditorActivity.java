@@ -60,7 +60,7 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(PastebinEditorActivity.this, "Unable to save pastebin, please try again shortly.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PastebinEditorActivity.this, "Unable to save text snippet, please try again shortly.", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -170,7 +170,7 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
         } else {
             tabHost.setTabGravity(TabLayout.GRAVITY_FILL);
             tabHost.setTabMode(TabLayout.MODE_FIXED);
-            tabHost.addTab(tabHost.newTab().setText("Pastebin"));
+            tabHost.addTab(tabHost.newTab().setText("Snippet"));
             tabHost.addTab(tabHost.newTab().setText("Messages"));
             tabHost.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                 @Override

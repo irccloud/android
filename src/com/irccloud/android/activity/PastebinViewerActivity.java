@@ -348,14 +348,14 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         } else if(item.getItemId() == R.id.delete) {
             if(Uri.parse(url).getQueryParameter("own_paste").equals("1")) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(PastebinViewerActivity.this);
-                builder.setTitle("Delete Pastebin");
-                builder.setMessage("Are you sure you want to delete this pastebin?");
+                builder.setTitle("Delete Snippet");
+                builder.setMessage("Are you sure you want to delete this snippet?");
                 builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         NetworkConnection.getInstance().delete_paste(Uri.parse(url).getQueryParameter("id"));
                         finish();
-                        Toast.makeText(PastebinViewerActivity.this, "Pastebin deleted", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PastebinViewerActivity.this, "Snippet deleted", Toast.LENGTH_SHORT).show();
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -402,9 +402,9 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                 android.content.ClipData clip;
                 if(url.contains("?"))
-                    clip = android.content.ClipData.newRawUri("IRCCloud Pastebin URL", Uri.parse(url.substring(0, url.indexOf("?"))));
+                    clip = android.content.ClipData.newRawUri("IRCCloud Snippet URL", Uri.parse(url.substring(0, url.indexOf("?"))));
                 else
-                    clip = android.content.ClipData.newRawUri("IRCCloud Pastebin URL", Uri.parse(url));
+                    clip = android.content.ClipData.newRawUri("IRCCloud Snippet URL", Uri.parse(url));
                 clipboard.setPrimaryClip(clip);
             }
             Toast.makeText(PastebinViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
@@ -420,7 +420,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                startActivity(Intent.createChooser(intent, "Share Pastebin"));
+                startActivity(Intent.createChooser(intent, "Share Snippet"));
                 Answers.getInstance().logShare(new ShareEvent().putContentType("Pastebin"));
             }
         } else if(item.getItemId() == R.id.action_edit) {
@@ -442,7 +442,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             if(resultCode == RESULT_OK) {
                 mWebView.clearCache(true);
                 mWebView.reload();
-                getSupportActionBar().setTitle("Pastebin");
+                getSupportActionBar().setTitle("Snippet");
                 getSupportActionBar().setSubtitle(null);
                 mSpinner.setVisibility(View.VISIBLE);
                 supportInvalidateOptionsMenu();

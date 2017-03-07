@@ -49,15 +49,15 @@
     <string name="forgotPassword">Forgotten your password? <a href="#">Get\u00A0an\u00A0access\u00A0link</a></string>
     <string name="enterpriseLearnMore">Looking for the Standard Edition? <a href="#">Get\u00A0it\u00A0here</a></string>
     <string name="title_activity_uploads">File Uploads</string>
-    <string name="title_activity_pastebin">Pastebin</string>
-    <string name="title_activity_pastebins">Pastebins</string>
-    <string name="title_activity_pastebin_editor">Start a Pastebin</string>
-    <string name="title_activity_pastebin_editor_edit">Edit Pastebin</string>
+    <string name="title_activity_pastebin">Text Snippet</string>
+    <string name="title_activity_pastebins">Text Snippets</string>
+    <string name="title_activity_pastebin_editor">Post a Text Snippet</string>
+    <string name="title_activity_pastebin_editor_edit">Edit Text Snippet</string>
     <string name="title_activity_imageviewer">Image Viewer</string>
     <string name="title_activity_video_player">Video Player</string>
     <string name="leak_canary_display_activity_label">IRCCloud Leaks</string>
     <string name="licenses">IRCCloud\n\
-Copyright &#169; 2016 IRCCloud, Ltd.\n\
+Copyright &#169; 2017 IRCCloud, Ltd.\n\
 \n\
 Licensed under the Apache License, Version 2.0 (the "License");\n\
 you may not use this file except in compliance with the License.\n\
