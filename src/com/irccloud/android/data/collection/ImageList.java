@@ -122,7 +122,7 @@ public class ImageList {
         }
     }
 
-    public Bitmap getImage(URL url) {
+    public Bitmap getImage(URL url) throws OutOfMemoryError {
         Bitmap bitmap = images.get(MD5(url.toString()));
         if(bitmap != null)
             return bitmap;
@@ -135,7 +135,7 @@ public class ImageList {
         return bitmap;
     }
 
-    public Bitmap getImage(String fileID) {
+    public Bitmap getImage(String fileID) throws OutOfMemoryError {
         try {
             return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()));
         } catch (MalformedURLException e) {
@@ -143,7 +143,7 @@ public class ImageList {
         return null;
     }
 
-    public Bitmap getImage(String fileID, int width) {
+    public Bitmap getImage(String fileID, int width) throws OutOfMemoryError {
         try {
             return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
         } catch (MalformedURLException e) {

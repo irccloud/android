@@ -941,28 +941,47 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         width /= 2;
                         if (e.entities.get("properties") != null && e.entities.get("properties").get("width") != null && width > e.entities.get("properties").get("width").asInt())
                             width = e.entities.get("properties").get("width").asInt();
-                        Bitmap b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
-                        if (b != null) {
-                            holder.thumbnail.setImageBitmap(b);
+                        try {
+                            Bitmap b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
+                            if (b != null) {
+                                holder.thumbnail.setImageBitmap(b);
+                                holder.thumbnail.setVisibility(View.VISIBLE);
+                                holder.progress.setVisibility(View.GONE);
+                            } else {
+                                ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
+                                    @Override
+                                    public void onImageFetched(Bitmap image) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                notifyDataSetChanged();
+                                            }
+                                        });
+                                    }
+                                });
+                                holder.thumbnail.setVisibility(View.GONE);
+                                holder.progress.setVisibility(View.VISIBLE);
+                            }
                             holder.thumbnail.setVisibility(View.VISIBLE);
-                            holder.progress.setVisibility(View.GONE);
-                        } else {
-                            ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
-                                @Override
-                                public void onImageFetched(Bitmap image) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            notifyDataSetChanged();
-                                        }
-                                    });
-                                }
-                            });
+                            holder.extension.setVisibility(View.GONE);
+                        } catch (OutOfMemoryError e1) {
+                            String ext = "???";
+
+                            if (e.entities.get("extension") != null) {
+                                ext = e.entities.get("extension").asText();
+                            } else {
+                                ext = e.entities.get("mime_type").asText();
+                                ext = ext.substring(ext.indexOf("/") + 1);
+                            }
+                            if(ext.startsWith("."))
+                                ext = ext.substring(1);
+                            holder.extension.setText(ext.toUpperCase());
                             holder.thumbnail.setVisibility(View.GONE);
-                            holder.progress.setVisibility(View.VISIBLE);
+                            holder.extension.setVisibility(View.VISIBLE);
+                            holder.progress.setVisibility(View.GONE);
+
+                            e.msg = e.msg.replace(" • ", "\n");
                         }
-                        holder.thumbnail.setVisibility(View.VISIBLE);
-                        holder.extension.setVisibility(View.GONE);
                     } else {
                         String ext = "???";
 
@@ -2314,6 +2333,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private synchronized void refresh(MessageAdapter adapter, TreeMap<Long, Event> events) {
+        ImageList.getInstance().clear();
         earliest_eid = 0;
         pref_24hr = false;
         pref_seconds = false;
