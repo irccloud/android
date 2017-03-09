@@ -52,13 +52,13 @@
             android:defaultValue="false"
             android:summaryOff="URLs will open in IRCCloud"
             android:summaryOn="URLs will open in your browser"
-            android:title="Open URLs in Browser" />
+            android:title="Open URLs in browser" />
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="pastebin-disableprompt"
             android:defaultValue="true"
             android:summaryOn="Prompt before sending multi-line messages"
             android:summaryOff="Always send multi-line messages as text"
-            android:title="Ask to pastebin"/>
+            android:title="Ask to send text snippets"/>
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="enableAutoSuggest"
             android:defaultValue="true"
