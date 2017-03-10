@@ -1851,8 +1851,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         else
             e.row_type = ROW_FILE;
 
-        e.bg_color = e.self ? ColorScheme.getInstance().selfBackgroundColor : parent.bg_color;
-        e.type = parent.type;
+        if(parent.type.equals("buffer_me_msg"))
+            e.type = "buffer_msg";
+        else
+            e.type = parent.type;
+        e.bg_color = (e.self && e.type.equals("buffer_msg")) ? ColorScheme.getInstance().selfBackgroundColor : parent.bg_color;
         e.entities = properties;
 
         int size = properties.get("size").asInt();

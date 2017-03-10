@@ -560,7 +560,7 @@ public class CollapsedEventsList {
             PREFIX.put(server != null ? server.MODE_VOICED : "v", "+");
         }
 
-        String color = colorize?ColorScheme.colorForNick(nick, ColorScheme.getInstance().isDarkTheme):defaultColor;
+        String color = (colorize && nick != null && nick.length() > 0)?ColorScheme.colorForNick(nick, ColorScheme.getInstance().isDarkTheme):defaultColor;
 
         StringBuilder output = new StringBuilder();
         boolean showSymbol = false;
@@ -606,7 +606,8 @@ public class CollapsedEventsList {
 
         if (color != null)
             output.append("\u0004").append(color);
-        output.append(nick);
+        if (nick != null)
+            output.append(nick);
         if (color != null)
             output.append("\u0004");
         return output.toString();
