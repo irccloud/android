@@ -1661,6 +1661,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
+                String collapsedNickColor = Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2);
                 String msg;
                 String from = event.from;
                 if (from == null || from.length() == 0)
@@ -1725,7 +1726,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         break;
                     case "kicked_channel":
-                        String collapsedNickColor = Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2);
                         event.html = "\u0004" + collapsedNickColor + "← \u000f";
                         if (event.type.startsWith("you_"))
                             event.html += "You";
@@ -1754,6 +1754,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             else if (event.server != null && event.server.length() > 0)
                                 event.html = "The server <b>" + event.server + "</b> " + event.msg;
                         }
+                        break;
+                    case "user_chghost":
+                        event.html = "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false, collapsedNickColor) + "</b> " + event.msg;
                         break;
                 }
 

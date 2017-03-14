@@ -974,10 +974,10 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
                 if(event != null) {
-                    e.from = e.nick;
                     e.msg = sb.append("changed host: ").append(event.getString("user")).append("@").append(event.getString("userhost")).append(" → ").append(event.getString("from_name")).append("@").append(event.getString("from_host")).toString();
-                    e.linkify = false;
                 }
+                e.color = colorScheme.collapsedRowTextColor;
+                e.linkify = false;
             }
         });
 
