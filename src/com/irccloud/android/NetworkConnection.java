@@ -573,13 +573,13 @@ public class NetworkConnection {
 
                     if (BuildConfig.SSL_FPS != null && BuildConfig.SSL_FPS.length > 0) {
                         try {
-                            MessageDigest md = MessageDigest.getInstance("SHA-1");
-                            byte[] sha1 = md.digest(chain[0].getEncoded());
+                            MessageDigest md = MessageDigest.getInstance("SHA-256");
+                            byte[] sha256 = md.digest(chain[0].getEncoded());
                             // http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java
                             final char[] hexArray = "0123456789ABCDEF".toCharArray();
-                            char[] hexChars = new char[sha1.length * 2];
-                            for (int j = 0; j < sha1.length; j++) {
-                                int v = sha1[j] & 0xFF;
+                            char[] hexChars = new char[sha256.length * 2];
+                            for (int j = 0; j < sha256.length; j++) {
+                                int v = sha256[j] & 0xFF;
                                 hexChars[j * 2] = hexArray[v >>> 4];
                                 hexChars[j * 2 + 1] = hexArray[v & 0x0F];
                             }
