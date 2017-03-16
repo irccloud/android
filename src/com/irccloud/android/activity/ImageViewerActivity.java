@@ -23,6 +23,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.DownloadManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -67,6 +68,7 @@ import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.ChromeCopyLinkBroadcastReceiver;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.GingerbreadImageProxy;
 import com.irccloud.android.IRCCloudApplication;
@@ -863,6 +865,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
                 builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
                 builder.addDefaultShareMenuItem();
+                builder.addMenuItem("Copy URL", PendingIntent.getBroadcast(this, 0, new Intent(this, ChromeCopyLinkBroadcastReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT));
+
                 CustomTabsIntent intent = builder.build();
                 intent.intent.setData(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
                 if(Build.VERSION.SDK_INT >= 22)

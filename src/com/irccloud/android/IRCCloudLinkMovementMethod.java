@@ -16,6 +16,7 @@
 
 package com.irccloud.android;
 
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -69,6 +70,7 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
                         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
                         builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
                         builder.addDefaultShareMenuItem();
+                        builder.addMenuItem("Copy URL", PendingIntent.getBroadcast(context, 0, new Intent(context, ChromeCopyLinkBroadcastReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT));
                         CustomTabsIntent intent = builder.build();
                         intent.intent.setData(uri);
                         if(Build.VERSION.SDK_INT >= 22)
