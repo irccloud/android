@@ -156,6 +156,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private ColorScheme colorScheme = ColorScheme.getInstance();
     private Typeface hackRegular;
     private HashMap<String, JsonNode> filePropsCache = new HashMap<>();
+    private HashSet<String> hiddenFileIDs = new HashSet<>();
 
     public static final int ROW_MESSAGE = 0;
     public static final int ROW_TIMESTAMP = 1;
@@ -1822,12 +1823,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     for(int i = 0; i < files.size(); i++) {
                         JsonNode entity = files.get(i);
                         String fileID = entity.get("id").asText();
-                        JsonNode properties = filePropsCache.get(fileID);
+                        if(!hiddenFileIDs.contains(fileID)) {
+                            JsonNode properties = filePropsCache.get(fileID);
 
-                        if(properties != null) {
-                            insertEntity(adapter, event, properties, backlog);
-                        } else {
-                            new FilePropsTask(adapter, fileID, event).execute((Void)null);
+                            if (properties != null) {
+                                insertEntity(adapter, event, properties, backlog);
+                            } else {
+                                new FilePropsTask(adapter, fileID, event).execute((Void) null);
+                            }
                         }
                     }
                 }
@@ -2828,6 +2831,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     public void uncacheFileId(String fileID) {
         filePropsCache.remove(fileID);
+        new RefreshTask().execute((Void)null);
+    }
+
+    public void hideFileId(String fileID) {
+        hiddenFileIDs.add(fileID);
         new RefreshTask().execute((Void)null);
     }
 

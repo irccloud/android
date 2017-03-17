@@ -4410,8 +4410,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 itemList.add("Copy URL to clipboard");
                 itemList.add("Share URL…");
             }
-            if(entities != null && entities.has("own_file") && entities.get("own_file").asBoolean())
-                itemList.add("Delete File");
+            if(entities != null) {
+                if(entities.has("own_file") && entities.get("own_file").asBoolean())
+                    itemList.add("Delete File");
+                itemList.add("Close Preview");
+            }
             itemList.add("Copy Message");
         }
 
@@ -4571,6 +4574,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else if (items[item].equals("Delete File")) {
                     deleteFileId = entities.get("id").asText();
                     deleteReqId = conn.deleteFile(deleteFileId);
+                } else if (items[item].equals("Close Preview")) {
+                    MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+                    if (mvf != null)
+                        mvf.hideFileId(entities.get("id").asText());
                 } else if (items[item].equals("Whois…")) {
                     if(selected_user.ircserver != null && selected_user.ircserver.length() > 0)
                         conn.whois(buffer.getCid(), selected_user.nick, selected_user.ircserver);
