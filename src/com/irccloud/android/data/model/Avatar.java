@@ -21,6 +21,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.text.TextPaint;
 
 import com.irccloud.android.ColorScheme;
@@ -115,15 +116,19 @@ public class Avatar {
 
     protected void finalize() throws Throwable {
         try {
-            for(Bitmap bitmap : bitmaps_dark.values()) {
-                if (bitmap != null && !bitmap.isRecycled()) {
-                    bitmap.recycle();
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                for (Bitmap bitmap : bitmaps_dark.values()) {
+                    if (bitmap != null && !bitmap.isRecycled()) {
+                        bitmap.recycle();
+                    }
                 }
             }
             bitmaps_dark.clear();
-            for(Bitmap bitmap : bitmaps_light.values()) {
-                if (bitmap != null && !bitmap.isRecycled()) {
-                    bitmap.recycle();
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                for (Bitmap bitmap : bitmaps_light.values()) {
+                    if (bitmap != null && !bitmap.isRecycled()) {
+                        bitmap.recycle();
+                    }
                 }
             }
             bitmaps_light.clear();

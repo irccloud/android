@@ -78,9 +78,11 @@ public class ImageList {
     }
 
     public void clear() {
-        for(Bitmap b : images.values()) {
-            if(!b.isRecycled())
-                b.recycle();
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            for (Bitmap b : images.values()) {
+                if (!b.isRecycled())
+                    b.recycle();
+            }
         }
         images.clear();
         mDownloadThreadPool.purge();
