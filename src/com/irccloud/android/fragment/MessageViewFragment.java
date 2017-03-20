@@ -1847,6 +1847,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         e.bid = parent.bid;
         e.eid = parent.eid;
         e.from = parent.from;
+        e.nick = parent.nick;
         e.self = parent.self;
         e.from_mode = parent.from_mode;
         e.from_realname = parent.from_realname;
