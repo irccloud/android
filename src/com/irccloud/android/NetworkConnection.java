@@ -1151,7 +1151,6 @@ public class NetworkConnection {
             wifiLock.acquire();
 
         List<BasicNameValuePair> extraHeaders = Arrays.asList(
-                new BasicNameValuePair("Cookie", "session=" + session),
                 new BasicNameValuePair("User-Agent", useragent)
         );
 
@@ -1186,6 +1185,14 @@ public class NetworkConnection {
                 if (client != null && client.getListener() == this) {
                     Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
                     state = STATE_CONNECTED;
+                    try {
+                        JSONObject o = new JSONObject();
+                        o.put("cookie", session);
+                        send("auth", o);
+                    } catch (JSONException e) {
+                        printStackTraceToCrashlytics(e);
+                    }
+
                     Crashlytics.log(Log.DEBUG, TAG, "Emptying cache");
                     if (saveTimerTask != null)
                         saveTimerTask.cancel();
