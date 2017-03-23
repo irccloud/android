@@ -1248,14 +1248,16 @@ public class NetworkConnection {
                     }
 
                     Crashlytics.log(Log.DEBUG, TAG, "Clearing OOB tasks");
-                    for (Integer bid : oobTasks.keySet()) {
-                        try {
-                            oobTasks.get(bid).cancel(true);
-                        } catch (Exception e) {
-                            printStackTraceToCrashlytics(e);
+                    synchronized (oobTasks) {
+                        for (Integer bid : oobTasks.keySet()) {
+                            try {
+                                oobTasks.get(bid).cancel(true);
+                            } catch (Exception e) {
+                                printStackTraceToCrashlytics(e);
+                            }
                         }
+                        oobTasks.clear();
                     }
-                    oobTasks.clear();
 
                     ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo ni = cm.getActiveNetworkInfo();
@@ -1302,14 +1304,16 @@ public class NetworkConnection {
 
                     }
                     Crashlytics.log(Log.DEBUG, TAG, "Clearing OOB tasks");
-                    for (Integer bid : oobTasks.keySet()) {
-                        try {
-                            oobTasks.get(bid).cancel(true);
-                        } catch (Exception e) {
-                            printStackTraceToCrashlytics(e);
+                    synchronized (oobTasks) {
+                        for (Integer bid : oobTasks.keySet()) {
+                            try {
+                                oobTasks.get(bid).cancel(true);
+                            } catch (Exception e) {
+                                printStackTraceToCrashlytics(e);
+                            }
                         }
+                        oobTasks.clear();
                     }
-                    oobTasks.clear();
                     if (state == STATE_DISCONNECTING)
                         cancel_idle_timer();
                     else {
@@ -1861,9 +1865,11 @@ public class NetworkConnection {
 
     public void request_backlog(int cid, int bid, long beforeId) {
         try {
-            if (oobTasks.containsKey(bid)) {
-                Crashlytics.log(Log.WARN, TAG, "Ignoring duplicate backlog request for BID: " + bid);
-                return;
+            synchronized (oobTasks) {
+                if (oobTasks.containsKey(bid)) {
+                    Crashlytics.log(Log.WARN, TAG, "Ignoring duplicate backlog request for BID: " + bid);
+                    return;
+                }
             }
             if (session == null || session.length() == 0) {
                 Crashlytics.log(Log.WARN, TAG, "Not fetching backlog before session is set");
@@ -1887,9 +1893,11 @@ public class NetworkConnection {
 
     public void request_archives(int cid) {
         try {
-            if (oobTasks.containsKey(cid)) {
-                Crashlytics.log(Log.WARN, TAG, "Ignoring duplicate archives request for CID: " + cid);
-                return;
+            synchronized (oobTasks) {
+                if (oobTasks.containsKey(cid)) {
+                    Crashlytics.log(Log.WARN, TAG, "Ignoring duplicate archives request for CID: " + cid);
+                    return;
+                }
             }
             if (session == null || session.length() == 0) {
                 Crashlytics.log(Log.WARN, TAG, "Not fetching archives before session is set");
