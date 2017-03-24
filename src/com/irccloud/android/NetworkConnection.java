@@ -1419,7 +1419,8 @@ public class NetworkConnection {
         if (client == null || state != STATE_CONNECTED)
             return -1;
         try {
-            params.put("_reqid", ++last_reqid);
+            if(!method.equals("auth"))
+                params.put("_reqid", ++last_reqid);
             params.put("_method", method);
             //Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method + " Params: " + params.toString());
             client.send(params.toString());
