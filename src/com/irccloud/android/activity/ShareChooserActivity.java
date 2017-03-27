@@ -280,9 +280,6 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     @Override
     public void onBufferSelected(int bid) {
         Intent i = new Intent(this, MainActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-            i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         i.putExtra("bid", bid);
         if (getIntent() != null && getIntent().getData() != null)
             i.setData(getIntent().getData());

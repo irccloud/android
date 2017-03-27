@@ -556,7 +556,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         public void insertBelow(long eid, Event e) {
             synchronized (data) {
-                if(data.get(data.size() - 1).eid == eid) {
+                if(data.size() == 0 || data.get(data.size() - 1).eid == eid) {
                     data.add(e);
                     return;
                 }

@@ -90,7 +90,10 @@ public class WhoWasFragment extends DialogFragment {
                 row.usermask.setVisibility(View.GONE);
             }
             row.setRealname(node.get("realname").asText());
-            row.setLastconnected(node.get("last_seen").asText());
+            if(node.get("last_seen") != null)
+                row.setLastconnected(node.get("last_seen").asText());
+            else
+                row.setLastconnected("");
             row.setConnectedvia(node.get("ircserver").asText());
             if(node.has("connecting_from")) {
                 row.setInfo(node.get("connecting_from").asText());
