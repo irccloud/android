@@ -19,7 +19,7 @@
     <domain-config>
         <domain includeSubdomains="true">irccloud.com</domain>
         <pin-set expiration="2019-03-21">
-            <pin digest="SHA-256">hPUhE79j0hDUJDg/Zy+yqkLt/lJKEa9PWb0vrnp2oyQ=</pin>
+            <pin digest="SHA-256">A0us4Wg8ZwLOrXMWm8W4BsECg+dz98ntmZZAmm8if9c=</pin>
             <pin digest="SHA-256">hPUhE79j0hDUJDg/Zy+yqkLt/lJKEa9PWb0vrnp2oyQ=</pin>
         </pin-set>
     </domain-config>
