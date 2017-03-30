@@ -45,6 +45,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.impl.ExternalTypeHandler;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -83,6 +84,7 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.URI;
@@ -99,6 +101,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -116,6 +119,8 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509TrustManager;
+
+import static android.net.ConnectivityManager.TYPE_VPN;
 
 public class NetworkConnection {
     private static final String TAG = "IRCCloud";
@@ -424,6 +429,52 @@ public class NetworkConnection {
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo ni = cm.getActiveNetworkInfo();
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if(intent.getIntExtra("networkType", 0) == ConnectivityManager.TYPE_VPN) {
+                    ni = intent.getParcelableExtra("networkInfo");
+
+                    if(ni.isConnected() && (state == STATE_CONNECTED || state == STATE_CONNECTING)) {
+                        Crashlytics.log(Log.INFO, TAG, "A VPN has connected, reconnecting websocket");
+                        cancel_idle_timer();
+                        reconnect_timestamp = 0;
+                        try {
+                            state = STATE_DISCONNECTING;
+                            client.disconnect();
+                            state = STATE_DISCONNECTED;
+                            notifyHandlers(EVENT_CONNECTIVITY, null);
+                        } catch (Exception e) {
+                        }
+                    }
+                }
+            } else {
+                boolean hasVPN = false;
+                try {
+                    for( NetworkInterface intf : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                        if(!intf.isUp() || intf.getInterfaceAddresses().size() == 0)
+                            continue;
+
+                        if (intf.getName().startsWith("tun") || intf.getName().startsWith("ppp")){
+                            hasVPN = true;
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                }
+
+                if(hasVPN && state == STATE_CONNECTED) {
+                    Crashlytics.log(Log.INFO, TAG, "A network became available while a VPN is active, reconnecting");
+                    cancel_idle_timer();
+                    reconnect_timestamp = 0;
+                    try {
+                        state = STATE_DISCONNECTING;
+                        client.disconnect();
+                        state = STATE_DISCONNECTED;
+                        notifyHandlers(EVENT_CONNECTIVITY, null);
+                    } catch (Exception e) {
+                    }
+                }
+            }
 
             Crashlytics.log(Log.INFO, TAG, "Connectivity changed, connected: " + ((ni != null)?ni.isConnected():"Unknown") + ", connected or connecting: " + ((ni != null)?ni.isConnectedOrConnecting():"Unknown"));
 
