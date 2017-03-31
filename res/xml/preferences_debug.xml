@@ -17,12 +17,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="Debugging">
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-            android:key="detect_leaks"
-            android:defaultValue="true"
-            android:summaryOn="Memory leaks will be caught and automatically reported via Crashlytics"
-            android:summaryOff="Memory leaks will be ignored"
-            android:title="Detect Memory Leaks" />
         <!--<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="background_sync"
             android:defaultValue="true"

@@ -50,7 +50,6 @@ import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.databinding.RowBufferBinding;
-import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -675,9 +674,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
         super.onDestroy();
         if (conn != null)
             conn.removeHandler(this);
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
-            refWatcher.watch(this);
     }
 
     @Override

@@ -348,10 +348,4 @@ dependencies {
         transitive = true;
     }
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    //debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
-
-    //enterprisedebugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
-    compile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
-    enterprisereleaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
-    debugTestCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4'
 }

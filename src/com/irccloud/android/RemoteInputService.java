@@ -27,7 +27,6 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.RecentConversationsList;
-import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONObject;
 
@@ -85,12 +84,5 @@ public class RemoteInputService extends IntentService {
                 }
             }
         }
-    }
-
-    @Override public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(this);
-        if(refWatcher != null)
-            refWatcher.watch(this);
     }
 }

@@ -43,7 +43,6 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.databinding.RowWhoBinding;
-import com.squareup.leakcanary.RefWatcher;
 
 import org.solovyev.android.views.llm.LinearLayoutManager;
 

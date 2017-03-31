@@ -97,7 +97,6 @@ import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
-import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -2056,9 +2055,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @Override
     public void onDestroy() {
         super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if (refWatcher != null)
-            refWatcher.watch(this);
         if (tapTimer != null) {
             tapTimer.cancel();
             tapTimer = null;

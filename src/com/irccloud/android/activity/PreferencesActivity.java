@@ -245,7 +245,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         if (foundSony)
             findPreference("notify_sony").setOnPreferenceChangeListener(sonytoggle);
         if(BuildConfig.DEBUG) {
-            addPreferencesFromResource(R.xml.preferences_debug);
+            //addPreferencesFromResource(R.xml.preferences_debug);
             /*findPreference("enable_cache").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {

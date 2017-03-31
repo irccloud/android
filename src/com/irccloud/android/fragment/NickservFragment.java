@@ -36,7 +36,8 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
-import com.squareup.leakcanary.RefWatcher;public class NickservFragment extends DialogFragment {
+
+public class NickservFragment extends DialogFragment {
     Server server;
     EditText pass;
     TextView nick;

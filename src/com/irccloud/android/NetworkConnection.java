@@ -3094,7 +3094,7 @@ public class NetworkConnection {
             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && url.getHost().equals(IRCCLOUD_HOST))
                 https.setSSLSocketFactory(IRCCloudSocketFactory);
-            else
+            else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
                 https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
             conn = https;
         } else {

@@ -44,7 +44,6 @@ import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.User;
 import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.databinding.RowUserBinding;
-import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -347,9 +346,6 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
     @Override
     public void onDestroy() {
         super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if (refWatcher != null)
-            refWatcher.watch(this);
         if (tapTimer != null) {
             tapTimer.cancel();
             tapTimer = null;

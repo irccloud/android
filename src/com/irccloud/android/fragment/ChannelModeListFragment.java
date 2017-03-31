@@ -49,7 +49,6 @@ import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.User;
 import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.databinding.RowChannelmodeBinding;
-import com.squareup.leakcanary.RefWatcher;
 
 import org.solovyev.android.views.llm.LinearLayoutManager;
 

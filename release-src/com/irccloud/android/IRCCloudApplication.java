@@ -17,7 +17,6 @@
 package com.irccloud.android;
 
 import android.content.Context;
-import com.squareup.leakcanary.RefWatcher;
 
 @SuppressWarnings("unused")
 public class IRCCloudApplication extends IRCCloudApplicationBase {
@@ -29,10 +28,6 @@ public class IRCCloudApplication extends IRCCloudApplicationBase {
         } else {
             return new IRCCloudApplication();
         }
-    }
-
-    public static RefWatcher getRefWatcher(Context context) {
-        return RefWatcher.DISABLED;
     }
 
     @Override
