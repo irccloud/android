@@ -41,6 +41,7 @@ import android.webkit.CookieSyncManager;
 
 import com.codebutler.android_websockets.WebSocketClient;
 import com.crashlytics.android.Crashlytics;
+import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -563,7 +564,7 @@ public class NetworkConnection {
         WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiLock = wfm.createWifiLock(TAG);
 
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
             kms = new X509ExtendedKeyManager[1];
             kms[0] = new X509ExtendedKeyManager() {
                 @Override
@@ -1228,6 +1229,12 @@ public class NetworkConnection {
         if(client != null) {
             client.setListener(null);
             client.disconnect();
+        }
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            TrustManager[] trustManagers = new TrustManager[1];
+            trustManagers[0] = TrustKit.getInstance().getTrustManager(IRCCLOUD_HOST);
+            WebSocketClient.setTrustManagers(trustManagers);
         }
 
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
@@ -3085,8 +3092,10 @@ public class NetworkConnection {
 
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N && url.getHost().equals(IRCCLOUD_HOST))
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && url.getHost().equals(IRCCLOUD_HOST))
                 https.setSSLSocketFactory(IRCCloudSocketFactory);
+            else
+                https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
             conn = https;
         } else {
             conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
@@ -3320,8 +3329,10 @@ public class NetworkConnection {
 
                 if (url[0].getProtocol().toLowerCase().equals("https")) {
                     HttpsURLConnection https = (proxy != null) ? (HttpsURLConnection) url[0].openConnection(proxy) : (HttpsURLConnection) url[0].openConnection(Proxy.NO_PROXY);
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
                         https.setSSLSocketFactory(IRCCloudSocketFactory);
+                    else
+                        https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url[0].getHost()));
                     conn = https;
                 } else {
                     conn = (HttpURLConnection) ((proxy != null) ? url[0].openConnection(proxy) : url[0].openConnection(Proxy.NO_PROXY));
@@ -3506,7 +3517,7 @@ public class NetworkConnection {
         }
     }
 
-    private class FetchConfigTask extends AsyncTask<Void, Void, Void> {
+    private class FetchConfigTask extends AsyncTaskEx<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {

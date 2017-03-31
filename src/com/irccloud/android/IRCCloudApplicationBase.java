@@ -35,6 +35,7 @@ import android.util.Log;
 import android.webkit.WebView;
 
 import com.crashlytics.android.Crashlytics;
+import com.datatheorem.android.trustkit.TrustKit;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
@@ -55,6 +56,8 @@ public class IRCCloudApplicationBase extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+            TrustKit.initializeWithNetworkSecurityConfiguration(getApplicationContext(), R.xml.network_security_config);
         Fabric.with(this, new Crashlytics());
         Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
         FlowManager.init(this);

@@ -22,5 +22,6 @@
             <pin digest="SHA-256">A0us4Wg8ZwLOrXMWm8W4BsECg+dz98ntmZZAmm8if9c=</pin>
             <pin digest="SHA-256">hPUhE79j0hDUJDg/Zy+yqkLt/lJKEa9PWb0vrnp2oyQ=</pin>
         </pin-set>
+        <trustkit-config enforcePinning="true"/>
     </domain-config>
 </network-security-config>
