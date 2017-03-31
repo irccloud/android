@@ -69,7 +69,8 @@
         <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:value="400dp" />
         <meta-data android:name="com.lge.support.SPLIT_WINDOW" android:value="true"/>
         <meta-data android:name="search-engine" android:resource="@xml/noindex"/>
-
+        <meta-data android:name="android.max_aspect" android:value="2.1" />
+        
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
