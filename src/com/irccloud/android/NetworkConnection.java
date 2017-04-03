@@ -110,6 +110,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -171,6 +173,7 @@ public class NetworkConnection {
     long firstEid = -1;
     public JSONObject config = null;
     public boolean notifier;
+    private final ExecutorService oobExecutor = Executors.newSingleThreadExecutor();
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -684,7 +687,7 @@ public class NetworkConnection {
         synchronized (oobTasks) {
             for (Integer bid : oobTasks.keySet()) {
                 try {
-                    oobTasks.get(bid).cancel(true);
+                    oobTasks.get(bid).cancel();
                 } catch (Exception e) {
                 }
             }
@@ -1178,7 +1181,7 @@ public class NetworkConnection {
 
             for (Integer bid : oobTasks.keySet()) {
                 try {
-                    oobTasks.get(bid).cancel(true);
+                    oobTasks.get(bid).cancel();
                 } catch (Exception e) {
                     printStackTraceToCrashlytics(e);
                 }
@@ -1316,7 +1319,7 @@ public class NetworkConnection {
                     synchronized (oobTasks) {
                         for (Integer bid : oobTasks.keySet()) {
                             try {
-                                oobTasks.get(bid).cancel(true);
+                                oobTasks.get(bid).cancel();
                             } catch (Exception e) {
                                 printStackTraceToCrashlytics(e);
                             }
@@ -1372,7 +1375,7 @@ public class NetworkConnection {
                     synchronized (oobTasks) {
                         for (Integer bid : oobTasks.keySet()) {
                             try {
-                                oobTasks.get(bid).cancel(true);
+                                oobTasks.get(bid).cancel();
                             } catch (Exception e) {
                                 printStackTraceToCrashlytics(e);
                             }
@@ -1944,14 +1947,15 @@ public class NetworkConnection {
             if (Looper.myLooper() == null)
                 Looper.prepare();
 
-            OOBIncludeTask task = new OOBIncludeTask(bid);
+            OOBIncludeTask task;
+            if (beforeId > 0)
+                task = new OOBIncludeTask(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid + "&beforeid=" + beforeId), bid);
+            else
+                task = new OOBIncludeTask(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid), bid);
             synchronized (oobTasks) {
                 oobTasks.put(bid, task);
             }
-            if (beforeId > 0)
-                task.execute(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid + "&beforeid=" + beforeId));
-            else
-                task.execute(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid));
+            oobExecutor.execute(task);
         } catch (MalformedURLException e) {
             printStackTraceToCrashlytics(e);
         }
@@ -1972,11 +1976,11 @@ public class NetworkConnection {
             if (Looper.myLooper() == null)
                 Looper.prepare();
 
-            OOBIncludeTask task = new OOBIncludeTask(0);
+            OOBIncludeTask task = new OOBIncludeTask(new URL("https://" + IRCCLOUD_HOST + "/chat/archives?cid=" + cid), 0);
             synchronized (oobTasks) {
                 oobTasks.put(cid, task);
             }
-            task.execute(new URL("https://" + IRCCLOUD_HOST + "/chat/archives?cid=" + cid));
+            oobExecutor.execute(task);
         } catch (MalformedURLException e) {
             printStackTraceToCrashlytics(e);
         }
@@ -2208,12 +2212,11 @@ public class NetworkConnection {
                 try {
                     if (Looper.myLooper() == null)
                         Looper.prepare();
-                    String url = "https://" + IRCCLOUD_HOST + object.getString("url");
-                    OOBIncludeTask t = new OOBIncludeTask(-1);
+                    OOBIncludeTask t = new OOBIncludeTask(new URL("https://" + IRCCLOUD_HOST + object.getString("url")), -1);
                     synchronized (oobTasks) {
                         oobTasks.put(-1, t);
                     }
-                    t.execute(new URL(url));
+                    oobExecutor.execute(t);
                 } catch (MalformedURLException e) {
                     // TODO Auto-generated catch block
                     printStackTraceToCrashlytics(e);
@@ -3286,28 +3289,33 @@ public class NetworkConnection {
         }
     }
 
-    private class OOBIncludeTask extends AsyncTask<URL, Void, Boolean> {
+    private class OOBIncludeTask implements Runnable {
         private int bid = -1;
-        private URL mUrl;
+        private URL url;
         private long retryDelay = 1000;
+        private boolean isCancelled = false;
 
-        public OOBIncludeTask(int bid) {
+        public OOBIncludeTask(URL url, int bid) {
+            this.url = url;
             this.bid = bid;
+        }
+
+        public void cancel() {
+            isCancelled = true;
         }
 
         @SuppressLint("NewApi")
         @Override
-        protected Boolean doInBackground(URL... url) {
-            if(isCancelled())
-                return false;
+        public void run() {
+            if(isCancelled)
+                return;
             try {
                 long totalTime = System.currentTimeMillis();
                 long totalParseTime = 0;
                 long totalJSONTime = 0;
                 long longestEventTime = 0;
                 String longestEventType = "";
-                Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url[0]);
-                mUrl = url[0];
+                Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url);
                 HttpURLConnection conn = null;
                 Proxy proxy = null;
                 String host = null;
@@ -3327,15 +3335,15 @@ public class NetworkConnection {
                     proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
                 }
 
-                if (url[0].getProtocol().toLowerCase().equals("https")) {
-                    HttpsURLConnection https = (proxy != null) ? (HttpsURLConnection) url[0].openConnection(proxy) : (HttpsURLConnection) url[0].openConnection(Proxy.NO_PROXY);
+                if (url.getProtocol().toLowerCase().equals("https")) {
+                    HttpsURLConnection https = (proxy != null) ? (HttpsURLConnection) url.openConnection(proxy) : (HttpsURLConnection) url.openConnection(Proxy.NO_PROXY);
                     if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
                         https.setSSLSocketFactory(IRCCloudSocketFactory);
                     else
-                        https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url[0].getHost()));
+                        https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
                     conn = https;
                 } else {
-                    conn = (HttpURLConnection) ((proxy != null) ? url[0].openConnection(proxy) : url[0].openConnection(Proxy.NO_PROXY));
+                    conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
                 }
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Connection", "close");
@@ -3379,7 +3387,7 @@ public class NetworkConnection {
 
                     JsonParser parser = mapper.getFactory().createParser(reader);
 
-                    if (reader != null && parser.nextToken() == JsonToken.START_ARRAY && !isCancelled()) {
+                    if (reader != null && parser.nextToken() == JsonToken.START_ARRAY && !isCancelled) {
                         synchronized (parserLock) {
                             cancel_idle_timer();
                             //android.os.Debug.startMethodTracing("/sdcard/oob", 16*1024*1024);
@@ -3397,9 +3405,9 @@ public class NetworkConnection {
                             }
                             int count = 0;
                             while (parser.nextToken() == JsonToken.START_OBJECT) {
-                                if (isCancelled()) {
+                                if (isCancelled) {
                                     Crashlytics.log(Log.DEBUG, TAG, "Backlog parsing cancelled");
-                                    return false;
+                                    return;
                                 }
                                 long time = System.currentTimeMillis();
                                 JsonNode e = parser.readValueAsTree();
@@ -3466,21 +3474,21 @@ public class NetworkConnection {
                     }
                     Crashlytics.log(Log.DEBUG, TAG, "OOB fetch complete!");
                     numbuffers = 0;
-                    return true;
-                } else if(!isCancelled()) {
+                    return;
+                } else if(!isCancelled) {
                     Log.e(TAG, "Invalid response code: " + conn.getResponseCode());
                     throw new Exception("Invalid response code: " + conn.getResponseCode());
                 }
             } catch (Exception e) {
                 printStackTraceToCrashlytics(e);
                 if (bid != -1) {
-                    if (!isCancelled()) {
+                    if (!isCancelled) {
                         Buffer b = mBuffers.getBuffer(bid);
                         if (b != null && b.getTimeout() == 1) {
                             Crashlytics.log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
                             idleTimer.schedule(new TimerTask() {
                                 public void run() {
-                                    doInBackground(mUrl);
+                                    run();
                                 }
                             }, retryDelay);
                             retryDelay *= 2;
@@ -3493,7 +3501,7 @@ public class NetworkConnection {
                     }
                 }
             }
-            if(!isCancelled()) {
+            if(!isCancelled) {
                 notifyHandlers(EVENT_BACKLOG_FAILED, null);
                 backlog = false;
                 if (bid == -1) {
@@ -3504,7 +3512,7 @@ public class NetworkConnection {
                         client.disconnect();
                 }
             }
-            return false;
+            return;
         }
     }
 

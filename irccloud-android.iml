@@ -66,6 +66,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/shaders" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/build/.DS_Store" />
       <excludeFolder url="file://$MODULE_DIR$/build/android-profile" />
       <excludeFolder url="file://$MODULE_DIR$/build/filtered_resources" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/assets" />
@@ -75,6 +76,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/data-binding-compiler" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/data-binding-info" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/data-binding-layout-out" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/dex-cache" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental-safeguard" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jniLibs" />
