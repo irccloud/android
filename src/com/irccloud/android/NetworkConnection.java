@@ -1168,7 +1168,6 @@ public class NetworkConnection {
         new FetchConfigTask().execute((Void)null);
 
         state = STATE_CONNECTING;
-        ready = false;
 
         if (saveTimerTask != null)
             saveTimerTask.cancel();
@@ -2210,6 +2209,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 try {
+                    ready = false;
                     if (Looper.myLooper() == null)
                         Looper.prepare();
                     OOBIncludeTask t = new OOBIncludeTask(new URL("https://" + IRCCLOUD_HOST + object.getString("url")), -1);

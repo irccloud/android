@@ -1587,22 +1587,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
-        if (conn.getState() != NetworkConnection.STATE_CONNECTED || !NetworkConnection.getInstance().ready) {
-            if (drawerLayout != null && !NetworkConnection.getInstance().ready) {
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                if(actionBar != null)
-                    actionBar.setHomeButtonEnabled(false);
-            }
+        if (drawerLayout != null && !NetworkConnection.getInstance().ready) {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            if(actionBar != null)
+                actionBar.setHomeButtonEnabled(false);
+        } else {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            if(actionBar != null)
+                actionBar.setHomeButtonEnabled(true);
+        }
+
+        if (conn.getState() != NetworkConnection.STATE_CONNECTED) {
             sendBtn.setEnabled(false);
             if(conn.config == null) {
                 photoBtn.setEnabled(false);
             }
         } else {
-            if (drawerLayout != null) {
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                if(actionBar != null)
-                    actionBar.setHomeButtonEnabled(true);
-            }
             if (messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                 sendBtn.setEnabled(true);
             }
@@ -2033,7 +2033,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } catch (Exception e) {
             }
 
-            if(conn != null && conn.getState() != NetworkConnection.STATE_CONNECTED)
+            if(conn != null && !conn.ready)
                 hide = true;
 
             if (hide) {
@@ -3153,7 +3153,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && NetworkConnection.getInstance().ready) {
+        if (NetworkConnection.getInstance().ready) {
             if(buffer != null && buffer.getType() != null) {
                 if (buffer.isChannel()) {
                     getMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
@@ -3173,7 +3173,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (menu != null && buffer != null && buffer.getType() != null && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && NetworkConnection.getInstance().ready) {
+        if (menu != null && buffer != null && buffer.getType() != null && NetworkConnection.getInstance().ready) {
             if (buffer.getArchived() == 0) {
                 if (menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
