@@ -2065,6 +2065,7 @@ public class NetworkConnection {
                         highest_eid = 0;
                         streamId = null;
                         failCount = 0;
+                        ready = false;
                         if (client != null)
                             client.disconnect();
                         return;
@@ -2221,6 +2222,18 @@ public class NetworkConnection {
                     // TODO Auto-generated catch block
                     printStackTraceToCrashlytics(e);
                 }
+            }
+        });
+
+        put("oob_timeout", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                Crashlytics.log(Log.WARN, "IRCCloud", "OOB timed out");
+                highest_eid = 0;
+                streamId = null;
+                ready = false;
+                if (client != null)
+                    client.disconnect();
             }
         });
 
