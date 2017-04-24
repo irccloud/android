@@ -2840,6 +2840,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         IRCCloudJSONObject e;
 
         switch (what) {
+            case NetworkConnection.EVENT_OOB_FAILED:
             case NetworkConnection.EVENT_BACKLOG_FAILED:
                 runOnUiThread(new Runnable() {
                     @Override
@@ -2850,6 +2851,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 });
                 break;
+            case NetworkConnection.EVENT_OOB_END:
             case NetworkConnection.EVENT_BACKLOG_END:
             case NetworkConnection.EVENT_CONNECTIVITY:
             case NetworkConnection.EVENT_USERINFO:
