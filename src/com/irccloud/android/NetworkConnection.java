@@ -16,20 +16,16 @@
 
 package com.irccloud.android;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -42,19 +38,13 @@ import android.webkit.CookieSyncManager;
 import com.codebutler.android_websockets.WebSocketClient;
 import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.impl.ExternalTypeHandler;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.RecentConversationsList;
-import com.irccloud.android.data.model.BackgroundTask;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.model.Channel;
@@ -65,19 +55,15 @@ import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.User;
-import com.raizlabs.android.dbflow.sql.language.Delete;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -110,9 +96,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -122,8 +105,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509TrustManager;
-
-import static android.net.ConnectivityManager.TYPE_VPN;
 
 public class NetworkConnection {
     private static final String TAG = "IRCCloud";
@@ -137,7 +118,6 @@ public class NetworkConnection {
     private static final RecentConversationsList mRecentConversations = RecentConversationsList.getInstance();
 
     public static final int WEBSOCKET_TAG = 0x50C37;
-    public static final int BACKLOG_TAG = 0xB4C106;
 
     public static final int STATE_DISCONNECTED = 0;
     public static final int STATE_CONNECTING = 1;
@@ -173,7 +153,6 @@ public class NetworkConnection {
     long firstEid = -1;
     public JSONObject config = null;
     public boolean notifier;
-    private final ExecutorService oobExecutor = Executors.newSingleThreadExecutor();
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -240,13 +219,16 @@ public class NetworkConnection {
     public static final int EVENT_ALERT = 106;
     public static final int EVENT_CACHE_START = 107;
     public static final int EVENT_CACHE_END = 108;
+    public static final int EVENT_OOB_START = 109;
+    public static final int EVENT_OOB_END = 110;
+    public static final int EVENT_OOB_FAILED = 111;
 
     public static final int EVENT_DEBUG = 999;
 
     public static String IRCCLOUD_HOST = BuildConfig.HOST;
     public static String IRCCLOUD_PATH = "/";
 
-    private final Object parserLock = new Object();
+    public final Object parserLock = new Object();
     private WifiManager.WifiLock wifiLock = null;
 
     public long clockOffset = 0;
@@ -258,7 +240,7 @@ public class NetworkConnection {
     public boolean ready = false;
     public String globalMsg = null;
 
-    private HashMap<Integer, OOBIncludeTask> oobTasks = new HashMap<Integer, OOBIncludeTask>();
+    private HashMap<Integer, OOBFetcher> oobTasks = new HashMap<Integer, OOBFetcher>();
 
     private PrivateKey SSLAuthKey;
     private String SSLAuthAlias;
@@ -1946,15 +1928,16 @@ public class NetworkConnection {
             if (Looper.myLooper() == null)
                 Looper.prepare();
 
-            OOBIncludeTask task;
+            OOBFetcher task;
             if (beforeId > 0)
-                task = new OOBIncludeTask(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid + "&beforeid=" + beforeId), bid);
+                task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid + "&beforeid=" + beforeId), bid, session);
             else
-                task = new OOBIncludeTask(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid), bid);
+                task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid), bid, session);
             synchronized (oobTasks) {
                 oobTasks.put(bid, task);
+                if(oobTasks.size() == 1)
+                    task.connect();
             }
-            oobExecutor.execute(task);
         } catch (MalformedURLException e) {
             printStackTraceToCrashlytics(e);
         }
@@ -1975,11 +1958,12 @@ public class NetworkConnection {
             if (Looper.myLooper() == null)
                 Looper.prepare();
 
-            OOBIncludeTask task = new OOBIncludeTask(new URL("https://" + IRCCLOUD_HOST + "/chat/archives?cid=" + cid), 0);
+            OOBFetcher task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/archives?cid=" + cid), 0, session);
             synchronized (oobTasks) {
                 oobTasks.put(cid, task);
+                if(oobTasks.size() == 1)
+                    task.connect();
             }
-            oobExecutor.execute(task);
         } catch (MalformedURLException e) {
             printStackTraceToCrashlytics(e);
         }
@@ -2211,13 +2195,12 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 try {
                     ready = false;
-                    if (Looper.myLooper() == null)
-                        Looper.prepare();
-                    OOBIncludeTask t = new OOBIncludeTask(new URL("https://" + IRCCLOUD_HOST + object.getString("url")), -1);
+                    backlog = true;
+                    OOBFetcher t = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + object.getString("url")), -1, session);
                     synchronized (oobTasks) {
                         oobTasks.put(-1, t);
                     }
-                    oobExecutor.execute(t);
+                    t.connect();
                 } catch (MalformedURLException e) {
                     // TODO Auto-generated catch block
                     printStackTraceToCrashlytics(e);
@@ -2993,7 +2976,7 @@ public class NetworkConnection {
         });
     }};
 
-    private synchronized void parse_object(IRCCloudJSONObject object) throws JSONException {
+    public synchronized void parse_object(IRCCloudJSONObject object) throws JSONException {
         cancel_idle_timer();
         //Log.d(TAG, "Backlog: " + backlog + " count: " + currentcount + " New event: " + object);
         if (!object.has("type")) {
@@ -3215,7 +3198,82 @@ public class NetworkConnection {
         notifyHandlers(message, object, null);
     }
 
-    public synchronized void notifyHandlers(int message, Object object, IRCEventHandler exclude) {
+    public synchronized void notifyHandlers(int message, final Object object, IRCEventHandler exclude) {
+        int bid;
+
+        switch(message) {
+            case EVENT_OOB_START:
+                backlog = true;
+                numbuffers = 0;
+                totalbuffers = 0;
+                currentBid = -1;
+                if (object != null && (int)object == -1) {
+                    mBuffers.invalidate();
+                    mChannels.invalidate();
+                    return;
+                }
+                break;
+            case EVENT_OOB_END:
+                backlog = false;
+                bid = ((OOBFetcher)object).getBid();
+                ArrayList<Buffer> buffers = mBuffers.getBuffers();
+                for (Buffer b : buffers) {
+                    if (b.getTimeout() > 0) {
+                        Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: " + b.getName());
+                        request_backlog(b.getCid(), b.getBid(), 0);
+                    }
+
+                    if(oobTasks.size() > 10)
+                        break;
+                }
+                NotificationsList.getInstance().deleteOldNotifications();
+                if (bid != -1) {
+                    Buffer b = mBuffers.getBuffer(bid);
+                    if(b != null) {
+                        b.setTimeout(0);
+                        b.setDeferred(0);
+                    }
+                }
+                oobTasks.remove(bid);
+                if(oobTasks.size() > 0)
+                    oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
+                break;
+            case EVENT_OOB_FAILED:
+                backlog = false;
+                bid = ((OOBFetcher)object).getBid();
+                if (bid == -1) {
+                    Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
+                    streamId = null;
+                    highest_eid = 0;
+                    if (client != null)
+                        client.disconnect();
+                    return;
+                } else {
+                    Buffer b = mBuffers.getBuffer(bid);
+                    if (b != null && b.getTimeout() == 1) {
+                        //TODO: move this
+                        int retryDelay = 1000;
+                        Crashlytics.log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
+                        idleTimer.schedule(new TimerTask() {
+                            public void run() {
+                                ((OOBFetcher)object).connect();
+                            }
+                        }, retryDelay);
+                        retryDelay *= 2;
+                    } else {
+                        Crashlytics.log(Log.ERROR, TAG, "Failed to fetch backlog");
+                        synchronized (oobTasks) {
+                            oobTasks.remove(bid);
+                            if(oobTasks.size() > 0)
+                                oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
         synchronized (handlers) {
             if (handlers != null && (message == EVENT_PROGRESS || accrued == 0)) {
                 for (int i = 0; i < handlers.size(); i++) {
@@ -3299,233 +3357,6 @@ public class NetworkConnection {
                     highlights += h.get(i).asText();
                 }
             }
-        }
-    }
-
-    private class OOBIncludeTask implements Runnable {
-        private int bid = -1;
-        private URL url;
-        private long retryDelay = 1000;
-        private boolean isCancelled = false;
-
-        public OOBIncludeTask(URL url, int bid) {
-            this.url = url;
-            this.bid = bid;
-        }
-
-        public void cancel() {
-            isCancelled = true;
-        }
-
-        @SuppressLint("NewApi")
-        @Override
-        public void run() {
-            if(isCancelled)
-                return;
-            try {
-                long totalTime = System.currentTimeMillis();
-                long totalParseTime = 0;
-                long totalJSONTime = 0;
-                long longestEventTime = 0;
-                String longestEventType = "";
-                Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url);
-                HttpURLConnection conn = null;
-                Proxy proxy = null;
-                String host = null;
-                int port = -1;
-
-                if (Build.VERSION.SDK_INT < 11) {
-                    host = android.net.Proxy.getHost(IRCCloudApplication.getInstance().getApplicationContext());
-                    port = android.net.Proxy.getPort(IRCCloudApplication.getInstance().getApplicationContext());
-                } else {
-                    host = System.getProperty("http.proxyHost", null);
-                    port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
-                }
-
-                if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1")) {
-                    Crashlytics.log(Log.DEBUG, TAG, "Connecting via proxy: " + host);
-                    InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
-                    proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
-                }
-
-                if (url.getProtocol().toLowerCase().equals("https")) {
-                    HttpsURLConnection https = (proxy != null) ? (HttpsURLConnection) url.openConnection(proxy) : (HttpsURLConnection) url.openConnection(Proxy.NO_PROXY);
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
-                        https.setSSLSocketFactory(IRCCloudSocketFactory);
-                    else
-                        https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
-                    conn = https;
-                } else {
-                    conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-                }
-                conn.setRequestMethod("GET");
-                conn.setRequestProperty("Connection", "close");
-                conn.setRequestProperty("Cookie", "session=" + session);
-                conn.setRequestProperty("Accept", "application/json");
-                conn.setRequestProperty("Content-type", "application/json");
-                conn.setRequestProperty("Accept-Encoding", "gzip");
-                conn.setRequestProperty("User-Agent", useragent);
-
-                try {
-                    ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo ni = cm.getActiveNetworkInfo();
-                    if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
-                        Crashlytics.log(Log.DEBUG, TAG, "Loading via WiFi");
-                    } else {
-                        Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
-                    }
-                    conn.setConnectTimeout(30000);
-                    conn.setReadTimeout(30000);
-                } catch (Exception e) {
-                }
-
-                conn.connect();
-                if (conn.getResponseCode() == 200) {
-                    InputStreamReader reader = null;
-                    try {
-                        if (conn.getInputStream() != null) {
-                            if (conn.getContentEncoding() != null && conn.getContentEncoding().equalsIgnoreCase("gzip"))
-                                reader = new InputStreamReader(new GZIPInputStream(conn.getInputStream()));
-                            else if (conn.getInputStream() != null)
-                                reader = new InputStreamReader(conn.getInputStream());
-                        }
-                    } catch (IOException e) {
-                        if (conn.getErrorStream() != null) {
-                            if (conn.getContentEncoding() != null && conn.getContentEncoding().equalsIgnoreCase("gzip"))
-                                reader = new InputStreamReader(new GZIPInputStream(conn.getErrorStream()));
-                            else if (conn.getErrorStream() != null)
-                                reader = new InputStreamReader(conn.getErrorStream());
-                        }
-                    }
-
-                    JsonParser parser = mapper.getFactory().createParser(reader);
-
-                    if (reader != null && parser.nextToken() == JsonToken.START_ARRAY && !isCancelled) {
-                        synchronized (parserLock) {
-                            cancel_idle_timer();
-                            //android.os.Debug.startMethodTracing("/sdcard/oob", 16*1024*1024);
-                            Crashlytics.log(Log.DEBUG, TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
-                            Crashlytics.log(Log.DEBUG, TAG, "Beginning backlog...");
-                            if (bid > 0)
-                                notifyHandlers(EVENT_BACKLOG_START, null);
-                            numbuffers = 0;
-                            totalbuffers = 0;
-                            currentBid = -1;
-                            backlog = true;
-                            if (bid == -1) {
-                                mBuffers.invalidate();
-                                mChannels.invalidate();
-                            }
-                            int count = 0;
-                            while (parser.nextToken() == JsonToken.START_OBJECT) {
-                                if (isCancelled) {
-                                    Crashlytics.log(Log.DEBUG, TAG, "Backlog parsing cancelled");
-                                    return;
-                                }
-                                long time = System.currentTimeMillis();
-                                JsonNode e = parser.readValueAsTree();
-                                totalJSONTime += (System.currentTimeMillis() - time);
-                                time = System.currentTimeMillis();
-                                IRCCloudJSONObject o = new IRCCloudJSONObject(e);
-                                try {
-                                    parse_object(o);
-                                } catch (Exception ex) {
-                                    Crashlytics.log(Log.ERROR, TAG, "Unable to parse message type: " + o.type());
-                                    printStackTraceToCrashlytics(ex);
-                                    Crashlytics.logException(ex);
-                                }
-                                long t = (System.currentTimeMillis() - time);
-                                if (t > longestEventTime) {
-                                    longestEventTime = t;
-                                    longestEventType = o.type();
-                                }
-                                totalParseTime += t;
-                                count++;
-                            }
-                            backlog = false;
-                            //android.os.Debug.stopMethodTracing();
-                            totalTime = (System.currentTimeMillis() - totalTime);
-                            Crashlytics.log(Log.DEBUG, TAG, "Backlog complete: " + count + " events");
-                            Crashlytics.log(Log.DEBUG, TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime / (float) count) + "ms / object)");
-                            Crashlytics.log(Log.DEBUG, TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime / (float) count) + "ms / object)");
-                            Crashlytics.log(Log.DEBUG, TAG, "Total OOB load time: " + totalTime + "ms (" + (totalTime / (float) count) + "ms / object)");
-                            Crashlytics.log(Log.DEBUG, TAG, "Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
-                            totalTime -= totalJSONTime;
-                            totalTime -= totalParseTime;
-                            Crashlytics.log(Log.DEBUG, TAG, "Total non-processing time: " + totalTime + "ms (" + (totalTime / (float) count) + "ms / object)");
-
-                            ArrayList<Buffer> buffers = mBuffers.getBuffers();
-                            for (Buffer b : buffers) {
-                                if (b.getTimeout() > 0) {
-                                    Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: " + b.getName());
-                                    request_backlog(b.getCid(), b.getBid(), 0);
-                                }
-
-                                if(oobTasks.size() > 10)
-                                    break;
-                            }
-                            NotificationsList.getInstance().deleteOldNotifications();
-                            schedule_idle_timer();
-                            if (bid >= 0) {
-                                notifyHandlers(EVENT_BACKLOG_END, bid);
-                            }
-                        }
-                    } else {
-                        throw new Exception("Unexpected JSON response");
-                    }
-                    parser.close();
-
-                    if (bid != -1) {
-                        Buffer b = mBuffers.getBuffer(bid);
-                        if(b != null) {
-                            b.setTimeout(0);
-                            b.setDeferred(0);
-                        }
-                    }
-                    synchronized (oobTasks) {
-                        oobTasks.remove(bid);
-                    }
-                    Crashlytics.log(Log.DEBUG, TAG, "OOB fetch complete!");
-                    numbuffers = 0;
-                    return;
-                } else if(!isCancelled) {
-                    Log.e(TAG, "Invalid response code: " + conn.getResponseCode());
-                    throw new Exception("Invalid response code: " + conn.getResponseCode());
-                }
-            } catch (Exception e) {
-                printStackTraceToCrashlytics(e);
-                if (bid != -1) {
-                    if (!isCancelled) {
-                        Buffer b = mBuffers.getBuffer(bid);
-                        if (b != null && b.getTimeout() == 1) {
-                            Crashlytics.log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
-                            idleTimer.schedule(new TimerTask() {
-                                public void run() {
-                                    run();
-                                }
-                            }, retryDelay);
-                            retryDelay *= 2;
-                        } else {
-                            Crashlytics.log(Log.ERROR, TAG, "Failed to fetch backlog");
-                            synchronized (oobTasks) {
-                                oobTasks.remove(bid);
-                            }
-                        }
-                    }
-                }
-            }
-            if(!isCancelled) {
-                notifyHandlers(EVENT_BACKLOG_FAILED, null);
-                backlog = false;
-                if (bid == -1) {
-                    Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
-                    streamId = null;
-                    highest_eid = 0;
-                    if (client != null)
-                        client.disconnect();
-                }
-            }
-            return;
         }
     }
 

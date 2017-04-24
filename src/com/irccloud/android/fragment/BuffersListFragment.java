@@ -782,6 +782,9 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             case NetworkConnection.EVENT_DEBUG:
             case NetworkConnection.EVENT_CONNECTIVITY:
             case NetworkConnection.EVENT_CACHE_START:
+            case NetworkConnection.EVENT_OOB_START:
+            case NetworkConnection.EVENT_OOB_END:
+            case NetworkConnection.EVENT_OOB_FAILED:
                 break;
             case NetworkConnection.EVENT_BACKLOG_START:
                 if (refreshTask != null)
