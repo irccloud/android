@@ -1957,7 +1957,7 @@ public class NetworkConnection {
                 return;
             }
 
-            OOBFetcher task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/archives?cid=" + cid), 0, session);
+            OOBFetcher task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/archives?cid=" + cid), cid, session);
             synchronized (oobTasks) {
                 oobTasks.put(cid, task);
                 if(oobTasks.size() == 1)
