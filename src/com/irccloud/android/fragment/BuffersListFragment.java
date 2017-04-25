@@ -351,7 +351,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
     }
 
     private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
-        ArrayList<Buffer> entries = new ArrayList<>();
+        private ArrayList<Buffer> entries = new ArrayList<>();
+        private boolean shouldScroll = false;
 
         @Override
         protected synchronized Void doInBackground(Void... params) {
@@ -371,6 +372,9 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Created new BufferListAdapter");
                 adapter = new BufferListAdapter();
             }
+
+            if(adapter.getItemCount() == 0)
+                shouldScroll = true;
 
             firstUnreadPosition = -1;
             lastUnreadPosition = -1;
@@ -483,6 +487,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 refreshTask.execute((Void) null);
             }
             progressBar.setVisibility(View.GONE);
+            if(shouldScroll)
+                setSelectedBid(selected_bid);
         }
     }
 
@@ -501,8 +507,14 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 @Override
                 public void run() {
                     int pos = adapter.positionForBid(bid);
-                    if(pos < layoutManager.findFirstCompletelyVisibleItemPosition() || pos > layoutManager.findLastCompletelyVisibleItemPosition())
+                    if(pos < layoutManager.findFirstCompletelyVisibleItemPosition() || pos > layoutManager.findLastCompletelyVisibleItemPosition()) {
+                        int center = (layoutManager.findLastCompletelyVisibleItemPosition() - layoutManager.findFirstCompletelyVisibleItemPosition())/2;
+                        if(pos+center < adapter.getItemCount())
+                            pos += center;
+                        else
+                            pos = adapter.getItemCount() - 1;
                         recyclerView.scrollToPosition(pos);
+                    }
                 }
             });
         } else {
