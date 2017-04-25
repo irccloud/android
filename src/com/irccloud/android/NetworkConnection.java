@@ -1219,6 +1219,7 @@ public class NetworkConnection {
             TrustManager[] trustManagers = new TrustManager[1];
             trustManagers[0] = TrustKit.getInstance().getTrustManager(IRCCLOUD_HOST);
             WebSocketClient.setTrustManagers(trustManagers);
+            OOBFetcher.setTrustManagers(trustManagers);
         }
 
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
@@ -1955,8 +1956,6 @@ public class NetworkConnection {
                 Crashlytics.log(Log.WARN, TAG, "Not fetching archives before session is set");
                 return;
             }
-            if (Looper.myLooper() == null)
-                Looper.prepare();
 
             OOBFetcher task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/archives?cid=" + cid), 0, session);
             synchronized (oobTasks) {
