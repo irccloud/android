@@ -268,7 +268,7 @@ public class OOBFetcher {
                     StatusLine statusLine = parseStatusLine(readLine(stream));
                     if (statusLine == null) {
                         throw new HttpException("Received no reply from server.");
-                    } else if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                    } else if (statusLine.getStatusCode() != HttpStatus.SC_OK && statusLine.getStatusCode() != HttpStatus.SC_MOVED_PERMANENTLY) {
                         throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
                     }
 
@@ -280,6 +280,15 @@ public class OOBFetcher {
                         Header header = parseHeader(line);
                         if(header.getName().equalsIgnoreCase("content-encoding") && header.getValue().equalsIgnoreCase("gzip"))
                             gzipped = true;
+                        if(statusLine.getStatusCode() == HttpStatus.SC_MOVED_PERMANENTLY && header.getName().equalsIgnoreCase("location")) {
+                            Crashlytics.log(Log.INFO, TAG, "Redirecting to: " + header.getValue());
+                            mURI = new URL(header.getValue());
+                            mSocket.close();
+                            mSocket = null;
+                            mThread = null;
+                            connect();
+                            return;
+                        }
                     }
 
                     if(gzipped)
