@@ -2041,6 +2041,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (drawerLayout != null) {
                     if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow() && c != null)
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                    else
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
                 }
             } else {
                 if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
