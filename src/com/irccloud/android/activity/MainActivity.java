@@ -4316,7 +4316,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             return false;
 
         if (event.hostmask != null && event.hostmask.length() > 0)
-            user.hostmask = event.hostmask;
+            user.hostmask = event.from_hostmask != null ? event.from_hostmask : event.hostmask;
 
         if (event.row_type == ROW_FILE || event.row_type == ROW_THUMBNAIL) {
             showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)), event.entities);
