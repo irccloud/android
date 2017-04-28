@@ -82,6 +82,7 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.Ignore;
+import com.irccloud.android.JSONFetcher;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.OffsetLinearLayout;
 import com.irccloud.android.R;
@@ -1828,7 +1829,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if (properties != null) {
                                 insertEntity(adapter, event, properties, backlog);
                             } else {
-                                new FilePropsTask(adapter, fileID, event).execute((Void) null);
+                                new FilePropsTask(adapter, fileID, event).connect();
                             }
                         }
                     }
@@ -2122,32 +2123,28 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    private class FilePropsTask extends AsyncTaskEx<Void, Void, JsonNode> {
+    private class FilePropsTask extends JSONFetcher {
         private Event event;
         private String fileID;
         private MessageAdapter adapter;
 
-        FilePropsTask(MessageAdapter adapter, String fileID, Event event) {
+        FilePropsTask(MessageAdapter adapter, String fileID, Event event) throws Exception {
+            super(new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/file/json/" + fileID));
             this.fileID = fileID;
             this.event = event;
             this.adapter = adapter;
         }
 
         @Override
-        protected JsonNode doInBackground(Void... params) {
-            try {
-                return NetworkConnection.getInstance().propertiesForFile(fileID);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(JsonNode result) {
+        protected void onJSONParsed(final JsonNode result) {
             if(result != null) {
                 filePropsCache.put(fileID, result);
-                insertEntity(adapter, event, result, false);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        insertEntity(adapter, event, result, false);
+                    }
+                });
             }
         }
     }

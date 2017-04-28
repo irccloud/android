@@ -1219,7 +1219,6 @@ public class NetworkConnection {
             TrustManager[] trustManagers = new TrustManager[1];
             trustManagers[0] = TrustKit.getInstance().getTrustManager(IRCCLOUD_HOST);
             WebSocketClient.setTrustManagers(trustManagers);
-            OOBFetcher.setTrustManagers(trustManagers);
         }
 
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
@@ -1931,9 +1930,9 @@ public class NetworkConnection {
 
             OOBFetcher task;
             if (beforeId > 0)
-                task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid + "&beforeid=" + beforeId), bid, session);
+                task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid + "&beforeid=" + beforeId), bid);
             else
-                task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid), bid, session);
+                task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid), bid);
             synchronized (oobTasks) {
                 oobTasks.put(bid, task);
                 if(oobTasks.size() == 1)
@@ -1957,7 +1956,7 @@ public class NetworkConnection {
                 return;
             }
 
-            OOBFetcher task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/archives?cid=" + cid), cid, session);
+            OOBFetcher task = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + "/chat/archives?cid=" + cid), cid);
             synchronized (oobTasks) {
                 oobTasks.put(cid, task);
                 if(oobTasks.size() == 1)
@@ -2195,7 +2194,7 @@ public class NetworkConnection {
                 try {
                     ready = false;
                     backlog = true;
-                    OOBFetcher t = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + object.getString("url")), -1, session);
+                    OOBFetcher t = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + object.getString("url")), -1);
                     synchronized (oobTasks) {
                         oobTasks.put(-1, t);
                     }
