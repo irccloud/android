@@ -2606,7 +2606,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     public void run() {
                         StringBuilder sb = new StringBuilder();
                         JsonNode modules = event.getJsonNode("modules");
-                        android.util.Log.e("IRCCloud", event.toString());
                         for(int i = 0; i < modules.size(); i++) {
                             sb.append(modules.get(i).asText()).append("\n");
                         }
@@ -2614,7 +2613,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         Bundle args = new Bundle();
                         args.putString("title", "Modules list for " + server.getHostname());
                         args.putString("text", (sb.length() > 0) ? sb.toString(): "No results found.");
-                        TextListFragment modulesList = (TextListFragment) getSupportFragmentManager().findFragmentByTag("whospecial");
+                        TextListFragment modulesList = (TextListFragment) getSupportFragmentManager().findFragmentByTag("moduleslist");
                         if (modulesList == null) {
                             modulesList = new TextListFragment();
                             modulesList.setArguments(args);
@@ -2626,6 +2625,36 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         } else {
                             modulesList.getArguments().putAll(args);
                             modulesList.refresh();
+                        }
+                    }
+                });
+                break;
+            case NetworkConnection.EVENT_TRACERESPONSE:
+                event = (IRCCloudJSONObject) obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        StringBuilder sb = new StringBuilder();
+                        JsonNode trace = event.getJsonNode("trace");
+                        for(int i = 0; i < trace.size(); i++) {
+                            sb.append(trace.get(i).asText()).append("\n");
+                        }
+
+                        Bundle args = new Bundle();
+                        args.putString("title", "Trace for " + event.getString("server"));
+                        args.putString("text", (sb.length() > 0) ? sb.toString(): "No results found.");
+                        TextListFragment traceFragment = (TextListFragment) getSupportFragmentManager().findFragmentByTag("trace");
+                        if (traceFragment == null) {
+                            traceFragment = new TextListFragment();
+                            traceFragment.setArguments(args);
+                            try {
+                                traceFragment.show(getSupportFragmentManager(), "trace");
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
+                            }
+                        } else {
+                            traceFragment.getArguments().putAll(args);
+                            traceFragment.refresh();
                         }
                     }
                 });
