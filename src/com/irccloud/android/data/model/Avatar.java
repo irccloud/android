@@ -101,10 +101,14 @@ public class Avatar {
                 font = Typeface.createFromAsset(IRCCloudApplication.getInstance().getApplicationContext().getAssets(), "SourceSansPro-Semibold.otf");
             }
 
-            if(isDarkTheme) {
-                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), ColorScheme.getInstance().contentBackgroundColor, Color.parseColor("#" + (self?ColorScheme.getInstance().selfTextColor:ColorScheme.colorForNick(nick, true))), true, size, round));
-            } else {
-                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), 0xFFFFFFFF, Color.parseColor("#" + (self?ColorScheme.getInstance().selfTextColor:ColorScheme.colorForNick(nick, false))), false, size, round));
+            try {
+                if (isDarkTheme) {
+                    bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), ColorScheme.getInstance().contentBackgroundColor, Color.parseColor("#" + (self ? ColorScheme.getInstance().selfTextColor : ColorScheme.colorForNick(nick, true))), true, size, round));
+                } else {
+                    bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), 0xFFFFFFFF, Color.parseColor("#" + (self ? ColorScheme.getInstance().selfTextColor : ColorScheme.colorForNick(nick, false))), false, size, round));
+                }
+            } catch (OutOfMemoryError e) {
+                return null;
             }
         }
         return bitmaps.get(size);
