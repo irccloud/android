@@ -173,6 +173,8 @@ public class UploadsActivity extends BaseActivity {
                                 }
                             });
                     }
+                } catch (OutOfMemoryError e) {
+                    f.image_failed = true;
                 } catch (Exception e) {
                     f.image_failed = true;
                     NetworkConnection.printStackTraceToCrashlytics(e);
