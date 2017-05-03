@@ -139,7 +139,8 @@ public class ImageList {
 
     public Bitmap getImage(String fileID) throws OutOfMemoryError {
         try {
-            return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()));
+            if(ColorFormatter.file_uri_template != null)
+                return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()));
         } catch (MalformedURLException e) {
         }
         return null;
@@ -147,7 +148,8 @@ public class ImageList {
 
     public Bitmap getImage(String fileID, int width) throws OutOfMemoryError {
         try {
-            return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
+            if(ColorFormatter.file_uri_template != null)
+                return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
         } catch (MalformedURLException e) {
         }
         return null;
@@ -164,7 +166,7 @@ public class ImageList {
     public void fetchImage(String fileID, final OnImageFetchedListener listener) {
         try {
             fetchImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()), listener);
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             if (listener != null)
                 listener.onImageFetched(null);
         }
@@ -173,7 +175,7 @@ public class ImageList {
     public void fetchImage(String fileID, int width, final OnImageFetchedListener listener) {
         try {
             fetchImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()), listener);
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             if (listener != null)
                 listener.onImageFetched(null);
         }
@@ -228,7 +230,13 @@ public class ImageList {
             if(isCancelled)
                 return;
 
-            Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(mURI)));
+            Bitmap bitmap;
+            try {
+                bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(mURI)));
+            } catch (OutOfMemoryError e) {
+                bitmap = null;
+            }
+
             if (bitmap != null && !isCancelled)
                 images.put(MD5(mURI.toString()), bitmap);
             if (listener != null && !isCancelled)

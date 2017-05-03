@@ -115,6 +115,9 @@ public class BackgroundTaskService extends GcmTaskService {
         final String session = NetworkConnection.getInstance().session;
         final String token = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_token", null);
 
+        if(token == null)
+            return;
+
         List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_GCM_REGISTER))
                 .and(Condition.column(BackgroundTask$Table.DATA).is(token))
                 .queryList();
@@ -253,39 +256,41 @@ public class BackgroundTaskService extends GcmTaskService {
     }
 
     private static int onGcmUnregister(Context context, String token, String session) {
-        try {
-            Crashlytics.log(Log.INFO, "IRCCloud", "Unregistering GCM");
+        if(token != null) {
             try {
-                String GCM_ID = BuildConfig.GCM_ID;
-                if(BuildConfig.ENTERPRISE && context.getSharedPreferences("prefs", 0).getString("host", BuildConfig.HOST).equals("api.irccloud.com"))
-                    GCM_ID = BuildConfig.GCM_ID_IRCCLOUD;
-                if(token.equals(InstanceID.getInstance(context).getToken(GCM_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE))) {
-                    Crashlytics.log(Log.INFO, "IRCCloud", "Deleting old GCM token");
-                    InstanceID.getInstance(context).deleteInstanceID();
+                Crashlytics.log(Log.INFO, "IRCCloud", "Unregistering GCM");
+                try {
+                    String GCM_ID = BuildConfig.GCM_ID;
+                    if (BuildConfig.ENTERPRISE && context.getSharedPreferences("prefs", 0).getString("host", BuildConfig.HOST).equals("api.irccloud.com"))
+                        GCM_ID = BuildConfig.GCM_ID_IRCCLOUD;
+                    if (token.equals(InstanceID.getInstance(context).getToken(GCM_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE))) {
+                        Crashlytics.log(Log.INFO, "IRCCloud", "Deleting old GCM token");
+                        InstanceID.getInstance(context).deleteInstanceID();
+                    }
+                } catch (Exception e) {
+                    NetworkConnection.printStackTraceToCrashlytics(e);
+                }
+                JSONObject result = NetworkConnection.getInstance().unregisterGCM(token, session);
+                if (result != null && result.has("success")) {
+                    if (result.getBoolean("success") || result.getString("message").equals("auth")) {
+                        Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully unregistered");
+                        SharedPreferences.Editor e = context.getSharedPreferences("prefs", 0).edit();
+                        e.remove(session);
+                        e.commit();
+                        return GcmNetworkManager.RESULT_SUCCESS;
+                    } else {
+                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to unregister device: " + result.toString());
+                        return GcmNetworkManager.RESULT_RESCHEDULE;
+                    }
+                } else {
+                    Crashlytics.log(Log.INFO, "IRCCloud", "Rescheduling GCM unregistration");
+                    return GcmNetworkManager.RESULT_RESCHEDULE;
                 }
             } catch (Exception e) {
                 NetworkConnection.printStackTraceToCrashlytics(e);
             }
-            JSONObject result = NetworkConnection.getInstance().unregisterGCM(token, session);
-            if (result != null && result.has("success")) {
-                if(result.getBoolean("success") || result.getString("message").equals("auth")) {
-                    Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully unregistered");
-                    SharedPreferences.Editor e = context.getSharedPreferences("prefs", 0).edit();
-                    e.remove(session);
-                    e.commit();
-                    return GcmNetworkManager.RESULT_SUCCESS;
-                } else {
-                    Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to unregister device: " + result.toString());
-                    return GcmNetworkManager.RESULT_RESCHEDULE;
-                }
-            } else {
-                Crashlytics.log(Log.INFO, "IRCCloud", "Rescheduling GCM unregistration");
-                return GcmNetworkManager.RESULT_RESCHEDULE;
-            }
-        } catch (Exception e) {
-            NetworkConnection.printStackTraceToCrashlytics(e);
+            Crashlytics.log(Log.ERROR, "IRCCloud", "GCM unregistration failed");
         }
-        Crashlytics.log(Log.ERROR, "IRCCloud", "GCM unregistration failed");
 
         return GcmNetworkManager.RESULT_FAILURE;
     }
