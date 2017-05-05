@@ -43,37 +43,41 @@ public class Avatar {
 
     public static Bitmap generateBitmap(String text, int textColor, int bgColor, boolean isDarkTheme, int size, boolean round) {
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(bitmap);
-        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        p.setStyle(Paint.Style.FILL);
+        if(bitmap != null) {
+            Canvas c = new Canvas(bitmap);
+            Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+            p.setStyle(Paint.Style.FILL);
 
-        if(isDarkTheme || !round) {
-            p.setColor(bgColor);
-            if(round)
-                c.drawCircle(size / 2, size / 2, size / 2, p);
-            else
-                c.drawColor(bgColor);
-        } else {
-            float[] hsv = new float[3];
-            Color.colorToHSV(bgColor, hsv);
-            hsv[2] *= 0.8f;
-            p.setColor(Color.HSVToColor(hsv));
-            c.drawCircle(size / 2, size / 2, (size / 2) - 2, p);
-            p.setColor(bgColor);
-            c.drawCircle(size / 2, (size / 2) - 2, (size / 2) - 2, p);
-        }
-        TextPaint tp = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-        tp.setTextAlign(Paint.Align.CENTER);
-        tp.setTypeface(font);
-        tp.setTextSize((int)(size * 0.65));
-        tp.setColor(textColor);
-        if (isDarkTheme || !round) {
-            c.drawText(text, size/2, (size/2) - ((tp.descent() + tp.ascent()) / 2), tp);
-        } else {
-            c.drawText(text, size/2, (size/2) - 4 - ((tp.descent() + tp.ascent()) / 2), tp);
-        }
+            if (isDarkTheme || !round) {
+                p.setColor(bgColor);
+                if (round)
+                    c.drawCircle(size / 2, size / 2, size / 2, p);
+                else
+                    c.drawColor(bgColor);
+            } else {
+                float[] hsv = new float[3];
+                Color.colorToHSV(bgColor, hsv);
+                hsv[2] *= 0.8f;
+                p.setColor(Color.HSVToColor(hsv));
+                c.drawCircle(size / 2, size / 2, (size / 2) - 2, p);
+                p.setColor(bgColor);
+                c.drawCircle(size / 2, (size / 2) - 2, (size / 2) - 2, p);
+            }
+            TextPaint tp = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+            tp.setTextAlign(Paint.Align.CENTER);
+            tp.setTypeface(font);
+            tp.setTextSize((int) (size * 0.65));
+            tp.setColor(textColor);
+            if (isDarkTheme || !round) {
+                c.drawText(text, size / 2, (size / 2) - ((tp.descent() + tp.ascent()) / 2), tp);
+            } else {
+                c.drawText(text, size / 2, (size / 2) - 4 - ((tp.descent() + tp.ascent()) / 2), tp);
+            }
 
-        return bitmap;
+            return bitmap;
+        } else {
+            return null;
+        }
     }
 
     public static Bitmap generateBitmap(String text, int textColor, int bgColor, boolean isDarkTheme, int size) {

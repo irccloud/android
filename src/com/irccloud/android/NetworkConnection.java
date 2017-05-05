@@ -3219,7 +3219,7 @@ public class NetworkConnection {
                 ArrayList<Buffer> buffers = mBuffers.getBuffers();
                 for (Buffer b : buffers) {
                     if (b.getTimeout() > 0) {
-                        Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: " + b.getName());
+                        Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: bid" + b.getBid());
                         request_backlog(b.getCid(), b.getBid(), 0);
                     }
 
