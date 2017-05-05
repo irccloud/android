@@ -117,8 +117,6 @@ public class NetworkConnection {
     private static final EventsList mEvents = EventsList.getInstance();
     private static final RecentConversationsList mRecentConversations = RecentConversationsList.getInstance();
 
-    public static final int WEBSOCKET_TAG = 0x50C37;
-
     public static final int STATE_DISCONNECTED = 0;
     public static final int STATE_CONNECTING = 1;
     public static final int STATE_CONNECTED = 2;
@@ -1397,7 +1395,6 @@ public class NetworkConnection {
                     Crashlytics.log(Log.DEBUG, "IRCCloud", msg);
                 }
             });
-            client.setSocketTag(WEBSOCKET_TAG);
             if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0)
                 client.setProxy(host, port);
             else
