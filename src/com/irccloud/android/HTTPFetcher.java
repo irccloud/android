@@ -19,7 +19,6 @@ package com.irccloud.android;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.os.HandlerThread;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -56,6 +55,7 @@ import javax.net.ssl.TrustManager;
 
 @TargetApi(8)
 public class HTTPFetcher {
+    private static final int MAX_THREADS = 6;
     private static final String TAG = "HTTPFetcher";
 
     protected URL mURI;
@@ -87,6 +87,21 @@ public class HTTPFetcher {
 
     public HTTPFetcher(URL uri) {
         mURI = uri;
+
+        if (Build.VERSION.SDK_INT < 11) {
+            mProxyHost = android.net.Proxy.getHost(IRCCloudApplication.getInstance().getApplicationContext());
+            mProxyPort = android.net.Proxy.getPort(IRCCloudApplication.getInstance().getApplicationContext());
+        } else {
+            mProxyHost = System.getProperty("http.proxyHost", null);
+            try {
+                mProxyPort = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+            } catch (NumberFormatException e) {
+                mProxyPort = -1;
+            }
+        }
+
+        if (mProxyHost != null && mProxyHost.length() > 0 && (mProxyHost.equalsIgnoreCase("localhost") || mProxyHost.equalsIgnoreCase("127.0.0.1")))
+            mProxyHost = null;
     }
 
     public void cancel() {
@@ -94,7 +109,7 @@ public class HTTPFetcher {
         isCancelled = true;
     }
 
-    private ArrayList<Thread> mSocketThreads = new ArrayList<>();
+    private static final ArrayList<Thread> mSocketThreads = new ArrayList<>();
 
     private class ConnectRunnable implements Runnable {
         private SocketFactory mSocketFactory;
@@ -127,7 +142,8 @@ public class HTTPFetcher {
                             //Not supported on older Android versions
                         }
                     }
-                    start_socket_thread();
+                    mThread = Thread.currentThread();
+                    http_thread();
                 } else {
                     socket.close();
                 }
@@ -156,14 +172,27 @@ public class HTTPFetcher {
                     Crashlytics.log(Log.INFO, TAG, "Requesting: " + mURI);
                     int port = (mURI.getPort() != -1) ? mURI.getPort() : (mURI.getProtocol().equals("https") ? 443 : 80);
                     SocketFactory factory = mURI.getProtocol().equals("https") ? getSSLSocketFactory() : SocketFactory.getDefault();
-                    if (mProxyHost != null && mProxyHost.length() > 0) {
+                    if (mProxyHost != null && mProxyHost.length() > 0 && mProxyPort > 0) {
                         Crashlytics.log(Log.INFO, TAG, "Connecting to proxy: " + mProxyHost + " port: " + mProxyPort);
                         mSocket = SocketFactory.getDefault().createSocket(mProxyHost, mProxyPort);
-                        start_socket_thread();
+                        mThread = new Thread(new Runnable() {
+                            @SuppressLint("NewApi")
+                            public void run() {
+                                http_thread();
+                            }
+                        });
+                        mThread.setName("http-stream-thread");
+                        mThread.start();
                     } else {
                         InetAddress[] addresses = InetAddress.getAllByName(mURI.getHost());
                         for (InetAddress address : addresses) {
                             if(mSocket == null && !isCancelled) {
+                                if(mSocketThreads.size() >= MAX_THREADS)
+                                    Crashlytics.log(Log.INFO, TAG, "Waiting for other HTTP requests to complete before continuing");
+
+                                while(mSocketThreads.size() > MAX_THREADS) {
+                                    Thread.sleep(1000);
+                                }
                                 Thread t = new Thread(new ConnectRunnable(factory, new InetSocketAddress(address, port)));
                                 mSocketThreads.add(t);
                                 t.start();
@@ -181,119 +210,113 @@ public class HTTPFetcher {
         mThread.start();
     }
 
-    private void start_socket_thread() {
-        mThread = new Thread(new Runnable() {
-            @SuppressLint("NewApi")
-            public void run() {
-                try {
-                    int port = (mURI.getPort() != -1) ? mURI.getPort() : (mURI.getProtocol().equals("wss") ? 443 : 80);
+    private void http_thread() {
+        try {
+            mThread.setName("http-stream-thread");
+            int port = (mURI.getPort() != -1) ? mURI.getPort() : (mURI.getProtocol().equals("https") ? 443 : 80);
 
-                    String path = TextUtils.isEmpty(mURI.getPath()) ? "/" : mURI.getPath();
-                    if (!TextUtils.isEmpty(mURI.getQuery())) {
-                        path += "?" + mURI.getQuery();
+            String path = TextUtils.isEmpty(mURI.getPath()) ? "/" : mURI.getPath();
+            if (!TextUtils.isEmpty(mURI.getQuery())) {
+                path += "?" + mURI.getQuery();
+            }
+
+            PrintWriter out = new PrintWriter(mSocket.getOutputStream());
+
+            if(mProxyHost != null && mProxyHost.length() > 0 && mProxyPort > 0) {
+                out.print("CONNECT " + mURI.getHost() + ":" + port + " HTTP/1.0\r\n");
+                out.print("\r\n");
+                out.flush();
+                HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(mSocket.getInputStream());
+
+                // Read HTTP response status line.
+                StatusLine statusLine = parseStatusLine(readLine(stream));
+                if (statusLine == null) {
+                    throw new HttpException("Received no reply from server.");
+                } else if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
+                    throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
+                }
+
+                // Read HTTP response headers.
+                while (!TextUtils.isEmpty(readLine(stream)));
+                if(mURI.getProtocol().equals("https")) {
+                    mSocket = getSSLSocketFactory().createSocket(mSocket, mURI.getHost(), port, false);
+                    SSLSocket s = (SSLSocket)mSocket;
+                    try {
+                        s.setEnabledProtocols(ENABLED_PROTOCOLS);
+                    } catch (IllegalArgumentException e) {
+                        //Not supported on older Android versions
                     }
-
-                    PrintWriter out = new PrintWriter(mSocket.getOutputStream());
-
-                    if(mProxyHost != null && mProxyHost.length() > 0 && mProxyPort > 0) {
-                        out.print("CONNECT " + mURI.getHost() + ":" + port + " HTTP/1.0\r\n");
-                        out.print("\r\n");
-                        out.flush();
-                        HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(mSocket.getInputStream());
-
-                        // Read HTTP response status line.
-                        StatusLine statusLine = parseStatusLine(readLine(stream));
-                        if (statusLine == null) {
-                            throw new HttpException("Received no reply from server.");
-                        } else if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                            throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
-                        }
-
-                        // Read HTTP response headers.
-                        while (!TextUtils.isEmpty(readLine(stream)));
-                        if(mURI.getProtocol().equals("https")) {
-                            mSocket = getSSLSocketFactory().createSocket(mSocket, mURI.getHost(), port, false);
-                            SSLSocket s = (SSLSocket)mSocket;
-                            try {
-                                s.setEnabledProtocols(ENABLED_PROTOCOLS);
-                            } catch (IllegalArgumentException e) {
-                                //Not supported on older Android versions
-                            }
-                            try {
-                                s.setEnabledCipherSuites(ENABLED_CIPHERS);
-                            } catch (IllegalArgumentException e) {
-                                //Not supported on older Android versions
-                            }
-                            out = new PrintWriter(mSocket.getOutputStream());
-                        }
+                    try {
+                        s.setEnabledCipherSuites(ENABLED_CIPHERS);
+                    } catch (IllegalArgumentException e) {
+                        //Not supported on older Android versions
                     }
-
-                    if(mURI.getProtocol().equals("https")) {
-                        SSLSocket s = (SSLSocket) mSocket;
-                        StrictHostnameVerifier verifier = new StrictHostnameVerifier();
-                        if (!verifier.verify(mURI.getHost(), s.getSession()))
-                            throw new SSLException("Hostname mismatch");
-                    }
-
-                    Crashlytics.log(Log.DEBUG, TAG, "Sending HTTP request");
-
-                    out.print("GET " + path + " HTTP/1.0\r\n");
-                    out.print("Host: " + mURI.getHost() + "\r\n");
-                    if(mURI.getHost().equals(NetworkConnection.IRCCLOUD_HOST) && NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0)
-                        out.print("Cookie: session=" + NetworkConnection.getInstance().session + "\r\n");
-                    out.print("Connection: close\r\n");
-                    out.print("Accept-Encoding: gzip\r\n");
-                    out.print("User-Agent: " + NetworkConnection.getInstance().useragent + "\r\n");
-                    out.print("\r\n");
-                    out.flush();
-
-                    HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(mSocket.getInputStream());
-
-                    // Read HTTP response status line.
-                    StatusLine statusLine = parseStatusLine(readLine(stream));
-                    if(statusLine != null)
-                        Crashlytics.log(Log.DEBUG, TAG, "Got HTTP response: " + statusLine);
-
-                    if (statusLine == null) {
-                        throw new HttpException("Received no reply from server.");
-                    } else if (statusLine.getStatusCode() != HttpStatus.SC_OK && statusLine.getStatusCode() != HttpStatus.SC_MOVED_PERMANENTLY) {
-                        Crashlytics.log(Log.ERROR, TAG, "Failure: " + mURI + ": " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
-                        throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
-                    }
-
-                    // Read HTTP response headers.
-                    String line;
-
-                    boolean gzipped = false;
-                    while (!TextUtils.isEmpty(line = readLine(stream))) {
-                        Header header = parseHeader(line);
-                        if(header.getName().equalsIgnoreCase("content-encoding") && header.getValue().equalsIgnoreCase("gzip"))
-                            gzipped = true;
-                        if(statusLine.getStatusCode() == HttpStatus.SC_MOVED_PERMANENTLY && header.getName().equalsIgnoreCase("location")) {
-                            Crashlytics.log(Log.INFO, TAG, "Redirecting to: " + header.getValue());
-                            mURI = new URL(header.getValue());
-                            mSocket.close();
-                            mSocket = null;
-                            mThread = null;
-                            connect();
-                            return;
-                        }
-                    }
-
-                    if(gzipped)
-                        onStreamConnected(new GZIPInputStream(mSocket.getInputStream()));
-                    else
-                        onStreamConnected(mSocket.getInputStream());
-
-                    onFetchComplete();
-                } catch (Exception ex) {
-                    NetworkConnection.printStackTraceToCrashlytics(ex);
-                    onFetchFailed();
+                    out = new PrintWriter(mSocket.getOutputStream());
                 }
             }
-        });
-        mThread.setName("http-stream-thread");
-        mThread.start();
+
+            if(mURI.getProtocol().equals("https")) {
+                SSLSocket s = (SSLSocket) mSocket;
+                StrictHostnameVerifier verifier = new StrictHostnameVerifier();
+                if (!verifier.verify(mURI.getHost(), s.getSession()))
+                    throw new SSLException("Hostname mismatch");
+            }
+
+            Crashlytics.log(Log.DEBUG, TAG, "Sending HTTP request");
+
+            out.print("GET " + path + " HTTP/1.0\r\n");
+            out.print("Host: " + mURI.getHost() + "\r\n");
+            if(mURI.getHost().equals(NetworkConnection.IRCCLOUD_HOST) && NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0)
+                out.print("Cookie: session=" + NetworkConnection.getInstance().session + "\r\n");
+            out.print("Connection: close\r\n");
+            out.print("Accept-Encoding: gzip\r\n");
+            out.print("User-Agent: " + NetworkConnection.getInstance().useragent + "\r\n");
+            out.print("\r\n");
+            out.flush();
+
+            HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(mSocket.getInputStream());
+
+            // Read HTTP response status line.
+            StatusLine statusLine = parseStatusLine(readLine(stream));
+            if(statusLine != null)
+                Crashlytics.log(Log.DEBUG, TAG, "Got HTTP response: " + statusLine);
+
+            if (statusLine == null) {
+                throw new HttpException("Received no reply from server.");
+            } else if (statusLine.getStatusCode() != HttpStatus.SC_OK && statusLine.getStatusCode() != HttpStatus.SC_MOVED_PERMANENTLY) {
+                Crashlytics.log(Log.ERROR, TAG, "Failure: " + mURI + ": " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
+                throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
+            }
+
+            // Read HTTP response headers.
+            String line;
+
+            boolean gzipped = false;
+            while (!TextUtils.isEmpty(line = readLine(stream))) {
+                Header header = parseHeader(line);
+                if(header.getName().equalsIgnoreCase("content-encoding") && header.getValue().equalsIgnoreCase("gzip"))
+                    gzipped = true;
+                if(statusLine.getStatusCode() == HttpStatus.SC_MOVED_PERMANENTLY && header.getName().equalsIgnoreCase("location")) {
+                    Crashlytics.log(Log.INFO, TAG, "Redirecting to: " + header.getValue());
+                    mURI = new URL(header.getValue());
+                    mSocket.close();
+                    mSocket = null;
+                    mThread = null;
+                    connect();
+                    return;
+                }
+            }
+
+            if(gzipped)
+                onStreamConnected(new GZIPInputStream(mSocket.getInputStream()));
+            else
+                onStreamConnected(mSocket.getInputStream());
+
+            onFetchComplete();
+        } catch (Exception ex) {
+            NetworkConnection.printStackTraceToCrashlytics(ex);
+            onFetchFailed();
+        }
     }
 
     protected void onFetchComplete() {
@@ -337,11 +360,6 @@ public class HTTPFetcher {
             }
         }
         return string.toString();
-    }
-
-    public void setProxy(String host, int port) {
-        mProxyHost = host;
-        mProxyPort = port;
     }
 
     private SSLSocketFactory getSSLSocketFactory() throws NoSuchAlgorithmException, KeyManagementException {
