@@ -149,7 +149,7 @@ public class HTTPFetcher {
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                if(mSocket == null && mSocketThreads.size() == 1) {
+                if(mSocket == null) {
                     NetworkConnection.printStackTraceToCrashlytics(ex);
                 }
             }
@@ -187,11 +187,12 @@ public class HTTPFetcher {
                         InetAddress[] addresses = InetAddress.getAllByName(mURI.getHost());
                         for (InetAddress address : addresses) {
                             if(mSocket == null && !isCancelled) {
-                                if(mSocketThreads.size() >= MAX_THREADS)
+                                if(mSocketThreads.size() >= MAX_THREADS) {
                                     Crashlytics.log(Log.INFO, TAG, "Waiting for other HTTP requests to complete before continuing");
 
-                                while(mSocketThreads.size() > MAX_THREADS) {
-                                    Thread.sleep(1000);
+                                    while (mSocketThreads.size() >= MAX_THREADS) {
+                                        Thread.sleep(1000);
+                                    }
                                 }
                                 Thread t = new Thread(new ConnectRunnable(factory, new InetSocketAddress(address, port)));
                                 mSocketThreads.add(t);

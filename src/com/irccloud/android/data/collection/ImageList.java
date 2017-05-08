@@ -27,7 +27,6 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.ColorFormatter;
-import com.irccloud.android.HTTPFetcher;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 
@@ -44,7 +43,6 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -59,7 +57,15 @@ public class ImageList {
     private static java.security.MessageDigest md;
     private static ImageList instance = null;
     private HashMap<String, Bitmap> images;
-    private HashMap<String, ImageFetcher> imageFetchers;
+    private final BlockingQueue<Runnable> mWorkQueue = new LinkedBlockingQueue<>();
+    private static final int KEEP_ALIVE_TIME = 10;
+    private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
+    private final ThreadPoolExecutor mDownloadThreadPool = new ThreadPoolExecutor(
+            4,       // Initial pool size
+            8,       // Max pool size
+            KEEP_ALIVE_TIME,
+            KEEP_ALIVE_TIME_UNIT,
+            mWorkQueue);
 
     public synchronized static ImageList getInstance() {
         if (instance == null)
@@ -69,7 +75,6 @@ public class ImageList {
 
     public ImageList() {
         images = new HashMap<>();
-        imageFetchers = new HashMap<>();
     }
 
     public void clear() {
@@ -80,12 +85,7 @@ public class ImageList {
             }
         }
         images.clear();
-        synchronized (imageFetchers) {
-            for(ImageFetcher f : imageFetchers.values()) {
-                f.cancel();
-            }
-            imageFetchers.clear();
-        }
+        mDownloadThreadPool.purge();
     }
 
     public void purge() {
@@ -141,7 +141,7 @@ public class ImageList {
         try {
             if(ColorFormatter.file_uri_template != null)
                 return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()));
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
         }
         return null;
     }
@@ -150,22 +150,111 @@ public class ImageList {
         try {
             if(ColorFormatter.file_uri_template != null)
                 return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
         }
         return null;
     }
 
     public void fetchImage(final URL url, final OnImageFetchedListener listener) {
-        if(!imageFetchers.containsKey(url.toString())) {
-            ImageFetcher f = new ImageFetcher(url, listener);
-            imageFetchers.put(url.toString(), f);
-            f.connect();
-        }
+        mDownloadThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                HttpURLConnection conn;
+
+                Proxy proxy = null;
+                String host = null;
+                int port = -1;
+
+                if (Build.VERSION.SDK_INT < 11) {
+                    Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
+                    if (ctx != null) {
+                        host = android.net.Proxy.getHost(ctx);
+                        port = android.net.Proxy.getPort(ctx);
+                    }
+                } else {
+                    host = System.getProperty("http.proxyHost", null);
+                    try {
+                        port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+                    } catch (NumberFormatException e) {
+                        port = -1;
+                    }
+                }
+
+                if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+                    InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
+                    proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
+                }
+
+                if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url + " via proxy: " + host);
+                } else {
+                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url);
+                }
+
+                try {
+                    if (url.getProtocol().toLowerCase().equals("https")) {
+                        conn = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+                    } else {
+                        conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+                    }
+                } catch (IOException e) {
+                    printStackTraceToCrashlytics(e);
+                    return;
+                }
+
+                conn.setConnectTimeout(30000);
+                conn.setReadTimeout(30000);
+                conn.setUseCaches(true);
+                conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
+
+                try {
+                    ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo ni = cm.getActiveNetworkInfo();
+                    if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
+                        Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via WiFi");
+                    } else {
+                        Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via mobile");
+                    }
+                } catch (Exception e) {
+                    printStackTraceToCrashlytics(e);
+                }
+
+                try {
+                    if (conn.getInputStream() != null) {
+                        InputStream is = conn.getInputStream();
+                        OutputStream os = new FileOutputStream(cacheFile(url));
+                        byte[] buffer = new byte[8192];
+                        int len;
+                        while ((len = is.read(buffer)) != -1) {
+                            os.write(buffer, 0, len);
+                        }
+                        is.close();
+                        os.close();
+
+                        Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
+                        if (bitmap != null)
+                            images.put(MD5(url.toString()), bitmap);
+                        if (listener != null)
+                            listener.onImageFetched(bitmap);
+                    }
+                } catch (FileNotFoundException e) {
+                    if (listener != null)
+                        listener.onImageFetched(null);
+                } catch (IOException e) {
+                    printStackTraceToCrashlytics(e);
+                    if (listener != null)
+                        listener.onImageFetched(null);
+                }
+
+                conn.disconnect();
+            }
+        });
     }
 
     public void fetchImage(String fileID, final OnImageFetchedListener listener) {
         try {
-            fetchImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()), listener);
+            if(ColorFormatter.file_uri_template != null)
+                fetchImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()), listener);
         } catch (Exception e) {
             if (listener != null)
                 listener.onImageFetched(null);
@@ -174,7 +263,8 @@ public class ImageList {
 
     public void fetchImage(String fileID, int width, final OnImageFetchedListener listener) {
         try {
-            fetchImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()), listener);
+            if(ColorFormatter.file_uri_template != null)
+                fetchImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()), listener);
         } catch (Exception e) {
             if (listener != null)
                 listener.onImageFetched(null);
@@ -203,60 +293,5 @@ public class ImageList {
 
     public static abstract class OnImageFetchedListener {
         public abstract void onImageFetched(Bitmap image);
-    }
-
-    public class ImageFetcher extends HTTPFetcher {
-        OnImageFetchedListener listener;
-
-        ImageFetcher(URL url, OnImageFetchedListener listener) {
-            super(url);
-            this.listener = listener;
-        }
-
-        @Override
-        protected void onStreamConnected(InputStream is) throws Exception {
-            if(isCancelled)
-                return;
-
-            OutputStream os = new FileOutputStream(cacheFile(mURI));
-            byte[] buffer = new byte[8192];
-            int len;
-            while ((len = is.read(buffer)) != -1 && !isCancelled) {
-                os.write(buffer, 0, len);
-            }
-            is.close();
-            os.close();
-
-            if(isCancelled)
-                return;
-
-            Bitmap bitmap;
-            try {
-                bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(mURI)));
-            } catch (OutOfMemoryError e) {
-                bitmap = null;
-            }
-
-            if (bitmap != null && !isCancelled)
-                images.put(MD5(mURI.toString()), bitmap);
-            if (listener != null && !isCancelled)
-                listener.onImageFetched(bitmap);
-        }
-
-        @Override
-        protected void onFetchFailed() {
-            if (listener != null)
-                listener.onImageFetched(null);
-            synchronized (imageFetchers) {
-                imageFetchers.remove(this);
-            }
-        }
-
-        @Override
-        protected void onFetchComplete() {
-            synchronized (imageFetchers) {
-                imageFetchers.remove(this);
-            }
-        }
     }
 }
