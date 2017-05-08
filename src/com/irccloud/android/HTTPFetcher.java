@@ -24,7 +24,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.codebutler.android_websockets.HybiParser;
-import com.codebutler.android_websockets.WebSocketClient;
 import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
 
@@ -62,7 +61,6 @@ public class HTTPFetcher {
     protected URL mURI;
     protected Socket mSocket;
     protected Thread mThread;
-    protected static final HandlerThread mHandlerThread = new HandlerThread("httpfetcher-thread");
     protected String mProxyHost;
     protected int mProxyPort;
     protected boolean isCancelled;
@@ -89,12 +87,10 @@ public class HTTPFetcher {
 
     public HTTPFetcher(URL uri) {
         mURI = uri;
-
-        if(!mHandlerThread.isAlive())
-            mHandlerThread.start();
     }
 
     public void cancel() {
+        Crashlytics.log(Log.INFO, TAG, "HTTP request cancelled");
         isCancelled = true;
     }
 
@@ -167,7 +163,7 @@ public class HTTPFetcher {
                     } else {
                         InetAddress[] addresses = InetAddress.getAllByName(mURI.getHost());
                         for (InetAddress address : addresses) {
-                            if(mSocket == null) {
+                            if(mSocket == null && !isCancelled) {
                                 Thread t = new Thread(new ConnectRunnable(factory, new InetSocketAddress(address, port)));
                                 mSocketThreads.add(t);
                                 t.start();
@@ -239,6 +235,8 @@ public class HTTPFetcher {
                             throw new SSLException("Hostname mismatch");
                     }
 
+                    Crashlytics.log(Log.DEBUG, TAG, "Sending HTTP request");
+
                     out.print("GET " + path + " HTTP/1.0\r\n");
                     out.print("Host: " + mURI.getHost() + "\r\n");
                     if(mURI.getHost().equals(NetworkConnection.IRCCLOUD_HOST) && NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0)
@@ -253,6 +251,9 @@ public class HTTPFetcher {
 
                     // Read HTTP response status line.
                     StatusLine statusLine = parseStatusLine(readLine(stream));
+                    if(statusLine != null)
+                        Crashlytics.log(Log.DEBUG, TAG, "Got HTTP response: " + statusLine);
+
                     if (statusLine == null) {
                         throw new HttpException("Received no reply from server.");
                     } else if (statusLine.getStatusCode() != HttpStatus.SC_OK && statusLine.getStatusCode() != HttpStatus.SC_MOVED_PERMANENTLY) {
@@ -286,7 +287,7 @@ public class HTTPFetcher {
 
                     onFetchComplete();
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(ex);
                     onFetchFailed();
                 }
             }

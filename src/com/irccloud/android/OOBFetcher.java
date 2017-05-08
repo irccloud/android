@@ -39,9 +39,6 @@ public class OOBFetcher extends HTTPFetcher {
         super(uri);
         mURI = uri;
         mBid = bid;
-
-        if(!mHandlerThread.isAlive())
-            mHandlerThread.start();
     }
 
     public int getBid() {

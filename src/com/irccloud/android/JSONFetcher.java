@@ -40,9 +40,6 @@ public class JSONFetcher extends HTTPFetcher {
     public JSONFetcher(URL uri) {
         super(uri);
         mURI = uri;
-
-        if(!mHandlerThread.isAlive())
-            mHandlerThread.start();
     }
 
     protected void onStreamConnected(InputStream is) throws Exception {
