@@ -237,6 +237,9 @@ public class ImageList {
                         if (listener != null)
                             listener.onImageFetched(bitmap);
                     }
+                } catch (OutOfMemoryError e) {
+                    if (listener != null)
+                        listener.onImageFetched(null);
                 } catch (FileNotFoundException e) {
                     if (listener != null)
                         listener.onImageFetched(null);
