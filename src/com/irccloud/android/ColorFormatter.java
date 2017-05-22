@@ -1620,31 +1620,28 @@ public class ColorFormatter {
         } catch (Exception e) {
         }
 
-        if (Build.VERSION.SDK_INT >= 14) {
-            StringBuilder builder = new StringBuilder(msg);
-            int offset;
+        StringBuilder builder = new StringBuilder(msg);
+        int offset;
 
-            if (!disableConvert) {
-                Matcher m = EMOJI.matcher(msg);
-                while (m.find()) {
-                    if (emojiMap.containsKey(m.group(1))) {
-                        offset = msg.length() - builder.length();
-                        builder.replace(m.start(1) - offset - 1, m.end(1) - offset + 1, emojiMap.get(m.group(1)));
-                    }
-                }
-                msg = builder.toString();
-            }
-
-            Matcher m = CONVERSION.matcher(msg);
+        if (!disableConvert) {
+            Matcher m = EMOJI.matcher(msg);
             while (m.find()) {
-                if (conversionMap.containsKey(m.group(1))) {
+                if (emojiMap.containsKey(m.group(1))) {
                     offset = msg.length() - builder.length();
-                    builder.replace(m.start(1) - offset, m.end(1) - offset, conversionMap.get(m.group(1)));
+                    builder.replace(m.start(1) - offset - 1, m.end(1) - offset + 1, emojiMap.get(m.group(1)));
                 }
             }
-            return builder.toString();
+            msg = builder.toString();
         }
-        return msg;
+
+        Matcher m = CONVERSION.matcher(msg);
+        while (m.find()) {
+            if (conversionMap.containsKey(m.group(1))) {
+                offset = msg.length() - builder.length();
+                builder.replace(m.start(1) - offset, m.end(1) - offset, conversionMap.get(m.group(1)));
+            }
+        }
+        return builder.toString();
     }
 
     public static boolean is_emoji(String text) {

@@ -408,14 +408,12 @@ public class UploadsActivity extends BaseActivity {
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
         onMultiWindowModeChanged(isMultiWindow());
 
-        if(Build.VERSION.SDK_INT >= 14) {
-            try {
-                java.io.File httpCacheDir = new java.io.File(getCacheDir(), "http");
-                long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
-                HttpResponseCache.install(httpCacheDir, httpCacheSize);
-            } catch (IOException e) {
-                Log.i("IRCCloud", "HTTP response cache installation failed:" + e);
-            }
+        try {
+            java.io.File httpCacheDir = new java.io.File(getCacheDir(), "http");
+            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+            HttpResponseCache.install(httpCacheDir, httpCacheSize);
+        } catch (IOException e) {
+            Log.i("IRCCloud", "HTTP response cache installation failed:" + e);
         }
         setContentView(R.layout.listview);
 
@@ -603,11 +601,9 @@ public class UploadsActivity extends BaseActivity {
         if(adapter != null)
             adapter.clear();
 
-        if(Build.VERSION.SDK_INT >= 14) {
-            HttpResponseCache cache = HttpResponseCache.getInstalled();
-            if (cache != null) {
-                cache.flush();
-            }
+        HttpResponseCache cache = HttpResponseCache.getInstalled();
+        if (cache != null) {
+            cache.flush();
         }
         NetworkConnection.getInstance().removeHandler(this);
     }

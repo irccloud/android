@@ -124,21 +124,7 @@ public class Avatar {
 
     protected void finalize() throws Throwable {
         try {
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                for (Bitmap bitmap : bitmaps_dark.values()) {
-                    if (bitmap != null && !bitmap.isRecycled()) {
-                        bitmap.recycle();
-                    }
-                }
-            }
             bitmaps_dark.clear();
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                for (Bitmap bitmap : bitmaps_light.values()) {
-                    if (bitmap != null && !bitmap.isRecycled()) {
-                        bitmap.recycle();
-                    }
-                }
-            }
             bitmaps_light.clear();
         } finally {
             super.finalize();

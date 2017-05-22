@@ -888,7 +888,7 @@ public class NetworkConnection {
 
     public void set_pastebin_cookie() {
         try {
-            if ((Build.VERSION.SDK_INT < 14 || Build.VERSION.SDK_INT >= 16) && config != null) {
+            if (Build.VERSION.SDK_INT >= 16 && config != null) {
                 CookieSyncManager sm = CookieSyncManager.createInstance(IRCCloudApplication.getInstance().getApplicationContext());
                 CookieManager cm = CookieManager.getInstance();
                 Uri u = Uri.parse(config.getString("pastebin_uri_template"));
@@ -1168,18 +1168,12 @@ public class NetworkConnection {
             }
             oobTasks.clear();
         }
-        if (Build.VERSION.SDK_INT < 11) {
-            if (ctx != null) {
-                host = android.net.Proxy.getHost(ctx);
-                port = android.net.Proxy.getPort(ctx);
-            }
-        } else {
-            host = System.getProperty("http.proxyHost", null);
-            try {
-                port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
-            } catch (NumberFormatException e) {
-                port = -1;
-            }
+
+        host = System.getProperty("http.proxyHost", null);
+        try {
+            port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+        } catch (NumberFormatException e) {
+            port = -1;
         }
 
         if (!wifiLock.isHeld())
@@ -3057,22 +3051,13 @@ public class NetworkConnection {
         HttpURLConnection conn = null;
 
         Proxy proxy = null;
-        String host = null;
         int port = -1;
 
-        if (Build.VERSION.SDK_INT < 11) {
-            Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
-            if (ctx != null) {
-                host = android.net.Proxy.getHost(ctx);
-                port = android.net.Proxy.getPort(ctx);
-            }
-        } else {
-            host = System.getProperty("http.proxyHost", null);
-            try {
-                port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
-            } catch (NumberFormatException e) {
-                port = -1;
-            }
+        String host = System.getProperty("http.proxyHost", null);
+        try {
+            port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+        } catch (NumberFormatException e) {
+            port = -1;
         }
 
         if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {

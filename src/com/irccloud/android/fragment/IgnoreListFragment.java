@@ -133,7 +133,6 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
         Dialog d = new AlertDialog.Builder(ctx)
                 .setTitle("Ignore list for " + ServersList.getInstance().getServer(cid).getName())
                 .setView(v)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setPositiveButton("Add Ignore Mask", new AddClickListener())
                 .setNegativeButton("Close", new DialogInterface.OnClickListener() {
                     @Override
@@ -154,7 +153,6 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
             ServersList s = ServersList.getInstance();
             Server server = s.getServer(cid);
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.dialog_textprompt, null);
             TextView prompt = (TextView) view.findViewById(R.id.prompt);
@@ -162,7 +160,6 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
             input.setHint("nickname!user@host.name");
             prompt.setText("Ignore messages from this hostmask");
             builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
-            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setView(view);
             builder.setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
                 @Override

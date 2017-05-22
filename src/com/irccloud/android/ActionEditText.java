@@ -54,10 +54,8 @@ public class ActionEditText extends AppCompatEditText {
         if(ic == null)
             return null;
 
-        if (Build.VERSION.SDK_INT >= 11) {
-            outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS;
-            outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_NEXT;
-        }
+        outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS;
+        outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_NEXT;
         if (IRCCloudApplication.getInstance().getApplicationContext().getResources().getBoolean(R.bool.isTablet) || PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("kb_send", false)) {
             outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NO_ENTER_ACTION;
             outAttrs.inputType = EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT;
@@ -69,37 +67,33 @@ public class ActionEditText extends AppCompatEditText {
         } else {
             outAttrs.inputType &= ~EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES;
         }
-        if (Build.VERSION.SDK_INT >= 13) {
-            EditorInfoCompat.setContentMimeTypes(outAttrs, new String[]{"image/*"});
+        EditorInfoCompat.setContentMimeTypes(outAttrs, new String[]{"image/*"});
 
-            final InputConnectionCompat.OnCommitContentListener callback =
-                    new InputConnectionCompat.OnCommitContentListener() {
-                        @Override
-                        public boolean onCommitContent(InputContentInfoCompat inputContentInfo,
-                                                       int flags, Bundle opts) {
-                            // read and display inputContentInfo asynchronously
-                            if (BuildCompat.isAtLeastNMR1() && (flags &
-                                    InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
-                                try {
-                                    inputContentInfo.requestPermission();
-                                }
-                                catch (Exception e) {
-                                    return false; // return false if failed
-                                }
+        final InputConnectionCompat.OnCommitContentListener callback =
+                new InputConnectionCompat.OnCommitContentListener() {
+                    @Override
+                    public boolean onCommitContent(InputContentInfoCompat inputContentInfo,
+                                                   int flags, Bundle opts) {
+                        // read and display inputContentInfo asynchronously
+                        if (BuildCompat.isAtLeastNMR1() && (flags &
+                                InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
+                            try {
+                                inputContentInfo.requestPermission();
                             }
-
-                            if(imageListener != null) {
-                                boolean result = imageListener.onIMEImageReceived(inputContentInfo);
-                                inputContentInfo.releasePermission();
-                                return result;
+                            catch (Exception e) {
+                                return false; // return false if failed
                             }
-                            return false;
                         }
-                    };
-            return InputConnectionCompat.createWrapper(ic, outAttrs, callback);
-        } else {
-            return ic;
-        }
+
+                        if(imageListener != null) {
+                            boolean result = imageListener.onIMEImageReceived(inputContentInfo);
+                            inputContentInfo.releasePermission();
+                            return result;
+                        }
+                        return false;
+                    }
+                };
+        return InputConnectionCompat.createWrapper(ic, outAttrs, callback);
     }
 
     @Override

@@ -291,7 +291,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     public void run() {
                         Server server = ServersList.getInstance().getServer(o.cid());
                         AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
-                        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                         View view = getDialogTextPrompt();
                         TextView prompt = (TextView) view.findViewById(R.id.prompt);
                         final EditText keyinput = (EditText) view.findViewById(R.id.textInput);
@@ -352,7 +351,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     public void run() {
                         Server server = ServersList.getInstance().getServer(o.cid());
                         AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
-                        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                         View view = getDialogTextPrompt();
                         TextView prompt = (TextView) view.findViewById(R.id.prompt);
                         final EditText nickinput = (EditText) view.findViewById(R.id.textInput);
@@ -515,7 +513,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 @Override
                 public void run() {
                     AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
-                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                     builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setMessage(msg);
                     builder.setNegativeButton("Ok", new OnClickListener() {
@@ -559,7 +556,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         switch (item.getItemId()) {
             case R.id.menu_logout:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                 builder.setTitle("Logout");
                 builder.setMessage("Would you like to logout of IRCCloud?");
 

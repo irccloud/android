@@ -93,7 +93,6 @@ public class WhoListFragment extends DialogFragment {
                 public boolean onLongClick(View view) {
                     final JsonNode user = users.get(position);
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
                     builder.setItems(new String[]{"Send a message", "Whois…", "Copy hostmask"}, new DialogInterface.OnClickListener() {
                         @Override
@@ -108,14 +107,9 @@ public class WhoListFragment extends DialogFragment {
                                     conn.say(event.cid(), null, "/whois " + user.get("nick").asText());
                                     break;
                                 case 2:
-                                    if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);
-                                        clipboard.setText(user.get("nick").asText() + "!" + user.get("usermask").asText());
-                                    } else {
-                                        @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);
-                                        android.content.ClipData clip = android.content.ClipData.newPlainText("Hostmask", user.get("nick").asText() + "!" + user.get("usermask").asText());
-                                        clipboard.setPrimaryClip(clip);
-                                    }
+                                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);
+                                    android.content.ClipData clip = android.content.ClipData.newPlainText("Hostmask", user.get("nick").asText() + "!" + user.get("usermask").asText());
+                                    clipboard.setPrimaryClip(clip);
                                     Toast.makeText(getActivity(), "Hostmask copied to clipboard", Toast.LENGTH_SHORT).show();
                                     break;
                             }
@@ -158,7 +152,6 @@ public class WhoListFragment extends DialogFragment {
             }
         }
         Dialog d = new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle("WHO response for " + event.getString("subject"))
                 .setView(v)
                 .setNegativeButton("Close", new DialogInterface.OnClickListener() {

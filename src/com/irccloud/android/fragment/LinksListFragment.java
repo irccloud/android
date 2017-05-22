@@ -116,7 +116,6 @@ public class LinksListFragment extends DialogFragment {
         Dialog d = new AlertDialog.Builder(ctx)
                 .setTitle("Servers linked to " + event.get("server").asText())
                 .setView(v)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setNegativeButton("Close", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

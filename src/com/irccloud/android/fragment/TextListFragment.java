@@ -59,7 +59,6 @@ public class TextListFragment extends DialogFragment {
         }
 
         Dialog d = new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setView(v)
                 .setTitle(title)
                 .setNegativeButton("Close", new DialogInterface.OnClickListener() {

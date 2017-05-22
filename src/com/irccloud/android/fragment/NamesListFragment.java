@@ -116,7 +116,6 @@ public class NamesListFragment extends DialogFragment {
             }
         }
         Dialog d = new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle("NAMES response for " + event.getString("chan"))
                 .setView(v)
                 .setNegativeButton("Close", new DialogInterface.OnClickListener() {

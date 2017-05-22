@@ -156,7 +156,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             setSupportActionBar(toolbar);
         } catch (Throwable t) {
         }
-        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 21) {
+        if (Build.VERSION.SDK_INT < 21) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
         } else if(Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
@@ -338,10 +338,8 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                                     DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                                     if (d != null) {
                                         DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
-                                        if (Build.VERSION.SDK_INT >= 11) {
-                                            r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                                            r.allowScanningByMediaScanner();
-                                        }
+                                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                                        r.allowScanningByMediaScanner();
                                         d.enqueue(r);
                                     }
                                 }
@@ -503,28 +501,19 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 if (d != null) {
                     String uri = getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http");
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB && uri.startsWith("https://"))
-                        uri = "http://" + uri.substring(8);
                     DownloadManager.Request r = new DownloadManager.Request(Uri.parse(uri));
                     r.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, getIntent().getData().getLastPathSegment());
-                    if (Build.VERSION.SDK_INT >= 11) {
-                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                        r.allowScanningByMediaScanner();
-                    }
+                    r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                    r.allowScanningByMediaScanner();
                     d.enqueue(r);
                     Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Download"));
                 }
             }
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                clipboard.setText(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http"));
-            } else {
-                @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                android.content.ClipData clip = android.content.ClipData.newRawUri("IRCCloud Video URL", Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
-                clipboard.setPrimaryClip(clip);
-            }
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newRawUri("IRCCloud Video URL", Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
+            clipboard.setPrimaryClip(clip);
             Toast.makeText(VideoPlayerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
             Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Copy to Clipboard"));
         } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && item.getItemId() == R.id.action_share) {
@@ -555,10 +544,8 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             if (d != null) {
                 DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
                 r.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, getIntent().getData().getLastPathSegment());
-                if (Build.VERSION.SDK_INT >= 11) {
-                    r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                    r.allowScanningByMediaScanner();
-                }
+                r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                r.allowScanningByMediaScanner();
                 d.enqueue(r);
                 Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Download"));
             }

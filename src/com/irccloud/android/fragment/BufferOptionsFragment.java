@@ -223,7 +223,6 @@ public class BufferOptionsFragment extends DialogFragment {
         }
 
         return new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle("Display Options")
                 .setView(v)
                 .setPositiveButton("Save", new SaveClickListener())

@@ -333,14 +333,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             findPreference("version").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        clipboard.setText(version);
-                    } else {
-                        @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Version", version);
-                        clipboard.setPrimaryClip(clip);
-                    }
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Version", version);
+                    clipboard.setPrimaryClip(clip);
                     Toast.makeText(PreferencesActivity.this, "Version number copied to clipboard", Toast.LENGTH_SHORT).show();
                     return false;
                 }
@@ -569,8 +564,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                             public void onResult(@NonNull Status status) {
                                 Intent i = new Intent(PreferencesActivity.this, LoginActivity.class);
                                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-                                    i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                 startActivity(i);
                                 finish();
                             }
@@ -580,8 +573,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             } else {
                 Intent i = new Intent(this, LoginActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-                    i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                 startActivity(i);
                 finish();
             }
@@ -1111,7 +1102,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     editor.putString("theme", theme);
                     editor.commit();
 
-                    if(Build.VERSION.SDK_INT >= 11 && !ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme()))
+                    if(!ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme()))
                         recreate();
                 }
             });

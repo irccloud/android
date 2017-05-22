@@ -93,7 +93,6 @@ public class NickservFragment extends DialogFragment {
             title += server.getHostname();
 
         AlertDialog d = new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle(title)
                 .setView(v)
                 .setPositiveButton("Save", new SaveClickListener())

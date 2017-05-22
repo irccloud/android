@@ -16,12 +16,10 @@
 
 package com.irccloud.android;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.widget.Toast;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
@@ -31,14 +29,9 @@ public class ChromeCopyLinkBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Uri uri = intent.getData();
         if (uri != null) {
-            if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
-                clipboard.setText(uri.toString());
-            } else {
-                @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
-                android.content.ClipData clip = android.content.ClipData.newPlainText(uri.toString(), uri.toString());
-                clipboard.setPrimaryClip(clip);
-            }
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newPlainText(uri.toString(), uri.toString());
+            clipboard.setPrimaryClip(clip);
             Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
         }
     }

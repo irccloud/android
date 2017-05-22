@@ -341,33 +341,31 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return false;
             }
         });
-        if (Build.VERSION.SDK_INT >= 13) {
-            messageTxt.setOnIMEImageReceivedListener(new ActionEditText.OnIMEImageReceivedListener() {
-                @Override
-                public boolean onIMEImageReceived(InputContentInfoCompat info) {
-                    if(info.getLinkUri() != null && info.getLinkUri().getScheme().startsWith("http")) {
-                        if(messageTxt.getText().length() > 0 && !messageTxt.getText().toString().endsWith(" "))
-                            messageTxt.getText().append(" ");
-                        messageTxt.getText().append(info.getLinkUri().toString());
+        messageTxt.setOnIMEImageReceivedListener(new ActionEditText.OnIMEImageReceivedListener() {
+            @Override
+            public boolean onIMEImageReceived(InputContentInfoCompat info) {
+                if(info.getLinkUri() != null && info.getLinkUri().getScheme().startsWith("http")) {
+                    if(messageTxt.getText().length() > 0 && !messageTxt.getText().toString().endsWith(" "))
+                        messageTxt.getText().append(" ");
+                    messageTxt.getText().append(info.getLinkUri().toString());
+                } else {
+                    Uri uri = (info.getLinkUri() != null) ? makeTempCopy(info.getContentUri(), MainActivity.this, info.getLinkUri().getLastPathSegment()) : makeTempCopy(info.getContentUri(), MainActivity.this);
+                    if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
+                        new ImgurRefreshTask(uri).execute((Void) null);
                     } else {
-                        Uri uri = (info.getLinkUri() != null) ? makeTempCopy(info.getContentUri(), MainActivity.this, info.getLinkUri().getLastPathSegment()) : makeTempCopy(info.getContentUri(), MainActivity.this);
-                        if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
-                            new ImgurRefreshTask(uri).execute((Void) null);
+                        fileUploadTask = new FileUploadTask(uri, MainActivity.this);
+                        if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
                         } else {
-                            fileUploadTask = new FileUploadTask(uri, MainActivity.this);
-                            if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                ActivityCompat.requestPermissions(MainActivity.this,
-                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                        REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                            } else {
-                                fileUploadTask.execute((Void) null);
-                            }
+                            fileUploadTask.execute((Void) null);
                         }
                     }
-                    return true;
                 }
-            });
-        }
+                return true;
+            }
+        });
         messageTxt.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -560,69 +558,67 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
 
-        if(Build.VERSION.SDK_INT >= 11) {
-            View.OnDragListener dragListener = new View.OnDragListener() {
-                @Override
-                public boolean onDrag(View view, DragEvent dragEvent) {
-                    switch(dragEvent.getAction()) {
-                        case DragEvent.ACTION_DRAG_STARTED:
-                            if(dragEvent.getLocalState() == null) {
-                                ClipDescription d = dragEvent.getClipDescription();
-                                if(d == null)
-                                    return false;
-                                for (int i = 0; i < d.getMimeTypeCount(); i++) {
-                                    if (d.getMimeType(i).startsWith("text/") || d.getMimeType(i).startsWith("image/") || d.getMimeType(i).startsWith("video/") || d.getMimeType(i).startsWith("application/")) {
-                                        findViewById(R.id.drop_target).setVisibility(View.VISIBLE);
-                                        return true;
-                                    }
-                                }
-                            }
-                            break;
-                        case DragEvent.ACTION_DROP:
-                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                                requestDragAndDropPermissions(dragEvent);
-                            ClipData c = dragEvent.getClipData();
-                            for(int i = 0; i < c.getItemCount(); i++) {
-                                ClipData.Item item = c.getItemAt(i);
-                                if(item.getUri() != null) {
-                                    String type = getContentResolver().getType(item.getUri());
-                                    if(type != null) {
-                                        Uri uri = makeTempCopy(item.getUri(), MainActivity.this);
-                                        if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
-                                            new ImgurRefreshTask(uri).execute((Void) null);
-                                        } else {
-                                            fileUploadTask = new FileUploadTask(uri, MainActivity.this);
-                                            if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                                ActivityCompat.requestPermissions(MainActivity.this,
-                                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                        REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                                            } else {
-                                                fileUploadTask.execute((Void) null);
-                                            }
-                                        }
-                                        return true;
-                                    }
-                                } else if(item.getText().length() > 0) {
-                                    if(buffer != null)
-                                        buffer.setDraft(item.getText().toString());
-                                    messageTxt.setText(item.getText());
+        View.OnDragListener dragListener = new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View view, DragEvent dragEvent) {
+                switch(dragEvent.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        if(dragEvent.getLocalState() == null) {
+                            ClipDescription d = dragEvent.getClipDescription();
+                            if(d == null)
+                                return false;
+                            for (int i = 0; i < d.getMimeTypeCount(); i++) {
+                                if (d.getMimeType(i).startsWith("text/") || d.getMimeType(i).startsWith("image/") || d.getMimeType(i).startsWith("video/") || d.getMimeType(i).startsWith("application/")) {
+                                    findViewById(R.id.drop_target).setVisibility(View.VISIBLE);
                                     return true;
                                 }
                             }
-                            return false;
-                        case DragEvent.ACTION_DRAG_ENDED:
-                            findViewById(R.id.drop_target).setVisibility(View.GONE);
-                            return true;
-                    }
-                    return false;
+                        }
+                        break;
+                    case DragEvent.ACTION_DROP:
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                            requestDragAndDropPermissions(dragEvent);
+                        ClipData c = dragEvent.getClipData();
+                        for(int i = 0; i < c.getItemCount(); i++) {
+                            ClipData.Item item = c.getItemAt(i);
+                            if(item.getUri() != null) {
+                                String type = getContentResolver().getType(item.getUri());
+                                if(type != null) {
+                                    Uri uri = makeTempCopy(item.getUri(), MainActivity.this);
+                                    if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
+                                        new ImgurRefreshTask(uri).execute((Void) null);
+                                    } else {
+                                        fileUploadTask = new FileUploadTask(uri, MainActivity.this);
+                                        if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                            ActivityCompat.requestPermissions(MainActivity.this,
+                                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                                    REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                                        } else {
+                                            fileUploadTask.execute((Void) null);
+                                        }
+                                    }
+                                    return true;
+                                }
+                            } else if(item.getText().length() > 0) {
+                                if(buffer != null)
+                                    buffer.setDraft(item.getText().toString());
+                                messageTxt.setText(item.getText());
+                                return true;
+                            }
+                        }
+                        return false;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        findViewById(R.id.drop_target).setVisibility(View.GONE);
+                        return true;
                 }
-            };
+                return false;
+            }
+        };
 
-            MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
-            if(mvf != null && mvf.getView() != null)
-               mvf.getView().setOnDragListener(dragListener);
-            messageTxt.setOnDragListener(dragListener);
-        }
+        MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+        if(mvf != null && mvf.getView() != null)
+           mvf.getView().setOnDragListener(dragListener);
+        messageTxt.setOnDragListener(dragListener);
 
         ImageView img = (ImageView)findViewById(R.id.drop_target_icon);
         img.getDrawable().mutate().setColorFilter(0xFFFFFFFF, PorterDuff.Mode.SRC_ATOP);
@@ -798,7 +794,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (c != null) {
             Server s = ServersList.getInstance().getServer(c.cid);
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             View v = getLayoutInflater().inflate(R.layout.dialog_topic, null);
             String heading = "Topic for " + c.name;
             if(s != null) {
@@ -995,7 +990,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
 
-            if (Build.VERSION.SDK_INT >= 14 && text.startsWith(":") && text.length() > 1) {
+            if (text.startsWith(":") && text.length() > 1) {
                 String q = text.toLowerCase().substring(1);
                 for (String emocode : ColorFormatter.emojiMap.keySet()) {
                     if (emocode.startsWith(q)) {
@@ -1560,23 +1555,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(!theme.equals(ColorScheme.getUserTheme())) {
             super.onResume();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
-            if(Build.VERSION.SDK_INT >= 11) {
-                drawerLayout.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        recreate();
-                    }
-                }, 250);
-            } else {
-                Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                i.putExtra("nosplash", true);
-                finish();
-                overridePendingTransition(0, 0);
-                startActivity(i);
-                overridePendingTransition(0, 0);
-                return;
-            }
+            drawerLayout.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    recreate();
+                }
+            }, 250);
         }
 
         super.onResume();
@@ -2714,7 +2698,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             if (channelsListDialog == null) {
                                 Context ctx = MainActivity.this;
                                 final AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-                                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                                 builder.setView(getLayoutInflater().inflate(R.layout.dialog_channelslist, null));
                                 builder.setTitle(dialogtitle);
                                 builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
@@ -2744,17 +2727,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(Build.VERSION.SDK_INT >= 11) {
-                                recreate();
-                            } else {
-                                Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
-                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                i.putExtra("nosplash", true);
-                                finish();
-                                overridePendingTransition(0, 0);
-                                startActivity(i);
-                                overridePendingTransition(0, 0);
-                            }
+                            recreate();
                         }
                     });
                 } else {
@@ -2862,17 +2835,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(Build.VERSION.SDK_INT >= 11) {
-                                recreate();
-                            } else {
-                                Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
-                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                i.putExtra("nosplash", true);
-                                finish();
-                                overridePendingTransition(0, 0);
-                                startActivity(i);
-                                overridePendingTransition(0, 0);
-                            }
+                            recreate();
                         }
                     });
                 } else {
@@ -3216,8 +3179,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (ChannelsList.getInstance().getChannelForBuffer(buffer.getBid()) == null) {
                     if (menu.findItem(R.id.menu_leave) != null) {
                         menu.findItem(R.id.menu_leave).setTitle(R.string.menu_rejoin);
-                        if(Build.VERSION.SDK_INT > 10)
-                            menu.findItem(R.id.menu_leave).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                        menu.findItem(R.id.menu_leave).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
                     }
 
                     if (menu.findItem(R.id.menu_archive) != null) {
@@ -3239,8 +3201,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else {
                     if (menu.findItem(R.id.menu_leave) != null) {
                         menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
-                        if(Build.VERSION.SDK_INT > 10)
-                            menu.findItem(R.id.menu_leave).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+                        menu.findItem(R.id.menu_leave).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
                     }
                     if (menu.findItem(R.id.menu_archive) != null) {
                         menu.findItem(R.id.menu_archive).setVisible(false);
@@ -3611,7 +3572,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         AlertDialog.Builder builder;
         AlertDialog dialog;
         builder = new AlertDialog.Builder(this);
-        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
         String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing", "Post a Text Snippet", "Text Snippets"} : new String[]{"Take a Photo", "Record a Video", "Choose Existing Photo", "Choose Existing Document", "Post a Text Snippet", "Text Snippets"};
         if(NetworkConnection.getInstance().uploadsAvailable()) {
             items = Arrays.copyOf(items, items.length + 1);
@@ -3801,7 +3761,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return true;
             case R.id.menu_delete:
                 builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
                 if (buffer.isConsole())
                     builder.setTitle("Delete Connection");
@@ -3863,7 +3822,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 input.setText("");
                 prompt.setText("Invite someone to join " + buffer.getName());
                 builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                 builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                 builder.setView(view);
                 builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
@@ -3929,7 +3887,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     void editTopic(final Channel c) {
         if(c != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             View view = getDialogTextPrompt();
             TextView prompt = (TextView) view.findViewById(R.id.prompt);
             final EditText input = (EditText) view.findViewById(R.id.textInput);
@@ -4106,7 +4063,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
         if (b.isConsole())
             builder.setTitle(s.getName());
         else
@@ -4174,7 +4130,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
                 } else if (items[item].equals("Delete")) {
                     builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
                     if (b.isConsole())
                         builder.setTitle("Delete Connection");
@@ -4221,7 +4176,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     input.setText("");
                     prompt.setText("Invite someone to join " + b.getName());
                     builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                     builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setView(view);
                     builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
@@ -4288,7 +4242,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     input.setText("");
                     prompt.setText("Which channel do you want to join?");
                     builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                     builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setView(view);
                     builder.setPositiveButton("Join", new DialogInterface.OnClickListener() {
@@ -4367,7 +4320,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public void onFailedMessageClicked(Event event) {
         final Event e = event;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
         if(server != null)
             builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
         else
@@ -4434,7 +4386,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         selected_user = user;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
         if (message != null) {
             if (message.getSpans(0, message.length(), URLSpan.class).length > 0) {
@@ -4495,36 +4446,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     return;
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                 View view;
                 final TextView prompt;
                 final EditText input;
                 AlertDialog dialog;
 
                 if (items[item].equals("Copy Message")) {
-                    if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        clipboard.setText(text_to_copy);
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    if (clipboard != null) {
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message", text_to_copy);
+                        clipboard.setPrimaryClip(clip);
                     } else {
-                        @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        if (clipboard != null) {
-                            android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message", text_to_copy);
-                            clipboard.setPrimaryClip(clip);
-                        } else {
-                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to copy message. Please try again.", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to copy message. Please try again.", Toast.LENGTH_SHORT).show();
+                        return;
                     }
                     Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Message copied to clipboard", Toast.LENGTH_SHORT).show();
                 } else if (items[item].equals("Copy Hostmask")) {
-                    if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        clipboard.setText(selected_user.nick + "!" + selected_user.hostmask);
-                    } else {
-                        @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        android.content.ClipData clip = android.content.ClipData.newPlainText("Hostmask", selected_user.nick + "!" + selected_user.hostmask);
-                        clipboard.setPrimaryClip(clip);
-                    }
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    android.content.ClipData clip = android.content.ClipData.newPlainText("Hostmask", selected_user.nick + "!" + selected_user.hostmask);
+                    clipboard.setPrimaryClip(clip);
                     Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Hostmask copied to clipboard", Toast.LENGTH_SHORT).show();
                 } else if ((items[item].equals("Copy URL to clipboard") || items[item].equals("Share URL…") ) && text_to_copy != null) {
                     final ArrayList<String> urlListItems = new ArrayList<String>();
@@ -4542,14 +4482,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                     if (urlListItems.size() == 1) {
                         if(items[item].equals("Copy URL to clipboard")) {
-                            if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                clipboard.setText(urlListItems.get(0));
-                            } else {
-                                @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(0), urlListItems.get(0));
-                                clipboard.setPrimaryClip(clip);
-                            }
+                            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                            android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(0), urlListItems.get(0));
+                            clipboard.setPrimaryClip(clip);
                             Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                         } else {
                             Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(urlListItems.get(0)));
@@ -4563,21 +4498,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     } else {
                         builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                         builder.setTitle("Choose a URL");
 
                         builder.setItems(urlListItems.toArray(new String[urlListItems.size()]), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 if(items[item].equals("Copy URL to clipboard")) {
-                                    if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                        clipboard.setText(urlListItems.get(i));
-                                    } else {
-                                        @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                        android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(i), urlListItems.get(i));
-                                        clipboard.setPrimaryClip(clip);
-                                    }
+                                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                                    android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(i), urlListItems.get(i));
+                                    clipboard.setPrimaryClip(clip);
                                     Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                                 } else {
                                     Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(urlListItems.get(i)));
@@ -5504,7 +5433,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 if (Looper.myLooper() == null)
                                     Looper.prepare();
                                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                                 builder.setTitle("Upload Failed");
                                 builder.setMessage("Unable to upload photo to imgur.  Please try again." + ((error != null) ? ("\n\n" + error) : ""));
                                 builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
@@ -5689,7 +5617,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 @Override
                 public void run() {
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                     final View view = activity.getLayoutInflater().inflate(R.layout.dialog_upload, null);
                     final EditText fileinput = (EditText) view.findViewById(R.id.filename);
                     final EditText messageinput = (EditText) view.findViewById(R.id.message);
@@ -6165,7 +6092,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 hide_progress();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                 builder.setTitle(title);
                 builder.setMessage(message);
                 builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {

@@ -163,7 +163,6 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             }
         }
         AlertDialog.Builder b = new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle(title)
                 .setView(v)
                 .setNegativeButton("Close", new DialogInterface.OnClickListener() {
@@ -193,7 +192,6 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             ServersList s = ServersList.getInstance();
             Server server = s.getServer(cid);
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.dialog_textprompt, null);
             TextView prompt = (TextView) view.findViewById(R.id.prompt);

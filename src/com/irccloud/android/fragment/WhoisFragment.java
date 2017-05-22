@@ -129,7 +129,6 @@ public class WhoisFragment extends DialogFragment {
             event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
         }
         Dialog d = new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle("WHOIS response for " + event.getString("user_nick"))
                 .setView(v)
                 .setNegativeButton("Close", new DialogInterface.OnClickListener() {

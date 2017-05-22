@@ -78,12 +78,6 @@ public class ImageList {
     }
 
     public void clear() {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            for (Bitmap b : images.values()) {
-                if (!b.isRecycled())
-                    b.recycle();
-            }
-        }
         images.clear();
         mDownloadThreadPool.purge();
     }
@@ -162,22 +156,13 @@ public class ImageList {
                 HttpURLConnection conn;
 
                 Proxy proxy = null;
-                String host = null;
                 int port = -1;
 
-                if (Build.VERSION.SDK_INT < 11) {
-                    Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
-                    if (ctx != null) {
-                        host = android.net.Proxy.getHost(ctx);
-                        port = android.net.Proxy.getPort(ctx);
-                    }
-                } else {
-                    host = System.getProperty("http.proxyHost", null);
-                    try {
-                        port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
-                    } catch (NumberFormatException e) {
-                        port = -1;
-                    }
+                String host = System.getProperty("http.proxyHost", null);
+                try {
+                    port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+                } catch (NumberFormatException e) {
+                    port = -1;
                 }
 
                 if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {

@@ -88,16 +88,11 @@ public class HTTPFetcher {
     public HTTPFetcher(URL uri) {
         mURI = uri;
 
-        if (Build.VERSION.SDK_INT < 11) {
-            mProxyHost = android.net.Proxy.getHost(IRCCloudApplication.getInstance().getApplicationContext());
-            mProxyPort = android.net.Proxy.getPort(IRCCloudApplication.getInstance().getApplicationContext());
-        } else {
-            mProxyHost = System.getProperty("http.proxyHost", null);
-            try {
-                mProxyPort = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
-            } catch (NumberFormatException e) {
-                mProxyPort = -1;
-            }
+        mProxyHost = System.getProperty("http.proxyHost", null);
+        try {
+            mProxyPort = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+        } catch (NumberFormatException e) {
+            mProxyPort = -1;
         }
 
         if (mProxyHost != null && mProxyHost.length() > 0 && (mProxyHost.equalsIgnoreCase("localhost") || mProxyHost.equalsIgnoreCase("127.0.0.1")))

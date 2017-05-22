@@ -20,7 +20,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -138,7 +137,6 @@ public class WhoWasFragment extends DialogFragment {
             }
         }
         AlertDialog.Builder b = new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle(title)
                 .setView(v)
                 .setNegativeButton("Close", new DialogInterface.OnClickListener() {

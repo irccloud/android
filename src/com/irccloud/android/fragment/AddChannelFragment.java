@@ -116,7 +116,6 @@ public class AddChannelFragment extends DialogFragment {
 
         return new AlertDialog.Builder(ctx)
                 .setTitle("Join A Channel")
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setView(v)
                 .setPositiveButton("Join", new DoneClickListener())
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

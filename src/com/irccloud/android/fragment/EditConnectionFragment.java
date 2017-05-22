@@ -302,7 +302,6 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
             server = ServersList.getInstance().getServer(savedInstanceState.getInt("cid"));
 
         final AlertDialog d = new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle((server == null) ? "Add A Network" : "Edit Connection")
                 .setView(v)
                 .setPositiveButton((server == null) ? "Add" : "Save", null)

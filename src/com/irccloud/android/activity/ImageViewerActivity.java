@@ -70,7 +70,6 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ChromeCopyLinkBroadcastReceiver;
 import com.irccloud.android.ColorScheme;
-import com.irccloud.android.GingerbreadImageProxy;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -79,16 +78,16 @@ import com.irccloud.android.ShareActionProviderHax;
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Timer;
-import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
+import java.util.TimerTask;
+
+public class ImageViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
     private MediaPlayer player = null;
     private String mVideoURL = null;
     private String mImageURL = null;
-    private GingerbreadImageProxy proxy = null;
 
     private class OEmbedTask extends AsyncTaskEx<String, Void, String> {
         private String provider = null;
@@ -388,7 +387,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             setSupportActionBar(toolbar);
         } catch (Throwable t) {
         }
-        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 21) {
+        if (Build.VERSION.SDK_INT < 21) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
         } else if(Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
@@ -443,8 +442,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         mSpinner = (ProgressBar) findViewById(R.id.spinner);
         mProgress = (ProgressBar) findViewById(R.id.progress);
         final SurfaceView v = (SurfaceView) findViewById(R.id.video);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-            v.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        v.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
         v.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
@@ -655,12 +653,6 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             if(mCustomTabsSession != null)
                 mCustomTabsSession.mayLaunchUrl(Uri.parse(urlStr), null, null);
             Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Image"));
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB && urlStr.startsWith("https://")) {
-                proxy = new GingerbreadImageProxy();
-                proxy.init();
-                proxy.start();
-                urlStr = String.format("http://127.0.0.1:%d/%s", proxy.getPort(), urlStr);
-            }
             URL url = new URL(urlStr);
 
             mImage.loadDataWithBaseURL(null, "<!DOCTYPE html>\n" +
@@ -751,8 +743,6 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (proxy != null)
-            proxy.stop();
         if (share != null) {
             share.setOnShareTargetSelectedListener(null);
             share.onShareActionProviderSubVisibilityChangedListener = null;
@@ -766,8 +756,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         if (mImage != null) {
             mImage.setWebViewClient(null);
             mImage.setWebChromeClient(null);
-            if (Build.VERSION.SDK_INT >= 11)
-                mImage.removeJavascriptInterface("Android");
+            mImage.removeJavascriptInterface("Android");
         }
         if (player != null)
             player.release();
@@ -893,35 +882,22 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                         uri = "http://" + uri.substring(8);
                     DownloadManager.Request r = new DownloadManager.Request(Uri.parse(uri));
                     r.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, getIntent().getData().getLastPathSegment());
-                    if (Build.VERSION.SDK_INT >= 11) {
-                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                        r.allowScanningByMediaScanner();
-                    }
+                    r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                    r.allowScanningByMediaScanner();
                     d.enqueue(r);
                     Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Download"));
                 }
             }
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
-            if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                if(clipboard != null) {
-                    clipboard.setText(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http"));
-                    Toast.makeText(ImageViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
-                    Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Copy to Clipboard"));
-                } else {
-                    Toast.makeText(ImageViewerActivity.this, "Clipboard service unavailable, please try again", Toast.LENGTH_SHORT).show();
-                }
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            if(clipboard != null) {
+                android.content.ClipData clip = android.content.ClipData.newRawUri("IRCCloud Image URL", Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(ImageViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
+                Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Copy to Clipboard"));
             } else {
-                @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                if(clipboard != null) {
-                    android.content.ClipData clip = android.content.ClipData.newRawUri("IRCCloud Image URL", Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
-                    clipboard.setPrimaryClip(clip);
-                    Toast.makeText(ImageViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
-                    Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Copy to Clipboard"));
-                } else {
-                    Toast.makeText(ImageViewerActivity.this, "Clipboard service unavailable, please try again", Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(ImageViewerActivity.this, "Clipboard service unavailable, please try again", Toast.LENGTH_SHORT).show();
             }
         } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && item.getItemId() == R.id.action_share) {
             Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
@@ -952,10 +928,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             if (d != null) {
                 DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
                 r.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, getIntent().getData().getLastPathSegment());
-                if (Build.VERSION.SDK_INT >= 11) {
-                    r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                    r.allowScanningByMediaScanner();
-                }
+                r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                r.allowScanningByMediaScanner();
                 d.enqueue(r);
                 Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Download"));
             }

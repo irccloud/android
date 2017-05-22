@@ -137,7 +137,6 @@ public class AcceptListFragment extends DialogFragment {
         if (network == null || network.length() == 0)
             network = s.getHostname();
         AlertDialog d = new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle("Accept list for " + network)
                 .setView(v)
                 .setPositiveButton("Add Nickname", new AddClickListener())
@@ -160,7 +159,6 @@ public class AcceptListFragment extends DialogFragment {
             ServersList s = ServersList.getInstance();
             Server server = s.getServer(cid);
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.dialog_textprompt, null);
             TextView prompt = (TextView) view.findViewById(R.id.prompt);
