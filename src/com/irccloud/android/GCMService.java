@@ -108,7 +108,7 @@ public class GCMService extends GcmListenerService {
                     chan = data.getString("channel");
                 }
                 if (msg != null)
-                    msg = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(msg))).toString();
+                    msg = ColorFormatter.strip(msg).toString();
                 if (chan == null)
                     chan = from;
                 String buffer_type = data.getString("buffer_type");

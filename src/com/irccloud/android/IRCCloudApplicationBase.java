@@ -64,7 +64,10 @@ public class IRCCloudApplicationBase extends Application {
         Fabric.with(this, new Crashlytics());
         Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
         FlowManager.init(this);
-        EmojiCompat.init(new BundledEmojiCompatConfig(this)
+        if(Build.VERSION.SDK_INT >= 19)
+            EmojiCompat.init(new BundledEmojiCompatConfig(this)
+                .setEmojiSpanIndicatorColor(Color.GREEN)
+                .setEmojiSpanIndicatorEnabled(true)
             .setReplaceAll(true));
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 

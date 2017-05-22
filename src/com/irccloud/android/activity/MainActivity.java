@@ -59,6 +59,7 @@ import android.provider.OpenableColumns;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.text.emoji.EmojiCompat;
 import android.support.v13.view.inputmethod.InputContentInfoCompat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
@@ -1921,7 +1922,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
             } else {
-                title.setText(buffer.getName());
+                if(Build.VERSION.SDK_INT >= 19)
+                    title.setText(EmojiCompat.get().process(buffer.getName()));
+                else
+                    title.setText(buffer.getName());
                 if (progressBar.getVisibility() == View.GONE) {
                     actionBar.setTitle(buffer.getName());
                     actionBar.setSubtitle(null);
@@ -1942,7 +1946,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if (buffer.getAway_msg() != null && buffer.getAway_msg().length() > 0) {
                         subtitle.setVisibility(View.VISIBLE);
                         if (buffer.getAway_msg() != null && buffer.getAway_msg().length() > 0) {
-                            subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(buffer.getAway_msg())))).toString());
+                            subtitle.setText(ColorFormatter.strip("Away: " + buffer.getAway_msg()));
                         } else {
                             subtitle.setText("Away");
                         }
@@ -1951,7 +1955,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (u != null && u.away > 0) {
                             subtitle.setVisibility(View.VISIBLE);
                             if (u.away_msg != null && u.away_msg.length() > 0) {
-                                subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(u.away_msg)))).toString());
+                                subtitle.setText(ColorFormatter.strip("Away: " + u.away_msg));
                             } else {
                                 subtitle.setText("Away");
                             }
@@ -1965,7 +1969,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                     if (c != null && c.topic_text.length() > 0) {
                         subtitle.setVisibility(View.VISIBLE);
-                        subtitle.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)))).toString());
+                        subtitle.setText(ColorFormatter.strip(c.topic_text));
                         subtitle.setContentDescription(".");
                     } else {
                         subtitle.setVisibility(View.GONE);

@@ -1417,7 +1417,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if (server != null) {
             ignore.setIgnores(server.ignores);
             if (server.getAway() != null && server.getAway().length() > 0) {
-                awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.getAway() + ")"))).toString());
+                awayTxt.setText(ColorFormatter.strip("Away (" + server.getAway() + ")"));
                 awayView.setVisibility(View.VISIBLE);
             } else {
                 awayView.setVisibility(View.GONE);
@@ -3020,7 +3020,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         @Override
                         public void run() {
                             if (server.getAway() != null && server.getAway().length() > 0) {
-                                awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.getAway() + ")"))).toString());
+                                awayTxt.setText(ColorFormatter.strip("Away (" + server.getAway() + ")"));
                                 awayView.setVisibility(View.VISIBLE);
                             } else {
                                 awayView.setVisibility(View.GONE);

@@ -211,7 +211,7 @@ public class NotificationsList {
         n.cid = cid;
         n.eid = eid;
         n.nick = from;
-        n.message = TextUtils.htmlEncode(ColorFormatter.strip(message));
+        n.message = TextUtils.htmlEncode(ColorFormatter.strip(message).toString());
         n.chan = chan;
         n.buffer_type = buffer_type;
         n.message_type = message_type;

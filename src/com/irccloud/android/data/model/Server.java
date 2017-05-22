@@ -18,6 +18,8 @@ package com.irccloud.android.data.model;
 
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
+import android.os.Build;
+import android.support.text.emoji.EmojiCompat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -133,6 +135,14 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     @Bindable
     public String getName() {
         return name;
+    }
+
+    @Bindable
+    public CharSequence getEmojiCompatName() {
+        if(Build.VERSION.SDK_INT >= 19)
+            return EmojiCompat.get().process(name);
+        else
+            return name;
     }
 
     public void setName(String name) {

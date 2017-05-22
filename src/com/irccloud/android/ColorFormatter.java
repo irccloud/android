@@ -1658,8 +1658,11 @@ public class ColorFormatter {
         return html_to_spanned(msg, linkify, server, null);
     }
 
-    public static String strip(String msg) {
-        return html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString();
+    public static CharSequence strip(String msg) {
+        if(Build.VERSION.SDK_INT >= 19)
+            return EmojiCompat.get().process(html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString());
+        else
+            return html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString();
     }
 
     public static Spanned html_to_spanned(String msg, boolean linkify, final Server server, final JsonNode entities) {
@@ -1950,7 +1953,7 @@ public class ColorFormatter {
             }
         }
 
-        if(BuildCompat.isAtLeastO() || Build.VERSION.SDK_INT >= 19)
+        if(Build.VERSION.SDK_INT >= 19)
             return (Spanned)EmojiCompat.get().process(output);
         else
             return output;

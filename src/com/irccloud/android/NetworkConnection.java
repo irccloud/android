@@ -2485,8 +2485,7 @@ public class NetworkConnection {
                                 if (InstanceID.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).getId().length() > 0)
                                     show = false;
                                 if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
-                                    String message = ColorFormatter.irc_to_html(event.msg);
-                                    message = ColorFormatter.html_to_spanned(message).toString();
+                                    String message = ColorFormatter.strip(event.msg).toString();
                                     String server_name = b.getServer().getName();
                                     if (server_name == null || server_name.length() == 0)
                                         server_name = b.getServer().getHostname();
