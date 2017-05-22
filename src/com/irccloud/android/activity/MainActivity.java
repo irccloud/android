@@ -276,6 +276,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 v.setBackgroundColor(colorScheme.bufferBackgroundColor);
             }
 
+            if(Build.VERSION.SDK_INT >= 19)
+                v.setText(EmojiCompat.get().process(getItem(position)));
+
             //This will prevent GridView from stealing focus from the EditText by bypassing the check on line 1397 of GridView.java in the Android Source
             v.setSelected(true);
             return v;
