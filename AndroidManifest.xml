@@ -51,7 +51,7 @@
 
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
-    <uses-sdk tools:overrideLibrary="android.support.customtabs, com.datatheorem.android.trustkit"/>
+    <uses-sdk tools:overrideLibrary="android.support.customtabs, com.datatheorem.android.trustkit, android.support.text.emoji, android.support.text.emoji.bundled"/>
 
     <application
         android:name=".IRCCloudApplication"

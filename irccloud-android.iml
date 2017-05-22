@@ -97,6 +97,7 @@
     <orderEntry type="library" exported="" name="play-services-gass-10.2.6" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-26.0.0-beta1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-26.0.0-beta1" level="project" />
+    <orderEntry type="library" exported="" name="support-emoji-26.0.0-beta1" level="project" />
     <orderEntry type="library" exported="" name="play-services-auth-base-10.2.6" level="project" />
     <orderEntry type="library" exported="" name="linear-layout-manager-0.5" level="project" />
     <orderEntry type="library" exported="" name="jackson-annotations-2.8.0" level="project" />
@@ -117,6 +118,7 @@
     <orderEntry type="library" exported="" name="play-services-tasks-10.2.6" level="project" />
     <orderEntry type="library" exported="" name="play-services-gcm-10.2.6" level="project" />
     <orderEntry type="library" exported="" name="animated-vector-drawable-26.0.0-beta1" level="project" />
+    <orderEntry type="library" exported="" name="support-emoji-bundled-26.0.0-beta1" level="project" />
     <orderEntry type="library" exported="" name="support-media-compat-26.0.0-beta1" level="project" />
     <orderEntry type="library" exported="" name="trustkit-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="DBFlow-Core-2.2.1" level="project" />

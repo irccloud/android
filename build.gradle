@@ -332,6 +332,7 @@ dependencies {
     compile 'com.android.support:design:26.0.0-beta1'
     compile 'com.android.support:recyclerview-v7:26.0.0-beta1'
     compile 'com.android.support:customtabs:26.0.0-beta1'
+    compile "com.android.support:support-emoji-bundled:26.0.0-beta1"
     compile 'com.google.android.gms:play-services-base:10.2.6'
     compile 'com.google.android.gms:play-services-auth:10.2.6'
     compile 'com.google.android.gms:play-services-identity:10.2.6'

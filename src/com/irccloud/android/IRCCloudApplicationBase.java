@@ -24,12 +24,15 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.text.emoji.EmojiCompat;
+import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.webkit.WebView;
@@ -61,6 +64,8 @@ public class IRCCloudApplicationBase extends Application {
         Fabric.with(this, new Crashlytics());
         Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
         FlowManager.init(this);
+        EmojiCompat.init(new BundledEmojiCompatConfig(this)
+            .setReplaceAll(true));
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
