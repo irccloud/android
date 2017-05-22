@@ -332,7 +332,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.userslist, container);
-        recyclerView = (RecyclerView)v.findViewById(android.R.id.list);
+        recyclerView = v.findViewById(android.R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
         return v;
     }

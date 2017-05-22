@@ -133,25 +133,25 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         loading = findViewById(R.id.loading);
 
         connecting = findViewById(R.id.connecting);
-        connectingMsg = (TextView) findViewById(R.id.connectingMsg);
-        progressBar = (ProgressBar) findViewById(R.id.connectingProgress);
+        connectingMsg = findViewById(R.id.connectingMsg);
+        progressBar = findViewById(R.id.connectingProgress);
 
-        loginHint = (LinearLayout) findViewById(R.id.loginHint);
-        signupHint = (LinearLayout) findViewById(R.id.signupHint);
-        hostHint = (TextView) findViewById(R.id.hostHint);
+        loginHint = findViewById(R.id.loginHint);
+        signupHint = findViewById(R.id.signupHint);
+        hostHint = findViewById(R.id.hostHint);
 
         login = findViewById(R.id.login);
-        name = (EditText) findViewById(R.id.name);
+        name = findViewById(R.id.name);
         if (savedInstanceState != null && savedInstanceState.containsKey("name"))
             name.setText(savedInstanceState.getString("name"));
-        email = (EditText) findViewById(R.id.email);
+        email = findViewById(R.id.email);
         if (BuildConfig.ENTERPRISE)
             email.setHint(R.string.email_enterprise);
 
         if (savedInstanceState != null && savedInstanceState.containsKey("email"))
             email.setText(savedInstanceState.getString("email"));
 
-        password = (EditText) findViewById(R.id.password);
+        password = findViewById(R.id.password);
         password.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -169,7 +169,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         if (savedInstanceState != null && savedInstanceState.containsKey("password"))
             password.setText(savedInstanceState.getString("password"));
 
-        host = (EditText) findViewById(R.id.host);
+        host = findViewById(R.id.host);
         if (BuildConfig.ENTERPRISE)
             host.setText(NetworkConnection.IRCCLOUD_HOST);
         else
@@ -196,7 +196,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         if (host.getText().toString().equals("api.irccloud.com") || host.getText().toString().equals("www.irccloud.com"))
             host.setText("");
 
-        loginBtn = (Button) findViewById(R.id.loginBtn);
+        loginBtn = findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -218,7 +218,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         loginBtn.setFocusable(true);
         loginBtn.requestFocus();
 
-        sendAccessLinkBtn = (Button) findViewById(R.id.sendAccessLink);
+        sendAccessLinkBtn = findViewById(R.id.sendAccessLink);
         sendAccessLinkBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -226,7 +226,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             }
         });
 
-        nextBtn = (Button) findViewById(R.id.nextBtn);
+        nextBtn = findViewById(R.id.nextBtn);
         nextBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -239,13 +239,13 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             }
         });
 
-        TOS = (TextView) findViewById(R.id.TOS);
+        TOS = findViewById(R.id.TOS);
         TOS.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
 
-        forgotPassword = (TextView) findViewById(R.id.forgotPassword);
+        forgotPassword = findViewById(R.id.forgotPassword);
         forgotPassword.setOnClickListener(forgotPasswordClickListener);
 
-        enterpriseLearnMore = (TextView) findViewById(R.id.enterpriseLearnMore);
+        enterpriseLearnMore = findViewById(R.id.enterpriseLearnMore);
         enterpriseLearnMore.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -270,14 +270,14 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 }
             }
         });
-        enterpriseHint = (LinearLayout) findViewById(R.id.enterpriseHint);
+        enterpriseHint = findViewById(R.id.enterpriseHint);
 
-        EnterYourEmail = (TextView) findViewById(R.id.enterYourEmail);
+        EnterYourEmail = findViewById(R.id.enterYourEmail);
 
         signupHint.setOnClickListener(signupHintClickListener);
         loginHint.setOnClickListener(loginHintClickListener);
 
-        signupBtn = (Button) findViewById(R.id.signupBtn);
+        signupBtn = findViewById(R.id.signupBtn);
         signupBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -285,7 +285,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             }
         });
 
-        TextView version = (TextView) findViewById(R.id.version);
+        TextView version = findViewById(R.id.version);
         try {
             version.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
         } catch (NameNotFoundException e) {
@@ -309,7 +309,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             }
         }
 
-        LinearLayout IRCCloud = (LinearLayout) findViewById(R.id.IRCCloud);
+        LinearLayout IRCCloud = findViewById(R.id.IRCCloud);
         for (int i = 0; i < IRCCloud.getChildCount(); i++) {
             View v = IRCCloud.getChildAt(i);
             if (v instanceof TextView) {
@@ -317,7 +317,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             }
         }
 
-        notAProblem = (LinearLayout) findViewById(R.id.notAProblem);
+        notAProblem = findViewById(R.id.notAProblem);
         for (int i = 0; i < notAProblem.getChildCount(); i++) {
             View v = notAProblem.getChildAt(i);
             if (v instanceof TextView) {
@@ -325,12 +325,12 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             }
         }
 
-        loginSignupHint = (LinearLayout) findViewById(R.id.loginSignupHint);
+        loginSignupHint = findViewById(R.id.loginSignupHint);
         for (int i = 0; i < loginSignupHint.getChildCount(); i++) {
             View v = loginSignupHint.getChildAt(i);
             if (v instanceof TextView) {
                 ((TextView) v).setTypeface(SourceSansProRegular);
-                ((TextView) v).setOnClickListener((i == 0) ? loginHintClickListener : signupHintClickListener);
+                v.setOnClickListener((i == 0) ? loginHintClickListener : signupHintClickListener);
             }
         }
 

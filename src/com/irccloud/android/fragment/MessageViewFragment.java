@@ -664,26 +664,26 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         row = inflater.inflate(R.layout.row_message, parent, false);
 
                     holder = new ViewHolder();
-                    holder.timestamp = (TextView) row.findViewById(R.id.timestamp);
-                    holder.timestamp_left = (TextView) row.findViewById(R.id.timestamp_left);
-                    holder.timestamp_right = (TextView) row.findViewById(R.id.timestamp_right);
-                    holder.message = (TextView) row.findViewById(R.id.message);
-                    holder.expandable = (TextView) row.findViewById(R.id.expandable);
+                    holder.timestamp = row.findViewById(R.id.timestamp);
+                    holder.timestamp_left = row.findViewById(R.id.timestamp_left);
+                    holder.timestamp_right = row.findViewById(R.id.timestamp_right);
+                    holder.message = row.findViewById(R.id.message);
+                    holder.expandable = row.findViewById(R.id.expandable);
                     if(holder.expandable != null)
                         holder.expandable.setTypeface(FontAwesome.getTypeface());
-                    holder.nickname = (TextView) row.findViewById(R.id.nickname);
-                    holder.realname = (TextView) row.findViewById(R.id.realname);
-                    holder.failed = (ImageView) row.findViewById(R.id.failed);
-                    holder.avatar = (ImageView) row.findViewById(R.id.avatar);
-                    holder.lastSeenEidWrapper = (LinearLayout) row.findViewById(R.id.lastSeenEidWrapper);
-                    holder.messageContainer = (LinearLayout) row.findViewById(R.id.messageContainer);
-                    holder.socketClosedBar = (LinearLayout) row.findViewById(R.id.socketClosedBar);
-                    holder.thumbnailWrapper = (LinearLayout) row.findViewById(R.id.thumbnailWrapper);
-                    holder.thumbnail = (ImageView) row.findViewById(R.id.thumbnail);
-                    holder.filename = (TextView) row.findViewById(R.id.filename);
-                    holder.metadata = (TextView) row.findViewById(R.id.metadata);
-                    holder.extension = (TextView) row.findViewById(R.id.extension);
-                    holder.progress = (ProgressBar) row.findViewById(R.id.progress);
+                    holder.nickname = row.findViewById(R.id.nickname);
+                    holder.realname = row.findViewById(R.id.realname);
+                    holder.failed = row.findViewById(R.id.failed);
+                    holder.avatar = row.findViewById(R.id.avatar);
+                    holder.lastSeenEidWrapper = row.findViewById(R.id.lastSeenEidWrapper);
+                    holder.messageContainer = row.findViewById(R.id.messageContainer);
+                    holder.socketClosedBar = row.findViewById(R.id.socketClosedBar);
+                    holder.thumbnailWrapper = row.findViewById(R.id.thumbnailWrapper);
+                    holder.thumbnail = row.findViewById(R.id.thumbnail);
+                    holder.filename = row.findViewById(R.id.filename);
+                    holder.metadata = row.findViewById(R.id.metadata);
+                    holder.extension = row.findViewById(R.id.extension);
+                    holder.progress = row.findViewById(R.id.progress);
                     holder.type = e.row_type;
 
                     row.setTag(holder);
@@ -1020,7 +1020,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         hackRegular = Typeface.createFromAsset(getActivity().getAssets(), "Hack-Regular.otf");
 
         final View v = inflater.inflate(R.layout.messageview, container, false);
-        statusView = (TextView) v.findViewById(R.id.statusView);
+        statusView = v.findViewById(R.id.statusView);
         statusView.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -1042,7 +1042,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
 
         });
-        awayTxt = (TextView) v.findViewById(R.id.awayTxt);
+        awayTxt = v.findViewById(R.id.awayTxt);
         unreadBottomView = v.findViewById(R.id.unreadBottom);
         unreadBottomView.setOnClickListener(new OnClickListener() {
 
@@ -1055,8 +1055,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
 
         });
-        unreadBottomLabel = (TextView) v.findViewById(R.id.unread);
-        highlightsBottomLabel = (TextView) v.findViewById(R.id.highlightsBottom);
+        unreadBottomLabel = v.findViewById(R.id.unread);
+        highlightsBottomLabel = v.findViewById(R.id.highlightsBottom);
 
         unreadTopView = v.findViewById(R.id.unreadTop);
         unreadTopView.setVisibility(View.GONE);
@@ -1075,9 +1075,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
 
         });
-        unreadTopLabel = (TextView) v.findViewById(R.id.unreadTopText);
-        highlightsTopLabel = (TextView) v.findViewById(R.id.highlightsTop);
-        Button b = (Button) v.findViewById(R.id.markAsRead);
+        unreadTopLabel = v.findViewById(R.id.unreadTopText);
+        highlightsTopLabel = v.findViewById(R.id.highlightsTop);
+        Button b = v.findViewById(R.id.markAsRead);
         b.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1089,8 +1089,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         });
         globalMsgView = v.findViewById(R.id.globalMessageView);
-        globalMsg = (TextView) v.findViewById(R.id.globalMessageTxt);
-        b = (Button) v.findViewById(R.id.dismissGlobalMessage);
+        globalMsg = v.findViewById(R.id.globalMessageTxt);
+        b = v.findViewById(R.id.dismissGlobalMessage);
         b.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1100,13 +1100,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         });
         globalMsg.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
-        spinner = (ProgressBar) v.findViewById(R.id.spinner);
+        spinner = v.findViewById(R.id.spinner);
         suggestionsContainer = v.findViewById(R.id.suggestionsContainer);
-        suggestions = (GridView) v.findViewById(R.id.suggestions);
+        suggestions = v.findViewById(R.id.suggestions);
         headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
         headerView = headerViewContainer.findViewById(R.id.progress);
-        backlogFailed = (TextView) headerViewContainer.findViewById(R.id.backlogFailed);
-        loadBacklogButton = (Button) headerViewContainer.findViewById(R.id.loadBacklogButton);
+        backlogFailed = headerViewContainer.findViewById(R.id.backlogFailed);
+        loadBacklogButton = headerViewContainer.findViewById(R.id.loadBacklogButton);
         loadBacklogButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1122,8 +1122,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         ((ListView) v.findViewById(android.R.id.list)).addHeaderView(headerViewContainer);
         footerViewContainer = new View(getActivity());
         ((ListView) v.findViewById(android.R.id.list)).addFooterView(footerViewContainer, null, false);
-        avatarContainer = (OffsetLinearLayout) v.findViewById(R.id.avatarContainer);
-        avatar = (ImageView) v.findViewById(R.id.avatar);
+        avatarContainer = v.findViewById(R.id.avatarContainer);
+        avatar = v.findViewById(R.id.avatar);
         return v;
     }
 
@@ -2088,7 +2088,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
             if (getActivity() != null) {
                 try {
-                    DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawerLayout);
+                    DrawerLayout drawerLayout = getActivity().findViewById(R.id.drawerLayout);
 
                     if (drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT)))
                         return null;
@@ -3055,12 +3055,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     public interface MessageViewListener extends OnBufferSelectedListener {
-        public void onMessageViewReady();
+        void onMessageViewReady();
 
-        public boolean onMessageLongClicked(Event event);
+        boolean onMessageLongClicked(Event event);
 
-        public void onMessageDoubleClicked(Event event);
+        void onMessageDoubleClicked(Event event);
 
-        public void onFailedMessageClicked(Event event);
+        void onFailedMessageClicked(Event event);
     }
 }

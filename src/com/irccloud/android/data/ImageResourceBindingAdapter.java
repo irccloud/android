@@ -24,6 +24,6 @@ import android.widget.ImageView;
 public class ImageResourceBindingAdapter {
     @BindingAdapter("android:src")
     public static void setSrc(ImageView view, int resource) {
-        ((ImageView)view).setImageResource(resource);
+        view.setImageResource(resource);
     }
 }

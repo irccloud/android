@@ -130,7 +130,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         conn = NetworkConnection.getInstance();
         conn.addHandler(this);
         if(ServersList.getInstance().count() == 0)
-            conn.getInstance().load();
+            NetworkConnection.getInstance().load();
 
         try {
             mMultiWindow = new SMultiWindow();
@@ -292,8 +292,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         Server server = ServersList.getInstance().getServer(o.cid());
                         AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
                         View view = getDialogTextPrompt();
-                        TextView prompt = (TextView) view.findViewById(R.id.prompt);
-                        final EditText keyinput = (EditText) view.findViewById(R.id.textInput);
+                        TextView prompt = view.findViewById(R.id.prompt);
+                        final EditText keyinput = view.findViewById(R.id.textInput);
                         keyinput.setText("");
                         keyinput.setOnEditorActionListener(new OnEditorActionListener() {
                             public boolean onEditorAction(TextView textView, int actionId, KeyEvent event) {
@@ -352,8 +352,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         Server server = ServersList.getInstance().getServer(o.cid());
                         AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
                         View view = getDialogTextPrompt();
-                        TextView prompt = (TextView) view.findViewById(R.id.prompt);
-                        final EditText nickinput = (EditText) view.findViewById(R.id.textInput);
+                        TextView prompt = view.findViewById(R.id.prompt);
+                        final EditText nickinput = view.findViewById(R.id.textInput);
                         nickinput.setText("");
                         nickinput.setOnEditorActionListener(new OnEditorActionListener() {
                             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {

@@ -107,7 +107,7 @@ public class LinksListFragment extends DialogFragment {
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.recyclerview, null);
-        recyclerView = (RecyclerView) v.findViewById(R.id.recycler);
+        recyclerView = v.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
         recyclerView.setVisibility(View.VISIBLE);
         adapter = new LinksAdapter();

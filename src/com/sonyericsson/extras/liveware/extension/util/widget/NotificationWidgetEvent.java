@@ -107,11 +107,7 @@ public class NotificationWidgetEvent {
         if (!TextUtils.equals(mProfileImageUri, event.mProfileImageUri)) {
             return false;
         }
-        if (!TextUtils.equals(mFriendKey, event.mFriendKey)) {
-            return false;
-        }
-
-        return true;
+        return TextUtils.equals(mFriendKey, event.mFriendKey);
     }
 
     @Override

@@ -43,7 +43,7 @@ public class SyncService extends IntentService implements NetworkConnection.IRCE
                 } catch (InterruptedException e) {
                     break;
                 }
-            };
+            }
 
             android.util.Log.d("IRCCloud", "Backlog downloaded, finishing up");
             conn.removeHandler(this);

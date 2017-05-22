@@ -142,7 +142,7 @@ public class AppCompatEditTextPreference extends AppCompatDialogPreference {
      * @param dialogView The dialog view.
      */
     protected void onAddEditTextToDialogView(View dialogView, EditText editText) {
-        ViewGroup container = (ViewGroup) dialogView
+        ViewGroup container = dialogView
                 .findViewById(R.id.edittext_container);
         if (container != null) {
             container.addView(editText, ViewGroup.LayoutParams.MATCH_PARENT,

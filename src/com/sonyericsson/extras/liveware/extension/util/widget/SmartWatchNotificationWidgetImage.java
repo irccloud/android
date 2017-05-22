@@ -71,8 +71,8 @@ public class SmartWatchNotificationWidgetImage extends SmartWatchWidgetImage {
                     .findViewById(R.id.smart_watch_notification_widget_background))
                     .setImageBitmap(backgroundBitmap);
 
-            ((ImageView)innerLayout
-                    .findViewById(R.id.smart_watch_notification_widget_text_background))
+            innerLayout
+                    .findViewById(R.id.smart_watch_notification_widget_text_background)
                     .setVisibility(View.VISIBLE);
         }
 

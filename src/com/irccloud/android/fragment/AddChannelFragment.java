@@ -96,11 +96,11 @@ public class AddChannelFragment extends DialogFragment {
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View v = inflater.inflate(R.layout.dialog_add_channel, null);
-        spinner = (Spinner) v.findViewById(R.id.networkSpinner);
-        channels = (TextView) v.findViewById(R.id.channels);
+        spinner = v.findViewById(R.id.networkSpinner);
+        channels = v.findViewById(R.id.channels);
         channels.setText("");
         channels.append("#");
-        Button b = (Button) v.findViewById(R.id.addBtn);
+        Button b = v.findViewById(R.id.addBtn);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

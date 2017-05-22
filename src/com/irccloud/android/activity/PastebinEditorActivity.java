@@ -101,7 +101,7 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
 
         setContentView(R.layout.activity_pastebineditor);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -118,11 +118,11 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
             }
         }
 
-        paste = (EditText) findViewById(R.id.paste);
-        filename = (EditText) findViewById(R.id.filename);
-        message = (EditText) findViewById(R.id.message);
-        messages_count = (TextView) findViewById(R.id.messages_count);
-        final TabLayout tabHost = (TabLayout) findViewById(android.R.id.tabhost);
+        paste = findViewById(R.id.paste);
+        filename = findViewById(R.id.filename);
+        message = findViewById(R.id.message);
+        messages_count = findViewById(R.id.messages_count);
+        final TabLayout tabHost = findViewById(android.R.id.tabhost);
 
         if (savedInstanceState != null && savedInstanceState.containsKey("message"))
             message.setText(savedInstanceState.getString("message"));

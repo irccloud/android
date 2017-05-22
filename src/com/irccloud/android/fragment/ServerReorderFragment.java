@@ -127,10 +127,10 @@ public class ServerReorderFragment extends DialogFragment implements NetworkConn
                 holder.background = row.findViewById(R.id.serverBackground);
                 holder.background.setFocusable(false);
                 holder.background.setEnabled(false);
-                holder.label = (TextView) row.findViewById(R.id.label);
-                holder.icon = (TextView) row.findViewById(R.id.icon);
+                holder.label = row.findViewById(R.id.label);
+                holder.icon = row.findViewById(R.id.icon);
                 holder.icon.setTypeface(FontAwesome.getTypeface());
-                holder.drag_handle = (TextView) row.findViewById(R.id.drag_handle);
+                holder.drag_handle = row.findViewById(R.id.drag_handle);
                 holder.drag_handle.setTypeface(FontAwesome.getTypeface());
                 row.setTag(holder);
             } else {
@@ -211,9 +211,9 @@ public class ServerReorderFragment extends DialogFragment implements NetworkConn
     }
 
     private void init(View v) {
-        listView = (DragSortListView) v.findViewById(android.R.id.list);
+        listView = v.findViewById(android.R.id.list);
         listView.setDropListener(dropListener);
-        TextView tv = (TextView) v.findViewById(R.id.hint);
+        TextView tv = v.findViewById(R.id.hint);
         tv.setTypeface(FontAwesome.getTypeface());
         tv.setText(FontAwesome.ARROWS);
     }

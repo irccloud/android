@@ -321,12 +321,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         setContentView(R.layout.activity_message);
 
         suggestionsAdapter = new SuggestionsAdapter();
-        progressBar = (ProgressBar) findViewById(R.id.progress);
-        errorMsg = (TextView) findViewById(R.id.errorMsg);
+        progressBar = findViewById(R.id.progress);
+        errorMsg = findViewById(R.id.errorMsg);
         buffersListView = findViewById(R.id.BuffersList);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        drawerLayout = findViewById(R.id.drawerLayout);
 
-        messageTxt = (ActionEditText) findViewById(R.id.messageTxt);
+        messageTxt = findViewById(R.id.messageTxt);
         messageTxt.setOnKeyListener(new OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -447,7 +447,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         };
         messageTxt.addTextChangedListener(textWatcher);
-        sendBtn = (ImageButton)findViewById(R.id.sendBtn);
+        sendBtn = findViewById(R.id.sendBtn);
         sendBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
         sendBtn.setFocusable(false);
         sendBtn.setOnClickListener(new OnClickListener() {
@@ -458,7 +458,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
 
-        photoBtn = (ImageButton)findViewById(R.id.photoBtn);
+        photoBtn = findViewById(R.id.photoBtn);
         if (photoBtn != null) {
             photoBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
             photoBtn.setFocusable(false);
@@ -497,9 +497,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         messageTxt.setDrawerLayout(drawerLayout);
 
-        title = (TextView) v.findViewById(R.id.title);
-        subtitle = (TextView) v.findViewById(R.id.subtitle);
-        key = (TextView) v.findViewById(R.id.key);
+        title = v.findViewById(R.id.title);
+        subtitle = v.findViewById(R.id.subtitle);
+        key = v.findViewById(R.id.key);
         key.setTypeface(FontAwesome.getTypeface());
 
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
@@ -620,7 +620,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
            mvf.getView().setOnDragListener(dragListener);
         messageTxt.setOnDragListener(dragListener);
 
-        ImageView img = (ImageView)findViewById(R.id.drop_target_icon);
+        ImageView img = findViewById(R.id.drop_target_icon);
         img.getDrawable().mutate().setColorFilter(0xFFFFFFFF, PorterDuff.Mode.SRC_ATOP);
     }
 
@@ -634,7 +634,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void adjustTabletLayout() {
-        Toolbar toolbar = ((Toolbar) findViewById(R.id.toolbar));
+        Toolbar toolbar = findViewById(R.id.toolbar);
         if(toolbar != null) {
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
                 toolbar.setNavigationIcon(null);
@@ -3817,8 +3817,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return true;
             case R.id.menu_invite:
                 View view = getDialogTextPrompt();
-                TextView prompt = (TextView) view.findViewById(R.id.prompt);
-                final EditText input = (EditText) view.findViewById(R.id.textInput);
+                TextView prompt = view.findViewById(R.id.prompt);
+                final EditText input = view.findViewById(R.id.textInput);
                 input.setText("");
                 prompt.setText("Invite someone to join " + buffer.getName());
                 builder = new AlertDialog.Builder(MainActivity.this);
@@ -3888,8 +3888,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(c != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             View view = getDialogTextPrompt();
-            TextView prompt = (TextView) view.findViewById(R.id.prompt);
-            final EditText input = (EditText) view.findViewById(R.id.textInput);
+            TextView prompt = view.findViewById(R.id.prompt);
+            final EditText input = view.findViewById(R.id.textInput);
             input.setText(c.topic_text);
             prompt.setVisibility(View.GONE);
             builder.setTitle("Topic for " + c.name);
@@ -4171,8 +4171,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     reorder();
                 } else if (items[item].equals("Invite to Channel…")) {
                     View view = getDialogTextPrompt();
-                    TextView prompt = (TextView) view.findViewById(R.id.prompt);
-                    final EditText input = (EditText) view.findViewById(R.id.textInput);
+                    TextView prompt = view.findViewById(R.id.prompt);
+                    final EditText input = view.findViewById(R.id.textInput);
                     input.setText("");
                     prompt.setText("Invite someone to join " + b.getName());
                     builder = new AlertDialog.Builder(MainActivity.this);
@@ -4237,8 +4237,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.show();
                 } else if (items[item].equals("Join a Channel…")) {
                     View view = getDialogTextPrompt();
-                    TextView prompt = (TextView) view.findViewById(R.id.prompt);
-                    final EditText input = (EditText) view.findViewById(R.id.textInput);
+                    TextView prompt = view.findViewById(R.id.prompt);
+                    final EditText input = view.findViewById(R.id.textInput);
                     input.setText("");
                     prompt.setText("Which channel do you want to join?");
                     builder = new AlertDialog.Builder(MainActivity.this);
@@ -4561,8 +4561,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     onUserDoubleClicked(selected_user.nick);
                 } else if (items[item].equals("Invite to a channel…")) {
                     view = getDialogTextPrompt();
-                    prompt = (TextView) view.findViewById(R.id.prompt);
-                    input = (EditText) view.findViewById(R.id.textInput);
+                    prompt = view.findViewById(R.id.prompt);
+                    input = view.findViewById(R.id.textInput);
                     input.setText("");
                     prompt.setText("Invite " + selected_user.nick + " to a channel");
                     builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
@@ -4586,8 +4586,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.show();
                 } else if (items[item].equals("Ignore")) {
                     view = getDialogTextPrompt();
-                    prompt = (TextView) view.findViewById(R.id.prompt);
-                    input = (EditText) view.findViewById(R.id.textInput);
+                    prompt = view.findViewById(R.id.prompt);
+                    input = view.findViewById(R.id.textInput);
                     if(selected_user.hostmask != null && selected_user.hostmask.length() > 0)
                         input.setText("*!" + selected_user.hostmask);
                     else
@@ -4622,8 +4622,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     conn.mode(buffer.getCid(), buffer.getName(), "-" + (server != null ? server.MODE_VOICED : "v") + " " + selected_user.nick);
                 } else if (items[item].equals("Kick…")) {
                     view = getDialogTextPrompt();
-                    prompt = (TextView) view.findViewById(R.id.prompt);
-                    input = (EditText) view.findViewById(R.id.textInput);
+                    prompt = view.findViewById(R.id.prompt);
+                    input = view.findViewById(R.id.textInput);
                     input.setText("");
                     prompt.setText("Give a reason for kicking");
                     builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
@@ -4647,8 +4647,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.show();
                 } else if (items[item].equals("Ban…")) {
                     view = getDialogTextPrompt();
-                    prompt = (TextView) view.findViewById(R.id.prompt);
-                    input = (EditText) view.findViewById(R.id.textInput);
+                    prompt = view.findViewById(R.id.prompt);
+                    input = view.findViewById(R.id.textInput);
                     if(selected_user.hostmask != null && selected_user.hostmask.length() > 0)
                         input.setText("*!" + selected_user.hostmask);
                     else
@@ -4756,10 +4756,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         }
-        if (buffer != null && buffer.getBid() == bid && findViewById(R.id.splash) != null && findViewById(R.id.splash).getVisibility() == View.GONE)
-            shouldFadeIn = false;
-        else
-            shouldFadeIn = true;
+        shouldFadeIn = !(buffer != null && buffer.getBid() == bid && findViewById(R.id.splash) != null && findViewById(R.id.splash).getVisibility() == View.GONE);
         buffer = BuffersList.getInstance().getBuffer(bid);
         if (buffer != null) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.getCid() + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
@@ -5215,8 +5212,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
-    ;
-
     public class ImgurUploadTask extends AsyncTaskEx<Void, Float, String> {
         private final String UPLOAD_URL = (BuildConfig.MASHAPE_KEY.length() > 0) ? "https://imgur-apiv3.p.mashape.com/3/image" : "https://api.imgur.com/3/image";
         private Uri mImageUri;  // local Uri to upload
@@ -5417,7 +5412,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ActionEditText messageTxt = (ActionEditText) activity.findViewById(R.id.messageTxt);
+                            ActionEditText messageTxt = activity.findViewById(R.id.messageTxt);
                             String txt = messageTxt.getText().toString();
                             if (txt.length() > 0 && !txt.endsWith(" "))
                                 txt += " ";
@@ -5618,9 +5613,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 public void run() {
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                     final View view = activity.getLayoutInflater().inflate(R.layout.dialog_upload, null);
-                    final EditText fileinput = (EditText) view.findViewById(R.id.filename);
-                    final EditText messageinput = (EditText) view.findViewById(R.id.message);
-                    final ImageView thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
+                    final EditText fileinput = view.findViewById(R.id.filename);
+                    final EditText messageinput = view.findViewById(R.id.message);
+                    final ImageView thumbnail = view.findViewById(R.id.thumbnail);
                     messageinput.setText(activity.buffer.getDraft());
                     activity.buffer.setDraft("");
                     activity.messageTxt.setText("");
@@ -5652,7 +5647,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         thumbnail.setVisibility(View.GONE);
                     }
 
-                    fileSize = (TextView) view.findViewById(R.id.filesize);
+                    fileSize = view.findViewById(R.id.filesize);
                     String filesize;
                     if (total == 0) {
                         fileSize.setText("Calculating size… • " + type);

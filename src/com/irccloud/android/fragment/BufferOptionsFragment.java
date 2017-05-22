@@ -201,12 +201,12 @@ public class BufferOptionsFragment extends DialogFragment {
             return null;
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.dialog_buffer_options, null);
-        unread = (SwitchCompat) v.findViewById(R.id.unread);
-        joinpart = (SwitchCompat) v.findViewById(R.id.joinpart);
-        collapse = (SwitchCompat) v.findViewById(R.id.collapse);
-        expandDisco = (SwitchCompat) v.findViewById(R.id.expandDisco);
-        readOnSelect = (SwitchCompat) v.findViewById(R.id.readOnSelect);
-        inlineFiles = (SwitchCompat) v.findViewById(R.id.inlineFiles);
+        unread = v.findViewById(R.id.unread);
+        joinpart = v.findViewById(R.id.joinpart);
+        collapse = v.findViewById(R.id.collapse);
+        expandDisco = v.findViewById(R.id.expandDisco);
+        readOnSelect = v.findViewById(R.id.readOnSelect);
+        inlineFiles = v.findViewById(R.id.inlineFiles);
 
         if (savedInstanceState != null && bid == -1 && savedInstanceState.containsKey("bid")) {
             bid = savedInstanceState.getInt("bid");

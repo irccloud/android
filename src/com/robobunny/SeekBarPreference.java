@@ -112,7 +112,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
         super.onBindView(view);
         if(view != null)
         {
-            mSeekBar = (AppCompatSeekBar)view.findViewById(R.id.seekBarPrefSeekBar);
+            mSeekBar = view.findViewById(R.id.seekBarPrefSeekBar);
             mSeekBar.setMax(mMaxValue - mMinValue);
             mSeekBar.setOnSeekBarChangeListener(this);
         }
@@ -128,17 +128,17 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
     protected void updateView(View view) {
 
         try {
-            mStatusText = (TextView) view.findViewById(R.id.seekBarPrefValue);
+            mStatusText = view.findViewById(R.id.seekBarPrefValue);
 
             mStatusText.setText(String.valueOf(mCurrentValue));
             mStatusText.setMinimumWidth(30);
 
             mSeekBar.setProgress(mCurrentValue - mMinValue);
 
-            TextView unitsRight = (TextView) view.findViewById(R.id.seekBarPrefUnitsRight);
+            TextView unitsRight = view.findViewById(R.id.seekBarPrefUnitsRight);
             unitsRight.setText(mUnitsRight);
 
-            TextView unitsLeft = (TextView) view.findViewById(R.id.seekBarPrefUnitsLeft);
+            TextView unitsLeft = view.findViewById(R.id.seekBarPrefUnitsLeft);
             unitsLeft.setText(mUnitsLeft);
 
         } catch (Exception e) {

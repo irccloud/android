@@ -119,7 +119,7 @@ public class Widget {
          * </p>
          * @since 1.0
          */
-        static final String WIDGET_START_REFRESH_IMAGE_INTENT = "com.sonyericsson.extras.aef.widget.START_REFRESH_IMAGE_REQUEST";
+        String WIDGET_START_REFRESH_IMAGE_INTENT = "com.sonyericsson.extras.aef.widget.START_REFRESH_IMAGE_REQUEST";
 
         /**
          * Intent sent by the Accessory Host Application whenever it wants the Widget to stop/pause update it's Widget image.
@@ -134,7 +134,7 @@ public class Widget {
          * </p>
          * @since 1.0
          */
-        static final String WIDGET_STOP_REFRESH_IMAGE_INTENT = "com.sonyericsson.extras.aef.widget.STOP_REFRESH_IMAGE_REQUEST";
+        String WIDGET_STOP_REFRESH_IMAGE_INTENT = "com.sonyericsson.extras.aef.widget.STOP_REFRESH_IMAGE_REQUEST";
 
         /**
          * Intent used by the Widget Extension whenever it wants to update its widget image.
@@ -155,7 +155,7 @@ public class Widget {
          * </p>
          * @since 1.0
          */
-        static final String WIDGET_IMAGE_UPDATE_INTENT = "com.sonyericsson.extras.aef.widget.IMAGE_UPDATE";
+        String WIDGET_IMAGE_UPDATE_INTENT = "com.sonyericsson.extras.aef.widget.IMAGE_UPDATE";
 
         /**
          * This intent may be used by the Widget Extension as a response to a {@link #WIDGET_ONTOUCH_INTENT}.
@@ -175,7 +175,7 @@ public class Widget {
          * </p>
          * @since 1.0
          */
-        static final String WIDGET_ENTER_NEXT_LEVEL_INTENT = "com.sonyericsson.extras.aef.widget.ENTER_NEW_LEVEL";
+        String WIDGET_ENTER_NEXT_LEVEL_INTENT = "com.sonyericsson.extras.aef.widget.ENTER_NEW_LEVEL";
 
         /**
          * Intent sent by the Host Application to the Widget Extension whenever a user interacts with the Widget image.
@@ -193,7 +193,7 @@ public class Widget {
          * </p>
          * @since 1.0
          */
-        static final String WIDGET_ONTOUCH_INTENT = "com.sonyericsson.extras.aef.widget.ONTOUCH";
+        String WIDGET_ONTOUCH_INTENT = "com.sonyericsson.extras.aef.widget.ONTOUCH";
 
         /**
          * The name of the Intent-extra used to identify the Host Application.
@@ -203,7 +203,7 @@ public class Widget {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_AHA_PACKAGE_NAME = "aha_package_name";
+        String EXTRA_AHA_PACKAGE_NAME = "aha_package_name";
 
         /**
          * The name of the Intent-extra used to identify the Extension.
@@ -213,7 +213,7 @@ public class Widget {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_AEA_PACKAGE_NAME = "aea_package_name";
+        String EXTRA_AEA_PACKAGE_NAME = "aea_package_name";
 
         /**
          * The name of the Intent-extra used to identify the URI of the Widget image.
@@ -225,7 +225,7 @@ public class Widget {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_WIDGET_IMAGE_URI = "widget_image_uri";
+        String EXTRA_WIDGET_IMAGE_URI = "widget_image_uri";
 
         /**
          * The name of the Intent-extra used to identify the Widget image.
@@ -237,7 +237,7 @@ public class Widget {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_WIDGET_IMAGE_DATA = "widget_image_data";
+        String EXTRA_WIDGET_IMAGE_DATA = "widget_image_data";
 
         /**
          * The name of the Intent-extra used to identify the touch event
@@ -253,7 +253,7 @@ public class Widget {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_EVENT_TYPE = "widget_event_type";
+        String EXTRA_EVENT_TYPE = "widget_event_type";
 
         /**
          * The name of the Intent-extra used to carry the X coordinate of the touch event
@@ -262,7 +262,7 @@ public class Widget {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_EVENT_X_POS = "widget_event_x_pos";
+        String EXTRA_EVENT_X_POS = "widget_event_x_pos";
 
         /**
          * The name of the Intent-extra used to carry the Y coordinate of the touch event
@@ -271,7 +271,7 @@ public class Widget {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_EVENT_Y_POS = "widget_event_y_pos";
+        String EXTRA_EVENT_Y_POS = "widget_event_y_pos";
 
         /**
          * The name of the Intent-extra containing the key set by the extension
@@ -283,20 +283,20 @@ public class Widget {
          *
          * @since 1.0
          */
-        static final String EXTRA_EXTENSION_KEY = "extension_key";
+        String EXTRA_EXTENSION_KEY = "extension_key";
 
         /**
          * The event type is a short tap
          *
          * @since 1.0
          */
-        static final int EVENT_TYPE_SHORT_TAP = 0;
+        int EVENT_TYPE_SHORT_TAP = 0;
 
         /**
          * The event type is a long tap
          *
          * @since 1.0
          */
-        static final int EVENT_TYPE_LONG_TAP = 1;
+        int EVENT_TYPE_LONG_TAP = 1;
     }
 }

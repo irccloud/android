@@ -207,26 +207,26 @@ public class SmartWatchWidgetImage {
                 R.layout.smart_watch_widget, root);
 
         if (mBadgeCount > 0) {
-            TextView badgeText = (TextView)linearLayout
+            TextView badgeText = linearLayout
                     .findViewById(R.id.smart_watch_widget_event_counter_text);
             badgeText.setText(Integer.toString(mBadgeCount));
             badgeText.setVisibility(View.VISIBLE);
 
-            ImageView badgeBackground = (ImageView)linearLayout
+            ImageView badgeBackground = linearLayout
                     .findViewById(R.id.smart_watch_widget_event_counter_badge);
             badgeBackground.setVisibility(View.VISIBLE);
         }
 
-        ImageView icon = (ImageView)linearLayout.findViewById(R.id.smart_watch_widget_icon);
+        ImageView icon = linearLayout.findViewById(R.id.smart_watch_widget_icon);
         icon.setImageBitmap(mIconBitmap);
 
         if (null != mText) {
-            TextView textView = (TextView)linearLayout
+            TextView textView = linearLayout
                     .findViewById(R.id.smart_watch_widget_custom_text_view);
             textView.setText(mText);
         }
 
-        ImageView customImage = (ImageView)linearLayout
+        ImageView customImage = linearLayout
                 .findViewById(R.id.smart_watch_widget_custom_image);
         customImage.setImageBitmap(getInnerBitmap());
 

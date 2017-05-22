@@ -40,6 +40,6 @@ public interface AccessorySensorEventListener {
      *
      * @param accessorySensorEvent The received sensor event.
      */
-    public void onSensorEvent(AccessorySensorEvent accessorySensorEvent);
+    void onSensorEvent(AccessorySensorEvent accessorySensorEvent);
 
 }

@@ -233,7 +233,7 @@ public class PastebinsActivity extends BaseActivity {
 
         setContentView(R.layout.listview);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(toolbar);
 
@@ -264,7 +264,7 @@ public class PastebinsActivity extends BaseActivity {
         }
 
         footer = getLayoutInflater().inflate(R.layout.messageview_header, null);
-        ListView listView = (ListView) findViewById(android.R.id.list);
+        ListView listView = findViewById(android.R.id.list);
         listView.setAdapter(adapter);
         listView.addFooterView(footer);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -357,7 +357,7 @@ public class PastebinsActivity extends BaseActivity {
     private void checkEmpty() {
         if(adapter.getCount() == 0 && !canLoadMore) {
             findViewById(android.R.id.list).setVisibility(View.GONE);
-            TextView empty = (TextView)findViewById(android.R.id.empty);
+            TextView empty = findViewById(android.R.id.empty);
             empty.setVisibility(View.VISIBLE);
             empty.setText("You haven't created any pastebins yet.");
         } else {

@@ -145,8 +145,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         if(savedInstanceState == null && (getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) || isMultiWindow()))
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_pastebin);
-        mSpinner = (ProgressBar) findViewById(R.id.spinner);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mSpinner = findViewById(R.id.spinner);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
@@ -160,7 +160,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mWebView = (WebView) findViewById(R.id.image);
+        mWebView = findViewById(R.id.image);
         mWebView.setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
         mWebView.getSettings().setBuiltInZoomControls(true);
         if (Integer.parseInt(Build.VERSION.SDK) >= 19)

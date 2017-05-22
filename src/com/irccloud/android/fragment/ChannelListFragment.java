@@ -130,9 +130,9 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.recyclerview, null);
-        recyclerView = (RecyclerView) v.findViewById(R.id.recycler);
+        recyclerView = v.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
-        empty = (TextView) v.findViewById(android.R.id.empty);
+        empty = v.findViewById(android.R.id.empty);
         empty.setText("Loading channel list…");
         return v;
     }

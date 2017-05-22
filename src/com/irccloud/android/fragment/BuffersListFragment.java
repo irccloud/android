@@ -588,12 +588,12 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.bufferslist, null);
-        progressBar = (ProgressBar)view.findViewById(R.id.bufferprogress);
-        recyclerView = (RecyclerView)view.findViewById(android.R.id.list);
+        progressBar = view.findViewById(R.id.bufferprogress);
+        recyclerView = view.findViewById(android.R.id.list);
         layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(null);
-        topUnreadIndicator = (LinearLayout) view.findViewById(R.id.topUnreadIndicator);
+        topUnreadIndicator = view.findViewById(R.id.topUnreadIndicator);
         topUnreadIndicator.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -608,9 +608,9 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             }
 
         });
-        topUnreadIndicatorColor = (LinearLayout) view.findViewById(R.id.topUnreadIndicatorColor);
-        topUnreadIndicatorBorder = (LinearLayout) view.findViewById(R.id.topUnreadIndicatorBorder);
-        bottomUnreadIndicator = (LinearLayout) view.findViewById(R.id.bottomUnreadIndicator);
+        topUnreadIndicatorColor = view.findViewById(R.id.topUnreadIndicatorColor);
+        topUnreadIndicatorBorder = view.findViewById(R.id.topUnreadIndicatorBorder);
+        bottomUnreadIndicator = view.findViewById(R.id.bottomUnreadIndicator);
         bottomUnreadIndicator.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -627,8 +627,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             }
 
         });
-        bottomUnreadIndicatorColor = (LinearLayout) view.findViewById(R.id.bottomUnreadIndicatorColor);
-        bottomUnreadIndicatorBorder = (LinearLayout) view.findViewById(R.id.bottomUnreadIndicatorBorder);
+        bottomUnreadIndicatorColor = view.findViewById(R.id.bottomUnreadIndicatorColor);
+        bottomUnreadIndicatorBorder = view.findViewById(R.id.bottomUnreadIndicatorBorder);
         recyclerView.addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -904,14 +904,14 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
     }
 
     public interface OnBufferSelectedListener {
-        public void onBufferSelected(int bid);
+        void onBufferSelected(int bid);
 
-        public boolean onBufferLongClicked(Buffer b);
+        boolean onBufferLongClicked(Buffer b);
 
-        public void addButtonPressed(int cid);
+        void addButtonPressed(int cid);
 
-        public void addNetwork();
+        void addNetwork();
 
-        public void reorder();
+        void reorder();
     }
 }

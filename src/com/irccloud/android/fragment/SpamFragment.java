@@ -80,7 +80,7 @@ public class SpamFragment extends DialogFragment {
         CharSequence[] items = itemsList.toArray(new CharSequence[itemsList.size()]);
         LayoutInflater inflater = LayoutInflater.from(ctx);
         View v = inflater.inflate(R.layout.dialog_spam, null);
-        listView = (ListView)v.findViewById(android.R.id.list);
+        listView = v.findViewById(android.R.id.list);
         listView.setAdapter(new ArrayAdapter<>(ctx, R.layout.row_spam, items));
 
         for(int i = 0; i < buffers.size(); i++) {

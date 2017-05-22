@@ -98,7 +98,7 @@ public class Sensor {
          * </p>
          * @since 1.0
          */
-        static final String SENSOR_REGISTER_LISTENER_INTENT = "com.sonyericsson.extras.aef.sensor.REGISTER_LISTENER";
+        String SENSOR_REGISTER_LISTENER_INTENT = "com.sonyericsson.extras.aef.sensor.REGISTER_LISTENER";
 
         /**
          * Intent used by the Sensor Extension whenever it wants to stop listen
@@ -117,7 +117,7 @@ public class Sensor {
          * </p>
          * @since 1.0
          */
-        static final String SENSOR_UNREGISTER_LISTENER_INTENT = "com.sonyericsson.extras.aef.sensor.UNREGISTER_LISTENER";
+        String SENSOR_UNREGISTER_LISTENER_INTENT = "com.sonyericsson.extras.aef.sensor.UNREGISTER_LISTENER";
 
         /**
          * Intent sent by the Host Application when an error situation has occurred
@@ -132,7 +132,7 @@ public class Sensor {
          * </p>
          * @since 1.0
          */
-        static final String SENSOR_ERROR_MESSAGE_INTENT = "com.sonyericsson.extras.aef.sensor.ERROR_MESSSAGE";
+        String SENSOR_ERROR_MESSAGE_INTENT = "com.sonyericsson.extras.aef.sensor.ERROR_MESSSAGE";
 
         /**
          * The name of the Intent-extra used to identify the Extension.
@@ -142,7 +142,7 @@ public class Sensor {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_AEA_PACKAGE_NAME = "aea_package_name";
+        String EXTRA_AEA_PACKAGE_NAME = "aea_package_name";
 
         /**
          * The name of the Intent-extra used to identify the Sensor.
@@ -154,7 +154,7 @@ public class Sensor {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_SENSOR_ID = "sensor_id";
+        String EXTRA_SENSOR_ID = "sensor_id";
 
         /**
          * The name of the Intent-extra used to identify the name of the Android
@@ -165,7 +165,7 @@ public class Sensor {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_SENSOR_LOCAL_SERVER_SOCKET_NAME = "local_server_socket_name";
+        String EXTRA_SENSOR_LOCAL_SERVER_SOCKET_NAME = "local_server_socket_name";
 
         /**
          * The name of the Intent-extra used to set the
@@ -178,7 +178,7 @@ public class Sensor {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_SENSOR_REQUESTED_RATE = "requested_rate";
+        String EXTRA_SENSOR_REQUESTED_RATE = "requested_rate";
 
         /**
          * The name of the Intent-extra used to set the
@@ -191,7 +191,7 @@ public class Sensor {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_SENSOR_INTERRUPT_MODE = "interrupt_mode";
+        String EXTRA_SENSOR_INTERRUPT_MODE = "interrupt_mode";
 
         /**
          * The name of the Intent-extra used to set the
@@ -205,7 +205,7 @@ public class Sensor {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_ERROR_CODE = "error_code";
+        String EXTRA_ERROR_CODE = "error_code";
 
         /**
          * The name of the Intent-extra used to identify the Host Application.
@@ -215,7 +215,7 @@ public class Sensor {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_AHA_PACKAGE_NAME = "aha_package_name";
+        String EXTRA_AHA_PACKAGE_NAME = "aha_package_name";
     }
 
     /**
@@ -229,22 +229,22 @@ public class Sensor {
         /**
          * Get sensor data as fast as possible
          */
-        static final int SENSOR_DELAY_FASTEST = 1;
+        int SENSOR_DELAY_FASTEST = 1;
 
         /**
          * Rate suitable for games
          */
-        static final int SENSOR_DELAY_GAME = 2;
+        int SENSOR_DELAY_GAME = 2;
 
         /**
          * Rate suitable for screen orientation changes
          */
-        static final int SENSOR_DELAY_NORMAL = 3;
+        int SENSOR_DELAY_NORMAL = 3;
 
         /**
          * Rate suitable for user interface
          */
-        static final int SENSOR_DELAY_UI = 4;
+        int SENSOR_DELAY_UI = 4;
     }
 
     /**
@@ -259,24 +259,24 @@ public class Sensor {
          * The values returned by this sensor cannot be trusted,
          * calibration is needed or the environment will not allow readings
          */
-        static final int SENSOR_STATUS_UNRELIABLE = 0;
+        int SENSOR_STATUS_UNRELIABLE = 0;
 
         /**
          * This sensor is reporting data with low accuracy,
          * calibration with the environment is needed
          */
-        static final int SENSOR_STATUS_ACCURACY_LOW = 1;
+        int SENSOR_STATUS_ACCURACY_LOW = 1;
 
        /**
         * This sensor is reporting data with an average level of accuracy,
         * calibration with the environment may improve the readings
         */
-        static final int SENSOR_STATUS_ACCURACY_MEDIUM = 2;
+       int SENSOR_STATUS_ACCURACY_MEDIUM = 2;
 
         /**
          * This sensor is reporting data with maximum accuracy
          */
-        static final int SENSOR_STATUS_ACCURACY_HIGH = 3;
+        int SENSOR_STATUS_ACCURACY_HIGH = 3;
     }
 
     /**
@@ -290,13 +290,13 @@ public class Sensor {
          * The interrupt mode is disabled,
          * e.g. the sensor is sending data continuously
          */
-        static final int SENSOR_INTERRUPT_DISABLED = 0;
+        int SENSOR_INTERRUPT_DISABLED = 0;
 
         /**
          * The interrupt mode is enabled,
          * e.g. no sensor is sent until new sensor data is available
          */
-        static final int SENSOR_INTERRUPT_ENABLED = 1;
+        int SENSOR_INTERRUPT_ENABLED = 1;
     }
 
     /**
@@ -310,7 +310,7 @@ public class Sensor {
          * requested by the extension is not allowed
          * in the current state
          */
-        static final int SENSOR_ERROR_CODE_NOT_ALLOWED = 0;
+        int SENSOR_ERROR_CODE_NOT_ALLOWED = 0;
     }
 
     /**

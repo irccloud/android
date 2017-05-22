@@ -138,9 +138,9 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.recyclerview, null);
-        recyclerView = (RecyclerView) v.findViewById(R.id.recycler);
+        recyclerView = v.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
-        empty = (TextView) v.findViewById(android.R.id.empty);
+        empty = v.findViewById(android.R.id.empty);
         empty.setText(placeholder);
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             cid = savedInstanceState.getInt("cid");
@@ -194,8 +194,8 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.dialog_textprompt, null);
-            TextView prompt = (TextView) view.findViewById(R.id.prompt);
-            final EditText input = (EditText) view.findViewById(R.id.textInput);
+            TextView prompt = view.findViewById(R.id.prompt);
+            final EditText input = view.findViewById(R.id.textInput);
             input.setHint("nickname!user@host.name");
             prompt.setText("Add this hostmask");
             builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");

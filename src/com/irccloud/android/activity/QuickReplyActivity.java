@@ -119,8 +119,8 @@ public class QuickReplyActivity extends AppCompatActivity {
                 row = inflater.inflate(R.layout.row_message, viewGroup, false);
 
                 holder = new ViewHolder();
-                holder.timestamp = (TextView)row.findViewById(R.id.timestamp_right);
-                holder.message = (TextView)row.findViewById(R.id.message);
+                holder.timestamp = row.findViewById(R.id.timestamp_right);
+                holder.message = row.findViewById(R.id.message);
                 holder.avatar = row.findViewById(R.id.avatar);
 
                 row.setTag(holder);
@@ -204,8 +204,8 @@ public class QuickReplyActivity extends AppCompatActivity {
             return;
         }
 
-        final ImageButton send = (ImageButton) findViewById(R.id.sendBtn);
-        final EditText message = (EditText) findViewById(R.id.messageTxt);
+        final ImageButton send = findViewById(R.id.sendBtn);
+        final EditText message = findViewById(R.id.messageTxt);
         message.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
@@ -237,7 +237,7 @@ public class QuickReplyActivity extends AppCompatActivity {
         });
         send.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
 
-        ListView listView = (ListView) findViewById(R.id.conversation);
+        ListView listView = findViewById(R.id.conversation);
         listView.setAdapter(adapter);
     }
 

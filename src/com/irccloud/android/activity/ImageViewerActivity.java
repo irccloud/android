@@ -382,7 +382,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_imageviewer);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         try {
             setSupportActionBar(toolbar);
         } catch (Throwable t) {
@@ -404,7 +404,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_translucent));
 
-        mImage = (WebView) findViewById(R.id.image);
+        mImage = findViewById(R.id.image);
         mImage.setBackgroundColor(0);
         mImage.addJavascriptInterface(new JSInterface(), "Android");
         mImage.getSettings().setBuiltInZoomControls(true);
@@ -439,9 +439,9 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 mProgress.setVisibility(View.VISIBLE);
             }
         });
-        mSpinner = (ProgressBar) findViewById(R.id.spinner);
-        mProgress = (ProgressBar) findViewById(R.id.progress);
-        final SurfaceView v = (SurfaceView) findViewById(R.id.video);
+        mSpinner = findViewById(R.id.spinner);
+        mProgress = findViewById(R.id.progress);
+        final SurfaceView v = findViewById(R.id.video);
         v.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
         v.getHolder().addCallback(new SurfaceHolder.Callback() {

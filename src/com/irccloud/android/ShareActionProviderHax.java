@@ -39,6 +39,6 @@ public class ShareActionProviderHax extends ShareActionProvider {
     }
 
     public interface OnShareActionProviderSubVisibilityChangedListener {
-        public void onShareActionProviderSubVisibilityChanged(boolean visible);
+        void onShareActionProviderSubVisibilityChanged(boolean visible);
     }
 }

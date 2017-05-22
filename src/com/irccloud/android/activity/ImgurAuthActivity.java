@@ -45,7 +45,7 @@ public class ImgurAuthActivity extends AppCompatActivity implements NetworkConne
         setContentView(R.layout.activity_imageviewer);
         findViewById(R.id.toolbar).setVisibility(View.GONE);
         findViewById(R.id.progress).setVisibility(View.GONE);
-        mWebView = (WebView) findViewById(R.id.image);
+        mWebView = findViewById(R.id.image);
         CookieSyncManager.createInstance(this);
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.removeAllCookie();

@@ -80,8 +80,8 @@ public class NickservFragment extends DialogFragment {
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View v = inflater.inflate(R.layout.dialog_nickserv, null);
-        nick = (TextView) v.findViewById(R.id.nickname);
-        pass = (EditText) v.findViewById(R.id.password);
+        nick = v.findViewById(R.id.nickname);
+        pass = v.findViewById(R.id.password);
         nick.setText("Password for " + server.getNick());
         if (server.getNickserv_pass() != null)
             pass.setText(server.getNickserv_pass());

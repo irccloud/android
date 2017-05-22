@@ -46,7 +46,7 @@ public class SAMLAuthActivity extends AppCompatActivity {
         setContentView(R.layout.activity_imageviewer);
         findViewById(R.id.toolbar).setVisibility(View.GONE);
         findViewById(R.id.progress).setVisibility(View.GONE);
-        mWebView = (WebView) findViewById(R.id.image);
+        mWebView = findViewById(R.id.image);
         findViewById(R.id.background).setBackgroundColor(0xFFFFFFFF);
         CookieSyncManager.createInstance(this);
         CookieManager cookieManager = CookieManager.getInstance();

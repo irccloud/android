@@ -246,7 +246,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_START_REQUEST_INTENT = "com.sonyericsson.extras.aef.control.START_REQUEST";
+        String CONTROL_START_REQUEST_INTENT = "com.sonyericsson.extras.aef.control.START_REQUEST";
 
         /**
          * Intent sent by the Extension when it wants to stop controlling the accessory display.
@@ -263,7 +263,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_STOP_REQUEST_INTENT = "com.sonyericsson.extras.aef.control.STOP_REQUEST";
+        String CONTROL_STOP_REQUEST_INTENT = "com.sonyericsson.extras.aef.control.STOP_REQUEST";
 
         /**
          * Intent sent by the Host Application when it grants control of the accessory display to the Extension.
@@ -279,7 +279,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_START_INTENT = "com.sonyericsson.extras.aef.control.START";
+        String CONTROL_START_INTENT = "com.sonyericsson.extras.aef.control.START";
 
         /**
          * Intent sent by the Host Application when it takes back control of the accessory display from the Extension.
@@ -295,7 +295,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_STOP_INTENT = "com.sonyericsson.extras.aef.control.STOP";
+        String CONTROL_STOP_INTENT = "com.sonyericsson.extras.aef.control.STOP";
 
         /**
          * Intent sent by the Host Application when the Extension is no longer visible on the display.
@@ -309,7 +309,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_PAUSE_INTENT = "com.sonyericsson.extras.aef.control.PAUSE";
+        String CONTROL_PAUSE_INTENT = "com.sonyericsson.extras.aef.control.PAUSE";
 
         /**
          * Intent sent by the Host Application when the Extension is visible on the display.
@@ -323,7 +323,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_RESUME_INTENT = "com.sonyericsson.extras.aef.control.RESUME";
+        String CONTROL_RESUME_INTENT = "com.sonyericsson.extras.aef.control.RESUME";
 
         /**
          * Intent sent by the Host Application when a error occurs
@@ -338,7 +338,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_ERROR_INTENT = "com.sonyericsson.extras.aef.control.ERROR";
+        String CONTROL_ERROR_INTENT = "com.sonyericsson.extras.aef.control.ERROR";
 
         /**
          * Intent sent by the Extension when it wants to set the state of the accessory display.
@@ -358,7 +358,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_SET_SCREEN_STATE_INTENT = "com.sonyericsson.extras.aef.control.SET_SCREEN_STATE";
+        String CONTROL_SET_SCREEN_STATE_INTENT = "com.sonyericsson.extras.aef.control.SET_SCREEN_STATE";
 
         /**
          * Intent sent by the Extension when it wants to control one of the LEDs available on the accessory.
@@ -382,7 +382,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_LED_INTENT = "com.sonyericsson.extras.aef.control.LED";
+        String CONTROL_LED_INTENT = "com.sonyericsson.extras.aef.control.LED";
 
         /**
          * Intent sent by the Extension when it wants to stop an ongoing LED sequence on the accessory.
@@ -401,7 +401,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_STOP_LED_INTENT = "com.sonyericsson.extras.aef.control.STOP_LED";
+        String CONTROL_STOP_LED_INTENT = "com.sonyericsson.extras.aef.control.STOP_LED";
 
         /**
          * Intent sent by the Extension when it wants to control the vibrator available on the accessory.
@@ -423,7 +423,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_VIBRATE_INTENT = "com.sonyericsson.extras.aef.control.VIBRATE";
+        String CONTROL_VIBRATE_INTENT = "com.sonyericsson.extras.aef.control.VIBRATE";
 
         /**
          * Intent sent by the Extension when it wants to stop an ongoing vibration on the accessory.
@@ -440,7 +440,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_STOP_VIBRATE_INTENT = "com.sonyericsson.extras.aef.control.STOP_VIBRATE";
+        String CONTROL_STOP_VIBRATE_INTENT = "com.sonyericsson.extras.aef.control.STOP_VIBRATE";
 
         /**
          * Intent sent by the Extension whenever it wants to update the accessory display.
@@ -462,7 +462,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_DISPLAY_DATA_INTENT = "com.sonyericsson.extras.aef.control.DISPLAY_DATA";
+        String CONTROL_DISPLAY_DATA_INTENT = "com.sonyericsson.extras.aef.control.DISPLAY_DATA";
 
         /**
          * Intent sent by the Extension whenever it wants to clear the accessory display.
@@ -479,7 +479,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_CLEAR_DISPLAY_INTENT = "com.sonyericsson.extras.aef.control.CLEAR_DISPLAY";
+        String CONTROL_CLEAR_DISPLAY_INTENT = "com.sonyericsson.extras.aef.control.CLEAR_DISPLAY";
 
         /**
          * Intent sent by the Host Application to the controlling Extension whenever an hardware
@@ -497,7 +497,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_KEY_EVENT_INTENT = "com.sonyericsson.extras.aef.control.KEY_EVENT";
+        String CONTROL_KEY_EVENT_INTENT = "com.sonyericsson.extras.aef.control.KEY_EVENT";
 
         /**
          * Intent sent by the Host Application to the controlling Extension whenever an touch
@@ -516,7 +516,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_TOUCH_EVENT_INTENT = "com.sonyericsson.extras.aef.control.TOUCH_EVENT";
+        String CONTROL_TOUCH_EVENT_INTENT = "com.sonyericsson.extras.aef.control.TOUCH_EVENT";
 
         /**
          * Intent sent by the Host Application to the controlling Extension whenever an swipe
@@ -532,7 +532,7 @@ public class Control {
          * </p>
          * @since 1.0
          */
-        static final String CONTROL_SWIPE_EVENT_INTENT = "com.sonyericsson.extras.aef.control.SWIPE_EVENT";
+        String CONTROL_SWIPE_EVENT_INTENT = "com.sonyericsson.extras.aef.control.SWIPE_EVENT";
 
         /**
          * The name of the Intent-extra used to identify the Host Application.
@@ -542,7 +542,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_AHA_PACKAGE_NAME = "aha_package_name";
+        String EXTRA_AHA_PACKAGE_NAME = "aha_package_name";
 
         /**
          * The name of the Intent-extra used to identify the Extension.
@@ -552,7 +552,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_AEA_PACKAGE_NAME = "aea_package_name";
+        String EXTRA_AEA_PACKAGE_NAME = "aea_package_name";
 
         /**
          * The name of the Intent-extra carrying the state of the display
@@ -570,7 +570,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_SCREEN_STATE = "screen_state";
+        String EXTRA_SCREEN_STATE = "screen_state";
 
         /**
          * The name of the Intent-extra carrying the ID of the LED to be controlled
@@ -579,7 +579,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_LED_ID = "led_id";
+        String EXTRA_LED_ID = "led_id";
 
         /**
          * The name of the Intent-extra carrying the color you want the LED to blink with
@@ -588,7 +588,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_LED_COLOR = "led_color";
+        String EXTRA_LED_COLOR = "led_color";
 
         /**
          * The name of the Intent-extra carrying the "on" duration in milliseconds
@@ -597,7 +597,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_ON_DURATION = "on_duration";
+        String EXTRA_ON_DURATION = "on_duration";
 
         /**
          * The name of the Intent-extra carrying the "off" duration in milliseconds
@@ -606,7 +606,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_OFF_DURATION = "off_duration";
+        String EXTRA_OFF_DURATION = "off_duration";
 
         /**
          * The name of the Intent-extra carrying the number of repeats of the on/off pattern.
@@ -617,7 +617,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_REPEATS = "repeats";
+        String EXTRA_REPEATS = "repeats";
 
         /**
          * The name of the Intent-extra used to identify the URI of the image to be displayed on the
@@ -628,7 +628,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_DATA_URI = "data_uri";
+        String EXTRA_DATA_URI = "data_uri";
 
         /**
          * The name of the Intent-extra used to identify the data to be displayed on the accessory
@@ -638,7 +638,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_DATA = "data";
+        String EXTRA_DATA = "data";
 
         /**
          * The name of the Intent-extra used to identify the pixel offset from the left side of the accessory
@@ -648,7 +648,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_X_OFFSET = "x_offset";
+        String EXTRA_X_OFFSET = "x_offset";
 
         /**
          * The name of the Intent-extra used to identify the pixel offset from the top of the accessory
@@ -658,7 +658,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_Y_OFFSET = "y_offset";
+        String EXTRA_Y_OFFSET = "y_offset";
 
         /**
          * The name of the Intent-extra used to identify the type of key event
@@ -675,7 +675,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_KEY_ACTION = "event_type";
+        String EXTRA_KEY_ACTION = "event_type";
 
         /**
          * The name of the Intent-extra used to carry the time stamp of the key or touch event
@@ -684,7 +684,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_TIMESTAMP = "timestamp";
+        String EXTRA_TIMESTAMP = "timestamp";
 
         /**
          * The name of the Intent-extra used to identify the keycode.
@@ -699,7 +699,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_KEY_CODE = "key_code";
+        String EXTRA_KEY_CODE = "key_code";
 
         /**
          * The name of the Intent-extra used to indicate the touch action
@@ -716,7 +716,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_TOUCH_ACTION = "action";
+        String EXTRA_TOUCH_ACTION = "action";
 
         /**
          * The name of the Intent-extra used to indicate the direction
@@ -734,7 +734,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_SWIPE_DIRECTION = "direction";
+        String EXTRA_SWIPE_DIRECTION = "direction";
 
         /**
          * The name of the Intent-extra used to carry the X coordinate of the touch event
@@ -743,7 +743,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_X_POS = "x_pos";
+        String EXTRA_X_POS = "x_pos";
 
         /**
          * The name of the Intent-extra used to carry the Y coordinate of the touch event
@@ -752,7 +752,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_Y_POS = "y_pos";
+        String EXTRA_Y_POS = "y_pos";
 
         /**
          * The name of the Intent-extra used to carry the error code
@@ -769,7 +769,7 @@ public class Control {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_ERROR_CODE = "error_code";
+        String EXTRA_ERROR_CODE = "error_code";
 
         /**
          * The name of the Intent-extra containing the key set by the extension.
@@ -780,7 +780,7 @@ public class Control {
          *
          * @since 1.0
          */
-        static final String EXTRA_EXTENSION_KEY = "extension_key";
+        String EXTRA_EXTENSION_KEY = "extension_key";
 
 
         /**
@@ -788,119 +788,119 @@ public class Control {
          *
          * @since 1.0
          */
-        static final int TOUCH_ACTION_PRESS = 0;
+        int TOUCH_ACTION_PRESS = 0;
 
         /**
          * The touch action is a long press event
          *
          * @since 1.0
          */
-        static final int TOUCH_ACTION_LONGPRESS = 1;
+        int TOUCH_ACTION_LONGPRESS = 1;
 
         /**
          * The touch action is a release event
          *
          * @since 1.0
          */
-        static final int TOUCH_ACTION_RELEASE = 2;
+        int TOUCH_ACTION_RELEASE = 2;
 
         /**
          * The direction of the swipe event is up
          *
          * @since 1.0
          */
-        static final int SWIPE_DIRECTION_UP = 0;
+        int SWIPE_DIRECTION_UP = 0;
 
         /**
          * The direction of the swipe event is down
          *
          * @since 1.0
          */
-        static final int SWIPE_DIRECTION_DOWN = 1;
+        int SWIPE_DIRECTION_DOWN = 1;
 
         /**
          * The direction of the swipe event is left
          *
          * @since 1.0
          */
-        static final int SWIPE_DIRECTION_LEFT = 2;
+        int SWIPE_DIRECTION_LEFT = 2;
 
         /**
          * The direction of the swipe event is right
          *
          * @since 1.0
          */
-        static final int SWIPE_DIRECTION_RIGHT = 3;
+        int SWIPE_DIRECTION_RIGHT = 3;
 
         /**
          * The screen off state
          *
          * @since 1.0
          */
-        static final int SCREEN_STATE_OFF = 0;
+        int SCREEN_STATE_OFF = 0;
 
         /**
          * The screen dim state
          *
          * @since 1.0
          */
-        static final int SCREEN_STATE_DIM = 1;
+        int SCREEN_STATE_DIM = 1;
 
         /**
          * The screen on state
          *
          * @since 1.0
          */
-        static final int SCREEN_STATE_ON = 2;
+        int SCREEN_STATE_ON = 2;
 
         /**
          * The screen state is automatically handled by the host application
          *
          * @since 1.0
          */
-        static final int SCREEN_STATE_AUTO = 3;
+        int SCREEN_STATE_AUTO = 3;
 
         /**
          * The key event is a key press event
          *
          * @since 1.0
          */
-        static final int KEY_ACTION_PRESS = 0;
+        int KEY_ACTION_PRESS = 0;
 
         /**
          * The key event is a key release event
          *
          * @since 1.0
          */
-        static final int KEY_ACTION_RELEASE = 1;
+        int KEY_ACTION_RELEASE = 1;
 
         /**
          * The key event is a key repeat event
          *
          * @since 1.0
          */
-        static final int KEY_ACTION_REPEAT = 2;
+        int KEY_ACTION_REPEAT = 2;
 
         /**
          * The control action is turned on
          *
          * @since 1.0
          */
-        static final int CONTROL_ACTION_ON = 0;
+        int CONTROL_ACTION_ON = 0;
 
         /**
          * The control action is turned off
          *
          * @since 1.0
          */
-        static final int CONTROL_ACTION_OFF = 1;
+        int CONTROL_ACTION_OFF = 1;
 
         /**
          * Vibration or LED is repeated until explicitly stopped
          *
          * @since 1.0
          */
-        static final int REPEAT_UNTIL_STOP_INTENT = -1;
+        int REPEAT_UNTIL_STOP_INTENT = -1;
     }
 
     /**
@@ -912,36 +912,36 @@ public class Control {
         /**
          * Keycode representing a play button
          */
-        static final int KEYCODE_PLAY = 1;
+        int KEYCODE_PLAY = 1;
 
         /**
          * Keycode representing a next button
          */
-        static final int KEYCODE_NEXT = 2;
+        int KEYCODE_NEXT = 2;
 
         /**
          * Keycode representing a previous button
          */
-        static final int KEYCODE_PREVIOUS = 3;
+        int KEYCODE_PREVIOUS = 3;
 
         /**
          * Keycode representing an action button
          */
-        static final int KEYCODE_ACTION = 4;
+        int KEYCODE_ACTION = 4;
 
         /**
          * Keycode representing a volume down button
          */
-        static final int KEYCODE_VOLUME_DOWN = 5;
+        int KEYCODE_VOLUME_DOWN = 5;
 
         /**
          * Keycode representing a volume up button
          */
-        static final int KEYCODE_VOLUME_UP = 6;
+        int KEYCODE_VOLUME_UP = 6;
 
         /**
          * Keycode representing a back button
          */
-        static final int KEYCODE_BACK = 7;
+        int KEYCODE_BACK = 7;
     }
 }

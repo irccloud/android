@@ -151,7 +151,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_video_player);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         try {
             setSupportActionBar(toolbar);
         } catch (Throwable t) {
@@ -192,9 +192,9 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         }
 
         controls = findViewById(R.id.controls);
-        mProgress = (ProgressBar) findViewById(R.id.progress);
+        mProgress = findViewById(R.id.progress);
 
-        rew = (ImageButton)findViewById(R.id.rew);
+        rew = findViewById(R.id.rew);
         rew.setEnabled(false);
         rew.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -210,7 +210,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 return false;
             }
         });
-        play = (ImageButton)findViewById(R.id.play);
+        play = findViewById(R.id.play);
         play.setEnabled(false);
         play.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,7 +220,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 hide_actionbar();
             }
         });
-        pause = (ImageButton)findViewById(R.id.pause);
+        pause = findViewById(R.id.pause);
         pause.setEnabled(false);
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -230,7 +230,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 handler.removeCallbacks(mHideRunnable);
             }
         });
-        ffwd = (ImageButton)findViewById(R.id.ffwd);
+        ffwd = findViewById(R.id.ffwd);
         ffwd.setEnabled(false);
         ffwd.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -246,9 +246,9 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 return false;
             }
         });
-        time_current = (TextView)findViewById(R.id.time_current);
-        time = (TextView)findViewById(R.id.time);
-        seekBar = (SeekBar)findViewById(R.id.mediacontroller_progress);
+        time_current = findViewById(R.id.time_current);
+        time = findViewById(R.id.time);
+        seekBar = findViewById(R.id.mediacontroller_progress);
         seekBar.setEnabled(false);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -271,7 +271,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             }
         });
 
-        video = (VideoView)findViewById(R.id.video);
+        video = findViewById(R.id.video);
         video.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {

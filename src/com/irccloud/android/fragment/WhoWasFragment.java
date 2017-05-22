@@ -118,9 +118,9 @@ public class WhoWasFragment extends DialogFragment {
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.recyclerview, null);
-        recyclerView = (RecyclerView) v.findViewById(R.id.recycler);
+        recyclerView = v.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
-        empty = (TextView) v.findViewById(android.R.id.empty);
+        empty = v.findViewById(android.R.id.empty);
         empty.setText("There was no such nickname");
         if (savedInstanceState != null && savedInstanceState.containsKey("event")) {
             event = new IRCCloudJSONObject(savedInstanceState.getString("event"));

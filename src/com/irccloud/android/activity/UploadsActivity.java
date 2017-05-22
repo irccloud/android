@@ -239,14 +239,14 @@ public class UploadsActivity extends BaseActivity {
                 row = inflater.inflate(R.layout.row_file, viewGroup, false);
 
                 holder = new ViewHolder();
-                holder.date = (TextView) row.findViewById(R.id.date);
-                holder.image = (ImageView) row.findViewById(R.id.image);
-                holder.extension = (TextView) row.findViewById(R.id.extension);
-                holder.name = (TextView) row.findViewById(R.id.name);
-                holder.metadata = (TextView) row.findViewById(R.id.metadata);
-                holder.progress = (ProgressBar) row.findViewById(R.id.progress);
-                holder.delete = (ImageButton) row.findViewById(R.id.delete);
-                holder.delete_progress = (ProgressBar) row.findViewById(R.id.deleteProgress);
+                holder.date = row.findViewById(R.id.date);
+                holder.image = row.findViewById(R.id.image);
+                holder.extension = row.findViewById(R.id.extension);
+                holder.name = row.findViewById(R.id.name);
+                holder.metadata = row.findViewById(R.id.metadata);
+                holder.progress = row.findViewById(R.id.progress);
+                holder.delete = row.findViewById(R.id.delete);
+                holder.delete_progress = row.findViewById(R.id.deleteProgress);
 
                 row.setTag(holder);
             } else {
@@ -417,7 +417,7 @@ public class UploadsActivity extends BaseActivity {
         }
         setContentView(R.layout.listview);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(toolbar);
 
@@ -452,7 +452,7 @@ public class UploadsActivity extends BaseActivity {
         }
 
         footer = getLayoutInflater().inflate(R.layout.messageview_header, null);
-        ListView listView = (ListView) findViewById(android.R.id.list);
+        ListView listView = findViewById(android.R.id.list);
         listView.setAdapter(adapter);
         listView.addFooterView(footer);
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -489,9 +489,9 @@ public class UploadsActivity extends BaseActivity {
                     AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
                     builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                     final View v = getLayoutInflater().inflate(R.layout.dialog_upload, null);
-                    final EditText messageinput = (EditText) v.findViewById(R.id.message);
+                    final EditText messageinput = v.findViewById(R.id.message);
                     messageinput.setText(msg);
-                    final ImageView thumbnail = (ImageView) v.findViewById(R.id.thumbnail);
+                    final ImageView thumbnail = v.findViewById(R.id.thumbnail);
 
                     v.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
@@ -694,7 +694,7 @@ public class UploadsActivity extends BaseActivity {
     private void checkEmpty() {
         if(adapter.getCount() == 0 && !canLoadMore) {
             findViewById(android.R.id.list).setVisibility(View.GONE);
-            TextView empty = (TextView)findViewById(android.R.id.empty);
+            TextView empty = findViewById(android.R.id.empty);
             empty.setVisibility(View.VISIBLE);
             empty.setText("You haven't uploaded any files to IRCCloud yet.");
         } else {

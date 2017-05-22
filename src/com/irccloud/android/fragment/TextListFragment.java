@@ -46,7 +46,7 @@ public class TextListFragment extends DialogFragment {
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.dialog_textlist, null);
-        textView = (TextView)v.findViewById(R.id.textView);
+        textView = v.findViewById(R.id.textView);
         textView.setHorizontallyScrolling(true);
         textView.setMovementMethod(new ScrollingMovementMethod());
 

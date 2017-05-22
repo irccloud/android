@@ -178,7 +178,7 @@ public class Registration {
          * Extensions that are already registered do not need to register again
          * @since 1.0
          */
-        static final String EXTENSION_REGISTER_REQUEST_INTENT = "com.sonyericsson.extras.liveware.aef.registration.EXTENSION_REGISTER_REQUEST";
+        String EXTENSION_REGISTER_REQUEST_INTENT = "com.sonyericsson.extras.liveware.aef.registration.EXTENSION_REGISTER_REQUEST";
 
         /**
          * Intent sent from the host applications to extensions to
@@ -195,7 +195,7 @@ public class Registration {
          * </p>
          * @since 1.0
          */
-        static final String ACCESSORY_CONNECTION_INTENT = "com.sonyericsson.extras.liveware.aef.registration.ACCESSORY_CONNECTION";
+        String ACCESSORY_CONNECTION_INTENT = "com.sonyericsson.extras.liveware.aef.registration.ACCESSORY_CONNECTION";
 
         /**
          * The name of the Intent-extra used to identify the Host Application.
@@ -205,7 +205,7 @@ public class Registration {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_AHA_PACKAGE_NAME = "aha_package_name";
+        String EXTRA_AHA_PACKAGE_NAME = "aha_package_name";
 
         /**
          * The name of the Intent-extra used to identify the
@@ -218,7 +218,7 @@ public class Registration {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_CONNECTION_STATUS = "connnection_status";
+        String EXTRA_CONNECTION_STATUS = "connnection_status";
 
         /**
          * This Intent-extra is used when the settings
@@ -238,7 +238,7 @@ public class Registration {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_ACCESSORY_SUPPORTS_HISTORY = "supports_history";
+        String EXTRA_ACCESSORY_SUPPORTS_HISTORY = "supports_history";
 
         /**
          * This Intent-extra is used when the settings
@@ -260,7 +260,7 @@ public class Registration {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_ACCESSORY_SUPPORTS_ACTIONS = "supports_actions";
+        String EXTRA_ACCESSORY_SUPPORTS_ACTIONS = "supports_actions";
     }
 
     /**
@@ -272,13 +272,13 @@ public class Registration {
          * The accessory is disconnected from the
          * host application
          */
-        static final int STATUS_DISCONNECTED = 0;
+        int STATUS_DISCONNECTED = 0;
 
         /**
          * The accessory is connected to the
          * host application
          */
-        static final int STATUS_CONNECTED = 1;
+        int STATUS_CONNECTED = 1;
     }
 
     /**
@@ -289,17 +289,17 @@ public class Registration {
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-extensions";
+        String MIME_TYPE = "aef-extensions";
 
         /**
          * Path segment
          */
-        static final String EXTENSIONS_PATH = "extensions";
+        String EXTENSIONS_PATH = "extensions";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, EXTENSIONS_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, EXTENSIONS_PATH);
     }
 
     /**
@@ -320,7 +320,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String NAME = "name";
+        String NAME = "name";
 
         /**
          * Class name of the Android Activity that contains the settings of the extension
@@ -334,7 +334,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String CONFIGURATION_ACTIVITY = "configurationActivity";
+        String CONFIGURATION_ACTIVITY = "configurationActivity";
 
         /**
          * Short text to describe the current configuration state of the extension
@@ -348,7 +348,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String CONFIGURATION_TEXT = "configurationText";
+        String CONFIGURATION_TEXT = "configurationText";
 
         /**
          * URI of the Android launcher icon representing the extension.
@@ -363,7 +363,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String HOST_APP_ICON_URI = "iconLargeUri";
+        String HOST_APP_ICON_URI = "iconLargeUri";
 
         /**
          * URI of the icon representing the extension.
@@ -379,7 +379,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String EXTENSION_ICON_URI = "extensionIconUri";
+        String EXTENSION_ICON_URI = "extensionIconUri";
 
         /**
          * URI of the monochrome icon representing the extension.
@@ -395,7 +395,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String EXTENSION_ICON_URI_BLACK_WHITE = "extensionIconUriBlackWhite";
+        String EXTENSION_ICON_URI_BLACK_WHITE = "extensionIconUriBlackWhite";
 
         /**
          * Used for security reasons for the extension's benefit. If set, this key
@@ -414,7 +414,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String EXTENSION_KEY = "extension_key";
+        String EXTENSION_KEY = "extension_key";
 
         /**
          * API version. If the extension uses the notification API, this field
@@ -430,7 +430,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String NOTIFICATION_API_VERSION = "notificationApiVersion";
+        String NOTIFICATION_API_VERSION = "notificationApiVersion";
 
         /**
          * The package name of an extension.
@@ -445,7 +445,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String PACKAGE_NAME = "packageName";
+        String PACKAGE_NAME = "packageName";
     }
 
     /**
@@ -456,17 +456,17 @@ public class Registration {
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-registration";
+        String MIME_TYPE = "aef-registration";
 
         /**
          * Path segment
          */
-        static final String EXTENSIONS_PATH = "registrations";
+        String EXTENSIONS_PATH = "registrations";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, EXTENSIONS_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, EXTENSIONS_PATH);
     }
 
     /**
@@ -487,7 +487,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String EXTENSION_ID = "extensionId";
+        String EXTENSION_ID = "extensionId";
 
         /**
          * Package name name of the Accessory Host Application that
@@ -502,7 +502,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String HOST_APPLICATION_PACKAGE = "hostAppPackageName";
+        String HOST_APPLICATION_PACKAGE = "hostAppPackageName";
 
         /**
          * API version. If the the widget API is used, this field
@@ -518,7 +518,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String WIDGET_API_VERSION = "widgetApiVersion";
+        String WIDGET_API_VERSION = "widgetApiVersion";
 
         /**
          * API version. If the the control API is used, this field
@@ -534,7 +534,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String CONTROL_API_VERSION = "controlApiVersion";
+        String CONTROL_API_VERSION = "controlApiVersion";
 
         /**
          * API version. If the the sensor API is used, this field
@@ -550,7 +550,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String SENSOR_API_VERSION = "sensorApiVersion";
+        String SENSOR_API_VERSION = "sensorApiVersion";
     }
 
     /**
@@ -562,17 +562,17 @@ public class Registration {
         /**
          * Data row MIME type for capabilities
          */
-        static final String CAPABILITIES_MIME_TYPE = "aef-capabilities";
+        String CAPABILITIES_MIME_TYPE = "aef-capabilities";
 
         /**
          * Path segment capabilities as a separate view
          */
-        static final String CAPABILITIES_PATH = "capabilities";
+        String CAPABILITIES_PATH = "capabilities";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, CAPABILITIES_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, CAPABILITIES_PATH);
     }
 
     /**
@@ -583,17 +583,17 @@ public class Registration {
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-host_application";
+        String MIME_TYPE = "aef-host_application";
 
         /**
          * Path segment
          */
-        static final String HOST_APP_PATH = "host_application";
+        String HOST_APP_PATH = "host_application";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, HOST_APP_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, HOST_APP_PATH);
     }
 
     /**
@@ -606,14 +606,14 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String PACKAGE_NAME = "packageName";
+        String PACKAGE_NAME = "packageName";
 
         /**
          * The version of a host application
          *
          * @since 1.0
          */
-        static final String VERSION = "version";
+        String VERSION = "version";
 
         /**
          * API version. If the host application supports the Widget API, this field
@@ -629,7 +629,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String WIDGET_API_VERSION = "widgetApiVersion";
+        String WIDGET_API_VERSION = "widgetApiVersion";
 
         /**
          * The maximum supported widget refresh rate
@@ -643,7 +643,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String WIDGET_REFRESH_RATE = "widgetRefreshrate";
+        String WIDGET_REFRESH_RATE = "widgetRefreshrate";
 
         /**
          * API version. If the host application supports the Control API, this field
@@ -659,7 +659,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String CONTROL_API_VERSION = "controlApiVersion";
+        String CONTROL_API_VERSION = "controlApiVersion";
 
         /**
          * API version. If the host application supports the Sensor API, this field
@@ -675,7 +675,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String SENSOR_API_VERSION = "sensorApiVersion";
+        String SENSOR_API_VERSION = "sensorApiVersion";
 
         /**
          * API version. If the host application supports the Notification API, this field
@@ -691,7 +691,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String NOTIFICATION_API_VERSION = "notificationApiVersion";
+        String NOTIFICATION_API_VERSION = "notificationApiVersion";
 
     }
 
@@ -703,17 +703,17 @@ public class Registration {
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-device";
+        String MIME_TYPE = "aef-device";
 
         /**
          * Path segment
          */
-        static final String DEVICES_PATH = "device";
+        String DEVICES_PATH = "device";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, DEVICES_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, DEVICES_PATH);
     }
 
     /**
@@ -734,7 +734,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String HOST_APPLICATION_ID = "hostAppId";
+        String HOST_APPLICATION_ID = "hostAppId";
 
         /**
          * The device model
@@ -748,7 +748,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String MODEL = "model";
+        String MODEL = "model";
 
         /**
          * The type of the device
@@ -762,7 +762,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String TYPE = "type";
+        String TYPE = "type";
 
         /**
          * The sub-type of the device
@@ -776,7 +776,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String SUB_TYPE = "subType";
+        String SUB_TYPE = "subType";
 
         /**
          * The marketing name of the device
@@ -790,7 +790,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String MARKETING_NAME = "marketingName";
+        String MARKETING_NAME = "marketingName";
 
         /**
          * The vendor of the device
@@ -804,7 +804,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String VENDOR = "vendor";
+        String VENDOR = "vendor";
 
         /**
          * The UID of the device
@@ -818,7 +818,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String UID = "uid";
+        String UID = "uid";
 
         /**
          * The firmware version of the device
@@ -832,7 +832,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String FIRMWARE_VERSION = "firmwareVersion";
+        String FIRMWARE_VERSION = "firmwareVersion";
 
         /**
          * The height of the widget image
@@ -846,7 +846,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String WIDGET_IMAGE_HEIGHT = "widgetImageHeight";
+        String WIDGET_IMAGE_HEIGHT = "widgetImageHeight";
 
         /**
          * The width of the widget image
@@ -860,7 +860,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String WIDGET_IMAGE_WIDTH = "widgetImageWidtht";
+        String WIDGET_IMAGE_WIDTH = "widgetImageWidtht";
 
         /**
          * Indicates if the device has a vibrator
@@ -874,7 +874,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String VIBRATOR = "vibrator";
+        String VIBRATOR = "vibrator";
 
         /**
          * Indicates if the device is connected to the
@@ -889,7 +889,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String ACCESSORY_CONNECTED = "accessory_connected";
+        String ACCESSORY_CONNECTED = "accessory_connected";
     }
 
     /**
@@ -900,17 +900,17 @@ public class Registration {
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-display";
+        String MIME_TYPE = "aef-display";
 
         /**
          * Path segment
          */
-        static final String DISPLAYS_PATH = "display";
+        String DISPLAYS_PATH = "display";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, DISPLAYS_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, DISPLAYS_PATH);
     }
 
 
@@ -932,7 +932,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String DEVICE_ID = "deviceId";
+        String DEVICE_ID = "deviceId";
 
         /**
          * The width of the display
@@ -946,7 +946,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String DISPLAY_WIDTH = "width";
+        String DISPLAY_WIDTH = "width";
 
         /**
          * The width of the display
@@ -960,7 +960,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String DISPLAY_HEIGHT = "height";
+        String DISPLAY_HEIGHT = "height";
 
         /**
          * The number of colors supported by the display
@@ -974,7 +974,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String COLORS = "colors";
+        String COLORS = "colors";
 
         /**
          * The refresh rate supported by the display
@@ -988,7 +988,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String REFRESH_RATE = "refreshRate";
+        String REFRESH_RATE = "refreshRate";
 
         /**
          * The latency of the display
@@ -1002,7 +1002,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String LATENCY = "latency";
+        String LATENCY = "latency";
 
         /**
          * Indicates if tap touch is supported by the display
@@ -1016,7 +1016,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String TAP_TOUCH = "tapTouch";
+        String TAP_TOUCH = "tapTouch";
 
         /**
          * Indicates if motion touch is supported by the display
@@ -1030,7 +1030,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String MOTION_TOUCH = "motionTouch";
+        String MOTION_TOUCH = "motionTouch";
     }
 
     /**
@@ -1041,17 +1041,17 @@ public class Registration {
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-sensor";
+        String MIME_TYPE = "aef-sensor";
 
         /**
          * Path segment
          */
-        static final String SENSORS_PATH = "sensor";
+        String SENSORS_PATH = "sensor";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, SENSORS_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, SENSORS_PATH);
     }
 
 
@@ -1073,7 +1073,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String DEVICE_ID = "deviceId";
+        String DEVICE_ID = "deviceId";
 
         /**
          * The ID of the SensorType corresponding to
@@ -1088,7 +1088,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String SENSOR_TYPE_ID = "sensorTypeId";
+        String SENSOR_TYPE_ID = "sensorTypeId";
 
         /**
          * The sensor resolution
@@ -1102,7 +1102,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String RESOLUTION = "resolution";
+        String RESOLUTION = "resolution";
 
         /**
          * The minimum delay of the sensor
@@ -1116,7 +1116,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String MINIMUM_DELAY = "minimumDelay";
+        String MINIMUM_DELAY = "minimumDelay";
 
         /**
          * The maximum range of the sensor
@@ -1130,7 +1130,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String MAXIMUM_RANGE = "maximumRange";
+        String MAXIMUM_RANGE = "maximumRange";
 
         /**
          * The name of the sensor
@@ -1144,7 +1144,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String NAME = "name";
+        String NAME = "name";
 
         /**
          * The ID of the sensor as defined by the Host Application
@@ -1160,7 +1160,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String SENSOR_ID = "sensorId";
+        String SENSOR_ID = "sensorId";
 
         /**
          * Indicates if the sensor supports interrupt mode
@@ -1176,7 +1176,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String SUPPORTS_SENSOR_INTERRUPT = "sensorInterrupt";
+        String SUPPORTS_SENSOR_INTERRUPT = "sensorInterrupt";
     }
 
     /**
@@ -1187,17 +1187,17 @@ public class Registration {
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-led";
+        String MIME_TYPE = "aef-led";
 
         /**
          * Path segment
          */
-        static final String LEDS_PATH = "led";
+        String LEDS_PATH = "led";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, LEDS_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, LEDS_PATH);
     }
 
     /**
@@ -1218,7 +1218,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String DEVICE_ID = "deviceId";
+        String DEVICE_ID = "deviceId";
 
         /**
          * The number of colors supported by the LED
@@ -1232,7 +1232,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String COLORS = "colors";
+        String COLORS = "colors";
     }
 
     /**
@@ -1243,17 +1243,17 @@ public class Registration {
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-input";
+        String MIME_TYPE = "aef-input";
 
         /**
          * Path segment
          */
-        static final String INPUTS_PATH = "input";
+        String INPUTS_PATH = "input";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, INPUTS_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, INPUTS_PATH);
     }
 
     /**
@@ -1274,7 +1274,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String DEVICE_ID = "deviceId";
+        String DEVICE_ID = "deviceId";
 
         /**
          * The ID of the keypad
@@ -1288,7 +1288,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String KEY_PAD_ID = "keyPadId";
+        String KEY_PAD_ID = "keyPadId";
 
         /**
          * The enable status of the Input
@@ -1302,7 +1302,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String ENABLED = "enabled";
+        String ENABLED = "enabled";
     }
 
     /**
@@ -1313,17 +1313,17 @@ public class Registration {
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-sensor_type";
+        String MIME_TYPE = "aef-sensor_type";
 
         /**
          * Path segment
          */
-        static final String SENSOR_TYPES_PATH = "sensor_type";
+        String SENSOR_TYPES_PATH = "sensor_type";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, SENSOR_TYPES_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, SENSOR_TYPES_PATH);
     }
 
     /**
@@ -1350,7 +1350,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String TYPE = "type";
+        String TYPE = "type";
 
         /**
          * This column value indicates whether the sensor
@@ -1365,7 +1365,7 @@ public class Registration {
          *
          * @since 1.0
          */
-        static final String DELICATE_SENSOR_DATA = "delicate_data";
+        String DELICATE_SENSOR_DATA = "delicate_data";
     }
 
         /**
@@ -1376,17 +1376,17 @@ public class Registration {
             /**
              * Data row MIME type
              */
-            static final String MIME_TYPE = "aef-keypad";
+            String MIME_TYPE = "aef-keypad";
 
             /**
              * Path segment
              */
-            static final String KEYPADS_PATH = "keypad";
+            String KEYPADS_PATH = "keypad";
 
             /**
              * Content URI
              */
-            static final Uri URI = Uri.withAppendedPath(BASE_URI, KEYPADS_PATH);
+            Uri URI = Uri.withAppendedPath(BASE_URI, KEYPADS_PATH);
         }
 
         /**
@@ -1406,6 +1406,6 @@ public class Registration {
              *
              * @since 1.0
              */
-            static final String TYPE = "type";
+            String TYPE = "type";
         }
 }

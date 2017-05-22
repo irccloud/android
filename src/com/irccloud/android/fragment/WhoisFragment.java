@@ -54,16 +54,16 @@ public class WhoisFragment extends DialogFragment {
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.dialog_whois, null);
-        extra = (TextView) v.findViewById(R.id.extra);
-        name = (TextView) v.findViewById(R.id.name);
-        mask = (TextView) v.findViewById(R.id.mask);
-        server = (TextView) v.findViewById(R.id.server);
-        timeTitle = (TextView) v.findViewById(R.id.timeTitle);
-        time = (TextView) v.findViewById(R.id.time);
-        awayTitle = (TextView) v.findViewById(R.id.awayTitle);
-        away = (TextView) v.findViewById(R.id.away);
-        operTitle = (TextView) v.findViewById(R.id.operTitle);
-        operChannels = (TextView) v.findViewById(R.id.operChannels);
+        extra = v.findViewById(R.id.extra);
+        name = v.findViewById(R.id.name);
+        mask = v.findViewById(R.id.mask);
+        server = v.findViewById(R.id.server);
+        timeTitle = v.findViewById(R.id.timeTitle);
+        time = v.findViewById(R.id.time);
+        awayTitle = v.findViewById(R.id.awayTitle);
+        away = v.findViewById(R.id.away);
+        operTitle = v.findViewById(R.id.operTitle);
+        operChannels = v.findViewById(R.id.operChannels);
         operChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         operChannels.setOnClickListener(new OnClickListener() {
             @Override
@@ -71,8 +71,8 @@ public class WhoisFragment extends DialogFragment {
                 getDialog().dismiss();
             }
         });
-        ownerTitle = (TextView) v.findViewById(R.id.ownerTitle);
-        ownerChannels = (TextView) v.findViewById(R.id.ownerChannels);
+        ownerTitle = v.findViewById(R.id.ownerTitle);
+        ownerChannels = v.findViewById(R.id.ownerChannels);
         ownerChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         ownerChannels.setOnClickListener(new OnClickListener() {
             @Override
@@ -80,8 +80,8 @@ public class WhoisFragment extends DialogFragment {
                 getDialog().dismiss();
             }
         });
-        adminTitle = (TextView) v.findViewById(R.id.adminTitle);
-        adminChannels = (TextView) v.findViewById(R.id.adminChannels);
+        adminTitle = v.findViewById(R.id.adminTitle);
+        adminChannels = v.findViewById(R.id.adminChannels);
         adminChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         adminChannels.setOnClickListener(new OnClickListener() {
             @Override
@@ -89,8 +89,8 @@ public class WhoisFragment extends DialogFragment {
                 getDialog().dismiss();
             }
         });
-        opTitle = (TextView) v.findViewById(R.id.opTitle);
-        opChannels = (TextView) v.findViewById(R.id.opChannels);
+        opTitle = v.findViewById(R.id.opTitle);
+        opChannels = v.findViewById(R.id.opChannels);
         opChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         opChannels.setOnClickListener(new OnClickListener() {
             @Override
@@ -98,8 +98,8 @@ public class WhoisFragment extends DialogFragment {
                 getDialog().dismiss();
             }
         });
-        halfopTitle = (TextView) v.findViewById(R.id.halfopTitle);
-        halfopChannels = (TextView) v.findViewById(R.id.halfopChannels);
+        halfopTitle = v.findViewById(R.id.halfopTitle);
+        halfopChannels = v.findViewById(R.id.halfopChannels);
         halfopChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         halfopChannels.setOnClickListener(new OnClickListener() {
             @Override
@@ -107,8 +107,8 @@ public class WhoisFragment extends DialogFragment {
                 getDialog().dismiss();
             }
         });
-        voicedTitle = (TextView) v.findViewById(R.id.voicedTitle);
-        voicedChannels = (TextView) v.findViewById(R.id.voicedChannels);
+        voicedTitle = v.findViewById(R.id.voicedTitle);
+        voicedChannels = v.findViewById(R.id.voicedChannels);
         voicedChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         voicedChannels.setOnClickListener(new OnClickListener() {
             @Override
@@ -116,8 +116,8 @@ public class WhoisFragment extends DialogFragment {
                 getDialog().dismiss();
             }
         });
-        channelsTitle = (TextView) v.findViewById(R.id.channelsTitle);
-        channels = (TextView) v.findViewById(R.id.channels);
+        channelsTitle = v.findViewById(R.id.channelsTitle);
+        channels = v.findViewById(R.id.channels);
         channels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         channels.setOnClickListener(new OnClickListener() {
             @Override

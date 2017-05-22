@@ -177,7 +177,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.actionbar);
+        Toolbar toolbar = findViewById(R.id.actionbar);
         toolbar.setBackgroundResource(ColorScheme.getInstance().actionBarDrawable);
         toolbar.setTitle(getTitle());
         toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
@@ -736,9 +736,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 else if(preference.getKey().equals("monospace"))
                     prefs.put("font", ((Boolean)newValue)?"mono":"sans");
                 else if(preference.getKey().equals("notifications_all"))
-                    prefs.put("notifications-all", (Boolean) newValue);
+                    prefs.put("notifications-all", newValue);
                 else
-                    prefs.put(preference.getKey(), (Boolean) newValue);
+                    prefs.put(preference.getKey(), newValue);
 
                 if (savePreferencesTask != null)
                     savePreferencesTask.cancel(true);
@@ -877,8 +877,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
     }
 
-    ;
-
     private class SaveSettingsTask extends AsyncTaskEx<Void, Void, Void> {
 
         @Override
@@ -902,8 +900,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
     }
 
-    ;
-
     Preference.OnPreferenceClickListener imgurClick = new Preference.OnPreferenceClickListener() {
 
         public boolean onPreferenceClick(Preference preference) {
@@ -925,7 +921,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
 
             View v = getLayoutInflater().inflate(R.layout.dialog_licenses, null);
-            TextView tv = (TextView) v.findViewById(R.id.licenses);
+            TextView tv = v.findViewById(R.id.licenses);
             StringBuilder sb = new StringBuilder(getResources().getString(R.string.licenses));
             sb.append(GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(PreferencesActivity.this));
             tv.setText(sb.toString());
@@ -1032,7 +1028,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             d.setColorFilter(getResources().getColor(R.color.midnight_black), PorterDuff.Mode.SRC_ATOP);
             ((RadioButton) v.findViewById(R.id.midnight)).setCompoundDrawables(null, null, d, null);
 
-            final RadioGroup group = (RadioGroup) v.findViewById(R.id.radioGroup);
+            final RadioGroup group = v.findViewById(R.id.radioGroup);
             switch(ColorScheme.getUserTheme()) {
                 case "dawn":
                     group.check(R.id.dawn);
@@ -1227,8 +1223,8 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             builder.setTitle("Change Password");
 
             View v = getLayoutInflater().inflate(R.layout.dialog_change_password, null);
-            final EditText oldPassword = (EditText)v.findViewById(R.id.oldpassword);
-            final EditText newPassword = (EditText)v.findViewById(R.id.newpassword);
+            final EditText oldPassword = v.findViewById(R.id.oldpassword);
+            final EditText newPassword = v.findViewById(R.id.newpassword);
 
             builder.setPositiveButton("Change Password", new DialogInterface.OnClickListener() {
                 @Override
@@ -1253,9 +1249,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             builder.setTitle("Delete Your Account");
 
             View v = getLayoutInflater().inflate(R.layout.dialog_textprompt, null);
-            final TextView prompt = (TextView) v.findViewById(R.id.prompt);
+            final TextView prompt = v.findViewById(R.id.prompt);
             prompt.setText("Re-enter your password to confirm");
-            final EditText textInput = (EditText)v.findViewById(R.id.textInput);
+            final EditText textInput = v.findViewById(R.id.textInput);
             textInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
             builder.setPositiveButton("Delete Account", new DialogInterface.OnClickListener() {

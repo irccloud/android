@@ -56,7 +56,7 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
         getSupportActionBar().setCustomView(R.layout.actionbar_edit_connection);
         getSupportActionBar().setElevation(0);
 
-        TextView t = (TextView)findViewById(R.id.action_cancel);
+        TextView t = findViewById(R.id.action_cancel);
         Drawable d;
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             d = VectorDrawableCompat.create(getResources(), R.drawable.ic_action_cancel, null).mutate();
@@ -65,7 +65,7 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
         d.setColorFilter(ColorScheme.getInstance().navBarHeadingColor, PorterDuff.Mode.SRC_ATOP);
         t.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
 
-        t = (TextView)findViewById(R.id.action_done);
+        t = findViewById(R.id.action_done);
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             d = VectorDrawableCompat.create(getResources(), R.drawable.ic_action_save, null).mutate();
         else

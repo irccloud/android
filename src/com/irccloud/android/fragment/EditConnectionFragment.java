@@ -126,7 +126,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
                 LayoutInflater inflater = ctx.getLayoutInflater();
                 row = inflater.inflate(android.R.layout.simple_spinner_item, null);
 
-                label = (TextView) row.findViewById(android.R.id.text1);
+                label = row.findViewById(android.R.id.text1);
                 row.setTag(label);
             } else {
                 label = (TextView) row.getTag();
@@ -151,9 +151,9 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
                 row = inflater.inflate(R.layout.row_server, parent, false);
 
                 holder = new ViewHolder();
-                holder.network = (TextView) row.findViewById(R.id.network);
-                holder.hostname = (TextView) row.findViewById(R.id.hostname);
-                holder.lock = (TextView) row.findViewById(R.id.lock);
+                holder.network = row.findViewById(R.id.network);
+                holder.hostname = row.findViewById(R.id.hostname);
+                holder.lock = row.findViewById(R.id.lock);
                 holder.lock.setTypeface(FontAwesome.getTypeface());
 
                 row.setTag(holder);
@@ -205,18 +205,18 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
     private int reqid = -1;
 
     private void init(View v) {
-        channelsWrapper = (LinearLayout) v.findViewById(R.id.channels_wrapper);
-        presets = (Spinner) v.findViewById(R.id.presets);
-        hostname = (EditText) v.findViewById(R.id.hostname);
-        port = (EditText) v.findViewById(R.id.port);
-        ssl = (SwitchCompat) v.findViewById(R.id.ssl);
-        nickname = (EditText) v.findViewById(R.id.nickname);
-        realname = (EditText) v.findViewById(R.id.realname);
-        channels = (EditText) v.findViewById(R.id.channels);
-        nickserv_pass = (EditText) v.findViewById(R.id.nickservpassword);
-        join_commands = (EditText) v.findViewById(R.id.commands);
-        server_pass = (EditText) v.findViewById(R.id.serverpassword);
-        network = (EditText) v.findViewById(R.id.network);
+        channelsWrapper = v.findViewById(R.id.channels_wrapper);
+        presets = v.findViewById(R.id.presets);
+        hostname = v.findViewById(R.id.hostname);
+        port = v.findViewById(R.id.port);
+        ssl = v.findViewById(R.id.ssl);
+        nickname = v.findViewById(R.id.nickname);
+        realname = v.findViewById(R.id.realname);
+        channels = v.findViewById(R.id.channels);
+        nickserv_pass = v.findViewById(R.id.nickservpassword);
+        join_commands = v.findViewById(R.id.commands);
+        server_pass = v.findViewById(R.id.serverpassword);
+        network = v.findViewById(R.id.network);
 
         presets.setOnItemSelectedListener(new OnItemSelectedListener() {
 
@@ -262,7 +262,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
         });
 
         if (NetworkConnection.getInstance().getUserInfo() != null && !NetworkConnection.getInstance().getUserInfo().verified) {
-            Button b = (Button) v.findViewById(R.id.resend);
+            Button b = v.findViewById(R.id.resend);
             b.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

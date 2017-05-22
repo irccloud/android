@@ -113,9 +113,9 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.recyclerview, null);
-        recyclerView = (RecyclerView) v.findViewById(R.id.recycler);
+        recyclerView = v.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
-        empty = (TextView) v.findViewById(android.R.id.empty);
+        empty = v.findViewById(android.R.id.empty);
         empty.setText("You're not ignoring anyone at the moment.\n\nYou can ignore someone by tapping their nickname in the user list, long-pressing a message, or by using /ignore.");
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             cid = savedInstanceState.getInt("cid");
@@ -155,8 +155,8 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.dialog_textprompt, null);
-            TextView prompt = (TextView) view.findViewById(R.id.prompt);
-            final EditText input = (EditText) view.findViewById(R.id.textInput);
+            TextView prompt = view.findViewById(R.id.prompt);
+            final EditText input = view.findViewById(R.id.textInput);
             input.setHint("nickname!user@host.name");
             prompt.setText("Ignore messages from this hostmask");
             builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");

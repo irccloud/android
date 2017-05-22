@@ -2005,7 +2005,7 @@ public class NetworkConnection {
     }
 
     public interface Parser {
-        public void parse(IRCCloudJSONObject object) throws JSONException;
+        void parse(IRCCloudJSONObject object) throws JSONException;
     }
 
     private class BroadcastParser implements Parser {

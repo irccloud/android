@@ -239,14 +239,14 @@ public class ChannelOptionsFragment extends DialogFragment {
             return null;
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.dialog_channel_options, null);
-        members = (SwitchCompat) v.findViewById(R.id.members);
-        unread = (SwitchCompat) v.findViewById(R.id.unread);
-        notifyAll = (SwitchCompat) v.findViewById(R.id.notifyAll);
-        joinpart = (SwitchCompat) v.findViewById(R.id.joinpart);
-        collapse = (SwitchCompat) v.findViewById(R.id.collapse);
-        autosuggest = (SwitchCompat) v.findViewById(R.id.autosuggest);
-        readOnSelect = (SwitchCompat) v.findViewById(R.id.readOnSelect);
-        inlineFiles = (SwitchCompat) v.findViewById(R.id.inlineFiles);
+        members = v.findViewById(R.id.members);
+        unread = v.findViewById(R.id.unread);
+        notifyAll = v.findViewById(R.id.notifyAll);
+        joinpart = v.findViewById(R.id.joinpart);
+        collapse = v.findViewById(R.id.collapse);
+        autosuggest = v.findViewById(R.id.autosuggest);
+        readOnSelect = v.findViewById(R.id.readOnSelect);
+        inlineFiles = v.findViewById(R.id.inlineFiles);
 
         return new AlertDialog.Builder(ctx)
                 .setTitle("Display Options")

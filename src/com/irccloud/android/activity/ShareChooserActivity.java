@@ -71,9 +71,9 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_share_chooser);
         connecting = findViewById(R.id.connecting);
-        errorMsg = (TextView) findViewById(R.id.errorMsg);
-        connectingMsg = (TextView) findViewById(R.id.connectingMsg);
-        progressBar = (ProgressBar) findViewById(R.id.connectingProgress);
+        errorMsg = findViewById(R.id.errorMsg);
+        connectingMsg = findViewById(R.id.connectingMsg);
+        progressBar = findViewById(R.id.connectingProgress);
 
         BuffersListFragment f = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
         f.readOnly = true;
@@ -83,7 +83,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
 
         Typeface SourceSansProRegular = Typeface.createFromAsset(getAssets(), "SourceSansPro-Regular.otf");
 
-        LinearLayout IRCCloud = (LinearLayout) findViewById(R.id.IRCCloud);
+        LinearLayout IRCCloud = findViewById(R.id.IRCCloud);
         for (int i = 0; i < IRCCloud.getChildCount(); i++) {
             View v = IRCCloud.getChildAt(i);
             if (v instanceof TextView) {

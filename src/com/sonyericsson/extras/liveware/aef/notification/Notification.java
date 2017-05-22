@@ -391,7 +391,7 @@ public class Notification {
          * </ul>
          * @since 1.0
          */
-        static final String VIEW_EVENT_INTENT = "com.sonyericsson.extras.liveware.aef.notification.VIEW_EVENT_DETAIL";
+        String VIEW_EVENT_INTENT = "com.sonyericsson.extras.liveware.aef.notification.VIEW_EVENT_DETAIL";
 
         /**
          * Intent sent by the host application when an update of available data is needed
@@ -403,7 +403,7 @@ public class Notification {
          * </ul>
          * @since 1.0
          */
-        static final String REFRESH_REQUEST_INTENT = "com.sonyericsson.extras.liveware.aef.notification.REFRESH_REQUEST";
+        String REFRESH_REQUEST_INTENT = "com.sonyericsson.extras.liveware.aef.notification.REFRESH_REQUEST";
 
         /**
          * The name of the Intent-extra used to identify the event
@@ -412,7 +412,7 @@ public class Notification {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_EVENT_ID = "event_id";
+        String EXTRA_EVENT_ID = "event_id";
 
         /**
          * The name of the Intent-extra used to identify which Source an
@@ -422,7 +422,7 @@ public class Notification {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_SOURCE_ID = "source_id";
+        String EXTRA_SOURCE_ID = "source_id";
 
         /**
          * The action requested by the user.
@@ -442,7 +442,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String EXTRA_ACTION = "action";
+        String EXTRA_ACTION = "action";
 
         /**
          * The name of the Intent-extra containing the key set by the extension
@@ -456,7 +456,7 @@ public class Notification {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_EXTENSION_KEY = "extension_key";
+        String EXTRA_EXTENSION_KEY = "extension_key";
 
         /**
          * The name of the Intent-extra used to identify the Host Application.
@@ -466,7 +466,7 @@ public class Notification {
          * </P>
          * @since 1.0
          */
-        static final String EXTRA_AHA_PACKAGE_NAME = "aha_package_name";
+        String EXTRA_AHA_PACKAGE_NAME = "aha_package_name";
 
         /**
          * Constant defining an action requested by the host application
@@ -478,7 +478,7 @@ public class Notification {
          * </P>
          * @since 1.0
          */
-        static final String EXTENSION_ACTION_1 = "action_1";
+        String EXTENSION_ACTION_1 = "action_1";
 
         /**
          * Constant defining an action requested by the host application
@@ -490,7 +490,7 @@ public class Notification {
          * </P>
          * @since 1.0
          */
-        static final String EXTENSION_ACTION_2 = "action_2";
+        String EXTENSION_ACTION_2 = "action_2";
 
         /**
          * Constant defining an action requested by the host application
@@ -502,7 +502,7 @@ public class Notification {
          * </P>
          * @since 1.0
          */
-        static final String EXTENSION_ACTION_3 = "action_3";
+        String EXTENSION_ACTION_3 = "action_3";
     }
 
     /**
@@ -514,22 +514,22 @@ public class Notification {
         /**
          * The source table name
          */
-        static final String TABLE_NAME = "source";
+        String TABLE_NAME = "source";
 
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-source";
+        String MIME_TYPE = "aef-source";
 
         /**
          * Path segment
          */
-        static final String SOURCES_PATH = "source";
+        String SOURCES_PATH = "source";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, SOURCES_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, SOURCES_PATH);
     }
 
     /**
@@ -549,7 +549,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String NAME = "name";
+        String NAME = "name";
 
         /**
          * Each Source can use up to 2 icons with different
@@ -565,7 +565,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String ICON_URI_1 = "iconUri1";
+        String ICON_URI_1 = "iconUri1";
 
         /**
          * Each Source can use up to 2 icons with different
@@ -581,7 +581,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String ICON_URI_2 = "iconUri2";
+        String ICON_URI_2 = "iconUri2";
 
         /**
          * Each Source can use up to 2 icons with different
@@ -597,7 +597,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String ICON_URI_BLACK_WHITE = "iconUriBlackWhite";
+        String ICON_URI_BLACK_WHITE = "iconUriBlackWhite";
 
         /**
          * Indicates if the source is enabled
@@ -611,7 +611,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String ENABLED = "enabled";
+        String ENABLED = "enabled";
 
         /**
          * Action supported by the extension.
@@ -629,7 +629,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String ACTION_1 = "action_1";
+        String ACTION_1 = "action_1";
 
         /**
          * Action supported by the extension.
@@ -647,7 +647,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String ACTION_2 = "action_2";
+        String ACTION_2 = "action_2";
 
         /**
          * Action supported by the extension.
@@ -665,7 +665,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String ACTION_3 = "action_3";
+        String ACTION_3 = "action_3";
 
         /**
          * The time (in milliseconds since January 1, 1970 00:00:00 UTC UNIX
@@ -681,7 +681,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String UPDATE_TIME = "updateTime";
+        String UPDATE_TIME = "updateTime";
 
         /**
          * Text to speech specific text.
@@ -698,7 +698,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String TEXT_TO_SPEECH = "textToSpeech";
+        String TEXT_TO_SPEECH = "textToSpeech";
 
         /**
          * Extension specific identifier of the source
@@ -713,7 +713,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String EXTENSION_SPECIFIC_ID = "extension_specific_id";
+        String EXTENSION_SPECIFIC_ID = "extension_specific_id";
 
         /**
          * The package name of a plug-in.
@@ -727,7 +727,7 @@ public class Notification {
          * </P>
          * @since 1.0
          */
-        static final String PACKAGE_NAME = "packageName";
+        String PACKAGE_NAME = "packageName";
     }
 
     /**
@@ -739,32 +739,32 @@ public class Notification {
         /**
          * The event table name
          */
-        static final String TABLE_NAME = "event";
+        String TABLE_NAME = "event";
 
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-event";
+        String MIME_TYPE = "aef-event";
 
         /**
          * Path segment
          */
-        static final String EVENTS_PATH = "event";
+        String EVENTS_PATH = "event";
 
         /**
          * Path segment
          */
-        static final String EVENT_READ_STATUS_PATH = "read_status";
+        String EVENT_READ_STATUS_PATH = "read_status";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, EVENTS_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, EVENTS_PATH);
 
         /**
          * Content URI used to observe changes in EVENT_READ_STATUS
          */
-        static final Uri READ_STATUS_URI = Uri.withAppendedPath(BASE_URI, EVENT_READ_STATUS_PATH);
+        Uri READ_STATUS_URI = Uri.withAppendedPath(BASE_URI, EVENT_READ_STATUS_PATH);
     }
 
     /**
@@ -785,7 +785,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String SOURCE_ID = "sourceId";
+        String SOURCE_ID = "sourceId";
 
         /**
          * Short text describing the title for event linked with this data row.
@@ -800,7 +800,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String TITLE = "title";
+        String TITLE = "title";
 
         /**
          * Content URI to an image linked with the event at this data row
@@ -815,7 +815,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String IMAGE_URI = "imageUri";
+        String IMAGE_URI = "imageUri";
 
         /**
          * The time (in milliseconds since January 1, 1970 00:00:00 UTC UNIX
@@ -831,7 +831,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String PUBLISHED_TIME = "publishedTime";
+        String PUBLISHED_TIME = "publishedTime";
 
         /**
          * Whether the event linked with this data row is specifically directed
@@ -856,7 +856,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String PERSONAL = "personal";
+        String PERSONAL = "personal";
 
         /**
          * Message associated with this event
@@ -870,7 +870,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String MESSAGE = "message";
+        String MESSAGE = "message";
 
         /**
          * Geo data associated with this event
@@ -884,7 +884,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String GEO_DATA = "geoData";
+        String GEO_DATA = "geoData";
 
         /**
          * Indicates if the event has been read by the user
@@ -898,7 +898,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String EVENT_READ_STATUS = "readStatus";
+        String EVENT_READ_STATUS = "readStatus";
 
         /**
          * The time (in milliseconds since January 1, 1970 00:00:00 UTC UNIX
@@ -914,7 +914,7 @@ public class Notification {
          *
          * @since 1.0
          */
-        static final String TIME_STAMP = "timeStamp";
+        String TIME_STAMP = "timeStamp";
 
         /**
          * Displayable name of the user linked with this data row, e.g. full
@@ -929,7 +929,7 @@ public class Notification {
          *
          * @since 1
          */
-        static final String DISPLAY_NAME = "display_name";
+        String DISPLAY_NAME = "display_name";
 
         /**
          * URI to the profile image of the user linked with this data row
@@ -943,7 +943,7 @@ public class Notification {
          *
          * @since 1
          */
-        static final String PROFILE_IMAGE_URI = "profile_image_uri";
+        String PROFILE_IMAGE_URI = "profile_image_uri";
 
         /**
          * A reference to the contacts content provider.
@@ -958,7 +958,7 @@ public class Notification {
          *
          * @since 1
          */
-        static final String CONTACTS_REFERENCE = "contacts_reference";
+        String CONTACTS_REFERENCE = "contacts_reference";
 
         /**
          * Generic data column for use by the plug-in to store information that
@@ -975,7 +975,7 @@ public class Notification {
          *
          * @since 1
          */
-        static final String FRIEND_KEY = "friend_key";
+        String FRIEND_KEY = "friend_key";
     }
 
     /**
@@ -986,17 +986,17 @@ public class Notification {
         /**
          * Data row MIME type
          */
-        static final String MIME_TYPE = "aef-source-event";
+        String MIME_TYPE = "aef-source-event";
 
         /**
          * Path segment
          */
-        static final String SOURCES_EVENTS_PATH = "source_event";
+        String SOURCES_EVENTS_PATH = "source_event";
 
         /**
          * Content URI
          */
-        static final Uri URI = Uri.withAppendedPath(BASE_URI, SOURCES_EVENTS_PATH);
+        Uri URI = Uri.withAppendedPath(BASE_URI, SOURCES_EVENTS_PATH);
     }
 
 
@@ -1011,6 +1011,6 @@ public class Notification {
          * TYPE: INTEGER (long)
          * </P>
          */
-        static final String EVENT_ID = "eventId";
+        String EVENT_ID = "eventId";
     }
  }

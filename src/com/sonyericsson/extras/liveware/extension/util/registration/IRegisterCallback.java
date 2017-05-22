@@ -44,5 +44,5 @@ public interface IRegisterCallback {
      * @param onlySources True if only sources was refreshed. False if full registration.
      * @param success True on register success, false otherwise
      */
-    public void onExtensionRegisterResult(boolean onlySources, boolean success);
+    void onExtensionRegisterResult(boolean onlySources, boolean success);
 }
