@@ -159,7 +159,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         if (Build.VERSION.SDK_INT < 21) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
         } else if(Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
             if(cloud != null) {
                 setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, getResources().getColor(android.R.color.black)));
             }

@@ -162,7 +162,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         getDelegate().installViewFactory();
         getDelegate().onCreate(icicle);
         if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
             getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
             getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));

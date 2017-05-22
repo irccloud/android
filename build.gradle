@@ -122,7 +122,7 @@ android {
             resValue "string", "ACTION_REPLY", "com.irccloud.android.ACTION_REPLY"
             resValue "string", "app_name", "IRCCloud"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud"
-            resValue "color", "ic_background", "527dff"
+            resValue "color", "ic_background", "#527dff"
             buildConfigField "String", "GCM_ID_IRCCLOUD", "\"\""
 
             minifyEnabled false
@@ -159,6 +159,7 @@ android {
             resValue "string", "ACTION_REPLY", "com.irccloud.android.ACTION_REPLY"
             resValue "string", "app_name", "IRCCloud"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud"
+            resValue "color", "ic_background", "#527dff"
             buildConfigField "String", "GCM_ID_IRCCLOUD", "\"\""
 
             if (rootProject.file('keystore.properties').exists()) {
@@ -204,6 +205,7 @@ android {
             resValue "string", "ACTION_REPLY", "com.irccloud.android.enterprise.ACTION_REPLY"
             resValue "string", "app_name", "IRCEnterprise"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud-enterprise"
+            resValue "color", "ic_background", "#404040"
 
             signingConfig signingConfigs.debug
             minifyEnabled false
@@ -244,6 +246,7 @@ android {
             resValue "string", "ACTION_REPLY", "com.irccloud.android.enterprise.ACTION_REPLY"
             resValue "string", "app_name", "IRCEnterprise"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud-enterprise"
+            resValue "color", "ic_background", "#404040"
 
             if (rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release

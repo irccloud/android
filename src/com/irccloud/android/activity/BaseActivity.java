@@ -105,7 +105,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             AvatarsList.getInstance().clear();
         }
         if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
             if(cloud != null) {
                 setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
             }

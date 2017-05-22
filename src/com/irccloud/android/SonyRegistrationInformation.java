@@ -93,7 +93,7 @@ public class SonyRegistrationInformation extends RegistrationInformation {
         values.put(Registration.ExtensionColumns.EXTENSION_KEY,
                 SonyExtensionService.EXTENSION_KEY);
         values.put(Registration.ExtensionColumns.HOST_APP_ICON_URI, ExtensionUtils.getUriString(mContext,
-                R.drawable.ic_launcher));
+                R.drawable.splash_logo));
         values.put(Registration.ExtensionColumns.NAME, extensionName);
         values.put(Registration.ExtensionColumns.NOTIFICATION_API_VERSION,
                 getRequiredNotificationApiVersion());
