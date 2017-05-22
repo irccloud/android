@@ -65,8 +65,7 @@ public class IRCCloudApplicationBase extends Application {
         Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
         FlowManager.init(this);
         if(Build.VERSION.SDK_INT >= 19)
-            EmojiCompat.init(new BundledEmojiCompatConfig(this)
-            .setReplaceAll(true));
+            EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(false));
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
