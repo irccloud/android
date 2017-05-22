@@ -17,9 +17,13 @@
 package com.irccloud.android.data.collection;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationChannelGroup;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -442,7 +446,7 @@ public class NotificationsList {
                         action = null;
                     }
                     if(title != null && text != null)
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, 400, false, false)));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.cid, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, 400, false, false)));
                 }
             }
             TransactionManager.transact(IRCCloudDatabase.NAME, new Runnable() {
@@ -466,10 +470,15 @@ public class NotificationsList {
     }
 
     @SuppressLint("NewApi")
-    private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, ArrayList<Notification> messages, NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
+    private android.app.Notification buildNotification(String ticker, int cid, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, ArrayList<Notification> messages, NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
+        if(BuildCompat.isAtLeastO()) {
+            NotificationChannel c = new NotificationChannel(String.valueOf(bid), title, NotificationManager.IMPORTANCE_HIGH);
+            c.setGroup(String.valueOf(cid));
+            ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(c);
+        }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         int defaults = 0;
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(bid))
                 .setContentTitle(title + ((network != null && !network.equals(title)) ? (" (" + network + ")") : ""))
                 .setContentText(Html.fromHtml(text))
                 .setAutoCancel(true)
@@ -746,7 +755,7 @@ public class NotificationsList {
 
                         try {
                             Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.message_type);
-                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400, false, false)));
+                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.cid, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400, false, false)));
                         } catch (Exception e) {
                             Crashlytics.logException(e);
                         }
@@ -870,7 +879,7 @@ public class NotificationsList {
 
                 try {
                     Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.message_type);
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400, false, false)));
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.cid, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400, false, false)));
                 } catch (Exception e) {
                     Crashlytics.logException(e);
                 }
@@ -925,6 +934,13 @@ public class NotificationsList {
         } catch (IllegalArgumentException ex) {
         } catch (Exception ex) {
             NetworkConnection.printStackTraceToCrashlytics(ex);
+        }
+    }
+
+    public void addNotificationGroup(int id, String name) {
+        if(BuildCompat.isAtLeastO()) {
+            ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE))
+                    .createNotificationChannelGroup(new NotificationChannelGroup(String.valueOf(id), name));
         }
     }
 }

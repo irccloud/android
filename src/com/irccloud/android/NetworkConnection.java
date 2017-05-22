@@ -2331,6 +2331,7 @@ public class NetworkConnection {
                         object.getJsonObject("fail_info"), away, object.getJsonNode("ignores"), (object.has("order") && !object.getString("order").equals("undefined")) ? object.getInt("order") : 0, object.getString("server_realname"));
 
                 NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"));
+                NotificationsList.getInstance().addNotificationGroup(server.getCid(), server.getName() != null && server.getName().length() > 0 ? server.getName() : server.getHostname());
 
                 if(object.has("deferred_archives"))
                     server.deferred_archives = object.getInt("deferred_archives");

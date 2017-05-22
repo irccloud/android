@@ -120,6 +120,7 @@ public class GCMService extends GcmListenerService {
                 if(s != null)
                     s.setNick(data.getString("server_nick"));
 
+                NotificationsList.getInstance().addNotificationGroup(cid, server_name);
                 NotificationsList.getInstance().updateServerNick(cid, data.getString("server_nick"));
                 NotificationsList.getInstance().addNotification(cid, bid, eid, (from == null)?data.getString("server_hostname"):from, msg, chan, buffer_type, type, server_name);
 
