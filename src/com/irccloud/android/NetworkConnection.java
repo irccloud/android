@@ -2248,6 +2248,7 @@ public class NetworkConnection {
                 mBuffers.purgeInvalidBIDs();
                 mChannels.purgeInvalidChannels();
                 NotificationsList.getInstance().deleteOldNotifications();
+                NotificationsList.getInstance().pruneNotificationChannels();
                 mRecentConversations.prune();
                 if (userInfo != null && userInfo.connections > 0 && (mServers.count() == 0 || mBuffers.count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
@@ -3210,6 +3211,7 @@ public class NetworkConnection {
                         break;
                 }
                 NotificationsList.getInstance().deleteOldNotifications();
+                NotificationsList.getInstance().pruneNotificationChannels();
                 if (bid != -1) {
                     Buffer b = mBuffers.getBuffer(bid);
                     if(b != null) {

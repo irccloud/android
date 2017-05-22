@@ -943,4 +943,20 @@ public class NotificationsList {
                     .createNotificationChannelGroup(new NotificationChannelGroup(String.valueOf(id), name));
         }
     }
+
+    public void pruneNotificationChannels() {
+        if(BuildCompat.isAtLeastO()) {
+            NotificationManager nm = ((NotificationManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
+
+            for (NotificationChannelGroup c : nm.getNotificationChannelGroups()) {
+                if (ServersList.getInstance().getServer(Integer.valueOf(c.getId())) == null)
+                    nm.deleteNotificationChannelGroup(c.getId());
+            }
+
+            for (NotificationChannel c : nm.getNotificationChannels()) {
+                if (BuffersList.getInstance().getBuffer(Integer.valueOf(c.getId())) == null)
+                    nm.deleteNotificationChannel(c.getId());
+            }
+        }
+    }
 }
