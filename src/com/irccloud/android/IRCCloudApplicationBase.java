@@ -66,8 +66,6 @@ public class IRCCloudApplicationBase extends Application {
         FlowManager.init(this);
         if(Build.VERSION.SDK_INT >= 19)
             EmojiCompat.init(new BundledEmojiCompatConfig(this)
-                .setEmojiSpanIndicatorColor(Color.GREEN)
-                .setEmojiSpanIndicatorEnabled(true)
             .setReplaceAll(true));
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
