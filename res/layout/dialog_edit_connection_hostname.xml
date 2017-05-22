@@ -25,6 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     <EditText
+		android:importantForAutofill="no"
         android:id="@+id/hostname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -42,6 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
 	    <EditText
+			android:importantForAutofill="no"
 	        android:id="@+id/port"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
