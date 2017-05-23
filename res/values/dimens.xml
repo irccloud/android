@@ -25,8 +25,8 @@
     <dimen name="unread_bubble_size">24dp</dimen>
     <dimen name="top_bar_height">64dp</dimen>
     <dimen name="status_bar_height">25dp</dimen>
-    <dimen name="scrollbar_inset">0dp</dimen>
-    <dimen name="scrollbar_size">2dp</dimen>
+    <dimen name="scrollbar_inset">2dp</dimen>
+    <dimen name="scrollbar_size">8dp</dimen>
     <integer name="default_text_size">14</integer>
     <dimen name="message_row_spacing">0dp</dimen>
     <integer name="max_input_lines">4</integer>

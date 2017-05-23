@@ -486,7 +486,7 @@ public class NotificationsList {
                 .setWhen(eids[0] / 1000)
                 .setSmallIcon(R.drawable.ic_stat_notify)
                 .setLargeIcon(largeIcon)
-                .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.notification_icon_bg))
+                .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.ic_background))
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .setPriority(hasTouchWiz() ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_HIGH)
@@ -903,7 +903,7 @@ public class NotificationsList {
                 .setContentText(body)
                 .setTicker(body)
                 .setAutoCancel(true)
-                .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.notification_icon_bg))
+                .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.ic_background))
                 .setSmallIcon(R.drawable.ic_stat_notify);
 
         Intent i = new Intent();

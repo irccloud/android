@@ -23,8 +23,6 @@
     <drawable name="actionbar_translucent">#66000000</drawable>
     <drawable name="unreadBorder">#123e92</drawable>
     <drawable name="dismiss_blue">#56A4F7</drawable>
-    <color name="notification_icon_bg">#527DFF</color>
-    <color name="notification_icon_bg_enterprise">#404040</color>
     <color name="light_blue">#E2EDFF</color>
     <drawable name="archived_bg_selected">#666</drawable>
     <drawable name="status_fail_bg">#F8DF26</drawable>
