@@ -2347,6 +2347,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mServers.deleteAllDataForServer(object.cid());
+                NotificationsList.getInstance().pruneNotificationChannels();
                 if (!backlog)
                     notifyHandlers(EVENT_CONNECTIONDELETED, object.cid());
             }
@@ -2418,6 +2419,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mBuffers.deleteAllDataForBuffer(object.bid());
                 NotificationsList.getInstance().deleteNotificationsForBid(object.bid());
+                NotificationsList.getInstance().pruneNotificationChannels();
                 if (!backlog)
                     notifyHandlers(EVENT_DELETEBUFFER, object.bid());
             }
