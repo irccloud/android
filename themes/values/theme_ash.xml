@@ -498,13 +498,6 @@
 	<drawable name="selectedBorderDrawable_ash">@color/ash_text6</drawable>
 	<drawable name="windowBackground_ash">@color/ash_background7</drawable>
 
-	<style name="ashPrefsTheme" parent="ashNoActionBar">
-		<item name="editTextTheme">@style/ashEditText</item>
-		<item name="android:windowNoTitle">false</item>
-		<item name="android:windowTitleSize">?attr/actionBarSize</item>
-		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-	</style>
-
 	<style name="ashEditText" parent="ash">
 		<item name="android:colorControlActivated">?colorControlNormal</item>
 		<item name="colorControlActivated">?colorControlNormal</item>

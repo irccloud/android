@@ -58,31 +58,6 @@ public class ColorScheme {
         }
     }
 
-    public static int getPrefsTheme(String theme) {
-        switch(theme) {
-            case "dawn":
-                return R.style.dawnPrefsTheme;
-            case "dusk":
-                return R.style.duskPrefsTheme;
-            case "tropic":
-                return R.style.tropicPrefsTheme;
-            case "emerald":
-                return R.style.emeraldPrefsTheme;
-            case "sand":
-                return R.style.sandPrefsTheme;
-            case "rust":
-                return R.style.rustPrefsTheme;
-            case "orchid":
-                return R.style.orchidPrefsTheme;
-            case "ash":
-                return R.style.ashPrefsTheme;
-            case "midnight":
-                return R.style.midnightPrefsTheme;
-            default:
-                return R.style.dawnPrefsTheme;
-        }
-    }
-
     public static int getDialogTheme(String theme) {
         switch(theme) {
             case "dawn":

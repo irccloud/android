@@ -498,13 +498,6 @@
 	<drawable name="selectedBorderDrawable_rust">@color/rust_text6</drawable>
 	<drawable name="windowBackground_rust">@color/rust_background7</drawable>
 
-	<style name="rustPrefsTheme" parent="rustNoActionBar">
-		<item name="editTextTheme">@style/rustEditText</item>
-		<item name="android:windowNoTitle">false</item>
-		<item name="android:windowTitleSize">?attr/actionBarSize</item>
-		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-	</style>
-
 	<style name="rustEditText" parent="rust">
 		<item name="android:colorControlActivated">?colorControlNormal</item>
 		<item name="colorControlActivated">?colorControlNormal</item>

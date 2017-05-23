@@ -39,21 +39,26 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatCallback;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -95,7 +100,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class PreferencesActivity extends PreferenceActivity implements AppCompatCallback, NetworkConnection.IRCEventHandler {
+public class PreferencesActivity extends BaseActivity implements NetworkConnection.IRCEventHandler {
     private NetworkConnection conn;
     private SaveSettingsTask saveSettingsTask = null;
     private SavePreferencesTask savePreferencesTask = null;
@@ -104,14 +109,16 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     private int change_password_reqid = -1;
     private String newpassword;
     private int delete_account_reqid = -1;
-    private AppCompatDelegate appCompatDelegate;
     private GoogleApiClient mGoogleApiClient;
+    private SettingsFragment mSettingsFragment;
 
-    private AppCompatDelegate getDelegate() {
-        if(appCompatDelegate == null) {
-            appCompatDelegate = AppCompatDelegate.create(this, this);
+    public static class SettingsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            if(getActivity() != null)
+                ((PreferencesActivity)getActivity()).addPreferences();
         }
-        return appCompatDelegate;
     }
 
     @Override
@@ -123,7 +130,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     @Override
     public void onStop() {
         super.onStop();
-        getDelegate().onStop();
         if(mGoogleApiClient.isConnected())
             mGoogleApiClient.disconnect();
     }
@@ -134,65 +140,83 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         if (conn != null) {
             conn.removeHandler(this);
         }
-        getDelegate().onDestroy();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onCreate(Bundle icicle) {
-        if(getIntent() != null && getIntent().hasExtra(":android:show_fragment")) {
+        if (getIntent() != null && getIntent().hasExtra(":android:show_fragment")) {
             getIntent().removeExtra(":android:show_fragment");
             super.onCreate(icicle);
             finish();
             return;
         }
 
-        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         super.onCreate(icicle);
         boolean themeChanged = false;
         String theme = ColorScheme.getUserTheme();
-        if(ColorScheme.getInstance().theme == null || !ColorScheme.getInstance().theme.equals(theme)) {
+        if (ColorScheme.getInstance().theme == null || !ColorScheme.getInstance().theme.equals(theme)) {
             themeChanged = true;
         }
-        setTheme(ColorScheme.getTheme(theme, false));
+        setTheme(ColorScheme.getDialogWhenLargeTheme(theme));
         ColorScheme.getInstance().setThemeFromContext(this, theme);
-        if(themeChanged)
+        if (themeChanged)
             EventsList.getInstance().clearCaches();
+        onMultiWindowModeChanged(isMultiWindow());
 
-        getDelegate().installViewFactory();
-        getDelegate().onCreate(icicle);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
-            getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
-            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
-        }
-        getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.actionbar_prefs);
+        setContentView(R.layout.activity_preferences);
 
-        if(Build.VERSION.SDK_INT >= 23) {
-            if(theme.equals("dawn"))
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            else
-                getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setVisibility(View.VISIBLE);
+        setSupportActionBar(toolbar);
+
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setElevation(0);
         }
 
-        Toolbar toolbar = findViewById(R.id.actionbar);
-        toolbar.setBackgroundResource(ColorScheme.getInstance().actionBarDrawable);
-        toolbar.setTitle(getTitle());
         toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 finish();
             }
         });
 
-        if (Build.VERSION.SDK_INT >= 21)
-            toolbar.setElevation(0);
+        mSettingsFragment = new SettingsFragment();
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment, mSettingsFragment)
+                .commit();
 
         conn = NetworkConnection.getInstance();
         conn.addHandler(this);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Auth.CREDENTIALS_API)
+                .build();
+    }
+
+    @Override
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+        super.onMultiWindowModeChanged(isInMultiWindowMode);
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        if(getWindowManager().getDefaultDisplay().getWidth() > TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) && !isMultiWindow()) {
+            params.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
+            params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
+        } else {
+            params.width = -1;
+            params.height = -1;
+        }
+        getWindow().setAttributes(params);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return false;
+    }
+
+    private void addPreferences() {
+        if(mSettingsFragment == null)
+            return;
+
         if(BuildConfig.ENTERPRISE) {
             JSONObject config = NetworkConnection.getInstance().config;
             try {
@@ -349,13 +373,14 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             PreferenceCategory c = (PreferenceCategory) findPreference("device");
             c.removePreference(findPreference("browser"));
         }
+    }
 
-        getListView().setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
-        getListView().setCacheColorHint(ColorScheme.getInstance().contentBackgroundColor);
+    private Preference findPreference(String key) {
+        return mSettingsFragment.findPreference(key);
+    }
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Auth.CREDENTIALS_API)
-                .build();
+    private void addPreferencesFromResource(int id) {
+        mSettingsFragment.addPreferencesFromResource(id);
     }
 
     @Override
@@ -697,7 +722,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     Preference.OnPreferenceChangeListener messagelayouttoggle = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object o) {
-            getListView().postDelayed(new Runnable() {
+            mSettingsFragment.getView().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     if(findPreference("chat-oneline") != null) {
@@ -837,22 +862,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             return true;
         }
     };
-
-    @Override
-    public void onSupportActionModeStarted(ActionMode mode) {
-
-    }
-
-    @Override
-    public void onSupportActionModeFinished(ActionMode mode) {
-
-    }
-
-    @Nullable
-    @Override
-    public ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback) {
-        return null;
-    }
 
     private class SavePreferencesTask extends AsyncTaskEx<Void, Void, Void> {
 

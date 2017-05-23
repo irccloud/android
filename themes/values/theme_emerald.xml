@@ -498,13 +498,6 @@
 	<drawable name="selectedBorderDrawable_emerald">@color/emerald_text6</drawable>
 	<drawable name="windowBackground_emerald">@color/emerald_background7</drawable>
 
-	<style name="emeraldPrefsTheme" parent="emeraldNoActionBar">
-		<item name="editTextTheme">@style/emeraldEditText</item>
-		<item name="android:windowNoTitle">false</item>
-		<item name="android:windowTitleSize">?attr/actionBarSize</item>
-		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-	</style>
-
 	<style name="emeraldEditText" parent="emerald">
 		<item name="android:colorControlActivated">?colorControlNormal</item>
 		<item name="colorControlActivated">?colorControlNormal</item>

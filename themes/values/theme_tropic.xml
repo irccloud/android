@@ -498,13 +498,6 @@
 	<drawable name="selectedBorderDrawable_tropic">@color/tropic_text6</drawable>
 	<drawable name="windowBackground_tropic">@color/tropic_background7</drawable>
 
-	<style name="tropicPrefsTheme" parent="tropicNoActionBar">
-		<item name="editTextTheme">@style/tropicEditText</item>
-		<item name="android:windowNoTitle">false</item>
-		<item name="android:windowTitleSize">?attr/actionBarSize</item>
-		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-	</style>
-
 	<style name="tropicEditText" parent="tropic">
 		<item name="android:colorControlActivated">?colorControlNormal</item>
 		<item name="colorControlActivated">?colorControlNormal</item>

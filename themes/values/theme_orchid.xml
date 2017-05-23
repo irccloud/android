@@ -498,13 +498,6 @@
 	<drawable name="selectedBorderDrawable_orchid">@color/orchid_text6</drawable>
 	<drawable name="windowBackground_orchid">@color/orchid_background7</drawable>
 
-	<style name="orchidPrefsTheme" parent="orchidNoActionBar">
-		<item name="editTextTheme">@style/orchidEditText</item>
-		<item name="android:windowNoTitle">false</item>
-		<item name="android:windowTitleSize">?attr/actionBarSize</item>
-		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-	</style>
-
 	<style name="orchidEditText" parent="orchid">
 		<item name="android:colorControlActivated">?colorControlNormal</item>
 		<item name="colorControlActivated">?colorControlNormal</item>

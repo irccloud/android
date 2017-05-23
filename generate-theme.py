@@ -202,15 +202,6 @@ f.write("\t<drawable name=\"selectedBorderDrawable_" + themename + "\">@color/" 
 f.write("\t<drawable name=\"windowBackground_" + themename + "\">@color/" + themename + "_background7</drawable>\n")
 
 f.write("""
-\t<style name="{theme}PrefsTheme" parent="{theme}NoActionBar">
-\t\t<item name="editTextTheme">@style/{theme}EditText</item>
-\t\t<item name="android:windowNoTitle">false</item>
-\t\t<item name="android:windowTitleSize">?attr/actionBarSize</item>
-\t\t<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-\t</style>
-""".format(**params))
-
-f.write("""
 \t<style name="{theme}EditText" parent="{theme}">
 \t\t<item name="android:colorControlActivated">?colorControlNormal</item>
 \t\t<item name="colorControlActivated">?colorControlNormal</item>

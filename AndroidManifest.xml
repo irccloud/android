@@ -266,7 +266,7 @@
         <activity
             android:name=".activity.PreferencesActivity"
             android:label="@string/menu_settings"
-            android:theme="@style/dawnPrefsTheme" >
+            android:theme="@style/dawnDialogWhenLarge">
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"

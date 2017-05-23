@@ -167,13 +167,6 @@
 	<drawable name="serverBackgroundDrawable_midnight">@color/midnight_actionbar_bg</drawable>
 	<drawable name="serverBorderDrawable_midnight">@color/midnight_actionbar_border</drawable>
 
-	<style name="midnightPrefsTheme" parent="midnightNoActionBar">
-		<item name="editTextTheme">@style/midnightEditText</item>
-		<item name="android:windowNoTitle">false</item>
-		<item name="android:windowTitleSize">?attr/actionBarSize</item>
-		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-	</style>
-
 	<style name="midnightEditText" parent="midnight">
 		<item name="android:colorControlActivated">?colorControlNormal</item>
 		<item name="colorControlActivated">?colorControlNormal</item>

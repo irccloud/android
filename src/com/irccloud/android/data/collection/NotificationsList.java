@@ -949,13 +949,19 @@ public class NotificationsList {
             NotificationManager nm = ((NotificationManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
 
             for (NotificationChannelGroup c : nm.getNotificationChannelGroups()) {
-                if (ServersList.getInstance().getServer(Integer.valueOf(c.getId())) == null)
-                    nm.deleteNotificationChannelGroup(c.getId());
+                try {
+                    if (ServersList.getInstance().getServer(Integer.valueOf(c.getId())) == null)
+                        nm.deleteNotificationChannelGroup(c.getId());
+                } catch(NumberFormatException e) {
+                }
             }
 
             for (NotificationChannel c : nm.getNotificationChannels()) {
-                if (BuffersList.getInstance().getBuffer(Integer.valueOf(c.getId())) == null)
-                    nm.deleteNotificationChannel(c.getId());
+                try {
+                    if (BuffersList.getInstance().getBuffer(Integer.valueOf(c.getId())) == null)
+                        nm.deleteNotificationChannel(c.getId());
+                } catch(NumberFormatException e) {
+                }
             }
         }
     }
