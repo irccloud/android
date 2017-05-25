@@ -167,7 +167,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if (!mResolvingError) {
             mGoogleApiClient.connect();
         }
-        NetworkConnection.getInstance().registerForConnectivity();
     }
 
     @Override
@@ -177,7 +176,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("background_sync", true)) {
             BackgroundTaskService.scheduleBacklogSync(this);
         }
-        NetworkConnection.getInstance().unregisterForConnectivity();
     }
 
     @Override

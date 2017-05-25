@@ -61,6 +61,7 @@ public class IRCCloudApplicationBase extends Application {
         Fabric.with(this, new Crashlytics());
         Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
         FlowManager.init(this);
+        NetworkConnection.getInstance().registerForConnectivity();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
@@ -244,6 +245,7 @@ public class IRCCloudApplicationBase extends Application {
 
     @Override
     public void onTerminate() {
+        NetworkConnection.getInstance().unregisterForConnectivity();
         NetworkConnection.getInstance().save(1);
         super.onTerminate();
     }
