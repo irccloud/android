@@ -2826,7 +2826,7 @@ public class NetworkConnection {
                 while (i.hasNext()) {
                     Map.Entry<String, JsonNode> e = i.next();
                     JsonNode user = e.getValue();
-                    mUsers.updateAway(object.bid(), user.get("nick").asText(), user.get("away").asBoolean() ? 1 : 0);
+                    mUsers.updateAway(object.cid(), user.get("nick").asText(), user.get("away").asBoolean() ? 1 : 0);
                     mUsers.updateHostmask(object.bid(), user.get("nick").asText(), user.get("usermask").asText());
                 }
                 if (!backlog)
@@ -2837,7 +2837,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("nick"));
-                mUsers.updateAwayMsg(object.bid(), object.getString("nick"), 1, object.getString("msg"));
+                mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("msg"));
                 if(b != null)
                     b.setAway_msg(object.getString("msg"));
                 if (!backlog) {
@@ -2850,7 +2850,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("nick"));
-                mUsers.updateAwayMsg(object.bid(), object.getString("nick"), 0, "");
+                mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
                 if(b != null)
                     b.setAway_msg("");
                 if (!backlog) {
@@ -2862,7 +2862,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 if (!backlog) {
-                    mUsers.updateAwayMsg(object.bid(), object.getString("nick"), 1, object.getString("away_msg"));
+                    mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("away_msg"));
                     if(mServers.getServer(object.cid()) != null)
                         mServers.getServer(object.cid()).setAway(object.getString("away_msg"));
                     notifyHandlers(EVENT_AWAY, object);
@@ -2872,7 +2872,7 @@ public class NetworkConnection {
         put("self_back", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mUsers.updateAwayMsg(object.bid(), object.getString("nick"), 0, "");
+                mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
                 if(mServers.getServer(object.cid()) != null)
                     mServers.getServer(object.cid()).setAway("");
                 if (!backlog)
@@ -2938,7 +2938,7 @@ public class NetworkConnection {
                         for (int i = 0; i < users.size(); i++) {
                             JsonNode user = users.get(i);
                             mUsers.updateHostmask(b.getBid(), user.get("nick").asText(), user.get("usermask").asText());
-                            mUsers.updateAway(b.getBid(), user.get("nick").asText(), user.get("away").asBoolean() ? 1 : 0);
+                            mUsers.updateAway(b.getCid(), user.get("nick").asText(), user.get("away").asBoolean() ? 1 : 0);
                         }
                     }
                     notifyHandlers(EVENT_WHOLIST, object);

@@ -521,6 +521,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             case NetworkConnection.EVENT_CHANNELINIT:
             case NetworkConnection.EVENT_USERINFO:
             case NetworkConnection.EVENT_MEMBERUPDATES:
+            case NetworkConnection.EVENT_AWAY:
             case NetworkConnection.EVENT_BACKLOG_END:
                 if (getActivity() != null) {
                     final ArrayList<User> users;
