@@ -1114,8 +1114,14 @@ public class EventsList {
         synchronized (events) {
             if (events.containsKey(bid) && events.get(bid) != null && events.get(bid).size() > 0) {
                 Long[] eids = events.get(bid).keySet().toArray(new Long[events.get(bid).keySet().size()]);
-                if (eids.length > 0)
-                    return eids[eids.length - 1];
+                if (eids.length > 0) {
+                    int i = eids.length - 1;
+                    long eid = eids[i];
+                    while(events.get(bid).get(eid).pending) {
+                        eid = eids[--i];
+                    }
+                    return eid;
+                }
             /*} else {
                 Event e = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).orderBy(true, Event$Table.EID).limit(1).querySingle();
                 if(e != null) {
