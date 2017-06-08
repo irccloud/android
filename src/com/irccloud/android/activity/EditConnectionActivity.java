@@ -150,9 +150,6 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
                     finish();
                 }
                 break;
-            case NetworkConnection.EVENT_USERINFO:
-                finish();
-                break;
             default:
                 break;
         }

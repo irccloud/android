@@ -415,17 +415,6 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
     }
 
     public void onIRCEvent(int what, Object o) {
-        IRCCloudJSONObject obj;
-        switch (what) {
-            case NetworkConnection.EVENT_USERINFO:
-                try {
-                    dismiss();
-                } catch (Exception e) {
-                }
-                break;
-            default:
-                break;
-        }
     }
 
     @Override

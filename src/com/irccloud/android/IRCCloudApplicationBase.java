@@ -66,6 +66,7 @@ public class IRCCloudApplicationBase extends Application {
         FlowManager.init(this);
         if(Build.VERSION.SDK_INT >= 19)
             EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(false));
+        NetworkConnection.getInstance().registerForConnectivity();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
@@ -249,6 +250,7 @@ public class IRCCloudApplicationBase extends Application {
 
     @Override
     public void onTerminate() {
+        NetworkConnection.getInstance().unregisterForConnectivity();
         NetworkConnection.getInstance().save(1);
         super.onTerminate();
     }

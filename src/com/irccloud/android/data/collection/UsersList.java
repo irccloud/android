@@ -157,10 +157,14 @@ public class UsersList {
         }
     }
 
-    public synchronized void updateAway(int bid, String nick, int away) {
-        User u = getUser(bid, nick);
-        if (u != null) {
-            u.away = away;
+    public synchronized void updateAway(int cid, String nick, int away) {
+        for (Integer bid : users.keySet()) {
+            if (users.get(bid) != null && users.get(bid).containsKey(nick.toLowerCase()) && users.get(bid).get(nick.toLowerCase()).cid == cid) {
+                User u = users.get(bid).get(nick.toLowerCase());
+                if (u != null) {
+                    u.away = away;
+                }
+            }
         }
     }
 
@@ -178,11 +182,15 @@ public class UsersList {
         }
     }
 
-    public synchronized void updateAwayMsg(int bid, String nick, int away, String away_msg) {
-        User u = getUser(bid, nick);
-        if (u != null) {
-            u.away = away;
-            u.away_msg = away_msg;
+    public synchronized void updateAwayMsg(int cid, String nick, int away, String away_msg) {
+        for (Integer bid : users.keySet()) {
+            if (users.get(bid) != null && users.get(bid).containsKey(nick.toLowerCase()) && users.get(bid).get(nick.toLowerCase()).cid == cid) {
+                User u = users.get(bid).get(nick.toLowerCase());
+                if (u != null) {
+                    u.away = away;
+                    u.away_msg = away_msg;
+                }
+            }
         }
     }
 
@@ -211,7 +219,7 @@ public class UsersList {
     public synchronized User findUserOnConnection(int cid, String nick) {
         //return new Select().from(User.class).where(Condition.column(User$Table.CID).is(cid)).and(Condition.column(User$Table.NICK_LOWERCASE).is(nick.toLowerCase())).querySingle();
         for (Integer bid : users.keySet()) {
-            if (users.get(bid).containsKey(nick.toLowerCase()) && users.get(bid) != null && users.get(bid).get(nick.toLowerCase()).cid == cid)
+            if (users.get(bid) != null && users.get(bid).containsKey(nick.toLowerCase()) && users.get(bid).get(nick.toLowerCase()).cid == cid)
                 return users.get(bid).get(nick.toLowerCase());
         }
         return null;

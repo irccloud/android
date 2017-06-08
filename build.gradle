@@ -349,8 +349,8 @@ dependencies {
     compile 'com.raizlabs.android:DBFlow:2.2.1'
     compile 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     compile 'com.datatheorem.android.trustkit:trustkit:1.0.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
-        transitive = true
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+        transitive = true;
     }
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }

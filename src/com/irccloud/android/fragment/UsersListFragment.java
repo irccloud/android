@@ -213,11 +213,18 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             adapter = new UserListAdapter();
         }
 
+        String operGroupMode = "Y";
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
             String mode = user.mode.toLowerCase();
             if (mode.contains(s != null ? s.MODE_OPER.toLowerCase() : "y") && (PREFIX.has(s != null ? s.MODE_OPER : "Y") || PREFIX.has(s != null ? s.MODE_OPER.toLowerCase() : "y"))) {
                 opers.add(user);
+                if(s != null) {
+                    if (user.mode.contains(s.MODE_OPER))
+                        operGroupMode = s.MODE_OPER;
+                    else
+                        operGroupMode = s.MODE_OPER.toLowerCase();
+                }
             } else if (mode.contains(s != null ? s.MODE_OWNER.toLowerCase() : "q") && PREFIX.has(s != null ? s.MODE_OWNER : "q")) {
                 owners.add(user);
             } else if (mode.contains(s != null ? s.MODE_ADMIN.toLowerCase() : "a") && PREFIX.has(s != null ? s.MODE_ADMIN : "a")) {
@@ -235,8 +242,8 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
 
         if (opers.size() > 0) {
             if (showSymbol) {
-                if (PREFIX.has(s != null ? s.MODE_OPER : "Y"))
-                    addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER : "Y").asText() + " ", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
+                if (PREFIX.has(operGroupMode))
+                    addUsersFromList(entries, opers, "OPER", PREFIX.get(operGroupMode).asText() + " ", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
                 else if (PREFIX.has(s != null ? s.MODE_OPER.toLowerCase() : "y"))
                     addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER.toLowerCase() : "y").asText() + " ", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
                 else
@@ -514,6 +521,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             case NetworkConnection.EVENT_CHANNELINIT:
             case NetworkConnection.EVENT_USERINFO:
             case NetworkConnection.EVENT_MEMBERUPDATES:
+            case NetworkConnection.EVENT_AWAY:
             case NetworkConnection.EVENT_BACKLOG_END:
                 if (getActivity() != null) {
                     final ArrayList<User> users;
