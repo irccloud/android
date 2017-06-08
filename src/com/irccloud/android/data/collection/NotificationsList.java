@@ -36,7 +36,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.WearableExtender;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
-import android.support.v4.os.BuildCompat;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -471,7 +470,7 @@ public class NotificationsList {
 
     @SuppressLint("NewApi")
     private android.app.Notification buildNotification(String ticker, int cid, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, ArrayList<Notification> messages, NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
-        if(BuildCompat.isAtLeastO()) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel c = new NotificationChannel(String.valueOf(bid), title, NotificationManager.IMPORTANCE_HIGH);
             c.setGroup(String.valueOf(cid));
             ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(c);
@@ -938,14 +937,14 @@ public class NotificationsList {
     }
 
     public void addNotificationGroup(int id, String name) {
-        if(BuildCompat.isAtLeastO()) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE))
                     .createNotificationChannelGroup(new NotificationChannelGroup(String.valueOf(id), name));
         }
     }
 
     public void pruneNotificationChannels() {
-        if(BuildCompat.isAtLeastO()) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager nm = ((NotificationManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
 
             for (NotificationChannelGroup c : nm.getNotificationChannelGroups()) {

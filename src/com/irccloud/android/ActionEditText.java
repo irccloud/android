@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v13.view.inputmethod.InputConnectionCompat;
 import android.support.v13.view.inputmethod.InputContentInfoCompat;
-import android.support.v4.os.BuildCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
@@ -75,7 +74,7 @@ public class ActionEditText extends AppCompatEditText {
                     public boolean onCommitContent(InputContentInfoCompat inputContentInfo,
                                                    int flags, Bundle opts) {
                         // read and display inputContentInfo asynchronously
-                        if (BuildCompat.isAtLeastNMR1() && (flags &
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && (flags &
                                 InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
                             try {
                                 inputContentInfo.requestPermission();
