@@ -510,18 +510,20 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
                     });
                 }
                 break;
+            case NetworkConnection.EVENT_AWAY:
+                if (((IRCCloudJSONObject) obj).cid() != cid)
+                    break;
             case NetworkConnection.EVENT_JOIN:
             case NetworkConnection.EVENT_PART:
             case NetworkConnection.EVENT_QUIT:
             case NetworkConnection.EVENT_USERCHANNELMODE:
             case NetworkConnection.EVENT_KICK:
             case NetworkConnection.EVENT_NICKCHANGE:
-                if (((IRCCloudJSONObject) obj).bid() != bid)
+                if (what == NetworkConnection.EVENT_NICKCHANGE && ((IRCCloudJSONObject) obj).bid() != bid)
                     break;
             case NetworkConnection.EVENT_CHANNELINIT:
             case NetworkConnection.EVENT_USERINFO:
             case NetworkConnection.EVENT_MEMBERUPDATES:
-            case NetworkConnection.EVENT_AWAY:
             case NetworkConnection.EVENT_BACKLOG_END:
                 if (getActivity() != null) {
                     final ArrayList<User> users;

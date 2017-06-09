@@ -2484,8 +2484,8 @@ public class NetworkConnection {
                                     if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                         show = false;
                                 }
-                                //if (InstanceID.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).getId().length() > 0)
-                                //    show = false;
+                                if (InstanceID.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).getId().length() > 0)
+                                    show = false;
                                 if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
                                     String message = ColorFormatter.strip(event.msg).toString();
                                     String server_name = b.getServer().getName();
@@ -2833,12 +2833,15 @@ public class NetworkConnection {
         put("user_away", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("nick"));
-                mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("msg"));
-                if(b != null)
-                    b.setAway_msg(object.getString("msg"));
-                if (!backlog) {
-                    notifyHandlers(EVENT_AWAY, object);
+                Buffer b = mBuffers.getBuffer(object.bid());
+                if(b != null && b.isConsole()) {
+                    mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("msg"));
+                    b = mBuffers.getBufferByName(object.cid(), object.getString("nick"));
+                    if (b != null)
+                        b.setAway_msg(object.getString("msg"));
+                    if (!backlog) {
+                        notifyHandlers(EVENT_AWAY, object);
+                    }
                 }
             }
         });
@@ -2846,12 +2849,15 @@ public class NetworkConnection {
         put("user_back", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("nick"));
-                mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
-                if(b != null)
-                    b.setAway_msg("");
-                if (!backlog) {
-                    notifyHandlers(EVENT_AWAY, object);
+                Buffer b = mBuffers.getBuffer(object.bid());
+                if(b != null && b.isConsole()) {
+                    mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
+                    b = mBuffers.getBufferByName(object.cid(), object.getString("nick"));
+                    if (b != null)
+                        b.setAway_msg("");
+                    if (!backlog) {
+                        notifyHandlers(EVENT_AWAY, object);
+                    }
                 }
             }
         });

@@ -22,9 +22,9 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 
 /*import com.squareup.leakcanary.AndroidExcludedRefs;
-import com.squareup.leakcanary.ExcludedRefs;*/
+import com.squareup.leakcanary.ExcludedRefs;
 import com.squareup.leakcanary.LeakCanary;
-import com.squareup.leakcanary.RefWatcher;
+import com.squareup.leakcanary.RefWatcher;*/
 
 @SuppressWarnings("unused")
 public class IRCCloudApplication extends IRCCloudApplicationBase {
@@ -38,11 +38,11 @@ public class IRCCloudApplication extends IRCCloudApplicationBase {
         }
     }
 
-    public static RefWatcher getRefWatcher(Context context) {
+    /*public static RefWatcher getRefWatcher(Context context) {
         return getInstance().refWatcher;
     }
 
-    private RefWatcher refWatcher;
+    private RefWatcher refWatcher;*/
 
     @Override
     public void onCreate() {
@@ -68,8 +68,8 @@ public class IRCCloudApplication extends IRCCloudApplicationBase {
                     .instanceField("android.media.AudioManager$1", "this$0")
                     .build();
             refWatcher = LeakCanary.install(this, CrashlyticsLeakService.class, excludedRefs);
-        } else {*/
+        } else {
             refWatcher = RefWatcher.DISABLED;
-        //}
+        }*/
     }
 }
