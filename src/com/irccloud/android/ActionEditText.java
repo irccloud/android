@@ -20,6 +20,8 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.text.emoji.EmojiCompat;
+import android.support.text.emoji.widget.EmojiEditTextHelper;
 import android.support.v13.view.inputmethod.InputConnectionCompat;
 import android.support.v13.view.inputmethod.InputContentInfoCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -34,24 +36,31 @@ import android.support.v13.view.inputmethod.EditorInfoCompat;
 // From: http://stackoverflow.com/a/12570003/1406639
 public class ActionEditText extends AppCompatEditText {
     private DrawerLayout mDrawerLayout = null;
+    private EmojiEditTextHelper mEmojiEditTextHelper;
 
     public ActionEditText(Context context) {
         super(context);
+        init();
     }
 
     public ActionEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public ActionEditText(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        init();
     }
 
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-        final InputConnection ic = super.onCreateInputConnection(outAttrs);
+        InputConnection ic = super.onCreateInputConnection(outAttrs);
         if(ic == null)
             return null;
+
+        if(Build.VERSION.SDK_INT >= 19)
+            ic = getEmojiEditTextHelper().onCreateInputConnection(ic, outAttrs);
 
         outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS;
         outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_NEXT;
@@ -93,6 +102,27 @@ public class ActionEditText extends AppCompatEditText {
                     }
                 };
         return InputConnectionCompat.createWrapper(ic, outAttrs, callback);
+    }
+
+    private void init() {
+        super.setKeyListener(getEmojiEditTextHelper().getKeyListener(getKeyListener()));
+    }
+
+    public void setTextWithEmoji(CharSequence s) {
+        if(Build.VERSION.SDK_INT >= 19)
+            setText(EmojiCompat.get().process(s));
+    }
+
+    @Override
+    public void setKeyListener(android.text.method.KeyListener keyListener) {
+        super.setKeyListener(getEmojiEditTextHelper().getKeyListener(keyListener));
+    }
+
+    private EmojiEditTextHelper getEmojiEditTextHelper() {
+        if (Build.VERSION.SDK_INT >= 19 && mEmojiEditTextHelper == null) {
+            mEmojiEditTextHelper = new EmojiEditTextHelper(this);
+        }
+        return mEmojiEditTextHelper;
     }
 
     @Override

@@ -419,7 +419,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 String text = s.toString();
                 if (text.endsWith("\t")) { //Workaround for Swype
                     text = text.substring(0, text.length() - 1);
-                    messageTxt.setText(text);
+                    messageTxt.setTextWithEmoji(text);
                     nextSuggestion();
                 } else if (suggestionsContainer != null && suggestionsContainer.getVisibility() == View.VISIBLE) {
                     runOnUiThread(new Runnable() {
@@ -606,7 +606,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             } else if(item.getText().length() > 0) {
                                 if(buffer != null)
                                     buffer.setDraft(item.getText().toString());
-                                messageTxt.setText(item.getText());
+                                messageTxt.setTextWithEmoji(item.getText());
                                 return true;
                             }
                         }
@@ -676,7 +676,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             messageTxt.setDrawerLayout(null);
             if(textWatcher != null)
                 messageTxt.removeTextChangedListener(textWatcher);
-            messageTxt.setText(null);
+            messageTxt.setTextWithEmoji(null);
         }
         textWatcher = null;
         fileUploadTask = null;
@@ -1109,12 +1109,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 nick = "@" + nick;
 
             if (text.lastIndexOf(' ') > 0) {
-                messageTxt.setText(text.substring(0, text.lastIndexOf(' ') + 1) + nick);
+                messageTxt.setTextWithEmoji(text.substring(0, text.lastIndexOf(' ') + 1) + nick);
             } else {
                 if (nick.startsWith("#") || text.startsWith(":"))
-                    messageTxt.setText(nick);
+                    messageTxt.setTextWithEmoji(nick);
                 else
-                    messageTxt.setText(nick + ":");
+                    messageTxt.setTextWithEmoji(nick + ":");
             }
             messageTxt.setSelection(messageTxt.getText().length());
         }
@@ -1222,13 +1222,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 if(messageTxt.getText().toString().equals("/paste") || messageTxt.getText().toString().startsWith("/paste ") || (!forceText && msg != null && (msg.length() > 1080 || msg.split("\n").length > 1))) {
                     if(messageTxt.getText().toString().equals("/paste"))
-                        messageTxt.setText("");
+                        messageTxt.setTextWithEmoji("");
                     else if(messageTxt.getText().toString().startsWith("/paste "))
-                        messageTxt.setText(messageTxt.getText().toString().substring(7));
+                        messageTxt.setTextWithEmoji(messageTxt.getText().toString().substring(7));
                     show_pastebin_prompt();
                     return;
                 } else if(messageTxt.getText().toString().equals("/ignore")) {
-                    messageTxt.setText("");
+                    messageTxt.setTextWithEmoji("");
                     Bundle args = new Bundle();
                     args.putInt("cid", buffer.getCid());
                     IgnoreListFragment ignoreList = new IgnoreListFragment();
@@ -1236,7 +1236,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     ignoreList.show(getSupportFragmentManager(), "ignorelist");
                     return;
                 } else if(messageTxt.getText().toString().equals("/clear")) {
-                    messageTxt.setText("");
+                    messageTxt.setTextWithEmoji("");
                     EventsList.getInstance().deleteEventsForBuffer(buffer.getBid());
                     onBufferSelected(buffer.getBid());
                     return;
@@ -1319,7 +1319,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
             if (e != null && e.reqid != -1) {
-                messageTxt.setText("");
+                messageTxt.setTextWithEmoji("");
                 Buffer b = BuffersList.getInstance().getBuffer(e.bid);
                 if(b != null)
                     b.setDraft(null);
@@ -1633,12 +1633,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     nick = "@" + nick;
 
                 if (text.lastIndexOf(' ') > 0) {
-                    messageTxt.setText(text.substring(0, text.lastIndexOf(' ') + 1) + nick + " ");
+                    messageTxt.setTextWithEmoji(text.substring(0, text.lastIndexOf(' ') + 1) + nick + " ");
                 } else {
                     if (nick.startsWith("#") || text.startsWith(":"))
-                        messageTxt.setText(nick + " ");
+                        messageTxt.setTextWithEmoji(nick + " ");
                     else
-                        messageTxt.setText(nick + ": ");
+                        messageTxt.setTextWithEmoji(nick + ": ");
                 }
                 messageTxt.setSelection(messageTxt.getText().length());
             }
@@ -1690,7 +1690,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 text = pastebinResult.getStringExtra("paste_contents");
             }
-            messageTxt.setText(text);
+            messageTxt.setTextWithEmoji(text);
             SendTask t = new SendTask();
             t.forceText = true;
             t.execute((Void) null);
@@ -3475,13 +3475,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } else if (requestCode == REQUEST_UPLOADS && resultCode == RESULT_OK) {
                 buffer.setDraft("");
-                messageTxt.setText("");
+                messageTxt.setTextWithEmoji("");
             } else if (requestCode == REQUEST_PASTEBIN) {
                 if(resultCode == RESULT_OK) {
                     pastebinResult = imageReturnedIntent;
                 } else if(resultCode == RESULT_CANCELED) {
                     buffer.setDraft(imageReturnedIntent.getStringExtra("paste_contents"));
-                    messageTxt.setText(buffer.getDraft());
+                    messageTxt.setTextWithEmoji(buffer.getDraft());
                 }
             }
         }
@@ -3981,7 +3981,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     newtext = newtext.substring(0, newtext.length() - 1);
                 if (newtext.equals(":"))
                     newtext = "";
-                messageTxt.setText(newtext);
+                messageTxt.setTextWithEmoji(newtext);
                 if (match < newtext.length())
                     messageTxt.setSelection(match);
                 else
@@ -4001,7 +4001,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         newtext = newtext.substring(0, newtext.length() - 1);
                     text = newtext + " ";
                 }
-                messageTxt.setText(text);
+                messageTxt.setTextWithEmoji(text);
                 if (text.length() > 0) {
                     if (oldPosition + from.length() + 2 < text.length())
                         messageTxt.setSelection(oldPosition + from.length());
@@ -4847,7 +4847,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     public void onAnimationEnd(Animation animation) {
                         if (mvf != null)
                             mvf.setArguments(b);
-                        messageTxt.setText("");
+                        messageTxt.setTextWithEmoji("");
                         if (buffer != null && buffer.getDraft() != null)
                             messageTxt.append(buffer.getDraft());
                     }
@@ -4875,7 +4875,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         @Override
                         public void run() {
                             mvf.setArguments(b);
-                            messageTxt.setText("");
+                            messageTxt.setTextWithEmoji("");
                             if (buffer != null && buffer.getDraft() != null)
                                 messageTxt.append(buffer.getDraft());
                         }
@@ -4889,7 +4889,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } else {
             if (mvf != null)
                 mvf.setArguments(b);
-            messageTxt.setText("");
+            messageTxt.setTextWithEmoji("");
             if (buffer != null && buffer.getDraft() != null)
                 messageTxt.append(buffer.getDraft());
         }
@@ -5424,7 +5424,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             if (txt.length() > 0 && !txt.endsWith(" "))
                                 txt += " ";
                             txt += s.replace("http://", "https://");
-                            messageTxt.setText(txt);
+                            messageTxt.setTextWithEmoji(txt);
                         }
                     });
                 } else {
@@ -5625,7 +5625,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     final ImageView thumbnail = view.findViewById(R.id.thumbnail);
                     messageinput.setText(activity.buffer.getDraft());
                     activity.buffer.setDraft("");
-                    activity.messageTxt.setText("");
+                    activity.messageTxt.setTextWithEmoji("");
 
                     view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
@@ -5720,7 +5720,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 if (activity.buffer != null)
                                     activity.buffer.setDraft(messageinput.getText().toString());
                                 if (activity.messageTxt != null)
-                                    activity.messageTxt.setText(messageinput.getText());
+                                    activity.messageTxt.setTextWithEmoji(messageinput.getText());
                             }
                             dialog.dismiss();
                             metadataDialog = null;
