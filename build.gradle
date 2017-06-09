@@ -172,6 +172,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
 
+        enterprisedebug.initWith(debug)
         enterprisedebug {
             applicationIdSuffix ".enterprise"
             versionNameSuffix "-" + getRevision()
@@ -214,6 +215,7 @@ android {
             debuggable true
         }
 
+        enterpriserelease.initWith(release)
         enterpriserelease {
             applicationIdSuffix ".enterprise"
             buildConfigField "String", "HOST", "\"\""
