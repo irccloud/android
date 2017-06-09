@@ -325,20 +325,25 @@ tasks.whenTaskAdded { task ->
     }
 }
 
+ext {
+    supportLibVersion = '26.0.0-beta2'
+    playServicesVersion = '10.2.6'
+}
+
 dependencies {
-    compile 'com.android.support:support-v4:26.0.0-beta2'
-    compile 'com.android.support:support-v13:26.0.0-beta2'
-    compile 'com.android.support:appcompat-v7:26.0.0-beta2'
-    compile 'com.android.support:cardview-v7:26.0.0-beta2'
-    compile 'com.android.support:design:26.0.0-beta2'
-    compile 'com.android.support:recyclerview-v7:26.0.0-beta2'
-    compile 'com.android.support:customtabs:26.0.0-beta2'
-    compile "com.android.support:support-emoji-bundled:26.0.0-beta2"
-    compile 'com.google.android.gms:play-services-base:10.2.6'
-    compile 'com.google.android.gms:play-services-auth:10.2.6'
-    compile 'com.google.android.gms:play-services-identity:10.2.6'
-    compile 'com.google.android.gms:play-services-ads:10.2.6'
-    compile 'com.google.android.gms:play-services-gcm:10.2.6'
+    compile "com.android.support:support-v4:$supportLibVersion"
+    compile "com.android.support:support-v13:$supportLibVersion"
+    compile "com.android.support:appcompat-v7:$supportLibVersion"
+    compile "com.android.support:cardview-v7:$supportLibVersion"
+    compile "com.android.support:design:$supportLibVersion"
+    compile "com.android.support:recyclerview-v7:$supportLibVersion"
+    compile "com.android.support:customtabs:$supportLibVersion"
+    compile "com.android.support:support-emoji-bundled:$supportLibVersion"
+    compile "com.google.android.gms:play-services-base:$playServicesVersion"
+    compile "com.google.android.gms:play-services-auth:$playServicesVersion"
+    compile "com.google.android.gms:play-services-identity:$playServicesVersion"
+    compile "com.google.android.gms:play-services-ads:$playServicesVersion"
+    compile "com.google.android.gms:play-services-gcm:$playServicesVersion"
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
     compile 'com.vandalsoftware.android:dslv:+'
     compile 'com.infstory:switch-preference-compat:1.0.+'
