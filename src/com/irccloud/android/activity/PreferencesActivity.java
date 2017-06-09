@@ -373,6 +373,16 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             PreferenceCategory c = (PreferenceCategory) findPreference("device");
             c.removePreference(findPreference("browser"));
         }
+
+        if(findPreference("preferSystemEmoji") != null) {
+            findPreference("preferSystemEmoji").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    Toast.makeText(PreferencesActivity.this, "This change will take effect next time the app is launched", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
+        }
     }
 
     private Preference findPreference(String key) {
