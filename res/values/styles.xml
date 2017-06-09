@@ -85,14 +85,6 @@
         <item name="android:padding">4dp</item>
 	</style>
 	
-    <style name="NotificationText">
-      <item name="android:textColor">#000</item>
-    </style>
-    <style name="NotificationTitle">
-      <item name="android:textColor">#000</item>
-      <item name="android:textStyle">bold</item>
-    </style>
-
     <style name="ProgressBarLogin" parent="android:Widget.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/login_progress_horizontal_holo_dark</item>
         <item name="android:indeterminateDrawable">@drawable/login_progress_indeterminate_horizontal_holo_dark</item>
