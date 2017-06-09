@@ -57,7 +57,7 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 121
+        versionCode 122
         versionName "3.25"
         minSdkVersion 14
         targetSdkVersion 26
@@ -172,7 +172,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
 
-        enterprisedebug.initWith(debug)
         enterprisedebug {
             applicationIdSuffix ".enterprise"
             versionNameSuffix "-" + getRevision()
@@ -215,7 +214,6 @@ android {
             debuggable true
         }
 
-        enterpriserelease.initWith(release)
         enterpriserelease {
             applicationIdSuffix ".enterprise"
             buildConfigField "String", "HOST", "\"\""
