@@ -153,7 +153,7 @@ public class HTTPFetcher {
             }
             mSocketThreads.remove(Thread.currentThread());
             mCurrentSocketThreads.remove(Thread.currentThread());
-            if(mCurrentSocketThreads.size() == 0 && mAttempts == mAddressCount) {
+            if(mSocket == null && mCurrentSocketThreads.size() == 0 && mAttempts == mAddressCount) {
                 Crashlytics.log(Log.ERROR, TAG, "Failed to connect after " + mAttempts + " attempts");
                 onFetchFailed();
             }
