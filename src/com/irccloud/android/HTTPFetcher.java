@@ -105,6 +105,9 @@ public class HTTPFetcher {
     }
 
     private static final ArrayList<Thread> mSocketThreads = new ArrayList<>();
+    private final ArrayList<Thread> mCurrentSocketThreads = new ArrayList<>();
+    private int mAddressCount;
+    private int mAttempts;
 
     private class ConnectRunnable implements Runnable {
         private SocketFactory mSocketFactory;
@@ -118,12 +121,12 @@ public class HTTPFetcher {
         @Override
         public void run() {
             try {
-                Crashlytics.log(Log.INFO, TAG, "Connecting to address: " + mAddress.getAddress() + " port: " + mAddress.getPort());
+                Crashlytics.log(Log.INFO, TAG, "Connecting to address: " + mAddress.getAddress() + " port: " + mAddress.getPort() + " (attempt " + mAttempts + ")");
                 Socket socket = mSocketFactory.createSocket();
                 socket.connect(mAddress, 30000);
                 if(mSocket == null) {
                     mSocket = socket;
-                    Crashlytics.log(Log.INFO, TAG, "Connected to " + mAddress.getAddress());
+                    Crashlytics.log(Log.INFO, TAG, "Connected to " + mAddress.getAddress() + " (attempt " + mAttempts + ")");
                     if (mURI.getProtocol().equals("https")) {
                         SSLSocket s = (SSLSocket) mSocket;
                         try {
@@ -149,6 +152,11 @@ public class HTTPFetcher {
                 }
             }
             mSocketThreads.remove(Thread.currentThread());
+            mCurrentSocketThreads.remove(Thread.currentThread());
+            if(mCurrentSocketThreads.size() == 0 && mAttempts == mAddressCount) {
+                Crashlytics.log(Log.ERROR, TAG, "Failed to connect after " + mAttempts + " attempts");
+                onFetchFailed();
+            }
         }
     }
 
@@ -180,6 +188,7 @@ public class HTTPFetcher {
                         mThread.start();
                     } else {
                         InetAddress[] addresses = InetAddress.getAllByName(mURI.getHost());
+                        mAddressCount = addresses.length;
                         for (InetAddress address : addresses) {
                             if(mSocket == null && !isCancelled) {
                                 if(mSocketThreads.size() >= MAX_THREADS) {
@@ -191,6 +200,8 @@ public class HTTPFetcher {
                                 }
                                 Thread t = new Thread(new ConnectRunnable(factory, new InetSocketAddress(address, port)));
                                 mSocketThreads.add(t);
+                                mCurrentSocketThreads.add(t);
+                                mAttempts++;
                                 t.start();
                                 Thread.sleep(300);
                             } else {
