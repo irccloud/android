@@ -3015,7 +3015,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 break;
             case NetworkConnection.EVENT_AWAY:
                 e = (IRCCloudJSONObject) obj;
-                if(e.cid() != buffer.getCid())
+                if(buffer == null || e.cid() != buffer.getCid())
                     break;
             case NetworkConnection.EVENT_SELFBACK:
                 if (server != null) {
