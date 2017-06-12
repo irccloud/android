@@ -109,7 +109,7 @@ public class ActionEditText extends AppCompatEditText {
     }
 
     public void setTextWithEmoji(CharSequence s) {
-        if(Build.VERSION.SDK_INT >= 19)
+        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCESS)
             setText(EmojiCompat.get().process(s));
     }
 

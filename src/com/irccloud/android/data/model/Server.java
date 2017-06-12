@@ -139,7 +139,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
 
     @Bindable
     public CharSequence getEmojiCompatName() {
-        if(Build.VERSION.SDK_INT >= 19)
+        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCESS)
             return EmojiCompat.get().process(name);
         else
             return name;
