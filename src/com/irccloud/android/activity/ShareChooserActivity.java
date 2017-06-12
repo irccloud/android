@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
@@ -81,7 +82,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
         buffersList = f.getView();
         buffersList.setVisibility(View.GONE);
 
-        Typeface SourceSansProRegular = Typeface.createFromAsset(getAssets(), "SourceSansPro-Regular.otf");
+        Typeface SourceSansProRegular = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansproregular);
 
         LinearLayout IRCCloud = findViewById(R.id.IRCCloud);
         for (int i = 0; i < IRCCloud.getChildCount(); i++) {

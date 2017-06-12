@@ -22,6 +22,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.text.emoji.EmojiCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -2133,7 +2134,7 @@ public class ColorFormatter {
         }
 
         if(sourceSansPro == null)
-            sourceSansPro = Typeface.createFromAsset(IRCCloudApplication.getInstance().getAssets(), "SourceSansPro-Regular.otf");
+            sourceSansPro = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansproregular);
 
         for(int i = 0; i < output.length(); i++) {
             if(i < output.length() - 1 && (output.charAt(i) == '←' || output.charAt(i) == '→' || output.charAt(i) == '⇐' || output.charAt(i) == '↔' || output.charAt(i) == '↮') && output.charAt(i+1) != 0xFE0F) {

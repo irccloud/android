@@ -17,6 +17,7 @@
 package com.irccloud.android;
 
 import android.graphics.Typeface;
+import android.support.v4.content.res.ResourcesCompat;
 
 /**
  * Created by sam on 9/22/15.
@@ -701,7 +702,7 @@ public class FontAwesome {
 
     public static Typeface getTypeface() {
         if(typeFace == null)
-            typeFace = Typeface.createFromAsset(IRCCloudApplication.getInstance().getAssets(), "FontAwesome.otf");
+            typeFace = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.fontawesome);
         return typeFace;
     }
 }

@@ -22,10 +22,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.TextPaint;
 
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.R;
 
 import java.util.HashMap;
 
@@ -102,7 +104,7 @@ public class Avatar {
                 normalizedNick = nick.toUpperCase();
 
             if(font == null) {
-                font = Typeface.createFromAsset(IRCCloudApplication.getInstance().getApplicationContext().getAssets(), "SourceSansPro-Semibold.otf");
+                font = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansprosemibold);
             }
 
             try {

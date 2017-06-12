@@ -36,6 +36,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -72,6 +73,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BackgroundTaskService;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -292,8 +294,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             version.setVisibility(View.GONE);
         }
 
-        Typeface SourceSansProRegular = Typeface.createFromAsset(getAssets(), "SourceSansPro-Regular.otf");
-        Typeface SourceSansProLightItalic = Typeface.createFromAsset(getAssets(), "SourceSansPro-LightIt.otf");
+        Typeface SourceSansProRegular = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansproregular);
+        Typeface SourceSansProLightItalic = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansprolightit);
 
         for (int i = 0; i < signupHint.getChildCount(); i++) {
             View v = signupHint.getChildAt(i);

@@ -37,6 +37,7 @@ import android.preference.PreferenceManager;
 import android.provider.Browser;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
 import android.text.Spannable;
@@ -1017,7 +1018,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        hackRegular = Typeface.createFromAsset(getActivity().getAssets(), "Hack-Regular.otf");
+        hackRegular = ResourcesCompat.getFont(getActivity(), R.font.hackregular);
 
         final View v = inflater.inflate(R.layout.messageview, container, false);
         statusView = v.findViewById(R.id.statusView);
