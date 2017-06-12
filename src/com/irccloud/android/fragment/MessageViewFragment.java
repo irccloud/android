@@ -3040,6 +3040,21 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 });
                 break;
+            case NetworkConnection.EVENT_FONT_DOWNLOADED:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (buffer != null) {
+                            if (refreshTask != null)
+                                refreshTask.cancel(true);
+                            refreshTask = new RefreshTask();
+                            refreshTask.execute((Void) null);
+                        }
+                        if (server != null && server.getAway() != null && server.getAway().length() > 0)
+                            awayTxt.setText(ColorFormatter.strip("Away (" + server.getAway() + ")"));
+                    }
+                });
+                break;
             default:
                 break;
         }

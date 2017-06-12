@@ -221,6 +221,7 @@ public class NetworkConnection {
     public static final int EVENT_OOB_START = 109;
     public static final int EVENT_OOB_END = 110;
     public static final int EVENT_OOB_FAILED = 111;
+    public static final int EVENT_FONT_DOWNLOADED = 112;
 
     public static final int EVENT_DEBUG = 999;
 

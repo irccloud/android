@@ -23,15 +23,22 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.text.emoji.EmojiCompat;
+import android.support.text.emoji.FontRequestEmojiCompatConfig;
 import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.provider.FontRequest;
+import android.support.v4.provider.FontsContractCompat;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -51,6 +58,8 @@ public class IRCCloudApplicationBase extends Application {
     private NetworkConnection conn = null;
     private TimerTask notifierSockerTimerTask = null;
     private static final Timer notifierTimer = new Timer("notifier-timer");
+    private Typeface csFont;
+    private Handler mFontsHandler;
 
     @Override
     public void onCreate() {
@@ -63,6 +72,20 @@ public class IRCCloudApplicationBase extends Application {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         if(Build.VERSION.SDK_INT >= 19)
             EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true)));
+            /*EmojiCompat.init(new FontRequestEmojiCompatConfig(getApplicationContext(), new FontRequest(
+                    "com.google.android.gms.fonts",
+                    "com.google.android.gms",
+                    "Noto Color Emoji Compat",
+                    R.array.com_google_android_gms_fonts_certs))
+                    .setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true))
+                    .registerInitCallback(new EmojiCompat.InitCallback() {
+                        @Override
+                        public void onInitialized() {
+                            super.onInitialized();
+                            EventsList.getInstance().clearCaches();
+                            conn.notifyHandlers(NetworkConnection.EVENT_FONT_DOWNLOADED, null);
+                        }
+                    }));*/
         NetworkConnection.getInstance().registerForConnectivity();
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
@@ -241,6 +264,22 @@ public class IRCCloudApplicationBase extends Application {
         } catch (Exception e) {
         }*/
 
+        FontRequest request = new FontRequest(
+                "com.google.android.gms.fonts",
+                "com.google.android.gms",
+                "Dekko",
+                R.array.com_google_android_gms_fonts_certs);
+
+        FontsContractCompat.requestFont(getApplicationContext(), request, new FontsContractCompat.FontRequestCallback() {
+            @Override
+            public void onTypefaceRetrieved(Typeface typeface) {
+                csFont = typeface;
+                EventsList.getInstance().clearCaches();
+                NetworkConnection.getInstance().notifyHandlers(NetworkConnection.EVENT_FONT_DOWNLOADED, null);
+            }
+        }, getFontsHandler());
+
+
         Crashlytics.log(Log.INFO, "IRCCloud", "App Initialized");
     }
 
@@ -322,5 +361,18 @@ public class IRCCloudApplicationBase extends Application {
         if(level >= TRIM_MEMORY_MODERATE) {
             onLowMemory();
         }
+    }
+
+    public Typeface getCsFont() {
+        return csFont;
+    }
+
+    private Handler getFontsHandler() {
+        if (mFontsHandler == null) {
+            HandlerThread handlerThread = new HandlerThread("fonts");
+            handlerThread.start();
+            mFontsHandler = new Handler(handlerThread.getLooper());
+        }
+        return mFontsHandler;
     }
 }

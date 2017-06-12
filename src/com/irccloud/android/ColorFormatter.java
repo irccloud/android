@@ -31,7 +31,6 @@ import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.CharacterStyle;
 import android.text.style.MetricAffectingSpan;
-import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.text.util.Linkify.MatchFilter;
@@ -51,8 +50,6 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import io.fabric.sdk.android.services.common.Crash;
 
 public class ColorFormatter {
     public static String file_uri_template = null;
@@ -2135,9 +2132,20 @@ public class ColorFormatter {
             output.setSpan(span, start, end, 0);
         }
 
+        if(sourceSansPro == null)
+            sourceSansPro = Typeface.createFromAsset(IRCCloudApplication.getInstance().getAssets(), "SourceSansPro-Regular.otf");
+
         for(int i = 0; i < output.length(); i++) {
             if(i < output.length() - 1 && (output.charAt(i) == '←' || output.charAt(i) == '→' || output.charAt(i) == '⇐' || output.charAt(i) == '↔' || output.charAt(i) == '↮') && output.charAt(i+1) != 0xFE0F) {
-                output.setSpan(new SourceSansProSpan(), i, i+1, 0);
+                output.setSpan(new TypefaceSpan(sourceSansPro), i, i+1, 0);
+            }
+        }
+
+        Typeface csFont = IRCCloudApplication.getInstance().getCsFont();
+        if(csFont != null) {
+            Matcher matcher = Pattern.compile("comic sans", Pattern.CASE_INSENSITIVE).matcher(output);
+            while (matcher.find()) {
+                output.setSpan(new TypefaceSpan(csFont), matcher.start(), matcher.end(), 0);
             }
         }
 
@@ -2148,16 +2156,16 @@ public class ColorFormatter {
     }
 
     private static Typeface sourceSansPro;
-    private static class SourceSansProSpan extends CharacterStyle {
+    private static class TypefaceSpan extends CharacterStyle {
+        private Typeface typeFace;
 
-        public SourceSansProSpan() {
-            if(sourceSansPro == null)
-                sourceSansPro = Typeface.createFromAsset(IRCCloudApplication.getInstance().getAssets(), "SourceSansPro-Regular.otf");
+        public TypefaceSpan(Typeface typeFace) {
+            this.typeFace = typeFace;
         }
 
         @Override
         public void updateDrawState(TextPaint textPaint) {
-            textPaint.setTypeface(sourceSansPro);
+            textPaint.setTypeface(typeFace);
         }
     }
 

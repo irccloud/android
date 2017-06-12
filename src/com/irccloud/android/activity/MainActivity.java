@@ -2055,6 +2055,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         Buffer b = null;
         Channel c = null;
         switch (what) {
+            case NetworkConnection.EVENT_FONT_DOWNLOADED:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        update_subtitle();
+                        update_suggestions(false);
+                    }
+                });
+                break;
             case NetworkConnection.EVENT_CACHE_START:
                 runOnUiThread(new Runnable() {
                     @Override
