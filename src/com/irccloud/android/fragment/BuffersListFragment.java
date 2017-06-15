@@ -602,13 +602,17 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
             @Override
             public void onClick(View v) {
-                int scrollTo = adapter.unreadPositionAbove(layoutManager.findFirstVisibleItemPosition()) - 1;
-                if (scrollTo > 0)
-                    recyclerView.smoothScrollToPosition(scrollTo);
-                else
-                    recyclerView.smoothScrollToPosition(0);
-
-                updateUnreadIndicators(layoutManager.findFirstVisibleItemPosition(), layoutManager.findLastVisibleItemPosition());
+                if(adapter != null) {
+                    try {
+                        int scrollTo = adapter.unreadPositionAbove(layoutManager.findFirstVisibleItemPosition()) - 1;
+                        if (scrollTo > 0)
+                            recyclerView.smoothScrollToPosition(scrollTo);
+                        else
+                            recyclerView.smoothScrollToPosition(0);
+                    } catch (Exception e) {
+                    }
+                    updateUnreadIndicators(layoutManager.findFirstVisibleItemPosition(), layoutManager.findLastVisibleItemPosition());
+                }
             }
 
         });
@@ -620,12 +624,14 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             @Override
             public void onClick(View v) {
                 if(adapter != null) {
-                    int scrollTo = adapter.unreadPositionBelow(layoutManager.findLastVisibleItemPosition()) + 1;
-                    if (scrollTo < adapter.getItemCount())
-                        recyclerView.smoothScrollToPosition(scrollTo);
-                    else
-                        recyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
-
+                    try {
+                        int scrollTo = adapter.unreadPositionBelow(layoutManager.findLastVisibleItemPosition()) + 1;
+                        if (scrollTo < adapter.getItemCount())
+                            recyclerView.smoothScrollToPosition(scrollTo);
+                        else
+                            recyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
+                    } catch (Exception e) {
+                    }
                     updateUnreadIndicators(layoutManager.findFirstVisibleItemPosition(), layoutManager.findLastVisibleItemPosition());
                 }
             }

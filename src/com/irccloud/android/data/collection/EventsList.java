@@ -1117,7 +1117,7 @@ public class EventsList {
                 if (eids.length > 0) {
                     int i = eids.length - 1;
                     long eid = eids[i];
-                    while(events.get(bid).get(eid).pending) {
+                    while(events.get(bid).get(eid).pending && i > 0) {
                         eid = eids[--i];
                     }
                     return eid;
