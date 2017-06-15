@@ -264,7 +264,7 @@ public class IRCCloudApplicationBase extends Application {
         } catch (Exception e) {
         }*/
 
-        FontRequest request = new FontRequest(
+        /*FontRequest request = new FontRequest(
                 "com.google.android.gms.fonts",
                 "com.google.android.gms",
                 "Dekko",
@@ -277,7 +277,7 @@ public class IRCCloudApplicationBase extends Application {
                 EventsList.getInstance().clearCaches();
                 NetworkConnection.getInstance().notifyHandlers(NetworkConnection.EVENT_FONT_DOWNLOADED, null);
             }
-        }, getFontsHandler());
+        }, getFontsHandler());*/
 
 
         Crashlytics.log(Log.INFO, "IRCCloud", "App Initialized");
