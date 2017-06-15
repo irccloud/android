@@ -118,12 +118,14 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             final int pos = positionForBid(b.getBid());
             if (pos >= 0 && data != null && pos < data.size()) {
                 Buffer e = data.get(pos);
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyItemChanged(pos);
-                    }
-                });
+                if(getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyItemChanged(pos);
+                        }
+                    });
+                }
 
                 if (e.getUnread() > 0) {
                     if (firstUnreadPosition == -1 || firstUnreadPosition > pos)
@@ -217,8 +219,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                     }
                 }
 
-                if (BuffersListFragment.this.getActivity() != null) {
-                    BuffersListFragment.this.getActivity().runOnUiThread(new Runnable() {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (layoutManager != null)
@@ -227,8 +229,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                     });
                 }
             } else {
-                if (BuffersListFragment.this.getActivity() != null) {
-                    BuffersListFragment.this.getActivity().runOnUiThread(new Runnable() {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             refresh();
@@ -365,7 +367,9 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             ArrayList<Server> servers = new ArrayList<>();
 
             for (int i = 0; i < serversArray.size(); i++) {
-                servers.add(serversArray.valueAt(i));
+                Server s = serversArray.valueAt(i);
+                if(s != null)
+                    servers.add(s);
             }
             Collections.sort(servers);
             if (adapter == null) {

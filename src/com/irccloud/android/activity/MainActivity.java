@@ -5122,9 +5122,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         break;
                 }
                 try {
-                    Bitmap oldbmp = bmp;
-                    bmp = Bitmap.createBitmap(oldbmp, 0, 0, oldbmp.getWidth(), oldbmp.getHeight(), matrix, true);
-                    oldbmp.recycle();
+                    bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
                 } catch (OutOfMemoryError e) {
                     Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
                 }
@@ -6053,7 +6051,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         @Override
         public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject event) {
-            if (this.reqid == reqid) {
+            if (this.reqid == reqid && event != null && event.getJsonObject("file") != null && event.getJsonObject("file").has("url")) {
                 if (message == null || message.length() == 0)
                     message = "";
                 else
