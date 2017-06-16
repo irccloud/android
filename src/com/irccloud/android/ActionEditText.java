@@ -59,7 +59,7 @@ public class ActionEditText extends AppCompatEditText {
         if(ic == null)
             return null;
 
-        if(Build.VERSION.SDK_INT >= 19)
+        if(Build.VERSION.SDK_INT >= 19 && getEmojiEditTextHelper() != null)
             ic = getEmojiEditTextHelper().onCreateInputConnection(ic, outAttrs);
 
         outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS;
@@ -105,7 +105,8 @@ public class ActionEditText extends AppCompatEditText {
     }
 
     private void init() {
-        super.setKeyListener(getEmojiEditTextHelper().getKeyListener(getKeyListener()));
+        if(getEmojiEditTextHelper() != null)
+            super.setKeyListener(getEmojiEditTextHelper().getKeyListener(getKeyListener()));
     }
 
     public void setTextWithEmoji(CharSequence s) {
@@ -115,7 +116,10 @@ public class ActionEditText extends AppCompatEditText {
 
     @Override
     public void setKeyListener(android.text.method.KeyListener keyListener) {
-        super.setKeyListener(getEmojiEditTextHelper().getKeyListener(keyListener));
+        if(getEmojiEditTextHelper() != null)
+            super.setKeyListener(getEmojiEditTextHelper().getKeyListener(keyListener));
+        else
+            super.setKeyListener(keyListener);
     }
 
     private EmojiEditTextHelper getEmojiEditTextHelper() {
