@@ -98,7 +98,10 @@ public class AcceptListFragment extends DialogFragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             RowAcceptlistBinding row = holder.binding;
-            row.setNick(acceptList.get(position).asText());
+            if(acceptList.get(position).isArray())
+                row.setNick(acceptList.get(position).get(0).asText());
+            else
+                row.setNick(acceptList.get(position).asText());
             row.removeBtn.setOnClickListener(removeClickListener);
             row.removeBtn.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
             row.removeBtn.setTag(position);
