@@ -300,9 +300,11 @@ public class IRCCloudApplicationBase extends Application {
                 notifierSockerTimerTask = null;
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-                    for (ActivityManager.RunningAppProcessInfo info : am.getRunningAppProcesses()) {
-                        if(info.processName.equals(context.getPackageName()) && info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
-                            return;
+                    if(am != null && am.getRunningAppProcesses() != null) {
+                        for (ActivityManager.RunningAppProcessInfo info : am.getRunningAppProcesses()) {
+                            if (info.processName.equals(context.getPackageName()) && info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+                                return;
+                        }
                     }
                 }
                 if(!conn.notifier && conn.getState() == NetworkConnection.STATE_CONNECTED) {

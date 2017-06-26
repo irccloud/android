@@ -154,7 +154,7 @@ public class PastebinsActivity extends BaseActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
             RowPastebinBinding binding;
 
-            if (view == null) {
+            if (view == null || view.getTag() == null) {
                 binding = RowPastebinBinding.inflate(getLayoutInflater(), viewGroup, false);
             } else {
                 binding = (RowPastebinBinding)view.getTag();
