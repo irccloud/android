@@ -367,7 +367,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             }
                         });
                         try {
-                            String message = o.getString("invalid_nick") + " is not a valid nickname, try again";
+                            String message = o.has("invalid_nick") ? (o.getString("invalid_nick") + " is not a valid nickname, try again") : "Invalid nickname, try again";
                             if (server.isupport != null && server.isupport.has("NICKLEN"))
                                 message += "\n(" + server.isupport.get("NICKLEN").asText() + " chars)";
                             message += ".";

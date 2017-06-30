@@ -2989,7 +2989,10 @@ public class NetworkConnection {
             //Log.d(TAG, "Response: " + object);
             if (object.has("success") && !object.getBoolean("success") && object.has("message")) {
                 Crashlytics.log(Log.ERROR, TAG, "Error: " + object);
-                notifyHandlers(EVENT_FAILURE_MSG, object);
+                if(object.getString("message").equals("invalid_nick"))
+                    notifyHandlers(EVENT_INVALIDNICK, object);
+                else
+                    notifyHandlers(EVENT_FAILURE_MSG, object);
             } else if (object.has("success")) {
                 notifyHandlers(EVENT_SUCCESS, object);
             }
