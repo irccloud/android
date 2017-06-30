@@ -368,7 +368,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         });
                         try {
                             String message = o.has("invalid_nick") ? (o.getString("invalid_nick") + " is not a valid nickname, try again") : "Invalid nickname, try again";
-                            if (server.isupport != null && server.isupport.has("NICKLEN"))
+                            if (server != null && server.isupport != null && server.isupport.has("NICKLEN"))
                                 message += "\n(" + server.isupport.get("NICKLEN").asText() + " chars)";
                             message += ".";
                             prompt.setText(message);
@@ -376,21 +376,25 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             // TODO Auto-generated catch block
                             NetworkConnection.printStackTraceToCrashlytics(e);
                         }
-                        builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                        if(server != null)
+                            builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                        else
+                            builder.setTitle("Invalid Nickname");
                         builder.setView(view);
-                        builder.setPositiveButton("Change Nickname", new OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                try {
-                                    conn.say(o.cid(), null, "/nick " + nickinput.getText().toString());
-                                } catch (Exception e) {
-                                    // TODO Auto-generated catch block
-                                    NetworkConnection.printStackTraceToCrashlytics(e);
+                        if(server != null)
+                            builder.setPositiveButton("Change Nickname", new OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    try {
+                                        conn.say(o.cid(), null, "/nick " + nickinput.getText().toString());
+                                    } catch (Exception e) {
+                                        // TODO Auto-generated catch block
+                                        NetworkConnection.printStackTraceToCrashlytics(e);
+                                    }
+                                    dialog.dismiss();
                                 }
-                                dialog.dismiss();
-                            }
-                        });
-                        builder.setNegativeButton("Cancel", new OnClickListener() {
+                            });
+                        builder.setNegativeButton("Close", new OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
