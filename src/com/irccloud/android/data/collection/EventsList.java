@@ -1001,7 +1001,9 @@ public class EventsList {
             e.type = event.type();
             e.color = colorScheme.messageTextColor;
             e.bg_color = colorScheme.contentBackgroundColor;
-            e.msg = Normalizer.normalize(event.getString("msg"), Normalizer.Form.NFC);
+            e.msg = event.getString("msg");
+            if(e.msg != null)
+                e.msg = Normalizer.normalize(e.msg, Normalizer.Form.NFC);
             e.hostmask = event.getString("hostmask");
             e.from = event.getString("from");
             e.from_mode = event.getString("from_mode");
