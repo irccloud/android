@@ -37,6 +37,7 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
+import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeMap;
@@ -1000,7 +1001,7 @@ public class EventsList {
             e.type = event.type();
             e.color = colorScheme.messageTextColor;
             e.bg_color = colorScheme.contentBackgroundColor;
-            e.msg = event.getString("msg");
+            e.msg = Normalizer.normalize(event.getString("msg"), Normalizer.Form.NFC);
             e.hostmask = event.getString("hostmask");
             e.from = event.getString("from");
             e.from_mode = event.getString("from_mode");
