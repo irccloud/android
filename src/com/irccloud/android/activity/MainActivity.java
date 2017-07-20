@@ -4063,6 +4063,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 itemList.add("Leave");
                 itemList.add("Display Options…");
                 itemList.add("Invite to Channel…");
+                itemList.add("Delete");
             } else {
                 if (b.isChannel())
                     itemList.add("Join");
