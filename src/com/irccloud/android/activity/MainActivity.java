@@ -3202,10 +3202,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         menu.findItem(R.id.menu_archive).setVisible(true);
                         menu.findItem(R.id.menu_archive).setEnabled(true);
                     }
-                    if (menu.findItem(R.id.menu_delete) != null) {
-                        menu.findItem(R.id.menu_delete).setVisible(true);
-                        menu.findItem(R.id.menu_delete).setEnabled(true);
-                    }
                     if (menu.findItem(R.id.menu_userlist) != null) {
                         menu.findItem(R.id.menu_userlist).setEnabled(false);
                         menu.findItem(R.id.menu_userlist).setVisible(false);
@@ -3222,10 +3218,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if (menu.findItem(R.id.menu_archive) != null) {
                         menu.findItem(R.id.menu_archive).setVisible(false);
                         menu.findItem(R.id.menu_archive).setEnabled(false);
-                    }
-                    if (menu.findItem(R.id.menu_delete) != null) {
-                        menu.findItem(R.id.menu_delete).setVisible(false);
-                        menu.findItem(R.id.menu_delete).setEnabled(false);
                     }
                     if (menu.findItem(R.id.menu_ban_list) != null) {
                         menu.findItem(R.id.menu_ban_list).setVisible(true);
