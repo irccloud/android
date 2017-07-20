@@ -1547,6 +1547,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     protected void onNewIntent(Intent intent) {
         if (intent != null) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Got new launch intent");
+            buffer = null;
             setFromIntent(intent);
         }
     }
@@ -1858,7 +1859,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         actionBar.setTitle(channel);
                         actionBar.setSubtitle(null);
                         bufferToOpen = channel;
-                        conn.join(s.getCid(), channel, key);
+                        if(channel.substring(0,1).matches("[a-zA-Z0-9]"))
+                            conn.say(s.getCid(), null, "/query " + channel);
+                        else
+                            conn.join(s.getCid(), channel, key);
                     }
                     return true;
                 } else {
@@ -3174,6 +3178,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     getMenuInflater().inflate(R.menu.activity_message_console, menu);
 
                 getMenuInflater().inflate(R.menu.activity_message_archive, menu);
+                getMenuInflater().inflate(R.menu.activity_message_shortcut, menu);
             }
             getMenuInflater().inflate(R.menu.activity_main, menu);
         }
@@ -3887,6 +3892,31 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case R.id.menu_clear_backlog:
                 EventsList.getInstance().deleteEventsForBuffer(buffer.getBid());
                 onBufferSelected(buffer.getBid());
+                return true;
+            case R.id.menu_create_shortcut:
+                try {
+                    String uri = "irc";
+                    if (server.getSsl() > 0)
+                        uri += "s";
+                    uri += "://" + server.getHostname() + ":" + server.getPort();
+                    uri += "/" + URLEncoder.encode(buffer.getName(), "UTF-8");
+                    if (buffer.isChannel()) {
+                        Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
+                        if (c != null && c.hasMode("k"))
+                            uri += "," + c.paramForMode("k");
+                    }
+                    final Intent shortcutIntent = new Intent(this, MainActivity.class);
+                    shortcutIntent.setData(Uri.parse(uri));
+                    final Intent intent = new Intent();
+                    intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+                    intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, buffer.getName());
+                    intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(this, R.mipmap.ic_launcher));
+                    intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+                    sendBroadcast(intent);
+                    moveTaskToBack(true);
+                } catch (Exception e) {
+                    NetworkConnection.printStackTraceToCrashlytics(e);
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -4725,6 +4755,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public void onBufferSelected(int bid) {
+        boolean changed = (buffer == null || buffer.getBid() != bid);
+
         launchBid = -1;
         launchURI = null;
         cidToOpen = -1;
@@ -4764,7 +4796,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         }
-        shouldFadeIn = !(buffer != null && buffer.getBid() == bid && findViewById(R.id.splash) != null && findViewById(R.id.splash).getVisibility() == View.GONE);
+        shouldFadeIn = buffer != null && changed && !(buffer != null && buffer.getBid() == bid && findViewById(R.id.splash) != null && findViewById(R.id.splash).getVisibility() == View.GONE);
         buffer = BuffersList.getInstance().getBuffer(bid);
         if (buffer != null) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.getCid() + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
@@ -4794,8 +4826,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (server.getSsl() > 0)
                             uri += "s";
                         uri += "://" + server.getHostname() + ":" + server.getPort();
+                        uri += "/" + URLEncoder.encode(buffer.getName(), "UTF-8");
                         if (buffer.isChannel()) {
-                            uri += "/" + URLEncoder.encode(buffer.getName(), "UTF-8");
                             Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                             if (c != null && c.hasMode("k"))
                                 uri += "," + c.paramForMode("k");

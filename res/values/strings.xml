@@ -35,6 +35,7 @@
     <string name="menu_photo">Insert Photo</string>
     <string name="menu_invite">Invite to Channel</string>
     <string name="menu_feedback">Send Feedback</string>
+    <string name="menu_create_shortcut">Create Shortcut</string>
     <string name="title_activity_message">IRCCloud</string>
     <string name="title_activity_login">Login</string>
     <string name="email">Email Address</string>
