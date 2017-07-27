@@ -479,6 +479,12 @@ public class NotificationsList {
                 c.setSound(Uri.parse(ringtone), new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
                         .build());
+            c.enableLights(true);
+            int led_color = Integer.parseInt(prefs.getString("notify_led_color", "1"));
+            if (led_color == 2) {
+                c.setLightColor(0xFF0000FF);
+            }
+            c.enableVibration(prefs.getBoolean("notify_vibrate", true));
             c.setGroup(String.valueOf(cid));
             ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(c);
         }
