@@ -1845,7 +1845,7 @@ public class ColorFormatter {
     }
 
     public static CharSequence strip(String msg) {
-        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCESS)
+        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
             return EmojiCompat.get().process(html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString());
         else
             return html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString();
@@ -2150,7 +2150,7 @@ public class ColorFormatter {
             }
         }
 
-        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCESS)
+        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
             return (Spanned)EmojiCompat.get().process(output);
         else
             return output;

@@ -326,7 +326,7 @@ tasks.whenTaskAdded { task ->
 }
 
 ext {
-    supportLibVersion = '26.0.0-beta2'
+    supportLibVersion = '26.0.0'
     playServicesVersion = '11.0.2'
 }
 

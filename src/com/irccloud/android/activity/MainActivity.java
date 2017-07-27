@@ -276,7 +276,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 v.setBackgroundColor(colorScheme.bufferBackgroundColor);
             }
 
-            if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCESS)
+            if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
                 v.setText(EmojiCompat.get().process(getItem(position)));
 
             //This will prevent GridView from stealing focus from the EditText by bypassing the check on line 1397 of GridView.java in the Android Source
@@ -1929,7 +1929,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
             } else {
-                if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCESS)
+                if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
                     title.setText(EmojiCompat.get().process(buffer.getName()));
                 else
                     title.setText(buffer.getName());
