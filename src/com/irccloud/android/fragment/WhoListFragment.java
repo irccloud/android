@@ -100,11 +100,11 @@ public class WhoListFragment extends DialogFragment {
                             switch (i) {
                                 case 0:
                                     dismiss();
-                                    conn.say(event.cid(), null, "/query " + user.get("nick").asText());
+                                    conn.say(event.cid(), null, "/query " + user.get("nick").asText(), null);
                                     break;
                                 case 1:
                                     dismiss();
-                                    conn.say(event.cid(), null, "/whois " + user.get("nick").asText());
+                                    conn.say(event.cid(), null, "/whois " + user.get("nick").asText(), null);
                                     break;
                                 case 2:
                                     android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);

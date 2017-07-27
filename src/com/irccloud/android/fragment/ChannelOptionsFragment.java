@@ -102,7 +102,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     prefs = updatePref(prefs, !readOnSelect.isChecked(), "channel-enableReadOnSelect");
                     prefs = updatePref(prefs, inlineFiles.isChecked(), "channel-files-disableinline");
 
-                    NetworkConnection.getInstance().set_prefs(prefs.toString());
+                    NetworkConnection.getInstance().set_prefs(prefs.toString(), null);
                 } else {
                     Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 }

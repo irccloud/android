@@ -46,7 +46,7 @@ public class NickservFragment extends DialogFragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             if (pass.getText() != null && pass.getText().length() > 0) {
-                NetworkConnection.getInstance().set_nspass(server.getCid(), pass.getText().toString());
+                NetworkConnection.getInstance().set_nspass(server.getCid(), pass.getText().toString(), null);
                 dismiss();
             }
         }
@@ -55,7 +55,7 @@ public class NickservFragment extends DialogFragment {
     class InstructionsClickListener implements DialogInterface.OnClickListener {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            NetworkConnection.getInstance().ns_help_register(server.getCid());
+            NetworkConnection.getInstance().ns_help_register(server.getCid(), null);
             dismiss();
         }
     }

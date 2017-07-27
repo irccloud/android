@@ -381,7 +381,7 @@ public class UploadsActivity extends BaseActivity {
                 builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        delete_reqids.put(NetworkConnection.getInstance().deleteFile(f.id), f);
+                        delete_reqids.put(NetworkConnection.getInstance().deleteFile(f.id, null), f);
                         f.deleting = true;
                         adapter.notifyDataSetChanged();
                         checkEmpty();
@@ -549,7 +549,7 @@ public class UploadsActivity extends BaseActivity {
                             }
                             finish();
 
-                            NetworkConnection.getInstance().say(cid, to, message);
+                            NetworkConnection.getInstance().say(cid, to, message, null);
                         }
                     });
                     builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -641,7 +641,7 @@ public class UploadsActivity extends BaseActivity {
                             View.OnClickListener undo = new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    NetworkConnection.getInstance().restoreFile(f.id);
+                                    NetworkConnection.getInstance().restoreFile(f.id, null);
                                     adapter.restoreFile(f);
                                 }
                             };

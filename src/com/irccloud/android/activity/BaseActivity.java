@@ -297,7 +297,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                                 if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
                                     try {
                                         if (keyinput.getText() != null)
-                                            conn.join(o.cid(), o.getString("chan"), keyinput.getText().toString());
+                                            conn.join(o.cid(), o.getString("chan"), keyinput.getText().toString(), null);
                                     } catch (Exception e) {
                                         // TODO Auto-generated catch block
                                         NetworkConnection.printStackTraceToCrashlytics(e);
@@ -319,7 +319,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
-                                    conn.join(o.cid(), o.getString("chan"), keyinput.getText().toString());
+                                    conn.join(o.cid(), o.getString("chan"), keyinput.getText().toString(), null);
                                 } catch (Exception e) {
                                     // TODO Auto-generated catch block
                                     NetworkConnection.printStackTraceToCrashlytics(e);
@@ -356,7 +356,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
                                 if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
                                     try {
-                                        conn.say(o.cid(), null, "/nick " + nickinput.getText().toString());
+                                        conn.say(o.cid(), null, "/nick " + nickinput.getText().toString(), null);
                                     } catch (Exception e) {
                                         // TODO Auto-generated catch block
                                         NetworkConnection.printStackTraceToCrashlytics(e);
@@ -386,7 +386,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     try {
-                                        conn.say(o.cid(), null, "/nick " + nickinput.getText().toString());
+                                        conn.say(o.cid(), null, "/nick " + nickinput.getText().toString(), null);
                                     } catch (Exception e) {
                                         // TODO Auto-generated catch block
                                         NetworkConnection.printStackTraceToCrashlytics(e);
@@ -497,14 +497,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             default:
                 break;
         }
-    }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
     }
 
     protected void showAlert(int cid, final String msg) {

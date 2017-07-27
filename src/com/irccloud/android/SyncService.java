@@ -71,14 +71,4 @@ public class SyncService extends IntentService implements NetworkConnection.IRCE
                 break;
         }
     }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
-
-    }
 }

@@ -57,9 +57,9 @@ public class AddChannelFragment extends DialogFragment {
                 for (int i = 0; i < splitchannels.length; i++) {
                     String[] channelandkey = splitchannels[i].split(" ");
                     if (channelandkey.length > 1)
-                        NetworkConnection.getInstance().join(cid, channelandkey[0].trim(), channelandkey[1]);
+                        NetworkConnection.getInstance().join(cid, channelandkey[0].trim(), channelandkey[1], null);
                     else
-                        NetworkConnection.getInstance().join(cid, channelandkey[0].trim(), "");
+                        NetworkConnection.getInstance().join(cid, channelandkey[0].trim(), "", null);
                 }
                 dismiss();
             }

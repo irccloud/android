@@ -57,7 +57,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;public class EditConnectionFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
+import java.util.ArrayList;public class EditConnectionFragment extends DialogFragment {
     private class PresetServersAdapter extends BaseAdapter {
         private Activity ctx;
 
@@ -202,8 +202,6 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
     public int default_port = 6667;
     public String default_channels = null;
 
-    private int reqid = -1;
-
     private void init(View v) {
         channelsWrapper = v.findViewById(R.id.channels_wrapper);
         presets = v.findViewById(R.id.presets);
@@ -266,7 +264,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
             b.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    NetworkConnection.getInstance().resend_verify_email();
+                    NetworkConnection.getInstance().resend_verify_email(null);
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle("Confirmation Sent");
                     builder.setMessage("You should shortly receive an email with a link to confirm your address.");
@@ -305,12 +303,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
                 .setTitle((server == null) ? "Add A Network" : "Edit Connection")
                 .setView(v)
                 .setPositiveButton((server == null) ? "Add" : "Save", null)
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
-                    }
-                })
+                .setNegativeButton("Cancel", null)
                 .create();
         d.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -319,9 +312,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
                 b.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
-                        NetworkConnection.getInstance().addHandler(EditConnectionFragment.this);
-                        reqid = save();
+                        save(null);
                     }
                 });
             }
@@ -380,7 +371,6 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
         super.onDestroy();
         if(presets != null)
             presets.setOnItemSelectedListener(null);
-        NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
     }
 
     @Override
@@ -389,7 +379,47 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
             savedInstanceState.putInt("cid", server.getCid());
     }
 
-    public int save() {
+    public void save(final NetworkConnection.IRCResultCallback callback) {
+        NetworkConnection.IRCResultCallback c = new NetworkConnection.IRCResultCallback() {
+            @Override
+            public void onIRCResult(IRCCloudJSONObject result) {
+                if(result.getBoolean("success")) {
+                    try {
+                        dismiss();
+                    } catch (Exception e) {
+                    }
+                } else {
+                    final String message = result.getString("message");
+                    if (getActivity() != null)
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                switch (message) {
+                                    case "passworded_servers":
+                                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_LONG).show();
+                                        break;
+                                    case "networks":
+                                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You've exceeded the connection limit for free accounts.", Toast.LENGTH_LONG).show();
+                                        break;
+                                    case "unverified":
+                                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_LONG).show();
+                                        break;
+                                    case "sts_policy":
+                                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t disable secure connections to this network because it’s using a strict transport security policy.", Toast.LENGTH_LONG).show();
+                                        break;
+                                    default:
+                                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_LONG).show();
+                                        break;
+                                }
+                            }
+                        });
+                }
+
+                if(callback != null)
+                    callback.onIRCResult(result);
+            }
+        };
+
         int portValue = 6667;
         try {
             portValue = Integer.parseInt(port.getText().toString());
@@ -400,61 +430,17 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
             if (presets.getSelectedItemPosition() > 0) {
                 netname = ((PresetServersAdapter.PresetServer) adapter.getItem(presets.getSelectedItemPosition())).network;
             }
-            return NetworkConnection.getInstance().addServer(hostname.getText().toString(), portValue,
+            NetworkConnection.getInstance().addServer(hostname.getText().toString(), portValue,
                     ssl.isChecked() ? 1 : 0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
-                    nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString());
+                    nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString(), c);
         } else {
             String netname = network.getText().toString();
             if (hostname.getText().toString().equalsIgnoreCase(netname))
                 netname = null;
-            return NetworkConnection.getInstance().editServer(server.getCid(), hostname.getText().toString(), portValue,
+            NetworkConnection.getInstance().editServer(server.getCid(), hostname.getText().toString(), portValue,
                     ssl.isChecked() ? 1 : 0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
-                    nickserv_pass.getText().toString(), join_commands.getText().toString());
+                    nickserv_pass.getText().toString(), join_commands.getText().toString(), c);
 
-        }
-    }
-
-    public void onIRCEvent(int what, Object o) {
-    }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-        if(reqid == this.reqid) {
-            NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
-            try {
-                dismiss();
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
-        if(reqid == this.reqid) {
-            final String message = object.getString("message");
-            if (getActivity() != null)
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        switch (message) {
-                            case "passworded_servers":
-                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_LONG).show();
-                                break;
-                            case "networks":
-                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You've exceeded the connection limit for free accounts.", Toast.LENGTH_LONG).show();
-                                break;
-                            case "unverified":
-                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_LONG).show();
-                                break;
-                            case "sts_policy":
-                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t disable secure connections to this network because it’s using a strict transport security policy.", Toast.LENGTH_LONG).show();
-                                break;
-                            default:
-                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_LONG).show();
-                                break;
-                        }
-                    }
-                });
         }
     }
 

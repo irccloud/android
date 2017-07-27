@@ -80,8 +80,8 @@ public class AcceptListFragment extends DialogFragment {
             public void onClick(View v) {
                 Integer position = (Integer) v.getTag();
                 try {
-                    conn.say(cid, null, "/accept -" + acceptList.get(position).asText());
-                    conn.say(cid, null, "/accept *");
+                    conn.say(cid, null, "/accept -" + acceptList.get(position).asText(), null);
+                    conn.say(cid, null, "/accept *", null);
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
                     NetworkConnection.printStackTraceToCrashlytics(e);
@@ -173,8 +173,8 @@ public class AcceptListFragment extends DialogFragment {
             builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    conn.say(cid, null, "/accept " + input.getText().toString());
-                    conn.say(cid, null, "/accept *");
+                    conn.say(cid, null, "/accept " + input.getText().toString(), null);
+                    conn.say(cid, null, "/accept *", null);
                     dialog.dismiss();
                 }
             });

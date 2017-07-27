@@ -34,7 +34,7 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
-public class ImgurAuthActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler {
+public class ImgurAuthActivity extends AppCompatActivity {
 
     private WebView mWebView;
 
@@ -105,18 +105,6 @@ public class ImgurAuthActivity extends AppCompatActivity implements NetworkConne
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        NetworkConnection.getInstance().addHandler(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        NetworkConnection.getInstance().removeHandler(this);
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         IRCCloudApplication.getInstance().onPause(this);
@@ -136,20 +124,5 @@ public class ImgurAuthActivity extends AppCompatActivity implements NetworkConne
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onIRCEvent(int message, Object object) {
-
-    }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
-
     }
 }

@@ -246,9 +246,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private String theme;
 
-    private String deleteFileId;
-    private int deleteReqId = -1;
-
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
             super(MainActivity.this, R.layout.row_suggestion);
@@ -1190,10 +1187,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                     if (conn != null && buffer != null)
-                        conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
+                        conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]), null);
                 } else {
                     if (conn != null)
-                        conn.heartbeat(buffer.getCid(), buffer.getBid(), EventsList.getInstance().lastEidForBuffer(buffer.getBid()));
+                        conn.heartbeat(buffer.getCid(), buffer.getBid(), EventsList.getInstance().lastEidForBuffer(buffer.getBid()), null);
                 }
             }
         }
@@ -1298,7 +1295,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return null;
             }
             if (e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-                e.reqid = conn.say(e.cid, e.chan, e.command);
+                e.reqid = conn.say(e.cid, e.chan, e.command, null);
                 if (e.msg != null)
                     pendingEvents.put(e.reqid, e);
             }
@@ -1764,7 +1761,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (shouldMarkAsRead()) {
                 Long eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid());
                 if (eid >= buffer.getLast_seen_eid() && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                    NetworkConnection.getInstance().heartbeat(buffer.getCid(), buffer.getBid(), eid);
+                    NetworkConnection.getInstance().heartbeat(buffer.getCid(), buffer.getBid(), eid, null);
                     buffer.setLast_seen_eid(eid);
                     buffer.setUnread(0);
                     buffer.setHighlights(0);
@@ -1860,9 +1857,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         actionBar.setSubtitle(null);
                         bufferToOpen = channel;
                         if(channel.substring(0,1).matches("[a-zA-Z0-9]"))
-                            conn.say(s.getCid(), null, "/query " + channel);
+                            conn.say(s.getCid(), null, "/query " + channel, null);
                         else
-                            conn.join(s.getCid(), channel, key);
+                            conn.join(s.getCid(), channel, key, null);
                     }
                     return true;
                 } else {
@@ -3024,33 +3021,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 }
                 break;
-            case NetworkConnection.EVENT_SUCCESS:
-                event = (IRCCloudJSONObject) obj;
-                if (event != null && event.has("_reqid")) {
-                    int reqid = event.getInt("_reqid");
-                    if (reqid == deleteReqId) {
-                        MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
-                        if (mvf != null)
-                            mvf.uncacheFileId(deleteFileId);
-                        deleteReqId = -1;
-                        deleteFileId = null;
-                    }
-                }
-                break;
             case NetworkConnection.EVENT_FAILURE_MSG:
                 event = (IRCCloudJSONObject) obj;
                 if (event != null && event.has("_reqid")) {
                     int reqid = event.getInt("_reqid");
-                    if (reqid == deleteReqId) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(MainActivity.this, "Unable to delete file. Please try again shortly.", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        deleteReqId = -1;
-                        deleteFileId = null;
-                    } else if (pendingEvents.containsKey(reqid)) {
+                    if (pendingEvents.containsKey(reqid)) {
                         Event e = pendingEvents.get(reqid);
                         EventsList.getInstance().deleteEvent(e.eid, e.bid);
                         pendingEvents.remove(event.getInt("_reqid"));
@@ -3711,11 +3686,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 User u = UsersList.getInstance().findUserOnConnection(buffer.getCid(), buffer.getName());
                 if(u != null)
                     if(u.ircserver != null && u.ircserver.length() > 0)
-                        NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), u.ircserver);
+                        NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), u.ircserver, null);
                     else
-                        NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), (u.joined > 0)?buffer.getName():null);
+                        NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), (u.joined > 0)?buffer.getName():null, null);
                 else
-                    NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), null);
+                    NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), null, null);
                 break;
             case R.id.menu_identify:
                 NickservFragment nsFragment = new NickservFragment();
@@ -3758,19 +3733,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 ignoreList.show(getSupportFragmentManager(), "ignorelist");
                 return true;
             case R.id.menu_ban_list:
-                NetworkConnection.getInstance().mode(buffer.getCid(), buffer.getName(), "b");
+                NetworkConnection.getInstance().mode(buffer.getCid(), buffer.getName(), "b", null);
                 return true;
             case R.id.menu_leave:
                 if (ChannelsList.getInstance().getChannelForBuffer(buffer.getBid()) == null)
-                    NetworkConnection.getInstance().join(buffer.getCid(), buffer.getName(), null);
+                    NetworkConnection.getInstance().join(buffer.getCid(), buffer.getName(), null, null);
                 else
-                    NetworkConnection.getInstance().part(buffer.getCid(), buffer.getName(), null);
+                    NetworkConnection.getInstance().part(buffer.getCid(), buffer.getName(), null, null);
                 return true;
             case R.id.menu_archive:
                 if (buffer.getArchived() == 0)
-                    NetworkConnection.getInstance().archiveBuffer(buffer.getCid(), buffer.getBid());
+                    NetworkConnection.getInstance().archiveBuffer(buffer.getCid(), buffer.getBid(), null);
                 else
-                    NetworkConnection.getInstance().unarchiveBuffer(buffer.getCid(), buffer.getBid());
+                    NetworkConnection.getInstance().unarchiveBuffer(buffer.getCid(), buffer.getBid(), null);
                 return true;
             case R.id.menu_delete:
                 builder = new AlertDialog.Builder(MainActivity.this);
@@ -3799,9 +3774,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (buffer.isConsole()) {
-                            NetworkConnection.getInstance().deleteServer(buffer.getCid());
+                            NetworkConnection.getInstance().deleteServer(buffer.getCid(), null);
                         } else {
-                            NetworkConnection.getInstance().deleteBuffer(buffer.getCid(), buffer.getBid());
+                            NetworkConnection.getInstance().deleteBuffer(buffer.getCid(), buffer.getBid(), null);
                         }
                         dialog.dismiss();
                     }
@@ -3823,9 +3798,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return true;
             case R.id.menu_disconnect:
                 if (server != null && server.getStatus() != null && (server.getStatus().equalsIgnoreCase("waiting_to_retry")) || (server.getStatus().contains("connected") && !server.getStatus().startsWith("dis"))) {
-                    NetworkConnection.getInstance().disconnect(buffer.getCid(), null);
+                    NetworkConnection.getInstance().disconnect(buffer.getCid(), null, null);
                 } else {
-                    NetworkConnection.getInstance().reconnect(buffer.getCid());
+                    NetworkConnection.getInstance().reconnect(buffer.getCid(), null);
                 }
                 return true;
             case R.id.menu_invite:
@@ -3840,7 +3815,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        conn.invite(buffer.getCid(), buffer.getName(), input.getText().toString());
+                        conn.invite(buffer.getCid(), buffer.getName(), input.getText().toString(), null);
                         dialog.dismiss();
                     }
                 });
@@ -3935,7 +3910,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             builder.setPositiveButton("Set Topic", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    conn.topic(c.cid, c.name, input.getText().toString());
+                    conn.topic(c.cid, c.name, input.getText().toString(), null);
                     dialog.dismiss();
                 }
             });
@@ -4118,17 +4093,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (items[item].equals("Open")) {
                     onBufferSelected(b.getBid());
                 } else if (items[item].equals("Join")) {
-                    conn.join(b.getCid(), b.getName(), null);
+                    conn.join(b.getCid(), b.getName(), null, null);
                 } else if (items[item].equals("Leave")) {
-                    conn.part(b.getCid(), b.getName(), null);
+                    conn.part(b.getCid(), b.getName(), null, null);
                 } else if (items[item].equals("Archive")) {
-                    conn.archiveBuffer(b.getCid(), b.getBid());
+                    conn.archiveBuffer(b.getCid(), b.getBid(), null);
                 } else if (items[item].equals("Unarchive")) {
-                    conn.unarchiveBuffer(b.getCid(), b.getBid());
+                    conn.unarchiveBuffer(b.getCid(), b.getBid(), null);
                 } else if (items[item].equals("Connect")) {
-                    conn.reconnect(b.getCid());
+                    conn.reconnect(b.getCid(), null);
                 } else if (items[item].equals("Disconnect")) {
-                    conn.disconnect(b.getCid(), null);
+                    conn.disconnect(b.getCid(), null, null);
                 } else if (items[item].equals("Display Options…")) {
                     if (b.isChannel()) {
                         ChannelOptionsFragment newFragment = new ChannelOptionsFragment(b.getCid(), b.getBid());
@@ -4166,7 +4141,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if (blf != null)
                         blf.refresh();
                     if (conn != null && buffer != null)
-                        conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
+                        conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]), null);
                 } else if (items[item].equals("Delete")) {
                     builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -4194,9 +4169,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (b.isConsole()) {
-                                NetworkConnection.getInstance().deleteServer(b.getCid());
+                                NetworkConnection.getInstance().deleteServer(b.getCid(), null);
                             } else {
-                                NetworkConnection.getInstance().deleteBuffer(b.getCid(), b.getBid());
+                                NetworkConnection.getInstance().deleteBuffer(b.getCid(), b.getBid(), null);
                             }
                             dialog.dismiss();
                         }
@@ -4220,7 +4195,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            NetworkConnection.getInstance().invite(b.getCid(), b.getName(), input.getText().toString());
+                            NetworkConnection.getInstance().invite(b.getCid(), b.getName(), input.getText().toString(), null);
                             dialog.dismiss();
                         }
                     });
@@ -4286,7 +4261,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Join", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            NetworkConnection.getInstance().say(b.getCid(), null, "/join " + input.getText().toString());
+                            NetworkConnection.getInstance().say(b.getCid(), null, "/join " + input.getText().toString(), null);
                             dialog.dismiss();
                         }
                     });
@@ -4381,7 +4356,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     e.pending = true;
                     e.failed = false;
                     e.bg_color = colorScheme.selfBackgroundColor;
-                    e.reqid = NetworkConnection.getInstance().say(e.cid, e.chan, e.command);
+                    e.reqid = NetworkConnection.getInstance().say(e.cid, e.chan, e.command, null);
                     if (e.reqid >= 0) {
                         pendingEvents.put(e.reqid, e);
                         e.expiration_timer = new TimerTask() {
@@ -4571,23 +4546,38 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         dialog.show();
                     }
                 } else if (items[item].equals("Delete File")) {
-                    deleteFileId = entities.get("id").asText();
-                    deleteReqId = conn.deleteFile(deleteFileId);
+                    conn.deleteFile(entities.get("id").asText(), new NetworkConnection.IRCResultCallback() {
+                        @Override
+                        public void onIRCResult(IRCCloudJSONObject result) {
+                            if(result.getBoolean("success")) {
+                                MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+                                if (mvf != null)
+                                    mvf.uncacheFileId(entities.get("id").asText());
+                            } else {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(MainActivity.this, "Unable to delete file. Please try again shortly.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
+                    });
                 } else if (items[item].equals("Close Preview")) {
                     MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
                     if (mvf != null)
                         mvf.hideFileId(entities.get("id").asText());
                 } else if (items[item].equals("Whois…")) {
                     if(selected_user.ircserver != null && selected_user.ircserver.length() > 0)
-                        conn.whois(buffer.getCid(), selected_user.nick, selected_user.ircserver);
+                        conn.whois(buffer.getCid(), selected_user.nick, selected_user.ircserver, null);
                     else
-                        conn.whois(buffer.getCid(), selected_user.nick, (selected_user.joined > 0)?selected_user.nick:null);
+                        conn.whois(buffer.getCid(), selected_user.nick, (selected_user.joined > 0)?selected_user.nick:null, null);
                 } else if (items[item].equals("Send a message")) {
                     drawerLayout.closeDrawers();
                     drawerLayout.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            NetworkConnection.getInstance().say(buffer.getCid(), null, "/query " + selected_user.nick);
+                            NetworkConnection.getInstance().say(buffer.getCid(), null, "/query " + selected_user.nick, null);
                         }
                     }, 300);
                 } else if (items[item].equals("Mention")) {
@@ -4609,7 +4599,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            NetworkConnection.getInstance().invite(buffer.getCid(), input.getText().toString(), selected_user.nick);
+                            NetworkConnection.getInstance().invite(buffer.getCid(), input.getText().toString(), selected_user.nick, null);
                             dialog.dismiss();
                         }
                     });
@@ -4637,7 +4627,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            NetworkConnection.getInstance().ignore(buffer.getCid(), input.getText().toString());
+                            NetworkConnection.getInstance().ignore(buffer.getCid(), input.getText().toString(), null);
                             dialog.dismiss();
                         }
                     });
@@ -4652,13 +4642,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                     dialog.show();
                 } else if (items[item].equals("Op")) {
-                    conn.mode(buffer.getCid(), buffer.getName(), "+" + (server != null ? server.MODE_OP : "o") + " " + selected_user.nick);
+                    conn.mode(buffer.getCid(), buffer.getName(), "+" + (server != null ? server.MODE_OP : "o") + " " + selected_user.nick, null);
                 } else if (items[item].equals("Deop")) {
-                    conn.mode(buffer.getCid(), buffer.getName(), "-" + (server != null ? server.MODE_OP : "o") + " " + selected_user.nick);
+                    conn.mode(buffer.getCid(), buffer.getName(), "-" + (server != null ? server.MODE_OP : "o") + " " + selected_user.nick, null);
                 } else if (items[item].equals("Voice")) {
-                    conn.mode(buffer.getCid(), buffer.getName(), "+" + (server != null ? server.MODE_VOICED : "v") + " " + selected_user.nick);
+                    conn.mode(buffer.getCid(), buffer.getName(), "+" + (server != null ? server.MODE_VOICED : "v") + " " + selected_user.nick, null);
                 } else if (items[item].equals("Devoice")) {
-                    conn.mode(buffer.getCid(), buffer.getName(), "-" + (server != null ? server.MODE_VOICED : "v") + " " + selected_user.nick);
+                    conn.mode(buffer.getCid(), buffer.getName(), "-" + (server != null ? server.MODE_VOICED : "v") + " " + selected_user.nick, null);
                 } else if (items[item].equals("Kick…")) {
                     view = getDialogTextPrompt();
                     prompt = view.findViewById(R.id.prompt);
@@ -4670,7 +4660,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Kick", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            NetworkConnection.getInstance().kick(buffer.getCid(), buffer.getName(), selected_user.nick, input.getText().toString());
+                            NetworkConnection.getInstance().kick(buffer.getCid(), buffer.getName(), selected_user.nick, input.getText().toString(), null);
                             dialog.dismiss();
                         }
                     });
@@ -4698,7 +4688,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Ban", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            NetworkConnection.getInstance().mode(buffer.getCid(), buffer.getName(), "+b " + input.getText().toString());
+                            NetworkConnection.getInstance().mode(buffer.getCid(), buffer.getName(), "+b " + input.getText().toString(), null);
                             dialog.dismiss();
                         }
                     });
@@ -4790,7 +4780,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(shouldMarkAsRead()) {
                 Long eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid());
                 if (eid >= buffer.getLast_seen_eid() && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                    NetworkConnection.getInstance().heartbeat(buffer.getCid(), buffer.getBid(), eid);
+                    NetworkConnection.getInstance().heartbeat(buffer.getCid(), buffer.getBid(), eid, null);
                     buffer.setLast_seen_eid(eid);
                     buffer.setUnread(0);
                     buffer.setHighlights(0);
@@ -5531,7 +5521,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
-    public static class FileUploadTask extends AsyncTaskEx<Void, Float, String> implements NetworkConnection.IRCEventHandler {
+    public static class FileUploadTask extends AsyncTaskEx<Void, Float, String> {
         private HttpURLConnection http = null;
         private Uri mFileUri;  // local Uri to upload
         private int total = 0;
@@ -5539,7 +5529,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         public AlertDialog metadataDialog;
         public MainActivity activity;
         public Buffer mBuffer;
-        public int reqid = -1;
         private String error;
 
         public String filename;
@@ -5770,8 +5759,43 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         private void finalize_upload() {
             if (uploadFinished && filenameSet && !isCancelled()) {
                 if (file_id != null && file_id.length() > 0) {
-                    NetworkConnection.getInstance().addHandler(this);
-                    reqid = NetworkConnection.getInstance().finalize_upload(file_id, filename, original_filename);
+                    NetworkConnection.getInstance().finalize_upload(file_id, filename, original_filename, new NetworkConnection.IRCResultCallback() {
+                        @Override
+                        public void onIRCResult(final IRCCloudJSONObject result) {
+                            if(result.getBoolean("success")) {
+                                if (result.getJsonObject("file") != null && result.getJsonObject("file").has("url")) {
+                                    if (message == null || message.length() == 0)
+                                        message = "";
+                                    else
+                                        message += " ";
+                                    message += result.getJsonObject("file").get("url").asText();
+                                    NetworkConnection.getInstance().say(mBuffer.getCid(), mBuffer.getName(), message, null);
+                                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
+                                    if(activity != null) {
+                                        activity.fileUploadTask = null;
+                                        activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                hide_progress();
+                                            }
+                                        });
+                                    }
+                                }
+                            } else {
+                                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
+                                if(activity != null) {
+                                    activity.fileUploadTask = null;
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            hide_progress();
+                                            show_alert("Upload Failed", "Unable to upload file to IRCCloud: " + result.getString("message"));
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
                 } else {
                     if (activity != null)
                         activity.runOnUiThread(new Runnable() {
@@ -6043,7 +6067,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             super.onCancelled();
             if(activity != null)
                 activity.fileUploadTask = null;
-            NetworkConnection.getInstance().removeHandler(this);
             hide_progress();
             if(metadataDialog != null)
                 metadataDialog.cancel();
@@ -6069,50 +6092,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 activity.actionBar.setDisplayShowTitleEnabled(false);
             }
             NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
-        }
-
-        public void onIRCEvent(int what, Object obj) {
-        }
-
-        @Override
-        public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject event) {
-            if (this.reqid == reqid && event != null && event.getJsonObject("file") != null && event.getJsonObject("file").has("url")) {
-                if (message == null || message.length() == 0)
-                    message = "";
-                else
-                    message += " ";
-                message += event.getJsonObject("file").get("url").asText();
-                NetworkConnection.getInstance().say(mBuffer.getCid(), mBuffer.getName(), message);
-                NetworkConnection.getInstance().removeHandler(this);
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
-                if(activity != null) {
-                    activity.fileUploadTask = null;
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            hide_progress();
-                        }
-                    });
-                }
-            }
-        }
-
-        @Override
-        public void onIRCRequestFailed(int reqid, final IRCCloudJSONObject event) {
-            if (this.reqid == reqid) {
-                NetworkConnection.getInstance().removeHandler(this);
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
-                if(activity != null) {
-                    activity.fileUploadTask = null;
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            hide_progress();
-                            show_alert("Upload Failed", "Unable to upload file to IRCCloud: " + event.getString("message"));
-                        }
-                    });
-                }
-            }
         }
 
         private void show_alert(String title, String message) {

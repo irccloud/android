@@ -52,7 +52,7 @@ public class RemoteInputService extends IntentService {
                     String reply = remoteInput != null?remoteInput.getCharSequence("extra_reply").toString():intent.getStringExtra("reply");
                     if (reply.length() > 0 && !reply.contains("\n/") && (!reply.startsWith("/") || reply.toLowerCase().startsWith("/me ") || reply.toLowerCase().startsWith("/slap ") || reply.toLowerCase().startsWith("/accept "))) {
                         try {
-                            JSONObject o = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), reply, sk);
+                            JSONObject o = NetworkConnection.getInstance().postSay(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), reply, sk);
                             success = o.getBoolean("success");
                         } catch (Exception e) {
                             NetworkConnection.printStackTraceToCrashlytics(e);

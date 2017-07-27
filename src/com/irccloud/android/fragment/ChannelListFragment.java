@@ -223,12 +223,4 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
                 break;
         }
     }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
-    }
 }

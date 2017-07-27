@@ -71,7 +71,7 @@ public class ServerReorderFragment extends DialogFragment implements NetworkConn
                     cids += ",";
                 cids += s.getCid();
             }
-            NetworkConnection.getInstance().reorder_connections(cids);
+            NetworkConnection.getInstance().reorder_connections(cids, null);
         }
     };
 
@@ -302,13 +302,5 @@ public class ServerReorderFragment extends DialogFragment implements NetworkConn
             default:
                 break;
         }
-    }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
     }
 }

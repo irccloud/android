@@ -126,13 +126,16 @@ public class NetworkConnection {
 
     public interface IRCEventHandler {
         void onIRCEvent(int message, Object object);
-        void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object);
-        void onIRCRequestFailed(int reqid, IRCCloudJSONObject object);
+    }
+
+    public interface IRCResultCallback {
+        void onIRCResult(IRCCloudJSONObject result);
     }
 
     private WebSocketClient client = null;
     private UserInfo userInfo = null;
     private final ArrayList<IRCEventHandler> handlers = new ArrayList<IRCEventHandler>();
+    private final HashMap<Integer, IRCResultCallback> resultCallbacks = new HashMap<>();
     public String session = null;
     private volatile int last_reqid = 0;
     private static final Timer idleTimer = new Timer("websocket-idle-timer");
@@ -1229,7 +1232,7 @@ public class NetworkConnection {
                     try {
                         JSONObject o = new JSONObject();
                         o.put("cookie", session);
-                        send("auth", o);
+                        send("auth", o, null);
                     } catch (JSONException e) {
                         printStackTraceToCrashlytics(e);
                     }
@@ -1387,6 +1390,7 @@ public class NetworkConnection {
         reconnect_timestamp = 0;
         idle_interval = 0;
         accrued = 0;
+        resultCallbacks.clear();
         notifyHandlers(EVENT_CONNECTIVITY, null);
         if (client != null) {
             client.setDebugListener(new WebSocketClient.DebugListener() {
@@ -1455,12 +1459,15 @@ public class NetworkConnection {
         connect();
     }
 
-    private synchronized int send(String method, JSONObject params) {
+    private synchronized int send(String method, JSONObject params, IRCResultCallback callback) {
         if (client == null || state != STATE_CONNECTED)
             return -1;
         try {
-            if(!method.equals("auth"))
+            if(!method.equals("auth")) {
                 params.put("_reqid", ++last_reqid);
+                if(callback != null)
+                    resultCallbacks.put(last_reqid, callback);
+            }
             params.put("_method", method);
             //Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method + " Params: " + params.toString());
             client.send(params.toString());
@@ -1471,11 +1478,11 @@ public class NetworkConnection {
         }
     }
 
-    public int heartbeat(int cid, int bid, long last_seen_eid) {
-        return heartbeat(bid, new Integer[]{cid}, new Integer[]{bid}, new Long[]{last_seen_eid});
+    public int heartbeat(int cid, int bid, long last_seen_eid, IRCResultCallback callback) {
+        return heartbeat(bid, new Integer[]{cid}, new Integer[]{bid}, new Long[]{last_seen_eid}, callback);
     }
 
-    public int heartbeat(int selectedBuffer, Integer cids[], Integer bids[], Long last_seen_eids[]) {
+    public int heartbeat(int selectedBuffer, Integer cids[], Integer bids[], Long last_seen_eids[], IRCResultCallback callback) {
         try {
             JSONObject heartbeat = new JSONObject();
             for (int i = 0; i < cids.length; i++) {
@@ -1492,30 +1499,30 @@ public class NetworkConnection {
             JSONObject o = new JSONObject();
             o.put("selectedBuffer", selectedBuffer);
             o.put("seenEids", heartbeat.toString());
-            return send("heartbeat", o);
+            return send("heartbeat", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int disconnect(int cid, String message) {
+    public int disconnect(int cid, String message, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("msg", message);
-            return send("disconnect", o);
+            return send("disconnect", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int reconnect(int cid) {
+    public int reconnect(int cid, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
-            int reqid = send("reconnect", o);
+            int reqid = send("reconnect", o, callback);
             if(reqid > 0) {
                 Server s = mServers.getServer(cid);
                 if(s != null) {
@@ -1530,7 +1537,7 @@ public class NetworkConnection {
         }
     }
 
-    public int say(int cid, String to, String message) {
+    public int say(int cid, String to, String message, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
@@ -1539,14 +1546,14 @@ public class NetworkConnection {
             else
                 o.put("to", "*");
             o.put("msg", message);
-            return send("say", o);
+            return send("say", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public JSONObject say(int cid, String to, String message, String sk) throws IOException {
+    public JSONObject postSay(int cid, String to, String message, String sk) throws IOException {
         if(to == null)
             to = "*";
         String postdata = "cid=" + cid + "&to=" + URLEncoder.encode(to, "UTF-8") + "&msg=" + URLEncoder.encode(message, "UTF-8") + "&session=" + sk;
@@ -1559,114 +1566,114 @@ public class NetworkConnection {
         return null;
     }
 
-    public int join(int cid, String channel, String key) {
+    public int join(int cid, String channel, String key, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("channel", channel);
             o.put("key", key);
-            return send("join", o);
+            return send("join", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int part(int cid, String channel, String message) {
+    public int part(int cid, String channel, String message, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("channel", channel);
             o.put("msg", message);
-            return send("part", o);
+            return send("part", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int kick(int cid, String channel, String nick, String message) {
-        return say(cid, channel, "/kick " + nick + " " + message);
+    public int kick(int cid, String channel, String nick, String message, IRCResultCallback callback) {
+        return say(cid, channel, "/kick " + nick + " " + message, callback);
     }
 
-    public int mode(int cid, String channel, String mode) {
-        return say(cid, channel, "/mode " + channel + " " + mode);
+    public int mode(int cid, String channel, String mode, IRCResultCallback callback) {
+        return say(cid, channel, "/mode " + channel + " " + mode, callback);
     }
 
-    public int invite(int cid, String channel, String nick) {
-        return say(cid, channel, "/invite " + nick + " " + channel);
+    public int invite(int cid, String channel, String nick, IRCResultCallback callback) {
+        return say(cid, channel, "/invite " + nick + " " + channel, callback);
     }
 
-    public int archiveBuffer(int cid, long bid) {
+    public int archiveBuffer(int cid, long bid, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("id", bid);
-            return send("archive-buffer", o);
+            return send("archive-buffer", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int unarchiveBuffer(int cid, long bid) {
+    public int unarchiveBuffer(int cid, long bid, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("id", bid);
-            return send("unarchive-buffer", o);
+            return send("unarchive-buffer", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int deleteBuffer(int cid, long bid) {
+    public int deleteBuffer(int cid, long bid, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("id", bid);
-            return send("delete-buffer", o);
+            return send("delete-buffer", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int deleteServer(int cid) {
+    public int deleteServer(int cid, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
-            return send("delete-connection", o);
+            return send("delete-connection", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int deleteFile(String id) {
+    public int deleteFile(String id, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("file", id);
-            return send("delete-file", o);
+            return send("delete-file", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int restoreFile(String id) {
+    public int restoreFile(String id, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("file", id);
-            return send("restore-file", o);
+            return send("restore-file", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int addServer(String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands, String channels) {
+    public int addServer(String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands, String channels, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("hostname", hostname);
@@ -1680,14 +1687,14 @@ public class NetworkConnection {
             o.put("nspass", nickserv_pass);
             o.put("joincommands", joincommands);
             o.put("channels", channels);
-            return send("add-server", o);
+            return send("add-server", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int editServer(int cid, String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands) {
+    public int editServer(int cid, String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("hostname", hostname);
@@ -1701,191 +1708,191 @@ public class NetworkConnection {
             o.put("nspass", nickserv_pass);
             o.put("joincommands", joincommands);
             o.put("cid", cid);
-            return send("edit-server", o);
+            return send("edit-server", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int ignore(int cid, String mask) {
+    public int ignore(int cid, String mask, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("mask", mask);
-            return send("ignore", o);
+            return send("ignore", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int unignore(int cid, String mask) {
+    public int unignore(int cid, String mask, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("mask", mask);
-            return send("unignore", o);
+            return send("unignore", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int set_prefs(String prefs) {
+    public int set_prefs(String prefs, IRCResultCallback callback) {
         try {
             Log.i("IRCCloud", "Setting prefs: " + prefs);
             JSONObject o = new JSONObject();
             o.put("prefs", prefs);
-            return send("set-prefs", o);
+            return send("set-prefs", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int set_user_settings(String email, String realname, String hwords, boolean autoaway) {
+    public int set_user_settings(String email, String realname, String hwords, boolean autoaway, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("email", email);
             o.put("realname", realname);
             o.put("hwords", hwords);
             o.put("autoaway", autoaway ? "1" : "0");
-            return send("user-settings", o);
+            return send("user-settings", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int change_password(String oldPassword, String newPassword) {
+    public int change_password(String oldPassword, String newPassword, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("password", oldPassword);
             o.put("newpassword", newPassword);
-            return send("change-password", o);
+            return send("change-password", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int delete_account(String password) {
+    public int delete_account(String password, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("password", password);
-            return send("delete-account", o);
+            return send("delete-account", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int ns_help_register(int cid) {
+    public int ns_help_register(int cid, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
-            return send("ns-help-register", o);
+            return send("ns-help-register", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int set_nspass(int cid, String nspass) {
+    public int set_nspass(int cid, String nspass, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("nspass", nspass);
-            return send("set-nspass", o);
+            return send("set-nspass", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int whois(int cid, String nick, String server) {
+    public int whois(int cid, String nick, String server, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("nick", nick);
             if (server != null)
                 o.put("server", server);
-            return send("whois", o);
+            return send("whois", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int topic(int cid, String channel, String topic) {
+    public int topic(int cid, String channel, String topic, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             o.put("channel", channel);
             o.put("topic", topic);
-            return send("topic", o);
+            return send("topic", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int back(int cid) {
+    public int back(int cid, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
-            return send("back", o);
+            return send("back", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int reorder_connections(String cids) {
+    public int reorder_connections(String cids, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("cids", cids);
-            return send("reorder-connections", o);
+            return send("reorder-connections", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int resend_verify_email() {
+    public int resend_verify_email(IRCResultCallback callback) {
         JSONObject o = new JSONObject();
-        return send("resend-verify-email", o);
+        return send("resend-verify-email", o, callback);
     }
 
-    public int finalize_upload(String id, String filename, String original_filename) {
+    public int finalize_upload(String id, String filename, String original_filename, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("id", id);
             o.put("filename", filename);
             o.put("original_filename", original_filename);
-            return send("upload-finalise", o);
+            return send("upload-finalise", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int paste(String name, String extension, String contents) {
+    public int paste(String name, String extension, String contents, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             if(name != null && name.length() > 0)
                 o.put("name", name);
             o.put("contents", contents);
             o.put("extension", extension);
-            return send("paste", o);
+            return send("paste", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int edit_paste(String id, String name, String extension, String contents) {
+    public int edit_paste(String id, String name, String extension, String contents, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("id", id);
@@ -1893,18 +1900,18 @@ public class NetworkConnection {
                 o.put("name", name);
             o.put("body", contents);
             o.put("extension", extension);
-            return send("edit-pastebin", o);
+            return send("edit-pastebin", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
         }
     }
 
-    public int delete_paste(String id) {
+    public int delete_paste(String id, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("id", id);
-            return send("delete-pastebin", o);
+            return send("delete-pastebin", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
@@ -1969,7 +1976,7 @@ public class NetworkConnection {
         if (disconnectSockerTimerTask != null)
             disconnectSockerTimerTask.cancel();
         notifier = false;
-        send("upgrade_notifier", new JSONObject());
+        send("upgrade_notifier", new JSONObject(), null);
     }
 
     public void cancel_idle_timer() {
@@ -2996,6 +3003,10 @@ public class NetworkConnection {
             } else if (object.has("success")) {
                 notifyHandlers(EVENT_SUCCESS, object);
             }
+            if (object.has("_reqid") && resultCallbacks.containsKey(object.getInt("_reqid"))) {
+                resultCallbacks.get(object.getInt("_reqid")).onIRCResult(object);
+                resultCallbacks.remove(object.getInt("_reqid"));
+            }
             return;
         }
         String type = object.type();
@@ -3281,12 +3292,6 @@ public class NetworkConnection {
                     IRCEventHandler handler = handlers.get(i);
                     if (handler != exclude) {
                         handler.onIRCEvent(message, object);
-                        if(message == EVENT_FAILURE_MSG) {
-                            handler.onIRCRequestFailed(((IRCCloudJSONObject)object).getInt("_reqid"), (IRCCloudJSONObject)object);
-                        }
-                        if(message == EVENT_SUCCESS) {
-                            handler.onIRCRequestSucceeded(((IRCCloudJSONObject)object).getInt("_reqid"), (IRCCloudJSONObject)object);
-                        }
                     }
                 }
             }

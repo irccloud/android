@@ -16,10 +16,7 @@
 
 package com.irccloud.android.activity;
 
-import android.app.ActivityManager;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -27,7 +24,6 @@ import android.os.Bundle;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -44,7 +40,6 @@ import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.fragment.EditConnectionFragment;
 
 public class EditConnectionActivity extends BaseActivity implements NetworkConnection.IRCEventHandler {
-    int reqid = -1;
     int cidToOpen = -1;
     int cid = -1;
 
@@ -106,7 +101,41 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
 
             @Override
             public void onClick(View v) {
-                reqid = newFragment.save();
+                newFragment.save(new NetworkConnection.IRCResultCallback() {
+                    @Override
+                    public void onIRCResult(IRCCloudJSONObject result) {
+                        if(result.getBoolean("success")) {
+                            if (cid != -1)
+                                finish();
+                            else
+                                cidToOpen = result.cid();
+                        } else {
+                            final String message = result.getString("message");
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    switch (message) {
+                                        case "passworded_servers":
+                                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_LONG).show();
+                                            break;
+                                        case "networks":
+                                            Toast.makeText(EditConnectionActivity.this, "You've exceeded the connection limit for free accounts.", Toast.LENGTH_LONG).show();
+                                            break;
+                                        case "unverified":
+                                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_LONG).show();
+                                            break;
+                                        case "sts_policy":
+                                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t disable secure connections to this network because it’s using a strict transport security policy.", Toast.LENGTH_LONG).show();
+                                            break;
+                                        default:
+                                            Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_LONG).show();
+                                            break;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             }
 
         });
@@ -152,45 +181,6 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
                 break;
             default:
                 break;
-        }
-    }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject obj) {
-        if (this.reqid == reqid) {
-            if (cid != -1)
-                finish();
-            else
-                cidToOpen = obj.cid();
-        }
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject obj) {
-        if (this.reqid == reqid) {
-            final String message = obj.getString("message");
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    switch (message) {
-                        case "passworded_servers":
-                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_LONG).show();
-                            break;
-                        case "networks":
-                            Toast.makeText(EditConnectionActivity.this, "You've exceeded the connection limit for free accounts.", Toast.LENGTH_LONG).show();
-                            break;
-                        case "unverified":
-                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_LONG).show();
-                            break;
-                        case "sts_policy":
-                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t disable secure connections to this network because it’s using a strict transport security policy.", Toast.LENGTH_LONG).show();
-                            break;
-                        default:
-                            Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_LONG).show();
-                            break;
-                    }
-                }
-            });
         }
     }
 }

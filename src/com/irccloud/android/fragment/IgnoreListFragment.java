@@ -80,7 +80,7 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
             public void onClick(View v) {
                 Integer position = (Integer) v.getTag();
                 try {
-                    conn.unignore(cid, ignores.get(position).asText());
+                    conn.unignore(cid, ignores.get(position).asText(), null);
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
                     NetworkConnection.printStackTraceToCrashlytics(e);
@@ -164,7 +164,7 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
             builder.setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    conn.ignore(cid, input.getText().toString());
+                    conn.ignore(cid, input.getText().toString(), null);
                     dialog.dismiss();
                 }
             });
@@ -281,13 +281,5 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
             default:
                 break;
         }
-    }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
     }
 }

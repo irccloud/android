@@ -337,7 +337,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        NetworkConnection.getInstance().delete_paste(Uri.parse(url).getQueryParameter("id"));
+                        NetworkConnection.getInstance().delete_paste(Uri.parse(url).getQueryParameter("id"), null);
                         finish();
                         Toast.makeText(PastebinViewerActivity.this, "Snippet deleted", Toast.LENGTH_SHORT).show();
                     }

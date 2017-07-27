@@ -1027,7 +1027,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             @Override
             public void onClick(View v) {
                 if (buffer != null && conn != null && server != null && server.getStatus() != null && server.getStatus().equalsIgnoreCase("disconnected")) {
-                    NetworkConnection.getInstance().reconnect(buffer.getCid());
+                    NetworkConnection.getInstance().reconnect(buffer.getCid(), null);
                 }
             }
 
@@ -1039,7 +1039,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             @Override
             public void onClick(View v) {
                 if(buffer != null)
-                    NetworkConnection.getInstance().back(buffer.getCid());
+                    NetworkConnection.getInstance().back(buffer.getCid(), null);
             }
 
         });
@@ -1958,14 +1958,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         Event e = adapter.data.get(position);
                                         if (e != null) {
                                             if (e.type.equals("channel_invite")) {
-                                                conn.join(buffer.getCid(), e.old_nick, null);
+                                                conn.join(buffer.getCid(), e.old_nick, null, null);
                                             } else if (e.type.equals("callerid")) {
-                                                conn.say(buffer.getCid(), null, "/accept " + e.from);
+                                                conn.say(buffer.getCid(), null, "/accept " + e.from, null);
                                                 Buffer b = BuffersList.getInstance().getBufferByName(buffer.getCid(), e.from);
                                                 if (b != null) {
                                                     mListener.onBufferSelected(b.getBid());
                                                 } else {
-                                                    conn.say(buffer.getCid(), null, "/query " + e.from);
+                                                    conn.say(buffer.getCid(), null, "/query " + e.from, null);
                                                 }
                                             } else if (e.row_type == ROW_THUMBNAIL) {
                                                 try {
@@ -2106,7 +2106,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (eid >= b.getLast_seen_eid() && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     if (getActivity() != null && getActivity().getIntent() != null)
                         getActivity().getIntent().putExtra("last_seen_eid", eid);
-                    NetworkConnection.getInstance().heartbeat(b.getCid(), b.getBid(), eid);
+                    NetworkConnection.getInstance().heartbeat(b.getCid(), b.getBid(), eid, null);
                     b.setLast_seen_eid(eid);
                     b.setUnread(0);
                     b.setHighlights(0);
@@ -3059,14 +3059,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             default:
                 break;
         }
-    }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
     }
 
     public static Resources getSafeResources() {

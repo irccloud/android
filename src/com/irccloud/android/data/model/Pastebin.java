@@ -37,7 +37,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 
-public class Pastebin extends BaseObservable implements Serializable, NetworkConnection.IRCEventHandler {
+public class Pastebin extends BaseObservable implements Serializable {
     private static HashMap<String, String> fileTypes = new HashMap<>();
     private static HashMap<String, String> fileTypesMap = new HashMap<String, String>() {{
         put("ABAP",        "abap");
@@ -163,8 +163,6 @@ public class Pastebin extends BaseObservable implements Serializable, NetworkCon
     private String extension;
     private boolean own_paste;
 
-    private int savereqid = -1;
-    private int deletereqid = -1;
     private OnErrorListener<Pastebin> onSaveListener = null;
     private OnErrorListener<Pastebin> onDeleteListener = null;
 
@@ -305,70 +303,56 @@ public class Pastebin extends BaseObservable implements Serializable, NetworkCon
 
     public void save(OnErrorListener<Pastebin> onErrorListener) {
         this.onSaveListener = onErrorListener;
-        NetworkConnection.getInstance().addHandler(this);
+
+        NetworkConnection.IRCResultCallback callback = new NetworkConnection.IRCResultCallback() {
+            @Override
+            public void onIRCResult(IRCCloudJSONObject result) {
+                if(result.getBoolean("success")) {
+                    ObjectNode o = result.getJsonObject("paste");
+                    if(o == null && result.has("id"))
+                        o = (ObjectNode)result.getObject();
+                    if(o != null) {
+                        setId(o.get("id").asText());
+                        setName(o.get("name").asText());
+                        setBody(o.get("body").asText());
+                        setExtension(o.get("extension").asText());
+                        setLines(o.get("lines").asInt());
+                        setOwn_paste(o.get("own_paste").asBoolean());
+                        setDate(new Date(o.get("date").asLong() * 1000L));
+                        setUrl(o.get("url").asText());
+                    }
+                    if(onSaveListener != null)
+                        onSaveListener.onSuccess(Pastebin.this);
+                } else {
+                    android.util.Log.e("IRCCloud", "Paste failed: " + result.toString());
+                    if(onSaveListener != null)
+                        onSaveListener.onFailure(Pastebin.this);
+                }
+            }
+        };
 
         if(id != null && id.length() > 0) {
-            savereqid = NetworkConnection.getInstance().edit_paste(id, name, extension, body);
+            NetworkConnection.getInstance().edit_paste(id, name, extension, body, callback);
         } else {
-            savereqid = NetworkConnection.getInstance().paste(name, extension, body);
+            NetworkConnection.getInstance().paste(name, extension, body, callback);
         }
     }
 
     public void delete(OnErrorListener<Pastebin> onErrorListener) {
         this.onSaveListener = onErrorListener;
-        NetworkConnection.getInstance().addHandler(this);
 
-        deletereqid = NetworkConnection.getInstance().delete_paste(id);
-    }
-
-    @Override
-    public void onIRCEvent(int message, Object object) {
-    }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-        if(reqid == savereqid) {
-            ObjectNode o = object.getJsonObject("paste");
-            if(o == null && object.has("id"))
-                o = (ObjectNode)object.getObject();
-            if(o != null) {
-                setId(o.get("id").asText());
-                setName(o.get("name").asText());
-                setBody(o.get("body").asText());
-                setExtension(o.get("extension").asText());
-                setLines(o.get("lines").asInt());
-                setOwn_paste(o.get("own_paste").asBoolean());
-                setDate(new Date(o.get("date").asLong() * 1000L));
-                setUrl(o.get("url").asText());
+        NetworkConnection.getInstance().delete_paste(id, new NetworkConnection.IRCResultCallback() {
+            @Override
+            public void onIRCResult(IRCCloudJSONObject result) {
+                if(result.getBoolean("success")) {
+                    if(onDeleteListener != null)
+                        onDeleteListener.onSuccess(Pastebin.this);
+                } else {
+                    android.util.Log.e("IRCCloud", "Paste delete failed: " + result.toString());
+                    if(onDeleteListener != null)
+                        onDeleteListener.onFailure(Pastebin.this);
+                }
             }
-            NetworkConnection.getInstance().removeHandler(this);
-            if(onSaveListener != null)
-                onSaveListener.onSuccess(this);
-            savereqid = -1;
-        }
-        if(reqid == deletereqid) {
-            NetworkConnection.getInstance().removeHandler(this);
-            if(onDeleteListener != null)
-                onDeleteListener.onSuccess(this);
-            deletereqid = -1;
-        }
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
-        if(reqid == savereqid) {
-            android.util.Log.e("IRCCloud", "Paste failed: " + object.toString());
-            NetworkConnection.getInstance().removeHandler(this);
-            if(onSaveListener != null)
-                onSaveListener.onFailure(this);
-            savereqid = -1;
-        }
-        if(reqid == deletereqid) {
-            android.util.Log.e("IRCCloud", "Paste delete failed: " + object.toString());
-            NetworkConnection.getInstance().removeHandler(this);
-            if(onDeleteListener != null)
-                onDeleteListener.onFailure(this);
-            deletereqid = -1;
-        }
+        });
     }
 }

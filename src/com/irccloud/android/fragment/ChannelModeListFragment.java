@@ -94,7 +94,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             public void onClick(View v) {
                 Integer position = (Integer) v.getTag();
                 try {
-                    conn.mode(cid, event.getString("channel"), "-" + mode + " " + data.get(position).get(mask).asText());
+                    conn.mode(cid, event.getString("channel"), "-" + mode + " " + data.get(position).get(mask).asText(), null);
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
                     NetworkConnection.printStackTraceToCrashlytics(e);
@@ -203,7 +203,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    conn.mode(cid, event.getString("channel"), "+" + mode + " " + input.getText().toString());
+                    conn.mode(cid, event.getString("channel"), "+" + mode + " " + input.getText().toString(), null);
                     dialog.dismiss();
                 }
             });
@@ -327,18 +327,10 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             case NetworkConnection.EVENT_BUFFERMSG:
                 Event e = (Event) obj;
                 if (e.bid == bid && e.type.equals("channel_mode_list_change"))
-                    conn.mode(cid, event.getString("channel"), mode);
+                    conn.mode(cid, event.getString("channel"), mode, null);
                 break;
             default:
                 break;
         }
-    }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
     }
 }

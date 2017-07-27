@@ -543,14 +543,6 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
         }
     }
 
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
-    }
-
     public interface OnUserSelectedListener {
         void onUserSelected(int cid, String channel, String name);
         void onUserDoubleClicked(String name);

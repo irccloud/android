@@ -16,15 +16,10 @@
 
 package com.irccloud.android.activity;
 
-import android.app.ActivityManager;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -32,7 +27,6 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -40,13 +34,12 @@ import android.widget.Toast;
 
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorScheme;
-import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.OnErrorListener;
 import com.irccloud.android.data.model.Pastebin;
 
-public class PastebinEditorActivity extends BaseActivity implements NetworkConnection.IRCEventHandler {
+public class PastebinEditorActivity extends BaseActivity {
 
     private OnErrorListener<Pastebin> pastebinOnErrorListener = new OnErrorListener<Pastebin>() {
         @Override
@@ -264,21 +257,6 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
         return "txt";
-    }
-
-    @Override
-    public void onIRCEvent(final int msg, Object obj) {
-
-    }
-
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
-
     }
 
     @Override

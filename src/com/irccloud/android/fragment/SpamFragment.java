@@ -105,7 +105,7 @@ public class SpamFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         for(Buffer b : buffersToRemove) {
-                            NetworkConnection.getInstance().deleteBuffer(b.getCid(), b.getBid());
+                            NetworkConnection.getInstance().deleteBuffer(b.getCid(), b.getBid(), null);
                         }
 
                         new AlertDialog.Builder(ctx)

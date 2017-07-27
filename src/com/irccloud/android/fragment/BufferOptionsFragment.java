@@ -101,7 +101,7 @@ public class BufferOptionsFragment extends DialogFragment {
                     } else {
                         prefs = updatePref(prefs, expandDisco.isChecked(), "buffer-expandDisco");
                     }
-                    NetworkConnection.getInstance().set_prefs(prefs.toString());
+                    NetworkConnection.getInstance().set_prefs(prefs.toString(), null);
                 } else {
                     Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 }

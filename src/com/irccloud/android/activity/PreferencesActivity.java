@@ -104,11 +104,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
     private NetworkConnection conn;
     private SaveSettingsTask saveSettingsTask = null;
     private SavePreferencesTask savePreferencesTask = null;
-    private int save_prefs_reqid = -1;
-    private int save_settings_reqid = -1;
-    private int change_password_reqid = -1;
     private String newpassword;
-    private int delete_account_reqid = -1;
     private GoogleApiClient mGoogleApiClient;
     private SettingsFragment mSettingsFragment;
 
@@ -546,139 +542,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         }
     }
 
-    @Override
-    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
-        if (reqid == save_settings_reqid) {
-            save_settings_reqid = -1;
-        } else if (reqid == save_prefs_reqid) {
-            save_prefs_reqid = -1;
-        } else if (reqid == change_password_reqid) {
-            change_password_reqid = -1;
-            if (mGoogleApiClient.isConnected()) {
-                Credential.Builder builder = new Credential.Builder(conn.getUserInfo().email).setPassword(newpassword);
-                if (conn.getUserInfo().name != null && conn.getUserInfo().name.length() > 0)
-                    builder.setName(conn.getUserInfo().name);
-                Auth.CredentialsApi.save(mGoogleApiClient, builder.build()).setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(com.google.android.gms.common.api.Status status) {
-                        if (status.isSuccess()) {
-                            Log.e("IRCCloud", "Credentials saved");
-                        } else if (status.hasResolution()) {
-                            Log.e("IRCCloud", "Credentials require resolution");
-                            try {
-                                startIntentSenderForResult(status.getResolution().getIntentSender(), 1000, null, 0, 0, 0);
-                            } catch (IntentSender.SendIntentException e) {
-                            }
-                        } else {
-                            Log.e("IRCCloud", "Credentials request failed");
-                        }
-                        newpassword = null;
-                    }
-                });
-            } else {
-                newpassword = null;
-            }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(PreferencesActivity.this, "Your password has been successfully updated and all your other sessions have been logged out", Toast.LENGTH_LONG).show();
-                }
-            });
-        } else if (reqid == delete_account_reqid) {
-            conn.logout();
-            delete_account_reqid = -1;
-            if (mGoogleApiClient.isConnected() && conn.getUserInfo() != null) {
-                Credential.Builder builder = new Credential.Builder(conn.getUserInfo().email);
-                if (conn.getUserInfo().name != null && conn.getUserInfo().name.length() > 0)
-                    builder.setName(conn.getUserInfo().name);
-                Auth.CredentialsApi.delete(mGoogleApiClient, builder.build()).setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(com.google.android.gms.common.api.Status status) {
-                        Auth.CredentialsApi.disableAutoSignIn(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-                            @Override
-                            public void onResult(@NonNull Status status) {
-                                Intent i = new Intent(PreferencesActivity.this, LoginActivity.class);
-                                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(i);
-                                finish();
-                            }
-                        });
-                    }
-                });
-            } else {
-                Intent i = new Intent(this, LoginActivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(i);
-                finish();
-            }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(PreferencesActivity.this, "Your account has been deleted", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
-
-    @Override
-    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
-        String error = "An error occurred while saving settings.  Please try again.";
-
-        if (reqid == save_settings_reqid) {
-            save_settings_reqid = -1;
-            Crashlytics.log(Log.ERROR, "IRCCloud", "Settings not updated: " + object.getString("message"));
-        } else if (reqid == save_prefs_reqid) {
-            save_prefs_reqid = -1;
-            Crashlytics.log(Log.ERROR, "IRCCloud", "Prefs not updated: " + object.getString("message"));
-        } else if (reqid == change_password_reqid) {
-            newpassword = null;
-            change_password_reqid = -1;
-            Crashlytics.log(Log.ERROR, "IRCCloud", "Password not changed: " + object.getString("message"));
-            switch(object.getString("message")) {
-                case "oldpassword":
-                    error = "Current password incorrect";
-                    break;
-                case "rate_limited":
-                    error = "Rate limited, try again in a few minutes";
-                    break;
-                case "newpassword":
-                case "password_error":
-                    error = "Invalid password, please try again";
-                    break;
-                default:
-                    error = object.getString("message");
-                    break;
-            }
-            error = "Error changing password: " + error;
-        } else if (reqid == delete_account_reqid) {
-            delete_account_reqid = -1;
-            Crashlytics.log(Log.ERROR, "IRCCloud", "Account not deleted: " + object.getString("message"));
-            switch(object.getString("message")) {
-                case "bad_pass":
-                    error = "Incorrect password, please try again";
-                    break;
-                case "rate_limited":
-                    error = "Rate limited, try again in a few minutes";
-                    break;
-                case "last_admin_cant_leave":
-                    error = "You can’t delete your account as the last admin of a team.  Please transfer ownership before continuing.";
-                    break;
-                default:
-                    error = object.getString("message");
-                    break;
-            }
-            error = "Error deleting account: " + error;
-        }
-
-        final String toast = error;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(PreferencesActivity.this, toast, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
     Preference.OnPreferenceChangeListener settingstoggle = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
             if (conn == null || conn.getUserInfo() == null) {
@@ -882,9 +745,20 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             } catch (InterruptedException e) {
             }
             if (!isCancelled() && conn.getUserInfo() != null && conn.getUserInfo().prefs != null)
-                save_prefs_reqid = conn.set_prefs(conn.getUserInfo().prefs.toString());
-            else
-                save_prefs_reqid = -1;
+                conn.set_prefs(conn.getUserInfo().prefs.toString(), new NetworkConnection.IRCResultCallback() {
+                    @Override
+                    public void onIRCResult(IRCCloudJSONObject result) {
+                        if(!result.getBoolean("success")) {
+                            Crashlytics.log(Log.ERROR, "IRCCloud", "Settings not updated: " + result.getString("message"));
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(PreferencesActivity.this, "An error occured while saving settings, please try again.", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                    }
+                });
             EventsList.getInstance().clearCaches();
             return null;
         }
@@ -907,7 +781,20 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             if (!isCancelled()) {
                 NetworkConnection.UserInfo userInfo = conn.getUserInfo();
                 if (userInfo != null)
-                    save_settings_reqid = conn.set_user_settings(userInfo.email, userInfo.name, userInfo.highlights, userInfo.auto_away);
+                    conn.set_user_settings(userInfo.email, userInfo.name, userInfo.highlights, userInfo.auto_away, new NetworkConnection.IRCResultCallback() {
+                        @Override
+                        public void onIRCResult(IRCCloudJSONObject result) {
+                            if(!result.getBoolean("success")) {
+                                Crashlytics.log(Log.ERROR, "IRCCloud", "Prefs not updated: " + result.getString("message"));
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(PreferencesActivity.this, "An error occured while saving settings, please try again.", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
+                        }
+                    });
             }
             return null;
         }
@@ -1249,7 +1136,69 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     newpassword = newPassword.getText().toString();
-                    change_password_reqid = conn.change_password(oldPassword.getText().toString(), newpassword);
+                    conn.change_password(oldPassword.getText().toString(), newpassword, new NetworkConnection.IRCResultCallback() {
+                        @Override
+                        public void onIRCResult(IRCCloudJSONObject result) {
+                            if(result.getBoolean("success")) {
+                                if (mGoogleApiClient.isConnected()) {
+                                    Credential.Builder builder = new Credential.Builder(conn.getUserInfo().email).setPassword(newpassword);
+                                    if (conn.getUserInfo().name != null && conn.getUserInfo().name.length() > 0)
+                                        builder.setName(conn.getUserInfo().name);
+                                    Auth.CredentialsApi.save(mGoogleApiClient, builder.build()).setResultCallback(new ResultCallback<Status>() {
+                                        @Override
+                                        public void onResult(com.google.android.gms.common.api.Status status) {
+                                            if (status.isSuccess()) {
+                                                Log.e("IRCCloud", "Credentials saved");
+                                            } else if (status.hasResolution()) {
+                                                Log.e("IRCCloud", "Credentials require resolution");
+                                                try {
+                                                    startIntentSenderForResult(status.getResolution().getIntentSender(), 1000, null, 0, 0, 0);
+                                                } catch (IntentSender.SendIntentException e) {
+                                                }
+                                            } else {
+                                                Log.e("IRCCloud", "Credentials request failed");
+                                            }
+                                            newpassword = null;
+                                        }
+                                    });
+                                } else {
+                                    newpassword = null;
+                                }
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(PreferencesActivity.this, "Your password has been successfully updated and all your other sessions have been logged out", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            } else {
+                                String error;
+                                newpassword = null;
+                                Crashlytics.log(Log.ERROR, "IRCCloud", "Password not changed: " + result.getString("message"));
+                                switch(result.getString("message")) {
+                                    case "oldpassword":
+                                        error = "Current password incorrect";
+                                        break;
+                                    case "rate_limited":
+                                        error = "Rate limited, try again in a few minutes";
+                                        break;
+                                    case "newpassword":
+                                    case "password_error":
+                                        error = "Invalid password, please try again";
+                                        break;
+                                    default:
+                                        error = result.getString("message");
+                                        break;
+                                }
+                                final String msg = "Error changing password: " + error;
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(PreferencesActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
+                    });
                     Answers.getInstance().logCustom(new CustomEvent("change-password"));
                 }
             });
@@ -1276,7 +1225,67 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             builder.setPositiveButton("Delete Account", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    delete_account_reqid = conn.delete_account(textInput.getText().toString());
+                    conn.delete_account(textInput.getText().toString(), new NetworkConnection.IRCResultCallback() {
+                        @Override
+                        public void onIRCResult(IRCCloudJSONObject result) {
+                            if(result.getBoolean("success")) {
+                                conn.logout();
+                                if (mGoogleApiClient.isConnected() && conn.getUserInfo() != null) {
+                                    Credential.Builder builder = new Credential.Builder(conn.getUserInfo().email);
+                                    if (conn.getUserInfo().name != null && conn.getUserInfo().name.length() > 0)
+                                        builder.setName(conn.getUserInfo().name);
+                                    Auth.CredentialsApi.delete(mGoogleApiClient, builder.build()).setResultCallback(new ResultCallback<Status>() {
+                                        @Override
+                                        public void onResult(com.google.android.gms.common.api.Status status) {
+                                            Auth.CredentialsApi.disableAutoSignIn(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+                                                @Override
+                                                public void onResult(@NonNull Status status) {
+                                                    Intent i = new Intent(PreferencesActivity.this, LoginActivity.class);
+                                                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                    startActivity(i);
+                                                    finish();
+                                                }
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    Intent i = new Intent(PreferencesActivity.this, LoginActivity.class);
+                                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(i);
+                                    finish();
+                                }
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(PreferencesActivity.this, "Your account has been deleted", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            } else {
+                                final String error;
+                                Crashlytics.log(Log.ERROR, "IRCCloud", "Account not deleted: " + result.getString("message"));
+                                switch(result.getString("message")) {
+                                    case "bad_pass":
+                                        error = "Incorrect password, please try again";
+                                        break;
+                                    case "rate_limited":
+                                        error = "Rate limited, try again in a few minutes";
+                                        break;
+                                    case "last_admin_cant_leave":
+                                        error = "You can’t delete your account as the last admin of a team.  Please transfer ownership before continuing.";
+                                        break;
+                                    default:
+                                        error = result.getString("message");
+                                        break;
+                                }
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(PreferencesActivity.this, error, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
+                    });
                 }
             });
             builder.setNegativeButton("Cancel", null);
