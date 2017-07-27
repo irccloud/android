@@ -191,35 +191,15 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     @Override
     public void onIRCEvent(int what, final Object obj) {
         switch (what) {
-            case NetworkConnection.EVENT_FAILURE_MSG:
+            case NetworkConnection.EVENT_AUTH_FAILED:
+                finish();
+                break;
+            case NetworkConnection.EVENT_TEMP_UNAVAILABLE:
+                error = "Your account is temporarily unavailable";
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        IRCCloudJSONObject o = (IRCCloudJSONObject)obj;
-                        try {
-                            error = o.getString("message");
-                            if (error.equals("auth")) {
-                                conn.logout();
-                                finish();
-                                return;
-                            }
-
-                            if (error.equals("set_shard")) {
-                                conn.disconnect();
-                                conn.ready = false;
-                                SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-                                editor.putString("session_key", o.getString("cookie"));
-                                editor.commit();
-                                conn.connect();
-                                return;
-                            }
-
-                            if (error.equals("temp_unavailable"))
-                                error = "Your account is temporarily unavailable";
-                            updateReconnecting();
-                        } catch (Exception e) {
-                            NetworkConnection.printStackTraceToCrashlytics(e);
-                        }
+                        updateReconnecting();
                     }
                 });
                 break;

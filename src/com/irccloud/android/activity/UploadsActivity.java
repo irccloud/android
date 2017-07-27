@@ -77,7 +77,6 @@ import java.util.concurrent.TimeUnit;
 
 public class UploadsActivity extends BaseActivity {
     private int page = 0;
-    private SparseArray<File> delete_reqids = new SparseArray<>();
     private FilesAdapter adapter = new FilesAdapter();
     private boolean canLoadMore = true;
     private View footer;
@@ -381,7 +380,48 @@ public class UploadsActivity extends BaseActivity {
                 builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        delete_reqids.put(NetworkConnection.getInstance().deleteFile(f.id, null), f);
+                        NetworkConnection.getInstance().deleteFile(f.id, new NetworkConnection.IRCResultCallback() {
+                            @Override
+                            public void onIRCResult(IRCCloudJSONObject result) {
+                                if(result.getBoolean("success")) {
+                                    Log.d("IRCCloud", "File deleted successfully");
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            adapter.removeFile(f);
+                                            View.OnClickListener undo = new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    NetworkConnection.getInstance().restoreFile(f.id, null);
+                                                    adapter.restoreFile(f);
+                                                }
+                                            };
+                                            if(f.name != null && f.name.length() > 0)
+                                                Snackbar.make(findViewById(android.R.id.list), f.name + " was deleted.", Snackbar.LENGTH_LONG).setAction("UNDO", undo).show();
+                                            else
+                                                Snackbar.make(findViewById(android.R.id.list), "File was deleted.", Snackbar.LENGTH_LONG).setAction("UNDO", undo).show();
+                                        }
+                                    });
+                                } else {
+                                    Crashlytics.log(Log.ERROR, "IRCCloud", "Delete failed: " + result.toString());
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
+                                            builder.setTitle("Error");
+                                            if(f.name != null && f.name.length() > 0)
+                                                builder.setMessage("Unable to delete '" + f.name + "'.  Please try again shortly.");
+                                            else
+                                                builder.setMessage("Unable to delete file.  Please try again shortly.");
+                                            builder.setPositiveButton("Close", null);
+                                            builder.show();
+                                            f.deleting = false;
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+                            }
+                        });
                         f.deleting = true;
                         adapter.notifyDataSetChanged();
                         checkEmpty();
@@ -622,63 +662,6 @@ public class UploadsActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return false;
-    }
-
-    public void onIRCEvent(int what, Object o) {
-        IRCCloudJSONObject obj;
-        final File f;
-        switch (what) {
-            case NetworkConnection.EVENT_SUCCESS:
-                obj = (IRCCloudJSONObject) o;
-                f = delete_reqids.get(obj.getInt("_reqid"));
-                if (f != null) {
-                    Log.d("IRCCloud", "File deleted successfully");
-                    delete_reqids.remove(obj.getInt("_reqid"));
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.removeFile(f);
-                            View.OnClickListener undo = new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    NetworkConnection.getInstance().restoreFile(f.id, null);
-                                    adapter.restoreFile(f);
-                                }
-                            };
-                            if(f.name != null && f.name.length() > 0)
-                                Snackbar.make(findViewById(android.R.id.list), f.name + " was deleted.", Snackbar.LENGTH_LONG).setAction("UNDO", undo).show();
-                            else
-                                Snackbar.make(findViewById(android.R.id.list), "File was deleted.", Snackbar.LENGTH_LONG).setAction("UNDO", undo).show();
-                        }
-                    });
-                }
-                break;
-            case NetworkConnection.EVENT_FAILURE_MSG:
-                obj = (IRCCloudJSONObject) o;
-                f = delete_reqids.get(obj.getInt("_reqid"));
-                if (f != null) {
-                    delete_reqids.remove(obj.getInt("_reqid"));
-                    Crashlytics.log(Log.ERROR, "IRCCloud", "Delete failed: " + obj.toString());
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
-                            builder.setTitle("Error");
-                            if(f.name != null && f.name.length() > 0)
-                                builder.setMessage("Unable to delete '" + f.name + "'.  Please try again shortly.");
-                            else
-                                builder.setMessage("Unable to delete file.  Please try again shortly.");
-                            builder.setPositiveButton("Close", null);
-                            builder.show();
-                            f.deleting = false;
-                            adapter.notifyDataSetChanged();
-                        }
-                    });
-                }
-                break;
-            default:
-                break;
-        }
     }
 
     @Override

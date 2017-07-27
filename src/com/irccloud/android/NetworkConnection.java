@@ -215,8 +215,8 @@ public class NetworkConnection {
     public static final int EVENT_BACKLOG_START = 100;
     public static final int EVENT_BACKLOG_END = 101;
     public static final int EVENT_BACKLOG_FAILED = 102;
-    public static final int EVENT_FAILURE_MSG = 103;
-    public static final int EVENT_SUCCESS = 104;
+    public static final int EVENT_AUTH_FAILED = 103;
+    public static final int EVENT_TEMP_UNAVAILABLE = 104;
     public static final int EVENT_PROGRESS = 105;
     public static final int EVENT_ALERT = 106;
     public static final int EVENT_CACHE_START = 107;
@@ -1328,17 +1328,6 @@ public class NetworkConnection {
 
                     state = STATE_DISCONNECTED;
                     notifyHandlers(EVENT_CONNECTIVITY, null);
-
-                    if (reason != null && reason.equals("SSL")) {
-                        Crashlytics.log(Log.ERROR, TAG, "The socket was disconnected due to an SSL error");
-                        try {
-                            JSONObject o = new JSONObject();
-                            o.put("message", "Unable to establish a secure connection to the IRCCloud servers.");
-                            notifyHandlers(EVENT_FAILURE_MSG, new IRCCloudJSONObject(o));
-                        } catch (JSONException e) {
-                            printStackTraceToCrashlytics(e);
-                        }
-                    }
                 } else {
                     Crashlytics.log(Log.WARN, "IRCCloud", "Got websocket onDisconnect for inactive websocket");
                 }
@@ -2996,12 +2985,27 @@ public class NetworkConnection {
             //Log.d(TAG, "Response: " + object);
             if (object.has("success") && !object.getBoolean("success") && object.has("message")) {
                 Crashlytics.log(Log.ERROR, TAG, "Error: " + object);
-                if(object.getString("message").equals("invalid_nick"))
+                if(object.getString("message").equals("auth")) {
+                    logout();
+                    notifyHandlers(EVENT_AUTH_FAILED, object);
+                } else if(object.getString("message").equals("set_shard")) {
+                    disconnect();
+                    ready = false;
+                    SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getSharedPreferences("prefs", 0).edit();
+                    editor.putString("session_key", object.getString("cookie"));
+                    if (object.has("websocket_host")) {
+                        IRCCLOUD_HOST = object.getString("websocket_host");
+                        IRCCLOUD_PATH = object.getString("websocket_path");
+                    }
+                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+                    editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
+                    editor.commit();
+                    connect();
+                } else if(object.getString("message").equals("temp_unavailable")) {
+                    notifyHandlers(EVENT_TEMP_UNAVAILABLE, object);
+                } else if(object.getString("message").equals("invalid_nick")) {
                     notifyHandlers(EVENT_INVALIDNICK, object);
-                else
-                    notifyHandlers(EVENT_FAILURE_MSG, object);
-            } else if (object.has("success")) {
-                notifyHandlers(EVENT_SUCCESS, object);
+                }
             }
             if (object.has("_reqid") && resultCallbacks.containsKey(object.getInt("_reqid"))) {
                 resultCallbacks.get(object.getInt("_reqid")).onIRCResult(object);

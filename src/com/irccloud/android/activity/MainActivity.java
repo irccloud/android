@@ -1295,7 +1295,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return null;
             }
             if (e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-                e.reqid = conn.say(e.cid, e.chan, e.command, null);
+                e.reqid = conn.say(e.cid, e.chan, e.command, new NetworkConnection.IRCResultCallback() {
+                    @Override
+                    public void onIRCResult(IRCCloudJSONObject result) {
+                        if(!result.getBoolean("success")) {
+                            EventsList.getInstance().deleteEvent(e.eid, e.bid);
+                            pendingEvents.remove(e.reqid);
+                            e.failed = true;
+                            e.bg_color = colorScheme.errorBackgroundColor;
+                            if (e.expiration_timer != null)
+                                e.expiration_timer.cancel();
+                            conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
+                        }
+                    }
+                });
                 if (e.msg != null)
                     pendingEvents.put(e.reqid, e);
             }
@@ -3021,56 +3034,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 }
                 break;
-            case NetworkConnection.EVENT_FAILURE_MSG:
-                event = (IRCCloudJSONObject) obj;
-                if (event != null && event.has("_reqid")) {
-                    int reqid = event.getInt("_reqid");
-                    if (pendingEvents.containsKey(reqid)) {
-                        Event e = pendingEvents.get(reqid);
-                        EventsList.getInstance().deleteEvent(e.eid, e.bid);
-                        pendingEvents.remove(event.getInt("_reqid"));
-                        e.failed = true;
-                        e.bg_color = colorScheme.errorBackgroundColor;
-                        if (e.expiration_timer != null)
-                            e.expiration_timer.cancel();
-                        conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
+            case NetworkConnection.EVENT_AUTH_FAILED:
+                Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+                finish();
+                break;
+            case NetworkConnection.EVENT_TEMP_UNAVAILABLE:
+                error = "Your account is temporarily unavailable";
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateReconnecting();
                     }
-                } else if (event != null) {
-                    if (event.getString("message").equalsIgnoreCase("auth")) {
-                        conn.logout();
-                        Intent i = new Intent(MainActivity.this, LoginActivity.class);
-                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(i);
-                        finish();
-                    }
-                    if (event.getString("message").equalsIgnoreCase("set_shard")) {
-                        NetworkConnection.getInstance().disconnect();
-                        NetworkConnection.getInstance().ready = false;
-                        SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-                        editor.putString("session_key", event.getString("cookie"));
-                        if (event.has("websocket_host")) {
-                            NetworkConnection.IRCCLOUD_HOST = event.getString("websocket_host");
-                            NetworkConnection.IRCCLOUD_PATH = event.getString("websocket_path");
-                        }
-                        editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
-                        editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
-                        editor.commit();
-                        NetworkConnection.getInstance().connect();
-                    }
-                    try {
-                        error = event.getString("message");
-                        if (error.equals("temp_unavailable"))
-                            error = "Your account is temporarily unavailable";
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateReconnecting();
-                            }
-                        });
-                    } catch (Exception ex) {
-                        NetworkConnection.printStackTraceToCrashlytics(ex);
-                    }
-                }
+                });
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
                 try {
@@ -4356,7 +4333,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     e.pending = true;
                     e.failed = false;
                     e.bg_color = colorScheme.selfBackgroundColor;
-                    e.reqid = NetworkConnection.getInstance().say(e.cid, e.chan, e.command, null);
+                    e.reqid = NetworkConnection.getInstance().say(e.cid, e.chan, e.command, new NetworkConnection.IRCResultCallback() {
+                        @Override
+                        public void onIRCResult(IRCCloudJSONObject result) {
+                            if(!result.getBoolean("success")) {
+                                EventsList.getInstance().deleteEvent(e.eid, e.bid);
+                                pendingEvents.remove(e.reqid);
+                                e.failed = true;
+                                e.bg_color = colorScheme.errorBackgroundColor;
+                                if (e.expiration_timer != null)
+                                    e.expiration_timer.cancel();
+                                conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
+                            }
+                        }
+                    });
                     if (e.reqid >= 0) {
                         pendingEvents.put(e.reqid, e);
                         e.expiration_timer = new TimerTask() {

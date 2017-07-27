@@ -797,8 +797,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             case NetworkConnection.EVENT_NAMESLIST:
             case NetworkConnection.EVENT_CHANNELTOPICIS:
             case NetworkConnection.EVENT_BACKLOG_FAILED:
-            case NetworkConnection.EVENT_FAILURE_MSG:
-            case NetworkConnection.EVENT_SUCCESS:
             case NetworkConnection.EVENT_PROGRESS:
             case NetworkConnection.EVENT_ALERT:
             case NetworkConnection.EVENT_DEBUG:
