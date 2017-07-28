@@ -32,6 +32,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -50,6 +51,7 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -65,6 +67,8 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.ImageList;
+import com.irccloud.android.data.collection.LogExportsList;
+import com.irccloud.android.data.model.LogExport;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.samsung.android.sdk.SsdkUnsupportedException;
@@ -281,6 +285,29 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         final IRCCloudJSONObject o;
 
         switch (what) {
+            case NetworkConnection.EVENT_LOGEXPORTFINISHED:
+                o = (IRCCloudJSONObject) obj;
+                JsonNode export = o.getJsonNode("export");
+                LogExport e = LogExportsList.getInstance().get(export.get("id").asInt());
+                if(e != null) {
+                    e.file_name = export.get("file_name").asText();
+                    e.redirect_url = export.get("redirect_url").asText();
+                    e.finish_date = export.get("finishdate").asLong();
+                    e.expiry_date = export.get("expirydate").asLong();
+                } else {
+                    e = LogExportsList.getInstance().create(export);
+                }
+                e.save();
+                final LogExport e1 = e;
+                Snackbar.make(findViewById(android.R.id.content), "Logs for " + e.getName() + " are now available", Snackbar.LENGTH_LONG)
+                        .setAction("Download", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                e1.download();
+                            }
+                        })
+                        .show();
+                break;
             case NetworkConnection.EVENT_BADCHANNELKEY:
                 o = (IRCCloudJSONObject) obj;
                 runOnUiThread(new Runnable() {
@@ -490,8 +517,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         showAlert(o.cid(), message);
                     } else
                         showAlert(o.cid(), o.getString("msg"));
-                } catch (Exception e1) {
-                    NetworkConnection.printStackTraceToCrashlytics(e1);
+                } catch (Exception e2) {
+                    NetworkConnection.printStackTraceToCrashlytics(e2);
                 }
                 break;
             default:

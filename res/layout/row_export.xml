@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2016 IRCCloud, Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.view.View"/>
+        <variable name="export" type="com.irccloud.android.data.model.LogExport"/>
+    </data>
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginLeft="6dp"
+        android:layout_marginRight="6dp"
+        android:descendantFocusability="blocksDescendants"
+        app:cardBackgroundColor="?listItemBackgroundColor"
+        app:cardUseCompatPadding="true"
+        app:cardElevation="2dp"
+        android:elevation="2dp">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:gravity="top">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical">
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?navBarHeadingColor"
+                    android:maxLines="1"
+                    android:text="@{ export.name }"
+                    android:layout_weight="1"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{ export.startTime }"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?messageTextColor"/>
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{ export.expiryTime }"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?messageTextColor"
+                    android:visibility="@{ (export.exists || export.isPreparing) ? View.GONE : View.VISIBLE }" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{ export.fileSize }"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?messageTextColor"
+                    android:visibility="@{ export.exists ? View.VISIBLE : View.GONE }" />
+
+                <ProgressBar
+                    android:id="@+id/progress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="-7dp"
+                    android:indeterminate="@{ export.downloadProgress == 0 ? true : false }"
+                    android:max="100"
+                    android:progress="@{ export.downloadProgress }"
+                    android:visibility="@{ export.isDownloading ? View.VISIBLE : View.GONE }"
+                    android:layout_gravity="bottom" />
+            </LinearLayout>
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/delete"
+                android:visibility="@{ export.exists ? View.VISIBLE : View.GONE }"
+                app:srcCompat="@drawable/ic_action_cancel"
+                android:background="@null" />
+
+            <ProgressBar
+                style="?android:attr/progressBarStyle"
+                android:visibility="@{ export.isPreparing ? View.VISIBLE : View.GONE }"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical" />
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+</layout>

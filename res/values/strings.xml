@@ -36,6 +36,7 @@
     <string name="menu_invite">Invite to Channel</string>
     <string name="menu_feedback">Send Feedback</string>
     <string name="menu_create_shortcut">Create Shortcut</string>
+    <string name="menu_download_logs">Download Logs</string>
     <string name="title_activity_message">IRCCloud</string>
     <string name="title_activity_login">Login</string>
     <string name="email">Email Address</string>
@@ -56,6 +57,7 @@
     <string name="title_activity_pastebin_editor_edit">Edit Text Snippet</string>
     <string name="title_activity_imageviewer">Image Viewer</string>
     <string name="title_activity_video_player">Video Player</string>
+    <string name="title_activity_exports">Download Logs</string>
     <string name="leak_canary_display_activity_label">IRCCloud Leaks</string>
     <string name="licenses">IRCCloud\n\
 Copyright &#169; 2017 IRCCloud, Ltd.\n\

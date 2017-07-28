@@ -211,6 +211,7 @@ public class NetworkConnection {
     public static final int EVENT_LINKSRESPONSE = 51;
     public static final int EVENT_WHOWAS = 52;
     public static final int EVENT_TRACERESPONSE = 53;
+    public static final int EVENT_LOGEXPORTFINISHED = 54;
 
     public static final int EVENT_BACKLOG_START = 100;
     public static final int EVENT_BACKLOG_END = 101;
@@ -960,6 +961,17 @@ public class NetworkConnection {
     public JSONObject pastebins(int page) throws IOException {
         try {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/pastebins?page=" + page), null, session, null, null);
+            if(response.length() > 0)
+                return new JSONObject(response);
+        } catch (Exception e) {
+            printStackTraceToCrashlytics(e);
+        }
+        return null;
+    }
+
+    public JSONObject logExports() throws IOException {
+        try {
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/log-exports"), null, session, null, null);
             if(response.length() > 0)
                 return new JSONObject(response);
         } catch (Exception e) {
@@ -1901,6 +1913,21 @@ public class NetworkConnection {
             JSONObject o = new JSONObject();
             o.put("id", id);
             return send("delete-pastebin", o, callback);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
+    public int export_log(int cid, int bid, String timezone, IRCResultCallback callback) {
+        try {
+            JSONObject o = new JSONObject();
+            if(cid > 0)
+                o.put("cid", cid);
+            if(bid > 0)
+                o.put("bid", bid);
+            o.put("timezone", timezone);
+            return send("export-log", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
@@ -2933,6 +2960,7 @@ public class NetworkConnection {
         put("links_response", new BroadcastParser(EVENT_LINKSRESPONSE));
         put("whowas_response", new BroadcastParser(EVENT_WHOWAS));
         put("trace_response", new BroadcastParser(EVENT_TRACERESPONSE));
+        put("export_finished", new BroadcastParser(EVENT_LOGEXPORTFINISHED));
         put("who_response", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {

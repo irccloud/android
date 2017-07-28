@@ -276,6 +276,11 @@
             android:label="@string/title_activity_pastebins"
             android:theme="@style/dawnDialogWhenLarge" >
         </activity>
+        <activity
+            android:name=".activity.LogExportsActivity"
+            android:label="@string/title_activity_exports"
+            android:theme="@style/dawnDialogWhenLarge" >
+        </activity>
 
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"

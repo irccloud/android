@@ -22,4 +22,7 @@
     <item android:id="@+id/menu_add_network"
         android:title="@string/menu_add_network"
         app:showAsAction="never" />
+    <item android:id="@+id/menu_download_logs"
+        android:title="@string/menu_download_logs"
+        app:showAsAction="never" />
 </menu>
