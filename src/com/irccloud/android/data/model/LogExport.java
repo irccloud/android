@@ -172,7 +172,7 @@ public class LogExport extends ObservableBaseModel {
         DownloadManager.Request r = new DownloadManager.Request(Uri.parse(redirect_url));
         r.addRequestHeader("Cookie", "session=" + NetworkConnection.getInstance().session);
         r.setDestinationUri(Uri.fromFile(file()));
-        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
         r.setVisibleInDownloadsUi(true);
         r.setMimeType("application/zip");
         download_id = d.enqueue(r);
