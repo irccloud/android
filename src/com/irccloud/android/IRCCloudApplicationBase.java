@@ -43,6 +43,7 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
+import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -231,7 +232,15 @@ public class IRCCloudApplicationBase extends Application {
             editor.commit();
         }
 
-        prefs = getSharedPreferences("prefs", 0);
+        if(!prefs.getBoolean("notification_channels_migrated", false)) {
+            Crashlytics.log(Log.INFO, "IRCCloud", "Migrating notification channels");
+            NotificationsList.getInstance().purgeNotificationChannels();
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("notification_channels_migrated", true);
+            editor.commit();
+        }
+
+            prefs = getSharedPreferences("prefs", 0);
         if (prefs.getString("host", "www.irccloud.com").equals("www.irccloud.com") && !prefs.contains("path") && prefs.contains("session_key")) {
             Crashlytics.log(Log.INFO, "IRCCloud", "Migrating path from session key");
             SharedPreferences.Editor editor = prefs.edit();

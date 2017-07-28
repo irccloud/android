@@ -975,4 +975,18 @@ public class NotificationsList {
             }
         }
     }
+
+    public void purgeNotificationChannels() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager nm = ((NotificationManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
+
+            for (NotificationChannelGroup c : nm.getNotificationChannelGroups()) {
+                nm.deleteNotificationChannelGroup(c.getId());
+            }
+
+            for (NotificationChannel c : nm.getNotificationChannels()) {
+                nm.deleteNotificationChannel(c.getId());
+            }
+        }
+    }
 }

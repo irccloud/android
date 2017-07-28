@@ -491,6 +491,13 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     findPreference("time-left").setEnabled(true);
                 }
             }
+            findPreference("notify_vibrate").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    NotificationsList.getInstance().purgeNotificationChannels();
+                    return true;
+                }
+            });
         } else {
             Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
             finish();
@@ -694,6 +701,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     findPreference("notify_led_color").setSummary("Blue");
                     break;
             }
+            NotificationsList.getInstance().purgeNotificationChannels();
             return true;
         }
     };
@@ -1112,6 +1120,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString("notify_ringtone", ringtones.get(((AlertDialog) dialog).getListView().getCheckedItemPosition()).uri);
                         editor.commit();
+                        NotificationsList.getInstance().purgeNotificationChannels();
                     }
                 });
                 builder.setNegativeButton("Cancel", null);
