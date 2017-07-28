@@ -232,15 +232,7 @@ public class IRCCloudApplicationBase extends Application {
             editor.commit();
         }
 
-        if(!prefs.getBoolean("notification_channels_migrated", false)) {
-            Crashlytics.log(Log.INFO, "IRCCloud", "Migrating notification channels");
-            NotificationsList.getInstance().purgeNotificationChannels();
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("notification_channels_migrated", true);
-            editor.commit();
-        }
-
-            prefs = getSharedPreferences("prefs", 0);
+        prefs = getSharedPreferences("prefs", 0);
         if (prefs.getString("host", "www.irccloud.com").equals("www.irccloud.com") && !prefs.contains("path") && prefs.contains("session_key")) {
             Crashlytics.log(Log.INFO, "IRCCloud", "Migrating path from session key");
             SharedPreferences.Editor editor = prefs.edit();

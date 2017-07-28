@@ -379,6 +379,19 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 }
             });
         }
+
+        if(findPreference("notification_channels") != null) {
+            findPreference("notification_channels").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent();
+                    intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                    intent.putExtra("android.provider.extra.APP_PACKAGE", getPackageName());
+                    startActivity(intent);
+                    return false;
+                }
+            });
+        }
     }
 
     private Preference findPreference(String key) {
@@ -491,13 +504,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     findPreference("time-left").setEnabled(true);
                 }
             }
-            findPreference("notify_vibrate").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object o) {
-                    NotificationsList.getInstance().purgeNotificationChannels();
-                    return true;
-                }
-            });
         } else {
             Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
             finish();
@@ -701,7 +707,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     findPreference("notify_led_color").setSummary("Blue");
                     break;
             }
-            NotificationsList.getInstance().purgeNotificationChannels();
             return true;
         }
     };
@@ -1120,7 +1125,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString("notify_ringtone", ringtones.get(((AlertDialog) dialog).getListView().getCheckedItemPosition()).uri);
                         editor.commit();
-                        NotificationsList.getInstance().purgeNotificationChannels();
                     }
                 });
                 builder.setNegativeButton("Cancel", null);
