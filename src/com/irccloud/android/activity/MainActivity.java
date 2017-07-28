@@ -32,6 +32,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -42,6 +44,7 @@ import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -133,10 +136,12 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.RecentConversationsList;
+import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.model.Channel;
@@ -3858,14 +3863,37 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             uri += "," + c.paramForMode("k");
                     }
                     final Intent shortcutIntent = new Intent(this, MainActivity.class);
+                    shortcutIntent.setAction(Intent.ACTION_VIEW);
                     shortcutIntent.setData(Uri.parse(uri));
-                    final Intent intent = new Intent();
-                    intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-                    intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, buffer.getName());
-                    intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(this, R.mipmap.ic_launcher));
-                    intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
-                    sendBroadcast(intent);
-                    moveTaskToBack(true);
+
+                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                        final Intent intent = new Intent();
+                        intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+                        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, buffer.getName());
+                        intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(this, R.mipmap.ic_launcher));
+                        intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+                        sendBroadcast(intent);
+                        moveTaskToBack(true);
+                    } else {
+                        ShortcutManager mShortcutManager = getSystemService(ShortcutManager.class);
+
+                        if (mShortcutManager.isRequestPinShortcutSupported()) {
+                            Icon icon = null;
+                            if(buffer.isChannel()) {
+                                icon = Icon.createWithBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, 320, false));
+                            } else if(buffer.isConversation()) {
+                                icon = Icon.createWithBitmap(AvatarsList.getInstance().getAvatar(buffer.getCid(), buffer.getName()).getBitmap(ColorScheme.getInstance().isDarkTheme, 320));
+                            }
+                            ShortcutInfo pinShortcutInfo = new ShortcutInfo.Builder(this, String.valueOf(buffer.getBid()))
+                                    .setIntent(shortcutIntent)
+                                    .setShortLabel(buffer.getName())
+                                    .setLongLabel(buffer.getName() + " (" + ((server.getName() != null && server.getName().length() > 0) ? server.getName() : server.getHostname()) + ")")
+                                    .setIcon(icon)
+                                    .build();
+
+                            mShortcutManager.requestPinShortcut(pinShortcutInfo, null);
+                        }
+                    }
                 } catch (Exception e) {
                     NetworkConnection.printStackTraceToCrashlytics(e);
                 }
