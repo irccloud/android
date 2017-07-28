@@ -1501,7 +1501,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    private synchronized void insertEvent(final MessageAdapter adapter, Event event, boolean backlog, boolean nextIsGrouped) {
+    private void insertEvent(final MessageAdapter adapter, Event event, boolean backlog, boolean nextIsGrouped) {
         synchronized (adapterLock) {
             try {
                 long start = System.currentTimeMillis();

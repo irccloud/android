@@ -525,7 +525,7 @@ public class NotificationsList {
         editor.putLong("lastNotificationTime", System.currentTimeMillis());
         editor.commit();
 
-        Intent i = new Intent();
+        Intent i = new Intent(Intent.ACTION_VIEW);
         i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
         i.putExtra("bid", bid);
         i.setData(Uri.parse("bid://" + bid));
