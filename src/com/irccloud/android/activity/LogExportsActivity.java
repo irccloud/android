@@ -321,7 +321,7 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(Intent.createChooser(intent, "Open Log Archive"));
                 } else {
-                    if(e.download_id == 0)
+                    if(e.download_id == 0 && e.redirect_url != null)
                         e.download();
                 }
             }

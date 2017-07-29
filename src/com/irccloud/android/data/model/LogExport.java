@@ -167,18 +167,20 @@ public class LogExport extends ObservableBaseModel {
     }
 
     public void download() {
-        path().mkdirs();
-        DownloadManager d = (DownloadManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
-        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(redirect_url));
-        r.addRequestHeader("Cookie", "session=" + NetworkConnection.getInstance().session);
-        r.setDestinationUri(Uri.fromFile(file()));
-        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
-        r.setVisibleInDownloadsUi(true);
-        r.setMimeType("application/zip");
-        download_id = d.enqueue(r);
-        notifyPropertyChanged(BR.downloadProgress);
-        notifyPropertyChanged(BR.isDownloading);
-        save();
+        if(redirect_url != null) {
+            path().mkdirs();
+            DownloadManager d = (DownloadManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
+            DownloadManager.Request r = new DownloadManager.Request(Uri.parse(redirect_url));
+            r.addRequestHeader("Cookie", "session=" + NetworkConnection.getInstance().session);
+            r.setDestinationUri(Uri.fromFile(file()));
+            r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
+            r.setVisibleInDownloadsUi(true);
+            r.setMimeType("application/zip");
+            download_id = d.enqueue(r);
+            notifyPropertyChanged(BR.downloadProgress);
+            notifyPropertyChanged(BR.isDownloading);
+            save();
+        }
     }
 
     public File path() {
