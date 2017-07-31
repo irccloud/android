@@ -27,7 +27,7 @@ import com.raizlabs.android.dbflow.annotation.Unique;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
-@Table(databaseName = IRCCloudDatabase.NAME,
+@Table(database = IRCCloudDatabase.class,
         uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})
 public class RecentConversation extends BaseModel {
     @Column

@@ -16,18 +16,11 @@
 
 package com.irccloud.android.data.collection;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
 import android.util.SparseArray;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.data.model.Channel;
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.Select;
-import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.ArrayList;
 import java.util.Iterator;

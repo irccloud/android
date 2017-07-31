@@ -29,6 +29,7 @@
         android:layout_height="?attr/actionBarSize" />
 
     <TextView
+        android:id="@+id/textPrompt"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Which logs would you like to download?"

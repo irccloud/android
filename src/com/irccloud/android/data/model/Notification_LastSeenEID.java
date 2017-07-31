@@ -22,7 +22,7 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
-@Table(databaseName = IRCCloudDatabase.NAME)
+@Table(database = IRCCloudDatabase.class)
 public class Notification_LastSeenEID extends BaseModel {
     @Column
     @PrimaryKey

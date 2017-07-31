@@ -36,7 +36,7 @@ import com.raizlabs.android.dbflow.annotation.Table;
 
 import java.io.File;
 
-@Table(databaseName = IRCCloudDatabase.NAME)
+@Table(database = IRCCloudDatabase.class)
 public class LogExport extends ObservableBaseModel {
     @Column
     @PrimaryKey
@@ -66,7 +66,8 @@ public class LogExport extends ObservableBaseModel {
     @Column
     public long download_id;
 
-    private String name;
+    @Column
+    public String name;
 
     @Bindable
     public String getName() {
@@ -77,12 +78,21 @@ public class LogExport extends ObservableBaseModel {
             String serverName = (s != null) ? (s.getName() != null ? s.getName() : s.getHostname()) : "Unknown Network (" + cid + ")";
             String bufferName = (b != null) ? b.getName() : "Unknown Log (" + bid + ")";
 
-            if(bid > 0)
-                name = serverName + ": " + bufferName;
-            else if(cid > 0)
-                name = serverName;
-            else
+            if(bid > 0) {
+                if(b != null)
+                    name = serverName + ": " + bufferName;
+                else
+                    return serverName + ": " + bufferName;
+            } else if(cid > 0) {
+                if(s != null)
+                    name = serverName;
+                else
+                    return serverName;
+            } else {
                 name = "All Networks";
+            }
+            if(name != null)
+                save();
         }
         return name;
     }
@@ -203,12 +213,12 @@ public class LogExport extends ObservableBaseModel {
         return "{id: " + id + ", cid: " + cid + ", bid: " + bid + ", file_name: " + file_name + ", name: " + getName() + "}";
     }
 
-    @Override
-    public void save() {
+    public void clearCache() {
         expiryTime = null;
+        getExpiryTime();
         startTime = null;
+        getStartTime();
         filesize = null;
-        name = null;
-        super.save();
+        getFileSize();
     }
 }

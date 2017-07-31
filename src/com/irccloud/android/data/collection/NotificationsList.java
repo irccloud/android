@@ -38,7 +38,6 @@ import android.support.v4.app.NotificationCompat.WearableExtender;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -53,21 +52,21 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
 import com.irccloud.android.SonyExtensionService;
-import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.activity.QuickReplyActivity;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Notification;
-import com.irccloud.android.data.model.Notification$Table;
+import com.irccloud.android.data.model.Notification_Table;
 import com.irccloud.android.data.model.Notification_LastSeenEID;
-import com.irccloud.android.data.model.Notification_LastSeenEID$Table;
+import com.irccloud.android.data.model.Notification_LastSeenEID_Table;
 import com.irccloud.android.data.model.Notification_ServerNick;
-import com.irccloud.android.data.model.Notification_ServerNick$Table;
+import com.irccloud.android.data.model.Notification_ServerNick_Table;
 import com.irccloud.android.data.model.Server;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
 import org.json.JSONArray;
@@ -101,7 +100,7 @@ public class NotificationsList {
 
     public List<Notification> getNotifications() {
         synchronized (dbLock) {
-            return new Select().all().from(Notification.class).where().orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
+            return new Select().from(Notification.class).where().orderBy(Notification_Table.bid, true).orderBy(Notification_Table.eid, true).queryList();
         }
     }
 
@@ -138,7 +137,7 @@ public class NotificationsList {
         if(b != null)
             return b.getLast_seen_eid();
         synchronized (dbLock) {
-            Notification_LastSeenEID eid = new Select().from(Notification_LastSeenEID.class).where(Condition.column(Notification_LastSeenEID$Table.BID).is(bid)).querySingle();
+            Notification_LastSeenEID eid = new Select().from(Notification_LastSeenEID.class).where(Notification_LastSeenEID_Table.bid.is(bid)).querySingle();
             if (eid != null)
                 return eid.eid;
             else
@@ -152,7 +151,7 @@ public class NotificationsList {
         n.eid = eid;
         Buffer b = BuffersList.getInstance().getBuffer(bid);
         if(b != null) {
-            TransactionManager.getInstance().saveOnSaveQueue(n);
+            FlowManager.getDatabase(IRCCloudDatabase.class).getTransactionManager().getSaveQueue().add(n);
         } else {
             synchronized (dbLock) {
                 n.save();
@@ -165,7 +164,7 @@ public class NotificationsList {
         if(s != null && s.getNick() != null && s.getNick().length() > 0)
             return s.getNick();
         synchronized (dbLock) {
-            Notification_ServerNick nick = new Select().from(Notification_ServerNick.class).where(Condition.column(Notification_ServerNick$Table.CID).is(cid)).querySingle();
+            Notification_ServerNick nick = new Select().from(Notification_ServerNick.class).where(Notification_ServerNick_Table.cid.is(cid)).querySingle();
             if (nick != null)
                 return nick.nick;
             else
@@ -179,7 +178,7 @@ public class NotificationsList {
         n.nick = nick;
         Server s = ServersList.getInstance().getServer(cid);
         if(s != null) {
-            TransactionManager.getInstance().saveOnSaveQueue(n);
+            FlowManager.getDatabase(IRCCloudDatabase.class).getTransactionManager().getSaveQueue().add(n);
         } else {
             synchronized (dbLock) {
                 n.save();
@@ -280,7 +279,7 @@ public class NotificationsList {
                     n.delete();
                 }
             }
-            new Delete().from(Notification_LastSeenEID.class).where(Condition.column(Notification_LastSeenEID$Table.BID).is(bid)).queryClose();
+            new Delete().from(Notification_LastSeenEID.class).where(Notification_LastSeenEID_Table.bid.is(bid)).query();
         }
         IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         try {
@@ -294,34 +293,34 @@ public class NotificationsList {
 
     public long count() {
         synchronized (dbLock) {
-            return new Select().count().from(Notification.class).count();
+            return new Select().from(Notification.class).count();
         }
     }
 
     public List<Notification> getMessageNotifications() {
         synchronized (dbLock) {
-            return new Select().from(Notification.class).where(Condition.column(Notification$Table.BID).isNot(excludeBid))
-                    .and(Condition.column(Notification$Table.MESSAGE_TYPE).isNot("callerid"))
-                    .and(Condition.column(Notification$Table.MESSAGE_TYPE).isNot("callerid_success"))
-                    .and(Condition.column(Notification$Table.MESSAGE_TYPE).isNot("channel_invite"))
-                    .orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
+            return new Select().from(Notification.class).where(Notification_Table.bid.isNot(excludeBid))
+                    .and(Notification_Table.message_type.isNot("callerid"))
+                    .and(Notification_Table.message_type.isNot("callerid_success"))
+                    .and(Notification_Table.message_type.isNot("channel_invite"))
+                    .orderBy(Notification_Table.bid, true).orderBy(Notification_Table.eid, true).queryList();
         }
     }
 
     public List<Notification> getOtherNotifications() {
         synchronized (dbLock) {
             return new Select().from(Notification.class).where(
-                    Condition.CombinedCondition.begin(Condition.column(Notification$Table.BID).isNot(excludeBid))
-                            .and(Condition.CombinedCondition.begin(Condition.column(Notification$Table.MESSAGE_TYPE).is("callerid"))
-                                    .or(Condition.column(Notification$Table.MESSAGE_TYPE).is("callerid_success"))
-                    .or(Condition.column(Notification$Table.MESSAGE_TYPE).is("channel_invite"))))
-                    .orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
+                    OperatorGroup.clause(Notification_Table.bid.isNot(excludeBid))
+                            .and(OperatorGroup.clause(Notification_Table.message_type.is("callerid"))
+                                    .or(Notification_Table.message_type.is("callerid_success"))
+                    .or(Notification_Table.message_type.is("channel_invite"))))
+                    .orderBy(Notification_Table.bid, true).orderBy(Notification_Table.eid, true).queryList();
         }
     }
 
     public Notification getNotification(long eid) {
         synchronized (dbLock) {
-            return new Select().from(Notification.class).where(Condition.column(Notification$Table.EID).is(eid)).querySingle();
+            return new Select().from(Notification.class).where(Notification_Table.eid.is(eid)).querySingle();
         }
     }
 
@@ -449,14 +448,11 @@ public class NotificationsList {
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.cid, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, 400, false, false)));
                 }
             }
-            TransactionManager.transact(IRCCloudDatabase.NAME, new Runnable() {
-                @Override
-                public void run() {
-                    for(Notification n : notifications) {
-                        n.delete();
-                    }
-                }
-            });
+
+            FastStoreModelTransaction
+                    .deleteBuilder(FlowManager.getModelAdapter(Notification.class))
+                    .addAll(notifications)
+                    .build().execute(FlowManager.getWritableDatabase(IRCCloudDatabase.class));
         }
     }
 
@@ -895,14 +891,7 @@ public class NotificationsList {
                 }
             }
 
-            TransactionManager.transact(IRCCloudDatabase.NAME, new Runnable() {
-                @Override
-                public void run() {
-                    for(Notification n : notifications) {
-                        n.save();
-                    }
-                }
-            });
+            FlowManager.getDatabase(IRCCloudDatabase.class).getTransactionManager().getSaveQueue().addAll2(notifications);
         }
     }
 
@@ -938,7 +927,7 @@ public class NotificationsList {
             ContentValues cv = new ContentValues();
             cv.put("tag", IRCCloudApplication.getInstance().getApplicationContext().getPackageManager().getLaunchIntentForPackage(IRCCloudApplication.getInstance().getApplicationContext().getPackageName()).getComponent().flattenToString());
             synchronized (dbLock) {
-                cv.put("count", new Select().count().from(Notification.class).where(Condition.column(Notification$Table.NICK).isNotNull()).count());
+                cv.put("count", new Select().from(Notification.class).where(Notification_Table.nick.isNotNull()).count());
             }
             IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(Uri.parse("content://com.teslacoilsw.notifier/unread_count"), cv);
         } catch (IllegalArgumentException ex) {

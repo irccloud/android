@@ -18,8 +18,7 @@ package com.irccloud.android.data.collection;
 
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.RecentConversation;
-import com.irccloud.android.data.model.RecentConversation$Table;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.irccloud.android.data.model.RecentConversation_Table;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
@@ -43,13 +42,13 @@ public class RecentConversationsList {
 
     public List<RecentConversation> getConversations() {
         synchronized (dbLock) {
-            return new Select().all().from(RecentConversation.class).where().orderBy(false,RecentConversation$Table.TIMESTAMP).queryList();
+            return new Select().from(RecentConversation.class).where().orderBy(RecentConversation_Table.timestamp, false).queryList();
         }
     }
 
     public RecentConversation getConversation(int cid, int bid) {
         synchronized (dbLock) {
-            return new Select().from(RecentConversation.class).where(Condition.column(RecentConversation$Table.CID).is(cid)).and(Condition.column(RecentConversation$Table.BID).is(bid)).querySingle();
+            return new Select().from(RecentConversation.class).where(RecentConversation_Table.cid.is(cid)).and(RecentConversation_Table.bid.is(bid)).querySingle();
         }
     }
 

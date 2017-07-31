@@ -181,6 +181,7 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
             List<LogExport> exports = LogExportsList.getInstance().getLogExports();
 
             for(LogExport e : exports) {
+                e.clearCache();
                 if(e.finish_date == 0 && e.expiry_date == 0)
                     inprogress.add(e);
                 else if(e.getExists())
@@ -260,6 +261,10 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                 types[0] = "This Network Console (" + s.getHostname() + ")";
 
             types[1] = "This Network (" + ((s.getName() != null && s.getName().length() > 0)?s.getName():s.getHostname()) + ")";
+        } else {
+            findViewById(R.id.textPrompt).setVisibility(View.GONE);
+            findViewById(R.id.exportType).setVisibility(View.GONE);
+            findViewById(R.id.export).setVisibility(View.GONE);
         }
 
         ArrayAdapter<String> typesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, types);

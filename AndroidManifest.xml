@@ -280,6 +280,11 @@
             android:name=".activity.LogExportsActivity"
             android:label="@string/title_activity_exports"
             android:theme="@style/dawnDialogWhenLarge" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <receiver

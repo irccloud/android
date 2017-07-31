@@ -19,6 +19,7 @@ buildscript {
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
         maven { url 'https://maven.google.com' }
+        maven { url "https://www.jitpack.io" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0-alpha8'
@@ -39,6 +40,7 @@ repositories {
     maven { url 'https://maven.google.com' }
     maven { url 'https://maven.fabric.io/public' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url "https://www.jitpack.io" }
 }
 
 def getRevision = { ->
@@ -328,6 +330,7 @@ tasks.whenTaskAdded { task ->
 ext {
     supportLibVersion = '26.0.0'
     playServicesVersion = '11.0.2'
+    dbflowVersion = "4.0.5"
 }
 
 dependencies {
@@ -350,9 +353,9 @@ dependencies {
     compile 'com.damnhandy:handy-uri-templates:2.0.2'
     compile project(':android-websockets')
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
-    annotationProcessor 'com.raizlabs.android:DBFlow-Compiler:2.2.1'
-    compile 'com.raizlabs.android:DBFlow-Core:2.2.1'
-    compile 'com.raizlabs.android:DBFlow:2.2.1'
+    annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:$dbflowVersion"
+    compile "com.github.Raizlabs.DBFlow:dbflow-core:$dbflowVersion"
+    compile "com.github.Raizlabs.DBFlow:dbflow:$dbflowVersion"
     compile 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     compile 'com.datatheorem.android.trustkit:trustkit:1.0.0'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {

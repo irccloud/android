@@ -17,25 +17,13 @@
 package com.irccloud.android.data.collection;
 
 import android.annotation.SuppressLint;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
-import com.irccloud.android.R;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.fragment.MessageViewFragment;
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
-import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.Select;
-import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.text.Normalizer;
 import java.util.HashMap;

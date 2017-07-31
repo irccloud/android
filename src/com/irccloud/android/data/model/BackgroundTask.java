@@ -22,7 +22,7 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
-@Table(databaseName = IRCCloudDatabase.NAME)
+@Table(database = IRCCloudDatabase.class)
 public class BackgroundTask extends BaseModel {
     public static final int TYPE_GCM_REGISTER = 1;
     public static final int TYPE_GCM_UNREGISTER = 2;

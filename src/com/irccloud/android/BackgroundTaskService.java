@@ -31,22 +31,20 @@ import com.google.android.gms.gcm.OneoffTask;
 import com.google.android.gms.gcm.TaskParams;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.model.BackgroundTask;
-import com.irccloud.android.data.model.BackgroundTask$Table;
-import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.irccloud.android.data.model.BackgroundTask_Table;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.Exchanger;
 
 public class BackgroundTaskService extends GcmTaskService {
     private static final int GCM_INTERVAL = 30; //Wait up to 30 seconds before sending GCM registration
     private static final int SYNC_INTERVAL = 60 * 60; //Sync backlog hourly
 
     public static void registerGCM(Context context) {
-        List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_GCM_REGISTER)).queryList();
+        List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(BackgroundTask_Table.type.is(BackgroundTask.TYPE_GCM_REGISTER)).queryList();
         for(BackgroundTask t : tasks) {
             Crashlytics.log(Log.INFO, "IRCCloud", "Removing old GCM registration task: " + t.tag);
             try {
@@ -79,8 +77,8 @@ public class BackgroundTaskService extends GcmTaskService {
 
     private static void scheduleUnregister(final Context context, String token, String session) {
         if(token != null && token.length() > 0) {
-            List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_GCM_REGISTER))
-                    .and(Condition.column(BackgroundTask$Table.DATA).is(token))
+            List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(BackgroundTask_Table.type.is(BackgroundTask.TYPE_GCM_REGISTER))
+                    .and(BackgroundTask_Table.data.is(token))
                     .queryList();
 
             for(BackgroundTask t : tasks) {
@@ -118,8 +116,8 @@ public class BackgroundTaskService extends GcmTaskService {
         if(token == null)
             return;
 
-        List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_GCM_REGISTER))
-                .and(Condition.column(BackgroundTask$Table.DATA).is(token))
+        List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(BackgroundTask_Table.type.is(BackgroundTask.TYPE_GCM_REGISTER))
+                .and(BackgroundTask_Table.data.is(token))
                 .queryList();
 
         for(BackgroundTask t : tasks) {
@@ -191,7 +189,7 @@ public class BackgroundTaskService extends GcmTaskService {
     @Override
     public int onRunTask(TaskParams taskParams) {
         Crashlytics.log(Log.INFO, "IRCCloud", "Executing background task with tag: " + taskParams.getTag());
-        BackgroundTask task = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TAG).is(taskParams.getTag())).querySingle();
+        BackgroundTask task = new Select().from(BackgroundTask.class).where(BackgroundTask_Table.tag.is(taskParams.getTag())).querySingle();
         if(task != null) {
             switch(task.type) {
                 case BackgroundTask.TYPE_GCM_REGISTER:

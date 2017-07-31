@@ -17,11 +17,13 @@
 package com.irccloud.android.data.collection;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.LogExport;
-import com.irccloud.android.data.model.LogExport$Table;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.irccloud.android.data.model.LogExport_Table;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,13 +51,13 @@ public class LogExportsList {
 
     public List<LogExport> getLogExports() {
         synchronized (dbLock) {
-            return new Select().all().from(LogExport.class).where().orderBy(false, LogExport$Table.START_DATE).queryList();
+            return new Select().from(LogExport.class).where().orderBy(LogExport_Table.start_date, false).queryList();
         }
     }
 
     public LogExport get(int id) {
         synchronized (dbLock) {
-            return new Select().from(LogExport.class).where(LogExport$Table.ID + " = " + id).orderBy(false, LogExport$Table.START_DATE).querySingle();
+            return new Select().from(LogExport.class).where(LogExport_Table.id.is(id)).orderBy(LogExport_Table.start_date, false).querySingle();
         }
     }
 
@@ -86,7 +88,10 @@ public class LogExportsList {
         }
 
         if(add.size() > 0)
-            TransactionManager.getInstance().saveOnSaveQueue(add);
+            FastStoreModelTransaction
+                    .insertBuilder(FlowManager.getModelAdapter(LogExport.class))
+                    .addAll(add)
+                    .build().execute(FlowManager.getWritableDatabase(IRCCloudDatabase.class));
     }
 
     public LogExport create(JSONObject log) throws JSONException {

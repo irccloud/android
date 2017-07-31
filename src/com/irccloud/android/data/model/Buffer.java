@@ -16,7 +16,6 @@
 
 package com.irccloud.android.data.model;
 
-import android.content.res.ColorStateList;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 import android.os.Build;
@@ -26,18 +25,12 @@ import com.irccloud.android.ColorScheme;
 import com.irccloud.android.FontAwesome;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ChannelsList;
 import com.irccloud.android.data.collection.ServersList;
 import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.Unique;
-import com.raizlabs.android.dbflow.annotation.UniqueGroup;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import org.json.JSONException;
 import org.json.JSONObject;

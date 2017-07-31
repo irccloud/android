@@ -43,11 +43,13 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
+import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
+import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 import java.io.File;
@@ -69,8 +71,16 @@ public class IRCCloudApplicationBase extends Application {
             TrustKit.initializeWithNetworkSecurityConfiguration(getApplicationContext(), R.xml.network_security_config);
         Fabric.with(this, new Crashlytics());
         Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
-        FlowManager.init(this);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        if(prefs.getInt("dbVersion", 0) < IRCCloudDatabase.VERSION) {
+            getApplicationContext().getDatabasePath(IRCCloudDatabase.NAME + ".db").delete();
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt("dbVersion", IRCCloudDatabase.VERSION);
+            editor.commit();
+        }
+        FlowManager.init(new FlowConfig.Builder(this).build());
+
         if(Build.VERSION.SDK_INT >= 19)
             EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true)));
             /*EmojiCompat.init(new FontRequestEmojiCompatConfig(getApplicationContext(), new FontRequest(
