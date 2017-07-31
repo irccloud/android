@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -180,6 +181,11 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
         protected Void doInBackground(Void... params) {
             List<LogExport> exports = LogExportsList.getInstance().getLogExports();
 
+            Uri uriToDownload = null;
+
+            if(getIntent() != null)
+                uriToDownload = getIntent().getData();
+
             for(LogExport e : exports) {
                 e.clearCache();
                 if(e.finish_date == 0 && e.expiry_date == 0)
@@ -188,6 +194,13 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                     downloaded.add(e);
                 else
                     available.add(e);
+                
+                if(uriToDownload != null && uriToDownload.toString().equals(e.redirect_url)) {
+                    uriToDownload = null;
+
+                    if(e.download_id == 0)
+                        e.download();
+                }
             }
             return null;
         }

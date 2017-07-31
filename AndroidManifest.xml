@@ -313,6 +313,19 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <intent-filter
+                android:autoVerify="true"
+                android:label="@string/app_name">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="www.irccloud.com"
+                    android:pathPrefix="/log-export"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
 
         <receiver
