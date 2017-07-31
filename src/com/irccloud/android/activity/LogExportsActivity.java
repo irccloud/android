@@ -65,13 +65,12 @@ import java.util.List;
 import java.util.TimeZone;
 
 public class LogExportsActivity extends BaseActivity implements NetworkConnection.IRCEventHandler {
-    private SeparatedListAdapter adapter;
     private LogExportsAdapter inProgressAdapter = new LogExportsAdapter();
     private LogExportsAdapter downloadedAdapter = new LogExportsAdapter();
     private LogExportsAdapter availableAdapter = new LogExportsAdapter();
 
     private class LogExportsAdapter extends BaseAdapter {
-        private List<LogExport> exports = new ArrayList<>();
+        public List<LogExport> exports = new ArrayList<>();
 
         public void setExports(List<LogExport> exports) {
             this.exports = exports;
@@ -267,10 +266,12 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
         typesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         exportType.setAdapter(typesAdapter);
 
-        Button exportButton = findViewById(R.id.export);
+        final Button exportButton = findViewById(R.id.export);
         exportButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                exportButton.setEnabled(false);
+                exportButton.setAlpha(0.5f);
                 NetworkConnection.IRCResultCallback callback = new NetworkConnection.IRCResultCallback() {
                     @Override
                     public void onIRCResult(IRCCloudJSONObject result) {
@@ -284,26 +285,43 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                         } else {
                             Snackbar.make(findViewById(android.R.id.list), "Unable to export log: " + result.getString("message"), Snackbar.LENGTH_SHORT).show();
                         }
+                        exportButton.setEnabled(true);
+                        exportButton.setAlpha(1.0f);
                     }
                 };
 
+                int requestCid = -1, requestBid = -1;
+
                 switch(exportType.getSelectedItemPosition()) {
                     case 0:
-                        NetworkConnection.getInstance().export_log(cid, bid, TimeZone.getDefault().getID(), callback);
+                        requestCid = cid;
+                        requestBid = bid;
                         break;
                     case 1:
-                        NetworkConnection.getInstance().export_log(cid, -1, TimeZone.getDefault().getID(), callback);
+                        requestCid = cid;
+                        requestBid = -1;
                         break;
                     case 2:
-                        NetworkConnection.getInstance().export_log(-1, -1, TimeZone.getDefault().getID(), callback);
+                        requestCid = -1;
+                        requestBid = -1;
                         break;
                 }
+
+                for(LogExport e : inProgressAdapter.exports) {
+                    if(e.cid == requestCid && e.bid == requestBid) {
+                        Snackbar.make(findViewById(android.R.id.list), "This log export is already in progress.", Snackbar.LENGTH_SHORT).show();
+                        exportButton.setEnabled(true);
+                        exportButton.setAlpha(1.0f);
+                        return;
+                    }
+                }
+                NetworkConnection.getInstance().export_log(requestCid, requestBid, TimeZone.getDefault().getID(), callback);
+
             }
         });
 
         ListView listView = findViewById(android.R.id.list);
-        adapter = new SeparatedListAdapter(this);
-        listView.setAdapter(adapter);
+        listView.setAdapter(new SeparatedListAdapter(this));
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
