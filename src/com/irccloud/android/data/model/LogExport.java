@@ -113,14 +113,14 @@ public class LogExport extends ObservableBaseModel {
         return expiryTime;
     }
 
+    private boolean downloadComplete;
+
     @Bindable
     public int getDownloadProgress() {
-        if(download_id > 0) {
+        if(download_id > 0 && !downloadComplete) {
             DownloadManager d = (DownloadManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
-            DownloadManager.Query q = new DownloadManager.Query();
-            q.setFilterById(download_id);
 
-            final Cursor downloadCursor = d.query(q);
+            final Cursor downloadCursor = d.query(new DownloadManager.Query().setFilterById(download_id));
             if(downloadCursor != null)
                 downloadCursor.registerContentObserver(new ContentObserver(null) {
                     @Override
@@ -137,9 +137,12 @@ public class LogExport extends ObservableBaseModel {
                     int downloaded = downloadCursor.getInt(downloadCursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
                     int total = downloadCursor.getInt(downloadCursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
                     return (int)(downloaded * 100.0f / total);
-                } else {
-                    download_id = 0;
-                    save();
+                } else  {
+                    downloadComplete = true;
+                    if (status == DownloadManager.STATUS_FAILED) {
+                        download_id = 0;
+                        save();
+                    }
                 }
             } else {
                 download_id = 0;

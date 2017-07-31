@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2015 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +14,11 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="com.irccloud.android"
-          android:installLocation="auto">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.irccloud.android"
+    android:installLocation="auto">
+
+    <uses-sdk tools:overrideLibrary="android.support.customtabs, com.datatheorem.android.trustkit, android.support.text.emoji, android.support.text.emoji.bundled" />
 
     <permission
         android:name="${applicationId}.permission.C2D_MESSAGE"
@@ -38,49 +39,70 @@
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="com.sonyericsson.extras.liveware.aef.EXTENSION_PERMISSION" />
-    <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="remove" />
+    <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY" />
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE"
+        tools:node="remove" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
     <supports-screens
-        android:resizeable="true"
         android:anyDensity="true"
         android:largeScreens="true"
         android:normalScreens="true"
+        android:resizeable="true"
         android:smallScreens="true"
         android:xlargeScreens="true" />
 
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
-
-    <uses-sdk tools:overrideLibrary="android.support.customtabs, com.datatheorem.android.trustkit, android.support.text.emoji, android.support.text.emoji.bundled"/>
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
 
     <application
         android:name=".IRCCloudApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:resizeableActivity="true"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:theme="@style/dawn" >
-        <meta-data android:name="com.samsung.android.sdk.multiwindow.enable" android:value="true" />
-        <meta-data android:name="com.samsung.android.sdk.multiwindow.multiinstance.enable" android:value="false" />
-        <meta-data android:name="com.sec.android.support.multiwindow" android:value="true"/>
-        <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W" android:value="320dp" />
-        <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:value="400dp" />
-        <meta-data android:name="com.lge.support.SPLIT_WINDOW" android:value="true"/>
-        <meta-data android:name="search-engine" android:resource="@xml/noindex"/>
-        <meta-data android:name="android.max_aspect" android:value="2.1" />
-        <meta-data android:name="android.webkit.WebView.EnableSafeBrowsing" android:value="true" />
+        android:resizeableActivity="true"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:theme="@style/dawn">
+        <meta-data
+            android:name="com.samsung.android.sdk.multiwindow.enable"
+            android:value="true" />
+        <meta-data
+            android:name="com.samsung.android.sdk.multiwindow.multiinstance.enable"
+            android:value="false" />
+        <meta-data
+            android:name="com.sec.android.support.multiwindow"
+            android:value="true" />
+        <meta-data
+            android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W"
+            android:value="320dp" />
+        <meta-data
+            android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
+            android:value="400dp" />
+        <meta-data
+            android:name="com.lge.support.SPLIT_WINDOW"
+            android:value="true" />
+        <meta-data
+            android:name="search-engine"
+            android:resource="@xml/noindex" />
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.1" />
+        <meta-data
+            android:name="android.webkit.WebView.EnableSafeBrowsing"
+            android:value="true" />
 
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:theme="@style/LaunchTheme" >
+            android:theme="@style/LaunchTheme"
+            android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
@@ -111,7 +133,9 @@
                     android:host="cid"
                     android:scheme="@string/IRCCLOUD_SCHEME" />
             </intent-filter>
-            <intent-filter android:label="@string/app_name" android:autoVerify="true">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="@string/app_name">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -133,8 +157,10 @@
             android:name=".activity.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/LoginTheme"
-            android:windowSoftInputMode="adjustResize" >
-            <intent-filter android:label="@string/app_name" android:autoVerify="true">
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="@string/app_name">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -145,7 +171,9 @@
                     android:path="/access-link"
                     android:scheme="@string/IRCCLOUD_SCHEME" />
             </intent-filter>
-            <intent-filter android:label="@string/app_name" android:autoVerify="true">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="@string/app_name">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -155,7 +183,9 @@
                     android:host="referral"
                     android:scheme="@string/IRCCLOUD_SCHEME" />
             </intent-filter>
-            <intent-filter android:label="@string/app_name" android:autoVerify="true">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="@string/app_name">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -169,15 +199,13 @@
         </activity>
         <activity
             android:name=".activity.EditConnectionActivity"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
-        <activity android:name=".activity.ServerReorderActivity" >
-        </activity>
+            android:windowSoftInputMode="adjustResize"></activity>
+        <activity android:name=".activity.ServerReorderActivity"></activity>
         <activity
             android:name=".activity.ImageViewerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_imageviewer"
-            android:theme="@style/ImageViewerTheme" >
+            android:theme="@style/ImageViewerTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -199,7 +227,7 @@
             android:name=".activity.VideoPlayerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_video_player"
-            android:theme="@style/ImageViewerTheme" >
+            android:theme="@style/ImageViewerTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -220,7 +248,7 @@
         <activity
             android:name=".activity.PastebinViewerActivity"
             android:label="@string/title_activity_pastebin"
-            android:theme="@style/dawnDialogWhenLarge" >
+            android:theme="@style/dawnDialogWhenLarge">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -229,7 +257,9 @@
 
                 <data android:scheme="@string/PASTE_SCHEME" />
             </intent-filter>
-            <intent-filter android:label="@string/app_name" android:autoVerify="true">
+            <intent-filter
+                android:autoVerify="true"
+                android:label="@string/app_name">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -269,17 +299,15 @@
         <activity
             android:name=".activity.UploadsActivity"
             android:label="@string/title_activity_uploads"
-            android:theme="@style/dawnDialogWhenLarge" >
-        </activity>
+            android:theme="@style/dawnDialogWhenLarge"></activity>
         <activity
             android:name=".activity.PastebinsActivity"
             android:label="@string/title_activity_pastebins"
-            android:theme="@style/dawnDialogWhenLarge" >
-        </activity>
+            android:theme="@style/dawnDialogWhenLarge"></activity>
         <activity
             android:name=".activity.LogExportsActivity"
             android:label="@string/title_activity_exports"
-            android:theme="@style/dawnDialogWhenLarge" >
+            android:theme="@style/dawnDialogWhenLarge">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -290,7 +318,7 @@
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
@@ -301,14 +329,14 @@
 
         <service
             android:name=".GCMService"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
         <service
             android:name=".GCMIDService"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
@@ -316,7 +344,7 @@
         <service
             android:name=".BackgroundTaskService"
             android:exported="true"
-            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE" >
+            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE">
             <intent-filter>
                 <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
             </intent-filter>
@@ -324,7 +352,7 @@
 
         <receiver
             android:name=".NotificationDismissBroadcastReceiver"
-            android:permission="${applicationId}.permission.BROADCAST" >
+            android:permission="${applicationId}.permission.BROADCAST">
             <intent-filter>
                 <action android:name="${applicationId}.DISMISS_NOTIFICATION" />
 
@@ -334,7 +362,7 @@
 
         <service android:name=".SonyExtensionService" />
 
-        <receiver android:name=".SonyExtensionReceiver" >
+        <receiver android:name=".SonyExtensionReceiver">
             <intent-filter>
 
                 <!-- Generic extension intents. -->
@@ -352,7 +380,7 @@
             android:name=".DashClock"
             android:icon="@drawable/ic_stat_notify"
             android:label="@string/app_name"
-            android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA" >
+            android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA">
             <intent-filter>
                 <action android:name="com.google.android.apps.dashclock.Extension" />
             </intent-filter>
@@ -382,29 +410,27 @@
             android:name=".activity.ImgurAuthActivity"
             android:label="@string/title_activity_imgur_auth"
             android:theme="@style/ImgurAuthTheme"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.SAMLAuthActivity"
             android:theme="@style/dawn"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.PastebinEditorActivity"
             android:theme="@style/dawnDialogWhenLarge"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -414,7 +440,7 @@
 
         <service
             android:name=".RemoteInputService"
-            android:permission="${applicationId}.permission.BROADCAST" >
+            android:permission="${applicationId}.permission.BROADCAST">
             <intent-filter>
                 <action android:name="${applicationId}.ACTION_REPLY" />
             </intent-filter>
@@ -423,7 +449,7 @@
         <activity
             android:name=".activity.ShareChooserActivity"
             android:excludeFromRecents="true"
-            android:theme="@style/dawnDialog" >
+            android:theme="@style/dawnDialog">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -431,13 +457,16 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="application/*" />
                 <data android:mimeType="audio/*" />
                 <data android:mimeType="image/*" />
                 <data android:mimeType="text/*" />
                 <data android:mimeType="video/*" />
             </intent-filter>
+
             <meta-data
                 android:name="android.service.chooser.chooser_target_service"
                 android:value=".ConversationChooserTargetService" />
@@ -448,8 +477,7 @@
             android:launchMode="singleInstance"
             android:taskAffinity=""
             android:theme="@style/dawnDialog"
-            android:windowSoftInputMode="stateVisible|adjustResize" >
-        </activity>
+            android:windowSoftInputMode="stateVisible|adjustResize"></activity>
 
         <meta-data
             android:name="com.google.android.gms.car.application"
@@ -463,18 +491,15 @@
         <receiver
             android:name=".SyncReceiver"
             android:enabled="true"
-            android:exported="false" >
-        </receiver>
+            android:exported="false"></receiver>
 
         <service
             android:name=".SyncService"
-            android:exported="false" >
-        </service>
-
+            android:exported="false"></service>
         <service
             android:name=".ConversationChooserTargetService"
-            android:label="@string/app_name"
             android:enabled="@bool/directShare"
+            android:label="@string/app_name"
             android:permission="android.permission.BIND_CHOOSER_TARGET_SERVICE">
             <intent-filter>
                 <action android:name="android.service.chooser.ChooserTargetService" />
@@ -488,12 +513,19 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
+                android:resource="@xml/file_paths" />
         </provider>
 
         <receiver
             android:name=".ChromeCopyLinkBroadcastReceiver"
-            android:enabled="true">
+            android:enabled="true"></receiver>
+        <receiver
+            android:name=".DownloadCompletedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
+            </intent-filter>
         </receiver>
     </application>
 

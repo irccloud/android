@@ -57,7 +57,13 @@ public class LogExportsList {
 
     public LogExport get(int id) {
         synchronized (dbLock) {
-            return new Select().from(LogExport.class).where(LogExport_Table.id.is(id)).orderBy(LogExport_Table.start_date, false).querySingle();
+            return new Select().from(LogExport.class).where(LogExport_Table.id.is(id)).querySingle();
+        }
+    }
+
+    public LogExport getDownload(long downloadid) {
+        synchronized (dbLock) {
+            return new Select().from(LogExport.class).where(LogExport_Table.download_id.is(downloadid)).querySingle();
         }
     }
 
