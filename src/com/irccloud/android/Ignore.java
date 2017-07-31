@@ -47,7 +47,7 @@ public class Ignore {
                 }
             }
         }
-        
+
         cache.put(usermask, false);
         return false;
     }

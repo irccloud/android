@@ -56,3 +56,7 @@
 -keepnames class * implements android.os.Parcelable {
     public static final ** CREATOR;
 }
+
+-keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }
+-keep class com.raizlabs.android.dbflow.** { *; }
+-keep class * extends com.raizlabs.android.dbflow.config.BaseDatabaseDefinition { *; }
