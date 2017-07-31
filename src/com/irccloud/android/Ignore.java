@@ -17,11 +17,14 @@
 package com.irccloud.android;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Ignore {
-    private ArrayList<String> ignores = new ArrayList<String>();
+    private ArrayList<String> ignores = new ArrayList<>();
+    private HashMap<String, Boolean> cache = new HashMap<>();
 
     public synchronized void setIgnores(ArrayList<String> ignores) {
+        cache.clear();
         if(ignores != null)
             this.ignores = new ArrayList<>(ignores);
         else
@@ -33,12 +36,19 @@ public class Ignore {
     }
 
     public synchronized boolean match(String usermask) {
+        if(cache.containsKey(usermask))
+            return cache.get(usermask);
+
         if (ignores != null && ignores.size() > 0) {
             for (String ignore : ignores) {
-                if (usermask.replace("!~", "!").toLowerCase().matches(ignore))
+                if (usermask.replace("!~", "!").toLowerCase().matches(ignore)) {
+                    cache.put(usermask, true);
                     return true;
+                }
             }
         }
+        
+        cache.put(usermask, false);
         return false;
     }
 }

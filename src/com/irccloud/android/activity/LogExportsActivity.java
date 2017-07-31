@@ -194,7 +194,7 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                     downloaded.add(e);
                 else
                     available.add(e);
-                
+
                 if(uriToDownload != null && uriToDownload.toString().equals(e.redirect_url)) {
                     uriToDownload = null;
 
