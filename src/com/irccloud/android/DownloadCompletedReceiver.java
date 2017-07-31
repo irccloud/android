@@ -34,6 +34,7 @@ import android.support.v4.app.NotificationManagerCompat;
 
 import com.irccloud.android.activity.LogExportsActivity;
 import com.irccloud.android.data.collection.LogExportsList;
+import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.LogExport;
 
 public class DownloadCompletedReceiver extends BroadcastReceiver {
@@ -49,23 +50,9 @@ public class DownloadCompletedReceiver extends BroadcastReceiver {
             if(c != null && c.moveToFirst()) {
                 int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
 
+                NotificationsList.getInstance().createChannel("export_complete", "Download Completed", NotificationManagerCompat.IMPORTANCE_DEFAULT, null);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
                 String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/" + R.raw.digit);
-
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    NotificationChannel ch = new NotificationChannel("export_complete", "Log Export Completed", NotificationManager.IMPORTANCE_LOW);
-                    if(ringtone.length() > 0)
-                        ch.setSound(Uri.parse(ringtone), new AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                                .build());
-                    ch.enableLights(true);
-                    int led_color = Integer.parseInt(prefs.getString("notify_led_color", "1"));
-                    if (led_color == 2) {
-                        ch.setLightColor(0xFF0000FF);
-                    }
-                    ch.enableVibration(prefs.getBoolean("notify_vibrate", true));
-                    ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(ch);
-                }
 
                 NotificationCompat.Builder notification = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), "export_complete")
                         .setContentTitle(e.file_name)

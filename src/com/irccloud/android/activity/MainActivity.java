@@ -20,6 +20,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -45,6 +47,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.media.AudioAttributes;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -5639,7 +5642,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             intentFilter.addAction(activity.getPackageName() + ".cancel_upload");
             IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(cancelListener, intentFilter);
 
-            notification = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel c = new NotificationChannel("upload_progress", "Upload Progress", NotificationManagerCompat.IMPORTANCE_LOW);
+                c.setSound(null, null);
+                c.setShowBadge(false);
+                ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(c);
+            }
+
+            notification = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), "upload_progress")
                     .setContentTitle("Uploading File")
                     .setContentText("Calculating size… • " + type)
                     .setProgress(0, 0, true)

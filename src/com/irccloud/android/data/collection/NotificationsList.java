@@ -465,12 +465,11 @@ public class NotificationsList {
         return false;
     }
 
-    @SuppressLint("NewApi")
-    private android.app.Notification buildNotification(String ticker, int cid, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, ArrayList<Notification> messages, NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
+    public void createChannel(String id, String title, int importance, String group) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/" + R.raw.digit);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel c = new NotificationChannel(String.valueOf(bid), title, NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel c = new NotificationChannel(id, title, importance);
             if(ringtone.length() > 0)
                 c.setSound(Uri.parse(ringtone), new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
@@ -481,9 +480,17 @@ public class NotificationsList {
                 c.setLightColor(0xFF0000FF);
             }
             c.enableVibration(prefs.getBoolean("notify_vibrate", true));
-            c.setGroup(String.valueOf(cid));
+            if(group != null)
+                c.setGroup(group);
             ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(c);
         }
+    }
+
+    @SuppressLint("NewApi")
+    private android.app.Notification buildNotification(String ticker, int cid, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, ArrayList<Notification> messages, NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
+        createChannel(String.valueOf(bid), title, NotificationManagerCompat.IMPORTANCE_HIGH, String.valueOf(cid));
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+        String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/" + R.raw.digit);
         int defaults = 0;
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(bid))
                 .setContentTitle(title + ((network != null && !network.equals(title)) ? (" (" + network + ")") : ""))
@@ -897,7 +904,8 @@ public class NotificationsList {
 
     public NotificationCompat.Builder alert(int bid, String title, String body) {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting alert notification");
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
+        createChannel("alert", "Alerts", NotificationManagerCompat.IMPORTANCE_DEFAULT, null);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), "alert")
                 .setContentTitle(title)
                 .setContentText(body)
                 .setTicker(body)
