@@ -219,9 +219,12 @@ public class LogExport extends ObservableBaseModel {
     public void clearCache() {
         expiryTime = null;
         getExpiryTime();
+        notifyPropertyChanged(BR.expiryTime);
         startTime = null;
         getStartTime();
+        notifyPropertyChanged(BR.startTime);
         filesize = null;
         getFileSize();
+        notifyPropertyChanged(BR.fileSize);
     }
 }

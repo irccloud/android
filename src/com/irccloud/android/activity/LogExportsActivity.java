@@ -66,6 +66,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class LogExportsActivity extends BaseActivity implements NetworkConnection.IRCEventHandler {
     private LogExportsAdapter inProgressAdapter = new LogExportsAdapter();
@@ -380,11 +382,41 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
         registerReceiver(downloadComplete, intentFilter);
     }
 
+    private TimerTask updateTimerTask;
     @Override
     public void onResume() {
         super.onResume();
         new RefreshTask().execute((Void)null);
         new FetchExportsTask().execute((Void)null);
+
+        updateTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if(inProgressAdapter != null) {
+                    for(LogExport e : inProgressAdapter.exports) {
+                        e.clearCache();
+                    }
+                }
+                if(downloadedAdapter != null) {
+                    for(LogExport e : downloadedAdapter.exports) {
+                        e.clearCache();
+                    }
+                }
+                if(availableAdapter != null) {
+                    for(LogExport e : availableAdapter.exports) {
+                        e.clearCache();
+                    }
+                }
+            }
+        };
+
+        new Timer().scheduleAtFixedRate(updateTimerTask, 30000, 30000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        updateTimerTask.cancel();
     }
 
     @Override
