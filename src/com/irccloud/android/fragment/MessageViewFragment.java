@@ -1416,7 +1416,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         currentCollapsedEid = -1;
         lastCollapsedDay = -1;
         if (server != null) {
-            ignore.setIgnores(server.ignores);
+            ignore = server.ignores;
             if (server.getAway() != null && server.getAway().length() > 0) {
                 awayTxt.setText(ColorFormatter.strip("Away (" + server.getAway() + ")"));
                 awayView.setVisibility(View.VISIBLE);
@@ -2436,9 +2436,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 });
             } else if (events.size() > 0) {
                 if (server != null) {
-                    ignore.setIgnores(server.ignores);
+                    ignore = server.ignores;
                 } else {
-                    ignore.setIgnores(null);
+                    ignore = new Ignore();
                 }
                 collapsedEvents.setServer(server);
                 earliest_eid = events.firstKey();

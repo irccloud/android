@@ -31,6 +31,11 @@ public class Ignore {
             this.ignores = new ArrayList<>();
     }
 
+    public synchronized void clear() {
+        cache.clear();
+        ignores.clear();
+    }
+
     public synchronized void addMask(String usermask) {
         ignores.add(usermask);
     }

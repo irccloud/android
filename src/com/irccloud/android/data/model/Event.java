@@ -230,10 +230,9 @@ public class Event /*extends ObservableBaseModel*/ {
             return false;
         }
 
-        Ignore ignore = new Ignore();
         Server s = ServersList.getInstance().getServer(cid);
         if (s != null) {
-            ignore.setIgnores(s.ignores);
+            Ignore ignore = s.ignores;
             String from = this.from;
             if (from == null || from.length() == 0)
                 from = this.nick;

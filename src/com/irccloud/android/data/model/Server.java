@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.FontAwesome;
+import com.irccloud.android.Ignore;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 
@@ -109,7 +110,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     private String server_pass;
     private String nickserv_pass;
     private String join_commands;
-    public ArrayList<String> ignores;
+    public Ignore ignores = new Ignore();
     public int deferred_archives;
 
     @Override
@@ -330,7 +331,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
 
     public void updateIgnores(JsonNode ignores) {
         this.raw_ignores = ignores;
-        this.ignores = new ArrayList<>();
+        this.ignores.clear();
         if(ignores != null) {
             for (int i = 0; i < ignores.size(); i++) {
                 String mask = ignores.get(i).asText().toLowerCase()
@@ -364,7 +365,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
                         mask += "@.*";
                 if (mask.equals(".*!.*@.*"))
                     continue;
-                this.ignores.add(mask);
+                this.ignores.addMask(mask);
             }
         }
     }
