@@ -3313,6 +3313,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private final int REQUEST_PASTEBIN = 5;
 
     public static Uri makeTempCopy(Uri fileUri, Context context) {
+        if(fileUri == null)
+            return null;
+
         String original_filename;
 
         if (Build.VERSION.SDK_INT < 16) {
@@ -3341,6 +3344,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     public static Uri makeTempCopy(Uri fileUri, Context context, String original_filename) {
+        if(fileUri == null)
+            return null;
+
         if(fileUri.toString().contains(context.getCacheDir().getAbsolutePath()))
             return fileUri;
 

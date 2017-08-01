@@ -115,7 +115,9 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
                 buffersList.setVisibility(View.VISIBLE);
             }
             if(getIntent() != null && getIntent().hasExtra(Intent.EXTRA_STREAM)) {
-                mUri = MainActivity.makeTempCopy((Uri)getIntent().getParcelableExtra(Intent.EXTRA_STREAM), this);
+                mUri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+                if(mUri != null)
+                    mUri = MainActivity.makeTempCopy(mUri, this);
             } else {
                 mUri = null;
             }
