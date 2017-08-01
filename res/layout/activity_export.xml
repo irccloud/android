@@ -16,34 +16,32 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="?dialogBackgroundColor"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
-        android:visibility="gone"
         android:id="@+id/toolbar"
-        android:background="?navBarColor"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize" />
+        android:layout_height="?attr/actionBarSize"
+        android:background="?navBarColor"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/textPrompt"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="6dp"
+        android:layout_marginTop="6dp"
         android:text="Which logs would you like to download?"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?messageTextColor"
-        android:layout_marginTop="6dp"
-        android:layout_marginLeft="6dp"
-        />
+        android:textColor="?messageTextColor" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="6dp"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="6dp">
 
         <Spinner
             android:id="@+id/exportType"
@@ -60,11 +58,20 @@
             android:text="Export" />
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:padding="4dp" />
+
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:cacheColorHint="?contentBackgroundColor"
         android:divider="?contentBackgroundColor"
-        android:padding="4dp" />
+        android:padding="4dp"
+        android:visibility="gone" />
 </LinearLayout>

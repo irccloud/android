@@ -45,6 +45,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -163,6 +165,8 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
             if (jsonObject != null) {
                 LogExportsList.getInstance().update(jsonObject);
                 new RefreshTask().execute((Void)null);
+            } else {
+                findViewById(R.id.progress).setVisibility(View.GONE);
             }
         }
     }
@@ -222,6 +226,10 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
             if(availableAdapter.getCount() > 0)
                 adapter.addSection("Available", availableAdapter);
 
+            if(adapter.getCount() > 0) {
+                findViewById(R.id.progress).setVisibility(View.GONE);
+                findViewById(android.R.id.list).setVisibility(View.VISIBLE);
+            }
             ((ListView)findViewById(android.R.id.list)).setAdapter(adapter);
         }
     }
@@ -314,14 +322,17 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                     case 0:
                         requestCid = cid;
                         requestBid = bid;
+                        Answers.getInstance().logCustom(new CustomEvent("export_logs").putCustomAttribute("type", "buffer"));
                         break;
                     case 1:
                         requestCid = cid;
                         requestBid = -1;
+                        Answers.getInstance().logCustom(new CustomEvent("export_logs").putCustomAttribute("type", "network"));
                         break;
                     case 2:
                         requestCid = -1;
                         requestBid = -1;
+                        Answers.getInstance().logCustom(new CustomEvent("export_logs").putCustomAttribute("type", "all"));
                         break;
                 }
 

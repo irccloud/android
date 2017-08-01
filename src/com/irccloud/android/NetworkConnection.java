@@ -43,6 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.collection.ImageList;
+import com.irccloud.android.data.collection.LogExportsList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.RecentConversationsList;
 import com.irccloud.android.data.model.Buffer;
@@ -1440,6 +1441,8 @@ public class NetworkConnection {
         userInfo = null;
         session = null;
         ImageList.getInstance().purge();
+        RecentConversationsList.getInstance().clear();
+        LogExportsList.getInstance().clear();
         save(100);
     }
 
