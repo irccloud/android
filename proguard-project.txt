@@ -15,12 +15,14 @@
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:
--keepclassmembers class com.irccloud.android.activity.ImageViewerActivity.JSInterface {
-   public *;
-}
--keepclassmembers class com.irccloud.android.activity.PastebinViewerActivity.JSInterface {
-   public *;
-}
+-dontobfuscate
+-dontnote com.google.android.gms.**
+-dontnote com.google.ads.**
+-dontnote com.mobeta.android.dslv.**
+-dontnote com.codebutler.**
+-dontnote com.sonyericsson.**
+-dontnote com.samsung.**
+-dontnote com.google.android.apps.dashclock.**
 -dontwarn sun.misc.Unsafe
 -keep public class com.google.common.**
 -keep class com.irccloud.**
@@ -32,8 +34,7 @@
 -keep class com.google.android.gms.ads.identifier.** { *; }
 -dontwarn com.android.vending.billing.**
 -dontwarn java.beans.**
--dontobfuscate
--dontwarn android.databinding.**
+-keep class android.databinding.**
 -dontwarn com.squareup.**
 -keep public class android.support.v7.preference.Preference { *; }
 -keep public class * extends android.support.v7.preference.Preference { *; }
@@ -41,7 +42,7 @@
 -dontwarn java.nio.**
 #Play Services
 -keep class * extends java.util.ListResourceBundle {
-    protected Object[][] getContents();
+    protected java.lang.Object[][] getContents();
 }
 
 -keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
@@ -59,4 +60,3 @@
 
 -keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }
 -keep class com.raizlabs.android.dbflow.** { *; }
--keep class * extends com.raizlabs.android.dbflow.config.BaseDatabaseDefinition { *; }
