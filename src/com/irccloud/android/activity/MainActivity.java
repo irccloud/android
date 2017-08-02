@@ -3884,16 +3884,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(this, R.mipmap.ic_launcher));
                         intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
                         sendBroadcast(intent);
-                        moveTaskToBack(true);
                     } else {
                         ShortcutManager mShortcutManager = getSystemService(ShortcutManager.class);
 
                         if (mShortcutManager.isRequestPinShortcutSupported()) {
                             Icon icon = null;
                             if(buffer.isChannel()) {
-                                icon = Icon.createWithBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, 320, false));
+                                icon = Icon.createWithAdaptiveBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, getResources().getDisplayMetrics()), false));
                             } else if(buffer.isConversation()) {
-                                icon = Icon.createWithBitmap(AvatarsList.getInstance().getAvatar(buffer.getCid(), buffer.getName()).getBitmap(ColorScheme.getInstance().isDarkTheme, 320));
+                                icon = Icon.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(buffer.getCid(), buffer.getName()).getBitmap(false, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, getResources().getDisplayMetrics()), false, false));
                             }
                             ShortcutInfo pinShortcutInfo = new ShortcutInfo.Builder(this, String.valueOf(buffer.getBid()))
                                     .setIntent(shortcutIntent)
@@ -3905,6 +3904,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             mShortcutManager.requestPinShortcut(pinShortcutInfo, null);
                         }
                     }
+                    moveTaskToBack(true);
                 } catch (Exception e) {
                     NetworkConnection.printStackTraceToCrashlytics(e);
                 }

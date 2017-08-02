@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.service.chooser.ChooserTarget;
 import android.service.chooser.ChooserTargetService;
+import android.util.TypedValue;
 
 import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.data.collection.AvatarsList;
@@ -38,7 +39,9 @@ import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.M)
 public class ConversationChooserTargetService extends ChooserTargetService {
-    private static final Icon channelIcon = Icon.createWithBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, 320, false));
+    private static final Icon channelIcon = Build.VERSION.SDK_INT < Build.VERSION_CODES.O ?
+            Icon.createWithBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false)) :
+            Icon.createWithAdaptiveBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false));
 
     @Override
     public List<ChooserTarget> onGetChooserTargets(ComponentName componentName, IntentFilter intentFilter) {
@@ -53,7 +56,12 @@ public class ConversationChooserTargetService extends ChooserTargetService {
             }
             Bundle extras = new Bundle();
             extras.putInt("bid", c.bid);
-            targets.add(new ChooserTarget(c.name, c.type.equals("channel")?channelIcon:Icon.createWithBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name).getBitmap(false, 320)), 0.5f, cn, extras));
+            targets.add(new ChooserTarget(c.name, c.type.equals("channel")?
+                    channelIcon:
+                    (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ?
+                            Icon.createWithBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name).getBitmap(false, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()))) :
+                            Icon.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name).getBitmap(false, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false))
+                    ), 0.5f, cn, extras));
         }
 
         return targets;
