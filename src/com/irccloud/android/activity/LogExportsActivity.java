@@ -275,15 +275,17 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
 
         if(cid > 0) {
             Buffer b = BuffersList.getInstance().getBuffer(bid);
-            Server s = b.getServer();
-            if(b.isChannel())
-                types[0] = "This Channel (" + b.getName() + ")";
-            else if(b.isConversation())
-                types[0] = "This Conversation (" + b.getName() + ")";
-            else
-                types[0] = "This Network Console (" + s.getHostname() + ")";
+            if(b != null) {
+                Server s = b.getServer();
+                if (b.isChannel())
+                    types[0] = "This Channel (" + b.getName() + ")";
+                else if (b.isConversation())
+                    types[0] = "This Conversation (" + b.getName() + ")";
+                else
+                    types[0] = "This Network Console (" + s.getHostname() + ")";
 
-            types[1] = "This Network (" + ((s.getName() != null && s.getName().length() > 0)?s.getName():s.getHostname()) + ")";
+                types[1] = "This Network (" + ((s.getName() != null && s.getName().length() > 0) ? s.getName() : s.getHostname()) + ")";
+            }
         } else {
             findViewById(R.id.textPrompt).setVisibility(View.GONE);
             findViewById(R.id.exportType).setVisibility(View.GONE);

@@ -1761,8 +1761,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 excludeBIDTask.cancel(true);
         } catch (Exception e) {
         }
-        excludeBIDTask = new ExcludeBIDTask();
-        excludeBIDTask.execute(-1);
+        ExcludeBIDTask t = new ExcludeBIDTask();
+        t.execute(-1);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
             try {
                 unbindService(mCustomTabsConnection);
