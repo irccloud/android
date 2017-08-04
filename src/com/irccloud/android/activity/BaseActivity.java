@@ -364,7 +364,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         keyinput.setTag(dialog);
                         dialog.setOwnerActivity(BaseActivity.this);
                         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                        dialog.show();
+                        if(!isFinishing())
+                            dialog.show();
                     }
                 });
                 break;
@@ -431,7 +432,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         nickinput.setTag(dialog);
                         dialog.setOwnerActivity(BaseActivity.this);
                         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                        dialog.show();
+                        if(!isFinishing())
+                            dialog.show();
                     }
                 });
                 break;
@@ -544,7 +546,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             }
                         }
                     });
-                    if(!BaseActivity.this.isFinishing()) {
+                    if(!isFinishing()) {
                         AlertDialog dialog = builder.create();
                         dialog.setOwnerActivity(BaseActivity.this);
                         dialog.show();
@@ -616,7 +618,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 });
                 AlertDialog dialog = builder.create();
                 dialog.setOwnerActivity(this);
-                dialog.show();
+                if(!isFinishing())
+                    dialog.show();
                 break;
             case R.id.menu_settings:
                 Intent i = new Intent(this, PreferencesActivity.class);

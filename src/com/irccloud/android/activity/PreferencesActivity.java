@@ -853,7 +853,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 }
             });
             AlertDialog d = builder.create();
-            d.setOwnerActivity(PreferencesActivity.this);
+            if(!isFinishing())
+                d.setOwnerActivity(PreferencesActivity.this);
             d.show();
             return false;
         }
@@ -1024,7 +1025,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             builder.setNegativeButton("Cancel", null);
             builder.setView(v);
 
-            builder.show();
+            if(!isFinishing())
+                builder.show();
             return false;
         }
     };
@@ -1129,7 +1131,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 });
                 builder.setNegativeButton("Cancel", null);
 
-                builder.show();
+                if(!isFinishing())
+                    builder.show();
                 return false;
             }
         }
@@ -1218,7 +1221,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             builder.setNegativeButton("Cancel", null);
             builder.setView(v);
 
-            builder.show();
+            if(!isFinishing())
+                builder.show();
             return false;
         }
     };
@@ -1311,7 +1315,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(0xFFFF0000);
                 }
             });
-            dialog.show();
+            if(!isFinishing())
+                dialog.show();
             return false;
         }
     };

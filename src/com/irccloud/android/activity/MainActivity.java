@@ -2751,7 +2751,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             } else {
                                 channelsListDialog.setTitle(dialogtitle);
                             }
-                            channelsListDialog.show();
+                            if(!isFinishing())
+                                channelsListDialog.show();
                             ChannelListFragment channels = (ChannelListFragment) getSupportFragmentManager().findFragmentById(R.id.channelListFragment);
                             Bundle args = new Bundle();
                             args.putInt("cid", event.cid());
@@ -5502,7 +5503,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 });
                                 AlertDialog dialog = builder.create();
                                 dialog.setOwnerActivity(activity);
-                                dialog.show();
+                                if(!activity.isFinishing())
+                                    dialog.show();
                             }
                         }
                     });
@@ -5793,7 +5795,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     fileinput.setTag(metadataDialog);
                     metadataDialog.setOwnerActivity(activity);
                     metadataDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                    metadataDialog.show();
+                    if(!activity.isFinishing())
+                        metadataDialog.show();
                 }
             });
         }
@@ -6160,7 +6163,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 });
                 AlertDialog dialog = builder.create();
                 dialog.setOwnerActivity(activity);
-                dialog.show();
+                if(!activity.isFinishing())
+                    dialog.show();
 
                 metadataDialog.dismiss();
             } catch (Exception e) {

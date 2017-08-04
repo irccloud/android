@@ -352,7 +352,8 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                             }
                         })
                         .create();
-                d.show();
+                if(!isFinishing())
+                    d.show();
                 return true;
             }
         });

@@ -350,7 +350,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 });
                 AlertDialog d = builder.create();
                 d.setOwnerActivity(PastebinViewerActivity.this);
-                d.show();
+                if(!isFinishing())
+                    d.show();
             }
         } else if(item.getItemId() == R.id.action_linenumbers) {
             item.setChecked(!item.isChecked());

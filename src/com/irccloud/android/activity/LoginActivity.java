@@ -924,10 +924,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 });
                 AlertDialog dialog = builder.create();
                 dialog.setOwnerActivity(LoginActivity.this);
-                try {
+                if(!isFinishing())
                     dialog.show();
-                } catch (WindowManager.BadTokenException e) {
-                }
             }
         }
     }
@@ -1039,10 +1037,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 });
                 AlertDialog dialog = builder.create();
                 dialog.setOwnerActivity(LoginActivity.this);
-                try {
+                if(!isFinishing())
                     dialog.show();
-                } catch (WindowManager.BadTokenException e) {
-                }
             }
         }
     }
@@ -1085,10 +1081,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     });
                     AlertDialog dialog = builder.create();
                     dialog.setOwnerActivity(LoginActivity.this);
-                    try {
+                    if(!isFinishing())
                         dialog.show();
-                    } catch (WindowManager.BadTokenException e) {
-                    }
                     return;
                 }
             } catch (JSONException e) {
@@ -1104,10 +1098,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             });
             AlertDialog dialog = builder.create();
             dialog.setOwnerActivity(LoginActivity.this);
-            try {
+            if(!isFinishing())
                 dialog.show();
-            } catch (WindowManager.BadTokenException e) {
-            }
         }
     }
 
@@ -1200,10 +1192,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             });
             AlertDialog dialog = builder.create();
             dialog.setOwnerActivity(LoginActivity.this);
-            try {
+            if(!isFinishing())
                 dialog.show();
-            } catch (WindowManager.BadTokenException e) {
-            }
         }
     }
 }

@@ -129,7 +129,8 @@ public class PastebinsActivity extends BaseActivity {
                                         builder.setTitle("Error");
                                         builder.setMessage("Unable to delete this snippet.  Please try again shortly.");
                                         builder.setPositiveButton("Close", null);
-                                        builder.show();
+                                        if(!isFinishing())
+                                            builder.show();
                                     }
                                 });
                             }
@@ -146,7 +147,8 @@ public class PastebinsActivity extends BaseActivity {
                 });
                 AlertDialog d = builder.create();
                 d.setOwnerActivity(PastebinsActivity.this);
-                d.show();
+                if(!isFinishing())
+                    d.show();
             }
         };
 
