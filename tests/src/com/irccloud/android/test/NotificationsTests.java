@@ -29,7 +29,7 @@ public class NotificationsTests extends AndroidTestCase {
 	public void testAdd() {
 		BuffersList b = BuffersList.getInstance();
 		b.clear();
-		b.createBuffer(1, 1, 1, 1, "sam", "conversation", 0, 0, 0);
+		b.createBuffer(1, 1, 1, 1, "sam", "conversation", 0, 0, 0, 0);
 
 		NotificationsList n = NotificationsList.getInstance();
 		n.clear();
@@ -58,7 +58,7 @@ public class NotificationsTests extends AndroidTestCase {
 	public void testEidUpdate() {
 		BuffersList b = BuffersList.getInstance();
 		b.clear();
-		b.createBuffer(1, 1, 1, 1, "sam", "conversation", 0, 0, 0);
+		b.createBuffer(1, 1, 1, 1, "sam", "conversation", 0, 0, 0, 0);
 
 		NotificationsList n = NotificationsList.getInstance();
 		n.clear();
@@ -89,7 +89,7 @@ public class NotificationsTests extends AndroidTestCase {
 	public void testDismiss() {
 		BuffersList b = BuffersList.getInstance();
 		b.clear();
-		b.createBuffer(1, 1, 1, 1, "sam", "conversation", 0, 0, 0);
+		b.createBuffer(1, 1, 1, 1, "sam", "conversation", 0, 0, 0, 0);
 
 		NotificationsList n = NotificationsList.getInstance();
 		n.clear();

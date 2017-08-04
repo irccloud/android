@@ -1899,6 +1899,19 @@ public class ColorFormatter {
                             output.setSpan(new LargeSpan(), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
+                } else if(tag.equals("pre")) {
+                    if (opening) {
+                        output.setSpan(new TypefaceSpan(Hack), len, len, Spannable.SPAN_MARK_MARK);
+                    } else {
+                        Object obj = getLast(output, TypefaceSpan.class);
+                        int where = output.getSpanStart(obj);
+
+                        output.removeSpan(obj);
+
+                        if (where != len) {
+                            output.setSpan(new TypefaceSpan(Hack), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                    }
                 }
             }
 
@@ -2136,6 +2149,9 @@ public class ColorFormatter {
         if(sourceSansPro == null)
             sourceSansPro = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansproregular);
 
+        if(Hack == null)
+            Hack = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.hackregular);
+
         for(int i = 0; i < output.length(); i++) {
             if(i < output.length() - 1 && (output.charAt(i) == '←' || output.charAt(i) == '→' || output.charAt(i) == '⇐' || output.charAt(i) == '↔' || output.charAt(i) == '↮') && output.charAt(i+1) != 0xFE0F) {
                 output.setSpan(new TypefaceSpan(sourceSansPro), i, i+1, 0);
@@ -2157,6 +2173,7 @@ public class ColorFormatter {
     }
 
     private static Typeface sourceSansPro;
+    private static Typeface Hack;
     private static class TypefaceSpan extends CharacterStyle {
         private Typeface typeFace;
 
@@ -2165,8 +2182,23 @@ public class ColorFormatter {
         }
 
         @Override
-        public void updateDrawState(TextPaint textPaint) {
-            textPaint.setTypeface(typeFace);
+        public void updateDrawState(TextPaint paint) {
+            int oldStyle;
+            Typeface old = paint.getTypeface();
+            if (old == null) {
+                oldStyle = 0;
+            } else {
+                oldStyle = old.getStyle();
+            }
+
+            int fake = oldStyle & ~typeFace.getStyle();
+            if ((fake & Typeface.BOLD) != 0) {
+                paint.setFakeBoldText(true);
+            }
+            if ((fake & Typeface.ITALIC) != 0) {
+                paint.setTextSkewX(-0.25f);
+            }
+            paint.setTypeface(typeFace);
         }
     }
 
@@ -2202,133 +2234,117 @@ public class ColorFormatter {
         }
     }
 
+    private static String closeTags(boolean bold, boolean underline, boolean italics, String fg, String bg) {
+        StringBuilder builder = new StringBuilder();
+
+        if (fg.length() > 0) {
+            builder.append("</font>");
+        }
+        if (bg.length() > 0) {
+            builder.append("</_bg").append(bg).append(">");
+        }
+        if (bold) {
+            builder.append("</b>");
+        }
+        if (underline) {
+            builder.append("</u>");
+        }
+        if (italics) {
+            builder.append("</i>");
+        }
+
+        return builder.toString();
+    }
+
+    private static String openTags(boolean bold, boolean underline, boolean italics, String fg, String bg) {
+        StringBuilder builder = new StringBuilder();
+
+        if (fg.length() > 0) {
+            builder.append("<font color=\"#").append(fg).append("\">");
+        }
+        if (bg.length() > 0) {
+            builder.append("<_bg").append(bg).append(">");
+        }
+        if (bold) {
+            builder.append("<b>");
+        }
+        if (underline) {
+            builder.append("<u>");
+        }
+        if (italics) {
+            builder.append("<i>");
+        }
+
+        return builder.toString();
+    }
+
     public static String irc_to_html(String msg) {
         if (msg == null)
             return "";
 
         int pos = 0;
-        boolean bold = false, underline = false, italics = false;
+        boolean bold = false, underline = false, italics = false, monospace = false;
         String fg = "", bg = "";
         StringBuilder builder = new StringBuilder(msg);
+        builder.append((char)0x0f);
         builder.insert(0, "<irc>");
 
         while (pos < builder.length()) {
-            if (builder.charAt(pos) == 2) { //Bold
-                String html = "";
-                if (bold) {
-                    html += "</b>";
-                    if (fg.length() > 0) {
-                        html += "</font>";
-                    }
-                    if (bg.length() > 0) {
-                        html += "</_bg" + bg + ">";
-                    }
-                    if (italics)
-                        html += "</i>";
-                    if (underline)
-                        html += "</u>";
-                    if (fg.length() > 0) {
-                        html += "<font color=\"#" + fg + "\">";
-                    }
-                    if (bg.length() > 0) {
-                        html += "<_bg" + bg + ">";
-                    }
-                    if (italics)
-                        html += "<i>";
-                    if (underline)
-                        html += "<u>";
-                } else {
-                    html += "<b>";
-                }
+            if (builder.charAt(pos) == 0x02) { //Bold
+                builder.deleteCharAt(pos);
+                String html = closeTags(bold, underline, italics, fg, bg);
+                builder.insert(pos, html);
+                pos += html.length();
                 bold = !bold;
+                builder.insert(pos, openTags(bold, underline, italics, fg, bg));
+            } else if (builder.charAt(pos) == 0x1d) { //Italics
                 builder.deleteCharAt(pos);
+                String html = closeTags(bold, underline, italics, fg, bg);
                 builder.insert(pos, html);
-            } else if (builder.charAt(pos) == 22 || builder.charAt(pos) == 29) { //Italics
-                String html = "";
-                if (italics) {
-                    html += "</i>";
-                    if (fg.length() > 0) {
-                        html += "</font>";
-                    }
-                    if (bg.length() > 0) {
-                        html += "</_bg" + bg + ">";
-                    }
-                    if (bold)
-                        html += "</b>";
-                    if (underline)
-                        html += "</u>";
-                    if (fg.length() > 0) {
-                        html += "<font color=\"#" + fg + "\">";
-                    }
-                    if (bg.length() > 0) {
-                        html += "<_bg" + bg + ">";
-                    }
-                    if (bold)
-                        html += "<b>";
-                    if (underline)
-                        html += "<u>";
-                } else {
-                    html += "<i>";
-                }
+                pos += html.length();
                 italics = !italics;
+                builder.insert(pos, openTags(bold, underline, italics, fg, bg));
+            } else if (builder.charAt(pos) == 0x1f) { //Underline
                 builder.deleteCharAt(pos);
+                String html = closeTags(bold, underline, italics, fg, bg);
                 builder.insert(pos, html);
-            } else if (builder.charAt(pos) == 31) { //Underline
-                String html = "";
-                if (underline) {
-                    html += "</u>";
-                    if (fg.length() > 0) {
-                        html += "</font>";
-                    }
-                    if (bg.length() > 0) {
-                        html += "</_bg" + bg + ">";
-                    }
-                    if (bold)
-                        html += "</b>";
-                    if (italics)
-                        html += "</i>";
-                    if (fg.length() > 0) {
-                        html += "<font color=\"#" + fg + "\">";
-                    }
-                    if (bg.length() > 0) {
-                        html += "<_bg" + bg + ">";
-                    }
-                    if (bold)
-                        html += "<b>";
-                    if (italics)
-                        html += "<i>";
-                } else {
-                    html += "<u>";
-                }
+                pos += html.length();
                 underline = !underline;
+                builder.insert(pos, openTags(bold, underline, italics, fg, bg));
+            } else if (builder.charAt(pos) == 0x12 || builder.charAt(pos) == 0x16) { //Reverse
+                builder.deleteCharAt(pos);
+                String html = closeTags(bold, underline, italics, fg, bg);
+                builder.insert(pos, html);
+                pos += html.length();
+                String oldFg = fg;
+                fg = bg;
+                bg = oldFg;
+
+                if(fg.length() == 0)
+                    fg = COLOR_MAP[ColorScheme.getInstance().isDarkTheme ? 1 : 0];
+
+                if(bg.length() == 0)
+                    bg = COLOR_MAP[ColorScheme.getInstance().isDarkTheme ? 0 : 1];
+                builder.insert(pos, openTags(bold, underline, italics, fg, bg));
+            } else if (builder.charAt(pos) == 0x11) { //Monospace
+                String html = closeTags(bold, underline, italics, fg, bg);
+                if (monospace) {
+                    html += "</pre>";
+                } else {
+                    html += "<pre>";
+                }
+                html += openTags(bold, underline, italics, fg, bg);
+                monospace = !monospace;
                 builder.deleteCharAt(pos);
                 builder.insert(pos, html);
-            } else if (builder.charAt(pos) == 15) { //Formatting clear
-                String html = "";
-                if (fg.length() > 0) {
-                    html += "</font>";
-                    fg = "";
-                }
-                if (bg.length() > 0) {
-                    html += "</_bg" + bg + ">";
-                    bg = "";
-                }
-                if (bold) {
-                    html += "</b>";
-                    bold = false;
-                }
-                if (underline) {
-                    html += "</u>";
-                    underline = false;
-                }
-                if (italics) {
-                    html += "</i>";
-                    italics = false;
-                }
+            } else if (builder.charAt(pos) == 0x0f) { //Formatting clear
                 builder.deleteCharAt(pos);
-                if (html.length() > 0)
-                    builder.insert(pos, html);
-            } else if (builder.charAt(pos) == 3 || builder.charAt(pos) == 4) { //Color
+                if(monospace)
+                    builder.insert(pos, "</pre>");
+                builder.insert(pos, closeTags(bold, underline, italics, fg, bg));
+                bold = underline = italics = monospace = false;
+                fg = bg = "";
+            } else if (builder.charAt(pos) == 0x03 || builder.charAt(pos) == 0x04) { //Color
                 boolean rgb = (builder.charAt(pos) == 4);
                 int count = 0;
                 String new_fg = "", new_bg = "";
@@ -2469,18 +2485,6 @@ public class ColorFormatter {
                 pos++;
             }
         }
-        if (fg.length() > 0) {
-            builder.append("</font>");
-        }
-        if (bg.length() > 0) {
-            builder.append("</_bg").append(bg).append(">");
-        }
-        if (bold)
-            builder.append("</b>");
-        if (underline)
-            builder.append("</u>");
-        if (italics)
-            builder.append("</i>");
 
         builder.append("</irc>");
         return builder.toString();

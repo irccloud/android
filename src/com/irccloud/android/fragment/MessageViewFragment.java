@@ -774,7 +774,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.message.setMovementMethod(linkMovementMethodNoLongPress);
                     holder.message.setOnClickListener(new OnItemClickListener(position));
                     holder.message.setOnLongClickListener(new OnItemLongClickListener(position));
-                    if (mono || (e.msg != null && e.msg.startsWith("<pre>"))) {
+                    if (mono) {
                         holder.message.setTypeface(hackRegular);
                     } else {
                         holder.message.setTypeface(Typeface.DEFAULT);

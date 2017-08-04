@@ -31,8 +31,7 @@ public class IgnoreTests extends AndroidTestCase {
 		ignores.add("*!users.1@host.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
 
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -50,8 +49,7 @@ public class IgnoreTests extends AndroidTestCase {
 		ignores.add("*!username@host.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
 
-        Ignore ignore = new Ignore();
-        ignore.setIgnores(s.ignores);
+		Ignore ignore = s.ignores;
 
 		assertEquals(false, ignore.match("sam!users.1@host.local"));
 		assertEquals(false, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -69,8 +67,7 @@ public class IgnoreTests extends AndroidTestCase {
         ignores.add("*!~username@host.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
 
-        Ignore ignore = new Ignore();
-        ignore.setIgnores(s.ignores);
+		Ignore ignore = s.ignores;
 
 		assertEquals(false, ignore.match("sam!users.1@host.local"));
 		assertEquals(false, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -88,8 +85,7 @@ public class IgnoreTests extends AndroidTestCase {
 		ignores.add("sam!users.1@*");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
 
-        Ignore ignore = new Ignore();
-        ignore.setIgnores(s.ignores);
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -107,8 +103,7 @@ public class IgnoreTests extends AndroidTestCase {
 		ignores.add("host.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
 
-        Ignore ignore = new Ignore();
-        ignore.setIgnores(s.ignores);
+		Ignore ignore = s.ignores;
 
 		assertEquals(false, ignore.match("sam!users.1@host.local"));
 		assertEquals(false, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -126,8 +121,7 @@ public class IgnoreTests extends AndroidTestCase {
 		ignores.add("*sam!*users.1@*.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
 
-        Ignore ignore = new Ignore();
-        ignore.setIgnores(s.ignores);
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -145,8 +139,7 @@ public class IgnoreTests extends AndroidTestCase {
 		ignores.add("*a*!*users.1@*.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
 
-        Ignore ignore = new Ignore();
-        ignore.setIgnores(s.ignores);
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -164,8 +157,7 @@ public class IgnoreTests extends AndroidTestCase {
 		ignores.add("*!*users.1@*.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
 
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -182,9 +174,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!user*@*.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -201,9 +192,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*@host.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -220,9 +210,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*@host.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -239,9 +228,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -258,9 +246,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!users.1@host.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -277,9 +264,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("Sam!Users.1@HOST.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -296,9 +282,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!users.1@*");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -315,9 +300,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*@host.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -334,9 +318,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!host.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -353,9 +336,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -372,9 +354,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*o*.local");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -391,9 +372,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!host.*");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -410,9 +390,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*@*");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -429,9 +408,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(true, ignore.match("sam!users.1@host.local"));
 		assertEquals(true, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -448,9 +426,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!~username");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(false, ignore.match("sam!users.1@host.local"));
 		assertEquals(false, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -467,9 +444,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*@*");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(false, ignore.match("sam!users.1@host.local"));
 		assertEquals(false, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -486,9 +462,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(false, ignore.match("sam!users.1@host.local"));
 		assertEquals(false, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -505,9 +480,8 @@ public class IgnoreTests extends AndroidTestCase {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
-		
-		Ignore ignore = new Ignore();
-		ignore.setIgnores(s.ignores);
+
+		Ignore ignore = s.ignores;
 
 		assertEquals(false, ignore.match("sam!users.1@host.local"));
 		assertEquals(false, ignore.match("SAM!userS.1@host.LOCAL"));
@@ -527,8 +501,7 @@ public class IgnoreTests extends AndroidTestCase {
         ignores.add("[sam]");
         Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
 
-        Ignore ignore = new Ignore();
-        ignore.setIgnores(s.ignores);
+		Ignore ignore = s.ignores;
 
         assertEquals(false, ignore.match("sam!users.1@host.local"));
         assertEquals(false, ignore.match("SAM!userS.1@host.LOCAL"));
