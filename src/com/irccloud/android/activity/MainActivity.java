@@ -1231,7 +1231,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 for (int i = 0; i < text.length(); i = next) {
                     next = text.nextSpanTransition(i, text.length(), CharacterStyle.class);
                     String fgColorRGB = null, bgColorRGB = null, fgColormIRC = null, bgColormIRC = null;
+                    boolean hasURL = false;
                     for (CharacterStyle style : text.getSpans(i, next, CharacterStyle.class)) {
+                        if (style instanceof URLSpan) {
+                            hasURL = true;
+                            fgColorRGB = bgColorRGB = null;
+                        }
                         if (style instanceof StyleSpan) {
                             int s = ((StyleSpan) style).getStyle();
                             if ((s & Typeface.BOLD) != 0) {
@@ -1253,23 +1258,29 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (style instanceof StrikethroughSpan) {
                             out.append((char)0x1e);
                         }
-                        if (style instanceof ForegroundColorSpan) {
-                            fgColorRGB = String.format("%06X", 0xFFFFFF & ((ForegroundColorSpan) style).getForegroundColor());
-                            for(int c = 0; c < ColorFormatter.COLOR_MAP.length; c++) {
-                                String color = ColorFormatter.COLOR_MAP[c];
-                                if(fgColorRGB.equalsIgnoreCase(color) || fgColorRGB.equalsIgnoreCase(ColorFormatter.DARK_FG_SUBSTITUTIONS.get(color))) {
-                                    fgColormIRC = String.valueOf(c);
-                                    break;
+                        if(!hasURL) {
+                            if (style instanceof ForegroundColorSpan) {
+                                fgColorRGB = String.format("%06X", 0xFFFFFF & ((ForegroundColorSpan) style).getForegroundColor());
+                                for (int c = 0; c < ColorFormatter.COLOR_MAP.length; c++) {
+                                    String color = ColorFormatter.COLOR_MAP[c];
+                                    if (fgColorRGB.equalsIgnoreCase(color) || fgColorRGB.equalsIgnoreCase(ColorFormatter.DARK_FG_SUBSTITUTIONS.get(color))) {
+                                        fgColormIRC = String.valueOf(c);
+                                        if (fgColormIRC.length() == 1)
+                                            fgColormIRC = "0" + fgColormIRC;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        if (style instanceof BackgroundColorSpan) {
-                            bgColorRGB = String.format("%06X", 0xFFFFFF & ((BackgroundColorSpan) style).getBackgroundColor());
-                            for(int c = 0; c < ColorFormatter.COLOR_MAP.length; c++) {
-                                String color = ColorFormatter.COLOR_MAP[c];
-                                if(bgColorRGB.equalsIgnoreCase(color)) {
-                                    bgColormIRC = String.valueOf(c);
-                                    break;
+                            if (style instanceof BackgroundColorSpan) {
+                                bgColorRGB = String.format("%06X", 0xFFFFFF & ((BackgroundColorSpan) style).getBackgroundColor());
+                                for (int c = 0; c < ColorFormatter.COLOR_MAP.length; c++) {
+                                    String color = ColorFormatter.COLOR_MAP[c];
+                                    if (bgColorRGB.equalsIgnoreCase(color)) {
+                                        bgColormIRC = String.valueOf(c);
+                                        if (bgColormIRC.length() == 1)
+                                            bgColormIRC = "0" + bgColormIRC;
+                                        break;
+                                    }
                                 }
                             }
                         }
