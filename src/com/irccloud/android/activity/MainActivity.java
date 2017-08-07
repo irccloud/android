@@ -45,6 +45,7 @@ import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
@@ -77,13 +78,17 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
@@ -410,12 +415,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         });
         textWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
-                Object[] spans = s.getSpans(0, s.length(), Object.class);
+                /*Object[] spans = s.getSpans(0, s.length(), Object.class);
                 for (Object o : spans) {
                     if (((s.getSpanFlags(o) & Spanned.SPAN_COMPOSING) != Spanned.SPAN_COMPOSING) && (o.getClass() == StyleSpan.class || o.getClass() == ForegroundColorSpan.class || o.getClass() == BackgroundColorSpan.class || o.getClass() == UnderlineSpan.class || o.getClass() == URLSpan.class)) {
                         s.removeSpan(o);
                     }
-                }
+                }*/
                 if (s.length() > 0 && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
                     sendBtn.setEnabled(true);
                 } else {
@@ -1219,20 +1224,91 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected void onPreExecute() {
             if (conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0 && buffer != null && server != null) {
                 sendBtn.setEnabled(false);
-                String msg = messageTxt.getText().toString();
+                Spanned text = messageTxt.getText();
+                StringBuilder out = new StringBuilder();
+
+                int next;
+                for (int i = 0; i < text.length(); i = next) {
+                    next = text.nextSpanTransition(i, text.length(), CharacterStyle.class);
+                    String fgColorRGB = null, bgColorRGB = null, fgColormIRC = null, bgColormIRC = null;
+                    for (CharacterStyle style : text.getSpans(i, next, CharacterStyle.class)) {
+                        if (style instanceof StyleSpan) {
+                            int s = ((StyleSpan) style).getStyle();
+                            if ((s & Typeface.BOLD) != 0) {
+                                out.append((char)0x02);
+                            }
+                            if ((s & Typeface.ITALIC) != 0) {
+                                out.append((char)0x1d);
+                            }
+                        }
+                        if (style instanceof TypefaceSpan) {
+                            String s = ((TypefaceSpan) style).getFamily();
+                            if ("monospace".equals(s)) {
+                                out.append((char)0x11);
+                            }
+                        }
+                        if (style instanceof UnderlineSpan) {
+                            out.append((char)0x1f);
+                        }
+                        if (style instanceof StrikethroughSpan) {
+                            out.append((char)0x1e);
+                        }
+                        if (style instanceof ForegroundColorSpan) {
+                            fgColorRGB = String.format("%06X", 0xFFFFFF & ((ForegroundColorSpan) style).getForegroundColor());
+                            for(int c = 0; c < ColorFormatter.COLOR_MAP.length; c++) {
+                                String color = ColorFormatter.COLOR_MAP[c];
+                                if(fgColorRGB.equalsIgnoreCase(color) || fgColorRGB.equalsIgnoreCase(ColorFormatter.DARK_FG_SUBSTITUTIONS.get(color))) {
+                                    fgColormIRC = String.valueOf(c);
+                                    break;
+                                }
+                            }
+                        }
+                        if (style instanceof BackgroundColorSpan) {
+                            bgColorRGB = String.format("%06X", 0xFFFFFF & ((BackgroundColorSpan) style).getBackgroundColor());
+                            for(int c = 0; c < ColorFormatter.COLOR_MAP.length; c++) {
+                                String color = ColorFormatter.COLOR_MAP[c];
+                                if(bgColorRGB.equalsIgnoreCase(color)) {
+                                    bgColormIRC = String.valueOf(c);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if(fgColorRGB != null || bgColorRGB != null) {
+                        if((fgColormIRC != null && (bgColorRGB == null || bgColormIRC != null)) || (fgColormIRC == null && bgColormIRC != null)) {
+                            out.append((char) 0x03);
+                            if (fgColormIRC != null)
+                                out.append(fgColormIRC);
+                            if (bgColormIRC != null)
+                                out.append(",").append(bgColormIRC);
+                        } else {
+                            out.append((char) 0x04);
+                            if (fgColorRGB != null)
+                                out.append(fgColorRGB);
+                            if (bgColorRGB != null)
+                                out.append(",").append(bgColorRGB);
+                        }
+                    }
+                    out.append(text.subSequence(i, next));
+                    out.append("\u000f");
+                }
+
+
+                String formatted = out.toString();
+                String msg = formatted;
                 if (msg.startsWith("//"))
                     msg = msg.substring(1);
                 else if (msg.startsWith("/") && !msg.startsWith("/me "))
                     msg = null;
 
-                if(messageTxt.getText().toString().equals("/paste") || messageTxt.getText().toString().startsWith("/paste ") || (!forceText && msg != null && (msg.length() > 1080 || msg.split("\n").length > 1))) {
-                    if(messageTxt.getText().toString().equals("/paste"))
+                if(formatted.equals("/paste") || formatted.startsWith("/paste ") || (!forceText && msg != null && (msg.length() > 1080 || msg.split("\n").length > 1))) {
+                    if(formatted.equals("/paste"))
                         messageTxt.setTextWithEmoji("");
-                    else if(messageTxt.getText().toString().startsWith("/paste "))
+                    else if(formatted.startsWith("/paste "))
                         messageTxt.setTextWithEmoji(messageTxt.getText().toString().substring(7));
                     show_pastebin_prompt();
                     return;
-                } else if(messageTxt.getText().toString().equals("/ignore")) {
+                } else if(formatted.equals("/ignore")) {
                     messageTxt.setTextWithEmoji("");
                     Bundle args = new Bundle();
                     args.putInt("cid", buffer.getCid());
@@ -1240,7 +1316,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     ignoreList.setArguments(args);
                     ignoreList.show(getSupportFragmentManager(), "ignorelist");
                     return;
-                } else if(messageTxt.getText().toString().equals("/clear")) {
+                } else if(formatted.equals("/clear")) {
                     messageTxt.setTextWithEmoji("");
                     EventsList.getInstance().deleteEventsForBuffer(buffer.getBid());
                     onBufferSelected(buffer.getBid());
@@ -1248,7 +1324,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 User u = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
                 e = new Event();
-                e.command = ColorFormatter.emojify(messageTxt.getText().toString());
+                e.command = ColorFormatter.emojify(formatted);
                 e.cid = buffer.getCid();
                 e.bid = buffer.getBid();
                 e.eid = (System.currentTimeMillis() + 5000) * 1000L;

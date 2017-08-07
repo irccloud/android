@@ -162,6 +162,5 @@
     <orderEntry type="library" exported="" name="switch-preference-compat-1.0.0" level="project" />
     <orderEntry type="module" module-name="android-websockets" exported="" />
     <orderEntry type="library" exported="" name="org.apache.http.legacy-android-26" level="project" />
-    <orderEntry type="module" module-name="android-websockets" exported="" />
   </component>
 </module>

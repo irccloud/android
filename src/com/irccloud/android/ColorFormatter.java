@@ -124,7 +124,7 @@ public class ColorFormatter {
             "C0C0C0", //silver
     };
 
-    private static final HashMap<String, String> DARK_FG_SUBSTITUTIONS = new HashMap<String, String>() {{
+    public static final HashMap<String, String> DARK_FG_SUBSTITUTIONS = new HashMap<String, String>() {{
         put("000080","4682b4");
         put("008000","32cd32");
         put("800000","FA8072");
