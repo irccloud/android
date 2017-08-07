@@ -2234,7 +2234,7 @@ public class ColorFormatter {
         }
     }
 
-    private static String closeTags(boolean bold, boolean underline, boolean italics, String fg, String bg) {
+    private static String closeTags(boolean bold, boolean underline, boolean italics, boolean strike, String fg, String bg) {
         StringBuilder builder = new StringBuilder();
 
         if (fg.length() > 0) {
@@ -2252,11 +2252,14 @@ public class ColorFormatter {
         if (italics) {
             builder.append("</i>");
         }
+        if (strike) {
+            builder.append("</strike>");
+        }
 
         return builder.toString();
     }
 
-    private static String openTags(boolean bold, boolean underline, boolean italics, String fg, String bg) {
+    private static String openTags(boolean bold, boolean underline, boolean italics, boolean strike, String fg, String bg) {
         StringBuilder builder = new StringBuilder();
 
         if (fg.length() > 0) {
@@ -2274,6 +2277,9 @@ public class ColorFormatter {
         if (italics) {
             builder.append("<i>");
         }
+        if (strike) {
+            builder.append("<strike>");
+        }
 
         return builder.toString();
     }
@@ -2283,7 +2289,7 @@ public class ColorFormatter {
             return "";
 
         int pos = 0;
-        boolean bold = false, underline = false, italics = false, monospace = false;
+        boolean bold = false, underline = false, italics = false, monospace = false, strike = false;
         String fg = "", bg = "";
         StringBuilder builder = new StringBuilder(msg);
         builder.append((char)0x0f);
@@ -2292,28 +2298,35 @@ public class ColorFormatter {
         while (pos < builder.length()) {
             if (builder.charAt(pos) == 0x02) { //Bold
                 builder.deleteCharAt(pos);
-                String html = closeTags(bold, underline, italics, fg, bg);
+                String html = closeTags(bold, underline, italics, strike, fg, bg);
                 builder.insert(pos, html);
                 pos += html.length();
                 bold = !bold;
-                builder.insert(pos, openTags(bold, underline, italics, fg, bg));
+                builder.insert(pos, openTags(bold, underline, italics, strike, fg, bg));
             } else if (builder.charAt(pos) == 0x1d) { //Italics
                 builder.deleteCharAt(pos);
-                String html = closeTags(bold, underline, italics, fg, bg);
+                String html = closeTags(bold, underline, italics, strike, fg, bg);
                 builder.insert(pos, html);
                 pos += html.length();
                 italics = !italics;
-                builder.insert(pos, openTags(bold, underline, italics, fg, bg));
+                builder.insert(pos, openTags(bold, underline, italics, strike, fg, bg));
+            } else if (builder.charAt(pos) == 0x1e) { //Strikethrough
+                builder.deleteCharAt(pos);
+                String html = closeTags(bold, underline, italics, strike, fg, bg);
+                builder.insert(pos, html);
+                pos += html.length();
+                strike = !strike;
+                builder.insert(pos, openTags(bold, underline, italics, strike, fg, bg));
             } else if (builder.charAt(pos) == 0x1f) { //Underline
                 builder.deleteCharAt(pos);
-                String html = closeTags(bold, underline, italics, fg, bg);
+                String html = closeTags(bold, underline, italics, strike, fg, bg);
                 builder.insert(pos, html);
                 pos += html.length();
                 underline = !underline;
-                builder.insert(pos, openTags(bold, underline, italics, fg, bg));
+                builder.insert(pos, openTags(bold, underline, italics, strike, fg, bg));
             } else if (builder.charAt(pos) == 0x12 || builder.charAt(pos) == 0x16) { //Reverse
                 builder.deleteCharAt(pos);
-                String html = closeTags(bold, underline, italics, fg, bg);
+                String html = closeTags(bold, underline, italics, strike, fg, bg);
                 builder.insert(pos, html);
                 pos += html.length();
                 String oldFg = fg;
@@ -2325,15 +2338,15 @@ public class ColorFormatter {
 
                 if(bg.length() == 0)
                     bg = COLOR_MAP[ColorScheme.getInstance().isDarkTheme ? 0 : 1];
-                builder.insert(pos, openTags(bold, underline, italics, fg, bg));
+                builder.insert(pos, openTags(bold, underline, italics, strike, fg, bg));
             } else if (builder.charAt(pos) == 0x11) { //Monospace
-                String html = closeTags(bold, underline, italics, fg, bg);
+                String html = closeTags(bold, underline, italics, strike, fg, bg);
                 if (monospace) {
                     html += "</pre>";
                 } else {
                     html += "<pre>";
                 }
-                html += openTags(bold, underline, italics, fg, bg);
+                html += openTags(bold, underline, italics, strike, fg, bg);
                 monospace = !monospace;
                 builder.deleteCharAt(pos);
                 builder.insert(pos, html);
@@ -2341,7 +2354,7 @@ public class ColorFormatter {
                 builder.deleteCharAt(pos);
                 if(monospace)
                     builder.insert(pos, "</pre>");
-                builder.insert(pos, closeTags(bold, underline, italics, fg, bg));
+                builder.insert(pos, closeTags(bold, underline, italics, strike, fg, bg));
                 bold = underline = italics = monospace = false;
                 fg = bg = "";
             } else if (builder.charAt(pos) == 0x03 || builder.charAt(pos) == 0x04) { //Color
