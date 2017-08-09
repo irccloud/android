@@ -1224,6 +1224,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected void onPreExecute() {
             if (conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0 && buffer != null && server != null) {
                 sendBtn.setEnabled(false);
+                messageTxt.clearComposingText();
                 Spanned text = messageTxt.getText();
                 StringBuilder out = new StringBuilder();
 
