@@ -1232,7 +1232,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 for (int i = 0; i < text.length(); i = next) {
                     next = text.nextSpanTransition(i, text.length(), CharacterStyle.class);
                     String fgColorRGB = null, bgColorRGB = null, fgColormIRC = null, bgColormIRC = null;
-                    boolean hasURL = false;
+                    boolean hasURL = false, shouldClear = false;
                     for (CharacterStyle style : text.getSpans(i, next, CharacterStyle.class)) {
                         if (style instanceof URLSpan) {
                             hasURL = true;
@@ -1242,22 +1242,27 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             int s = ((StyleSpan) style).getStyle();
                             if ((s & Typeface.BOLD) != 0) {
                                 out.append((char)0x02);
+                                shouldClear = true;
                             }
                             if ((s & Typeface.ITALIC) != 0) {
                                 out.append((char)0x1d);
+                                shouldClear = true;
                             }
                         }
                         if (style instanceof TypefaceSpan) {
                             String s = ((TypefaceSpan) style).getFamily();
                             if ("monospace".equals(s)) {
                                 out.append((char)0x11);
+                                shouldClear = true;
                             }
                         }
                         if (style instanceof UnderlineSpan) {
                             out.append((char)0x1f);
+                            shouldClear = true;
                         }
                         if (style instanceof StrikethroughSpan) {
                             out.append((char)0x1e);
+                            shouldClear = true;
                         }
                         if(!hasURL) {
                             if (style instanceof ForegroundColorSpan) {
@@ -1300,9 +1305,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             if (bgColorRGB != null)
                                 out.append(",").append(bgColorRGB);
                         }
+                        shouldClear = true;
                     }
                     out.append(text.subSequence(i, next));
-                    out.append("\u000f");
+                    if(shouldClear)
+                        out.append("\u000f");
                 }
 
 
