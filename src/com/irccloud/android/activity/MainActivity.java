@@ -125,6 +125,9 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import com.commonsware.cwac.richedit.Effect;
+import com.commonsware.cwac.richedit.ForegroundColorEffect;
+import com.commonsware.cwac.richedit.RichEditText;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
@@ -340,7 +343,84 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         buffersListView = findViewById(R.id.BuffersList);
         drawerLayout = findViewById(R.id.drawerLayout);
 
+        final ImageButton boldBtn = findViewById(R.id.bold);
+        boldBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+        boldBtn.setFocusable(false);
+        boldBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                messageTxt.toggleTypingEffect(RichEditText.BOLD);
+            }
+        });
+
+        final ImageButton italicsBtn = findViewById(R.id.italics);
+        italicsBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+        italicsBtn.setFocusable(false);
+        italicsBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                messageTxt.toggleTypingEffect(RichEditText.ITALIC);
+            }
+        });
+
+        final ImageButton underlineBtn = findViewById(R.id.underline);
+        underlineBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+        underlineBtn.setFocusable(false);
+        underlineBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                messageTxt.toggleTypingEffect(RichEditText.UNDERLINE);
+            }
+        });
+
+        final ImageButton strikethroughBtn = findViewById(R.id.strikethrough);
+        strikethroughBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+        strikethroughBtn.setFocusable(false);
+        strikethroughBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                messageTxt.toggleTypingEffect(RichEditText.STRIKETHROUGH);
+            }
+        });
+
+        final ImageButton colorBtn = findViewById(R.id.color);
+        colorBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+        colorBtn.setFocusable(false);
+        colorBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                messageTxt.applyForegroundColor(0xFFFF00FF);
+            }
+        });
+
+        final ImageButton bgcolorBtn = findViewById(R.id.background);
+        bgcolorBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+        bgcolorBtn.setFocusable(false);
+        bgcolorBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                messageTxt.applyBackgroundColor(0xFF00FFFF);
+            }
+        });
+
         messageTxt = findViewById(R.id.messageTxt);
+        messageTxt.setOnSelectionChangedListener(new RichEditText.OnSelectionChangedListener() {
+            @Override
+            public void onSelectionChanged(int start, int end, List<Effect<?>> list) {
+                boldBtn.setBackgroundColor(messageTxt.hasEffect(RichEditText.BOLD) ? ColorScheme.getInstance().bufferBackgroundColor : ColorScheme.getInstance().textareaBackgroundColor);
+                italicsBtn.setBackgroundColor(messageTxt.hasEffect(RichEditText.ITALIC) ? ColorScheme.getInstance().bufferBackgroundColor : ColorScheme.getInstance().textareaBackgroundColor);
+                underlineBtn.setBackgroundColor(messageTxt.hasEffect(RichEditText.UNDERLINE) ? ColorScheme.getInstance().bufferBackgroundColor : ColorScheme.getInstance().textareaBackgroundColor);
+                strikethroughBtn.setBackgroundColor(messageTxt.hasEffect(RichEditText.STRIKETHROUGH) ? ColorScheme.getInstance().bufferBackgroundColor : ColorScheme.getInstance().textareaBackgroundColor);
+                if(messageTxt.hasEffect(RichEditText.FOREGROUND))
+                    colorBtn.setColorFilter(messageTxt.getEffectValue(RichEditText.FOREGROUND), PorterDuff.Mode.SRC_ATOP);
+                else
+                    colorBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+                if(messageTxt.hasEffect(RichEditText.BACKGROUND))
+                    bgcolorBtn.setColorFilter(messageTxt.getEffectValue(RichEditText.BACKGROUND), PorterDuff.Mode.SRC_ATOP);
+                else
+                    bgcolorBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+            }
+        });
         messageTxt.setOnKeyListener(new OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -415,12 +495,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         });
         textWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
-                /*Object[] spans = s.getSpans(0, s.length(), Object.class);
-                for (Object o : spans) {
-                    if (((s.getSpanFlags(o) & Spanned.SPAN_COMPOSING) != Spanned.SPAN_COMPOSING) && (o.getClass() == StyleSpan.class || o.getClass() == ForegroundColorSpan.class || o.getClass() == BackgroundColorSpan.class || o.getClass() == UnderlineSpan.class || o.getClass() == URLSpan.class)) {
-                        s.removeSpan(o);
-                    }
-                }*/
                 if (s.length() > 0 && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
                     sendBtn.setEnabled(true);
                 } else {
@@ -1225,95 +1299,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0 && buffer != null && server != null) {
                 sendBtn.setEnabled(false);
                 messageTxt.clearComposingText();
-                Spanned text = messageTxt.getText();
-                StringBuilder out = new StringBuilder();
 
-                int next;
-                for (int i = 0; i < text.length(); i = next) {
-                    next = text.nextSpanTransition(i, text.length(), CharacterStyle.class);
-                    String fgColorRGB = null, bgColorRGB = null, fgColormIRC = null, bgColormIRC = null;
-                    boolean hasURL = false, shouldClear = false;
-                    for (CharacterStyle style : text.getSpans(i, next, CharacterStyle.class)) {
-                        if (style instanceof URLSpan) {
-                            hasURL = true;
-                            fgColorRGB = bgColorRGB = null;
-                        }
-                        if (style instanceof StyleSpan) {
-                            int s = ((StyleSpan) style).getStyle();
-                            if ((s & Typeface.BOLD) != 0) {
-                                out.append((char)0x02);
-                                shouldClear = true;
-                            }
-                            if ((s & Typeface.ITALIC) != 0) {
-                                out.append((char)0x1d);
-                                shouldClear = true;
-                            }
-                        }
-                        if (style instanceof TypefaceSpan) {
-                            String s = ((TypefaceSpan) style).getFamily();
-                            if ("monospace".equals(s)) {
-                                out.append((char)0x11);
-                                shouldClear = true;
-                            }
-                        }
-                        if (style instanceof UnderlineSpan) {
-                            out.append((char)0x1f);
-                            shouldClear = true;
-                        }
-                        if (style instanceof StrikethroughSpan) {
-                            out.append((char)0x1e);
-                            shouldClear = true;
-                        }
-                        if(!hasURL) {
-                            if (style instanceof ForegroundColorSpan) {
-                                fgColorRGB = String.format("%06X", 0xFFFFFF & ((ForegroundColorSpan) style).getForegroundColor());
-                                for (int c = 0; c < ColorFormatter.COLOR_MAP.length; c++) {
-                                    String color = ColorFormatter.COLOR_MAP[c];
-                                    if (fgColorRGB.equalsIgnoreCase(color) || fgColorRGB.equalsIgnoreCase(ColorFormatter.DARK_FG_SUBSTITUTIONS.get(color))) {
-                                        fgColormIRC = String.valueOf(c);
-                                        if (fgColormIRC.length() == 1)
-                                            fgColormIRC = "0" + fgColormIRC;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (style instanceof BackgroundColorSpan) {
-                                bgColorRGB = String.format("%06X", 0xFFFFFF & ((BackgroundColorSpan) style).getBackgroundColor());
-                                for (int c = 0; c < ColorFormatter.COLOR_MAP.length; c++) {
-                                    String color = ColorFormatter.COLOR_MAP[c];
-                                    if (bgColorRGB.equalsIgnoreCase(color)) {
-                                        bgColormIRC = String.valueOf(c);
-                                        if (bgColormIRC.length() == 1)
-                                            bgColormIRC = "0" + bgColormIRC;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if(fgColorRGB != null || bgColorRGB != null) {
-                        if((fgColormIRC != null && (bgColorRGB == null || bgColormIRC != null)) || (fgColormIRC == null && bgColormIRC != null)) {
-                            out.append((char) 0x03);
-                            if (fgColormIRC != null)
-                                out.append(fgColormIRC);
-                            if (bgColormIRC != null)
-                                out.append(",").append(bgColormIRC);
-                        } else {
-                            out.append((char) 0x04);
-                            if (fgColorRGB != null)
-                                out.append(fgColorRGB);
-                            if (bgColorRGB != null)
-                                out.append(",").append(bgColorRGB);
-                        }
-                        shouldClear = true;
-                    }
-                    out.append(text.subSequence(i, next));
-                    if(shouldClear)
-                        out.append("\u000f");
-                }
-
-
-                String formatted = out.toString();
+                String formatted = messageTxt.toIRC();
                 String msg = formatted;
                 if (msg.startsWith("//"))
                     msg = msg.substring(1);

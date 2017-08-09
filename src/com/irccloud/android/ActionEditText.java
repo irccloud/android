@@ -25,7 +25,6 @@ import android.support.text.emoji.widget.EmojiEditTextHelper;
 import android.support.v13.view.inputmethod.InputConnectionCompat;
 import android.support.v13.view.inputmethod.InputContentInfoCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
@@ -34,7 +33,7 @@ import android.support.v13.view.inputmethod.EditorInfoCompat;
 
 // An EditText that lets you use actions ("Done", "Go", etc.) on multi-line edits.
 // From: http://stackoverflow.com/a/12570003/1406639
-public class ActionEditText extends AppCompatEditText {
+public class ActionEditText extends IRCEditText {
     private DrawerLayout mDrawerLayout = null;
     private EmojiEditTextHelper mEmojiEditTextHelper;
 

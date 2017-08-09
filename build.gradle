@@ -22,7 +22,7 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-alpha8'
+        classpath 'com.android.tools.build:gradle:3.0.0-alpha9'
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -41,6 +41,7 @@ repositories {
     maven { url 'https://maven.fabric.io/public' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url "https://www.jitpack.io" }
+    maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
 }
 
 def getRevision = { ->
@@ -351,6 +352,7 @@ dependencies {
     compile 'com.vandalsoftware.android:dslv:+'
     compile 'com.infstory:switch-preference-compat:1.0.+'
     compile 'com.damnhandy:handy-uri-templates:2.0.2'
+    compile 'com.commonsware.cwac:richedit:0.5.2'
     compile project(':android-websockets')
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
     annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:$dbflowVersion"

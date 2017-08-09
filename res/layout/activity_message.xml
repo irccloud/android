@@ -88,6 +88,7 @@
                         tools:layout="@layout/messageview" />
 
                     <LinearLayout
+                        android:orientation="vertical"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingTop="8dp"
@@ -95,52 +96,131 @@
                         android:gravity="bottom"
                         android:paddingBottom="8dp">
 
-                        <ImageButton
-                            style="@style/Widget.Styled.ImageButton"
-                            android:id="@+id/photoBtn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingLeft="6dp"
-                            android:paddingRight="6dp"
-                            android:paddingBottom="4dp"
-                            android:scaleType="center"
-                            android:contentDescription="Insert Photo"
-                            app:srcCompat="@drawable/ic_action_photo"
-                            android:layout_marginLeft="11dp"
-                            android:layout_marginRight="11dp"
-                            android:paddingTop="4dp"/>
-
                         <com.irccloud.android.ActionEditText
                             android:id="@+id/messageTxt"
                             style="@style/messageTxt"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="bottom"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginRight="16dp"
                             android:layout_weight="1"
-                            android:ems="10"
-                            android:maxLines="@integer/max_input_lines"
-                            android:hint="Message"
-                            android:theme="?editTextTheme"
-                            android:enabled="false"
-                            android:nextFocusLeft="@id/photoBtn"
-                            android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
                             android:background="?attr/textareaBackgroundColor"
-                            android:minHeight="32dp"/>
+                            android:ems="10"
+                            android:enabled="false"
+                            android:hint="Message"
+                            android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
+                            android:maxLines="@integer/max_input_lines"
+                            android:minHeight="32dp"
+                            android:nextFocusLeft="@id/photoBtn"
+                            android:theme="?editTextTheme" />
 
-                        <ImageButton
-                            style="@style/Widget.Styled.ImageButton"
-                            android:id="@+id/sendBtn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingLeft="6dp"
-                            android:paddingRight="6dp"
-                            android:paddingBottom="4dp"
-                            android:scaleType="fitEnd"
-                            android:contentDescription="Send"
-                            app:srcCompat="@drawable/ic_action_send"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
-                            android:paddingTop="4dp"/>
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <ImageButton
+                                android:id="@+id/photoBtn"
+                                style="@style/Widget.Styled.ImageButton"
+                                android:layout_marginLeft="8dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_alignParentLeft="true"
+                                android:layout_alignParentTop="true"
+                                android:contentDescription="Insert Photo"
+                                android:scaleType="center"
+                                app:srcCompat="@drawable/ic_action_photo" />
+
+                            <ImageButton
+                                android:id="@+id/bold"
+                                style="@style/Widget.Styled.ImageButton"
+                                android:layout_marginLeft="8dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_toRightOf="@id/photoBtn"
+                                android:layout_alignParentTop="true"
+                                android:contentDescription="Bold"
+                                android:scaleType="center"
+                                app:srcCompat="@drawable/ic_format_bold" />
+
+                            <ImageButton
+                                android:id="@+id/italics"
+                                style="@style/Widget.Styled.ImageButton"
+                                android:layout_marginLeft="8dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_toRightOf="@id/bold"
+                                android:layout_alignParentTop="true"
+                                android:contentDescription="Italics"
+                                android:scaleType="center"
+                                app:srcCompat="@drawable/ic_format_italics" />
+
+                            <ImageButton
+                                android:id="@+id/underline"
+                                style="@style/Widget.Styled.ImageButton"
+                                android:layout_marginLeft="8dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_toRightOf="@id/italics"
+                                android:layout_alignParentTop="true"
+                                android:contentDescription="Underline"
+                                android:scaleType="center"
+                                app:srcCompat="@drawable/ic_format_underline" />
+
+                            <ImageButton
+                                android:id="@+id/strikethrough"
+                                style="@style/Widget.Styled.ImageButton"
+                                android:layout_marginLeft="8dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_toRightOf="@id/underline"
+                                android:layout_alignParentTop="true"
+                                android:contentDescription="Strikethrough"
+                                android:scaleType="center"
+                                app:srcCompat="@drawable/ic_format_strikethrough" />
+
+                            <ImageButton
+                                android:id="@+id/color"
+                                style="@style/Widget.Styled.ImageButton"
+                                android:layout_marginLeft="8dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_toRightOf="@id/strikethrough"
+                                android:layout_alignParentTop="true"
+                                android:contentDescription="Text Color"
+                                android:scaleType="center"
+                                android:visibility="gone"
+                                app:srcCompat="@drawable/ic_format_color" />
+
+                            <ImageButton
+                                android:id="@+id/background"
+                                style="@style/Widget.Styled.ImageButton"
+                                android:layout_marginLeft="8dp"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_toRightOf="@id/color"
+                                android:layout_alignParentTop="true"
+                                android:contentDescription="Background"
+                                android:scaleType="center"
+                                android:visibility="gone"
+                                app:srcCompat="@drawable/ic_format_background" />
+
+                            <ImageButton
+                                android:id="@+id/sendBtn"
+                                style="@style/Widget.Styled.ImageButton"
+                                android:layout_marginRight="8dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:layout_alignParentTop="true"
+                                android:contentDescription="Send"
+                                android:paddingBottom="4dp"
+                                android:paddingLeft="6dp"
+                                android:paddingRight="6dp"
+                                android:paddingTop="4dp"
+                                android:scaleType="fitEnd"
+                                app:srcCompat="@drawable/ic_action_send" />
+                        </RelativeLayout>
                     </LinearLayout>
                 </LinearLayout>
                 <fragment
