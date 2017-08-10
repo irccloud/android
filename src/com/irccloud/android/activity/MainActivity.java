@@ -400,7 +400,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                         @Override
                         public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                            int activeColor = colorScheme.isDarkTheme ? 0xFFFFFFFF : 0x00000000;
+                            int activeColor = colorScheme.isDarkTheme ? 0xFFFFFFFF : 0xFF000000;
                             int inactiveColor = colorScheme.colorControlNormal;
                             menu.findItem(R.id.menu_bold).getIcon().setTint(messageTxt.hasEffect(RichEditText.BOLD) ? activeColor : inactiveColor);
                             menu.findItem(R.id.menu_italics).getIcon().setTint(messageTxt.hasEffect(RichEditText.ITALIC) ? activeColor : inactiveColor);
