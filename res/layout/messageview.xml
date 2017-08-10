@@ -209,10 +209,10 @@
             android:name="com.irccloud.android.fragment.IRCColorPickerFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:visibility="gone"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginTop="8dp" />
     </RelativeLayout>
 
     <LinearLayout
