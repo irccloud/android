@@ -1785,7 +1785,7 @@ public class ColorFormatter {
                     sb.append("|");
                 sb.append(value);
             }
-            sb.append(")+");
+            sb.append("|\u200d|\ufe0f)+");
 
             IS_EMOJI = Pattern.compile(sb.toString().replace(":)|","").replace("*", "\\*"));
 
