@@ -434,8 +434,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 formattingActionMode = null;
             }
         });
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-            messageTxt.setCurrentActionMode(formattingActionMode);
     }
 
     @SuppressLint("NewApi")
@@ -496,6 +494,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if(currentActionMode != null)
                         currentActionMode.finish();
                     startFormatActionMode();
+                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+                        messageTxt.setCurrentActionMode(formattingActionMode);
                     messageTxt.setSelection(selectionStart, selectionEnd);
                     return true;
                 }
