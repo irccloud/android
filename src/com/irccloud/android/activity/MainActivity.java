@@ -786,7 +786,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 }
                             } else if(item.getText().length() > 0) {
                                 if(buffer != null)
-                                    buffer.setDraft(item.getText().toString());
+                                    buffer.setDraft(item.getText());
                                 messageTxt.setTextWithEmoji(item.getText());
                                 return true;
                             }
@@ -1309,7 +1309,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (buffer != null) {
             state.putInt("bid", buffer.getBid());
             if (messageTxt != null && messageTxt.getText() != null)
-                buffer.setDraft(messageTxt.getText().toString());
+                buffer.setDraft(messageTxt.getText());
             else
                 buffer.setDraft(null);
         }
@@ -5019,7 +5019,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             synchronized (backStack) {
                 backStack.add(0, buffer.getBid());
             }
-            buffer.setDraft(messageTxt.getText().toString());
+            buffer.setDraft(messageTxt.getText());
 
             if(shouldMarkAsRead()) {
                 Long eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid());
@@ -5678,7 +5678,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if (mBuffer != null) {
                         if (mBuffer.getDraft() == null)
                             mBuffer.setDraft("");
-                        if (mBuffer.getDraft().length() > 0 && !mBuffer.getDraft().endsWith(" "))
+                        if (mBuffer.getDraft().length() > 0 && !mBuffer.getDraft().toString().endsWith(" "))
                             mBuffer.setDraft(mBuffer.getDraft() + " ");
                         mBuffer.setDraft(mBuffer.getDraft() + s);
                     }
@@ -5722,7 +5722,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 Crashlytics.log(Log.INFO, "IRCCloud", "Upload finished, updating draft");
                 if (mBuffer.getDraft() == null)
                     mBuffer.setDraft("");
-                if (mBuffer.getDraft().length() > 0 && !mBuffer.getDraft().endsWith(" "))
+                if (mBuffer.getDraft().length() > 0 && !mBuffer.getDraft().toString().endsWith(" "))
                     mBuffer.setDraft(mBuffer.getDraft() + " ");
                 mBuffer.setDraft(mBuffer.getDraft() + s);
             } else {
@@ -5991,7 +5991,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 activity.fileUploadTask = null;
                                 hide_progress();
                                 if (activity.buffer != null)
-                                    activity.buffer.setDraft(messageinput.getText().toString());
+                                    activity.buffer.setDraft(messageinput.getText());
                                 if (activity.messageTxt != null)
                                     activity.messageTxt.setTextWithEmoji(messageinput.getText());
                             }

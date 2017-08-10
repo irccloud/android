@@ -97,7 +97,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     private String away_msg;
 
     @Column
-    private String draft;
+    private CharSequence draft;
 
     @Column
     private String chan_types;
@@ -311,11 +311,11 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         this.away_msg = away_msg;
     }
 
-    public String getDraft() {
+    public CharSequence getDraft() {
         return draft;
     }
 
-    public void setDraft(String draft) {
+    public void setDraft(CharSequence draft) {
         this.draft = draft;
     }
 
