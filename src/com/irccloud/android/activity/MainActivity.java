@@ -410,8 +410,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                         @Override
                         public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-                                messageTxt.setSelection(selectionStart, selectionEnd);
                             int activeColor = colorScheme.isDarkTheme ? 0xFFFFFFFF : 0xFF000000;
                             int inactiveColor = colorScheme.colorControlNormal;
 
@@ -494,6 +492,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                     if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
                         messageTxt.setCurrentActionMode(formattingActionMode);
+                    messageTxt.setSelection(selectionStart, selectionEnd);
                     return true;
                 }
                 return false;
