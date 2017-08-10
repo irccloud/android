@@ -336,6 +336,108 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
+    private void startFormatActionMode() {
+        formattingActionMode = startActionMode(new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+                getMenuInflater().inflate(R.menu.formatting_action_mode, menu);
+                menu.findItem(R.id.menu_bold).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                menu.findItem(R.id.menu_italics).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                menu.findItem(R.id.menu_color).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                menu.findItem(R.id.menu_background).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                if(getWindowManager().getDefaultDisplay().getWidth() >= TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 400, getResources().getDisplayMetrics())) {
+                    menu.findItem(R.id.menu_underline).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    menu.findItem(R.id.menu_clear).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+                int activeColor = colorScheme.isDarkTheme ? 0xFFFFFFFF : 0xFF000000;
+                int inactiveColor = colorScheme.colorControlNormal;
+
+                VectorDrawableCompat d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_bold, null);
+                d.setTint(messageTxt.hasEffect(RichEditText.BOLD) ? activeColor : inactiveColor);
+                menu.findItem(R.id.menu_bold).setIcon(d);
+
+                d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_italics, null);
+                d.setTint(messageTxt.hasEffect(RichEditText.ITALIC) ? activeColor : inactiveColor);
+                menu.findItem(R.id.menu_italics).setIcon(d);
+
+                d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_underline, null);
+                d.setTint(messageTxt.hasEffect(RichEditText.UNDERLINE) ? activeColor : inactiveColor);
+                menu.findItem(R.id.menu_underline).setIcon(d);
+
+                d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_color, null);
+                d.setTint(messageTxt.hasEffect(RichEditText.FOREGROUND) ? messageTxt.getEffectValue(RichEditText.FOREGROUND) : inactiveColor);
+                menu.findItem(R.id.menu_color).setIcon(d);
+
+                d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_background, null);
+                d.setTint(messageTxt.hasEffect(RichEditText.BACKGROUND) ? messageTxt.getEffectValue(RichEditText.BACKGROUND) : inactiveColor);
+                menu.findItem(R.id.menu_background).setIcon(d);
+
+                d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_clear, null);
+                d.setTint(inactiveColor);
+                menu.findItem(R.id.menu_clear).setIcon(d);
+                return true;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+                Bundle b;
+
+                switch (menuItem.getItemId()) {
+                    case R.id.menu_bold:
+                        messageTxt.toggleTypingEffect(RichEditText.BOLD);
+                        return true;
+                    case R.id.menu_italics:
+                        messageTxt.toggleTypingEffect(RichEditText.ITALIC);
+                        return true;
+                    case R.id.menu_underline:
+                        messageTxt.toggleTypingEffect(RichEditText.UNDERLINE);
+                        return true;
+                    case R.id.menu_clear:
+                        messageTxt.clearTypingEffects();
+                        messageTxt.onSelectionChanged(messageTxt.getSelectionStart(), messageTxt.getSelectionEnd());
+                        return true;
+                    case R.id.menu_color:
+                        b = new Bundle();
+                        b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
+                        mColorPickerFragment.setArguments(b);
+                        if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
+                            if (Build.VERSION.SDK_INT >= 16) {
+                                mColorPickerFragment.getView().setAlpha(0);
+                                mColorPickerFragment.getView().animate().alpha(1.0f);
+                            }
+                            mColorPickerFragment.getView().setVisibility(View.VISIBLE);
+                        }
+                        return true;
+                    case R.id.menu_background:
+                        b = new Bundle();
+                        b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, true);
+                        mColorPickerFragment.setArguments(b);
+                        if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
+                            if (Build.VERSION.SDK_INT >= 16) {
+                                mColorPickerFragment.getView().setAlpha(0);
+                                mColorPickerFragment.getView().animate().alpha(1.0f);
+                            }
+                            mColorPickerFragment.getView().setVisibility(View.VISIBLE);
+                        }
+                        return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode) {
+                formattingActionMode = null;
+            }
+        });
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            messageTxt.setCurrentActionMode(formattingActionMode);
+    }
+
     @SuppressLint("NewApi")
     @SuppressWarnings({"deprecation", "unchecked"})
     @Override
@@ -393,105 +495,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(menuItem.getItemId() == R.id.menu_format) {
                     if(currentActionMode != null)
                         currentActionMode.finish();
-                    formattingActionMode = startActionMode(new ActionMode.Callback() {
-                        @Override
-                        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-                            getMenuInflater().inflate(R.menu.formatting_action_mode, menu);
-                            menu.findItem(R.id.menu_bold).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                            menu.findItem(R.id.menu_italics).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                            menu.findItem(R.id.menu_color).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                            menu.findItem(R.id.menu_background).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                            if(getWindowManager().getDefaultDisplay().getWidth() >= TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 400, getResources().getDisplayMetrics())) {
-                                menu.findItem(R.id.menu_underline).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                                menu.findItem(R.id.menu_clear).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                            }
-                            return true;
-                        }
-
-                        @Override
-                        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-                            int activeColor = colorScheme.isDarkTheme ? 0xFFFFFFFF : 0xFF000000;
-                            int inactiveColor = colorScheme.colorControlNormal;
-
-                            VectorDrawableCompat d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_bold, null);
-                            d.setTint(messageTxt.hasEffect(RichEditText.BOLD) ? activeColor : inactiveColor);
-                            menu.findItem(R.id.menu_bold).setIcon(d);
-
-                            d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_italics, null);
-                            d.setTint(messageTxt.hasEffect(RichEditText.ITALIC) ? activeColor : inactiveColor);
-                            menu.findItem(R.id.menu_italics).setIcon(d);
-
-                            d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_underline, null);
-                            d.setTint(messageTxt.hasEffect(RichEditText.UNDERLINE) ? activeColor : inactiveColor);
-                            menu.findItem(R.id.menu_underline).setIcon(d);
-
-                            d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_color, null);
-                            d.setTint(messageTxt.hasEffect(RichEditText.FOREGROUND) ? messageTxt.getEffectValue(RichEditText.FOREGROUND) : inactiveColor);
-                            menu.findItem(R.id.menu_color).setIcon(d);
-
-                            d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_background, null);
-                            d.setTint(messageTxt.hasEffect(RichEditText.BACKGROUND) ? messageTxt.getEffectValue(RichEditText.BACKGROUND) : inactiveColor);
-                            menu.findItem(R.id.menu_background).setIcon(d);
-
-                            d = VectorDrawableCompat.create(getResources(), R.drawable.ic_format_clear, null);
-                            d.setTint(inactiveColor);
-                            menu.findItem(R.id.menu_clear).setIcon(d);
-                            return true;
-                        }
-
-                        @Override
-                        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-                            Bundle b;
-
-                            switch (menuItem.getItemId()) {
-                                case R.id.menu_bold:
-                                    messageTxt.toggleTypingEffect(RichEditText.BOLD);
-                                    return true;
-                                case R.id.menu_italics:
-                                    messageTxt.toggleTypingEffect(RichEditText.ITALIC);
-                                    return true;
-                                case R.id.menu_underline:
-                                    messageTxt.toggleTypingEffect(RichEditText.UNDERLINE);
-                                    return true;
-                                case R.id.menu_clear:
-                                    messageTxt.clearTypingEffects();
-                                    messageTxt.onSelectionChanged(messageTxt.getSelectionStart(), messageTxt.getSelectionEnd());
-                                    return true;
-                                case R.id.menu_color:
-                                    b = new Bundle();
-                                    b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
-                                    mColorPickerFragment.setArguments(b);
-                                    if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
-                                        if (Build.VERSION.SDK_INT >= 16) {
-                                            mColorPickerFragment.getView().setAlpha(0);
-                                            mColorPickerFragment.getView().animate().alpha(1.0f);
-                                        }
-                                        mColorPickerFragment.getView().setVisibility(View.VISIBLE);
-                                    }
-                                    return true;
-                                case R.id.menu_background:
-                                    b = new Bundle();
-                                    b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, true);
-                                    mColorPickerFragment.setArguments(b);
-                                    if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
-                                        if (Build.VERSION.SDK_INT >= 16) {
-                                            mColorPickerFragment.getView().setAlpha(0);
-                                            mColorPickerFragment.getView().animate().alpha(1.0f);
-                                        }
-                                        mColorPickerFragment.getView().setVisibility(View.VISIBLE);
-                                    }
-                                    return true;
-                            }
-                            return false;
-                        }
-
-                        @Override
-                        public void onDestroyActionMode(ActionMode actionMode) {
-                            formattingActionMode = null;
-                        }
-                    });
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-                        messageTxt.setCurrentActionMode(formattingActionMode);
+                    startFormatActionMode();
                     messageTxt.setSelection(selectionStart, selectionEnd);
                     return true;
                 }
@@ -650,6 +654,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             });
         }
+        ImageButton formatBtn = findViewById(R.id.formatBtn);
+        formatBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+        formatBtn.setFocusable(false);
+        formatBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(formattingActionMode != null)
+                    formattingActionMode.finish();
+                else
+                    startFormatActionMode();
+            }
+        });
         userListView = findViewById(R.id.usersListFragment);
 
         View v = getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
