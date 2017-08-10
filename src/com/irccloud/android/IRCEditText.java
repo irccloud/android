@@ -344,6 +344,11 @@ public class IRCEditText extends RichEditText {
         if(typingEffects != null)
            typingEffects.clear();
         typing_fg = typing_bg = -1;
+
+        for(Object span : getEditableText().getSpans(getSelectionStart(), getSelectionEnd(), Object.class)) {
+            if(getEditableText().getSpanFlags(span) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                getEditableText().removeSpan(span);
+        }
     }
 
     public void toggleTypingEffect(Effect effect) {
