@@ -513,6 +513,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     formattingActionMode.invalidate();
             }
         });
+        messageTxt.setKeyboardShortcutsEnabled(false);
         messageTxt.setOnKeyListener(new OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -1329,6 +1330,31 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (event.isCtrlPressed()) {
+            switch(keyCode) {
+                case KeyEvent.KEYCODE_C:
+                    Bundle b = new Bundle();
+                    b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
+                    mColorPickerFragment.setArguments(b);
+                    if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
+                        if (Build.VERSION.SDK_INT >= 16) {
+                            mColorPickerFragment.getView().setAlpha(0);
+                            mColorPickerFragment.getView().animate().alpha(1.0f);
+                        }
+                        mColorPickerFragment.getView().setVisibility(View.VISIBLE);
+                    }
+                    return true;
+                case KeyEvent.KEYCODE_B:
+                    messageTxt.toggleTypingEffect(RichEditText.BOLD);
+                    return true;
+                case KeyEvent.KEYCODE_I:
+                    messageTxt.toggleTypingEffect(RichEditText.ITALIC);
+                    return true;
+                case KeyEvent.KEYCODE_U:
+                    messageTxt.toggleTypingEffect(RichEditText.UNDERLINE);
+                    return true;
+            }
+        }
         BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
         if(blf != null) {
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP && event.isAltPressed()) {
@@ -3416,6 +3442,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         group.addItem(new KeyboardShortcutInfo("Complete nicknames and channels", KeyEvent.KEYCODE_TAB, 0));
         group.addItem(new KeyboardShortcutInfo("Mark channel as read", KeyEvent.KEYCODE_R, KeyEvent.META_ALT_ON));
         group.addItem(new KeyboardShortcutInfo("Mark all channels as read", KeyEvent.KEYCODE_R, KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON));
+        group.addItem(new KeyboardShortcutInfo("Toggle bold", KeyEvent.KEYCODE_B, KeyEvent.META_CTRL_ON));
+        group.addItem(new KeyboardShortcutInfo("Toggle italics", KeyEvent.KEYCODE_I, KeyEvent.META_CTRL_ON));
+        group.addItem(new KeyboardShortcutInfo("Toggle underline", KeyEvent.KEYCODE_U, KeyEvent.META_CTRL_ON));
+        group.addItem(new KeyboardShortcutInfo("Change text color", KeyEvent.KEYCODE_C, KeyEvent.META_CTRL_ON));
 
         data.add(group);
     }

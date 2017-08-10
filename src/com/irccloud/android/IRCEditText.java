@@ -31,6 +31,7 @@ import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 
 import com.commonsware.cwac.richedit.Effect;
 import com.commonsware.cwac.richedit.RichEditText;
@@ -61,130 +62,132 @@ public class IRCEditText extends RichEditText {
 
     private void init() {
         addTextChangedListener(new TextWatcher() {
+            private int size, selectionEnd;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                android.util.Log.e("IRCCloud", "before change");
+                selectionEnd = getSelectionEnd();
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                android.util.Log.e("IRCCloud", "on change");
-                int size = count - before;
+                size = count - before;
                 if (getSelectionStart() == getSelectionEnd()) {
                     if(size > 0) {
-                        for (Effect e : typingEffects) {
-                            if (e == RichEditText.BOLD) {
-                                boolean found = false;
-                                for (SpanWrapper span : typingSpans) {
-                                    if (span.span instanceof StyleSpan && ((StyleSpan) span.span).getStyle() == Typeface.BOLD) {
-                                        if (span.end == getSelectionEnd() - size) {
-                                            span.end = getSelectionEnd();
-                                            found = true;
-                                        }
-                                        break;
+                        if (typingEffects.contains(RichEditText.BOLD)) {
+                            boolean found = false;
+                            for (SpanWrapper span : typingSpans) {
+                                if (span.span instanceof StyleSpan && ((StyleSpan) span.span).getStyle() == Typeface.BOLD) {
+                                    if (span.end == getSelectionEnd() - size) {
+                                        span.end = getSelectionEnd();
+                                        found = true;
                                     }
-                                }
-                                if (!found) {
-                                    SpanWrapper span = new SpanWrapper();
-                                    span.start = getSelectionEnd() - size;
-                                    span.end = getSelectionEnd();
-                                    span.span = new StyleSpan(Typeface.BOLD);
-                                    typingSpans.add(span);
-                                }
-                            } else if (e == RichEditText.ITALIC) {
-                                boolean found = false;
-                                for (SpanWrapper span : typingSpans) {
-                                    if (span.span instanceof StyleSpan && ((StyleSpan) span.span).getStyle() == Typeface.ITALIC) {
-                                        if (span.end == getSelectionEnd() - size) {
-                                            span.end = getSelectionEnd();
-                                            found = true;
-                                        }
-                                        break;
-                                    }
-                                }
-                                if (!found) {
-                                    SpanWrapper span = new SpanWrapper();
-                                    span.start = getSelectionEnd() - size;
-                                    span.end = getSelectionEnd();
-                                    span.span = new StyleSpan(Typeface.ITALIC);
-                                    typingSpans.add(span);
-                                }
-                            } else if (e == RichEditText.UNDERLINE) {
-                                boolean found = false;
-                                for (SpanWrapper span : typingSpans) {
-                                    if (span.span instanceof UnderlineSpan) {
-                                        if (span.end == getSelectionEnd() - size) {
-                                            span.end = getSelectionEnd();
-                                            found = true;
-                                        }
-                                        break;
-                                    }
-                                }
-                                if (!found) {
-                                    SpanWrapper span = new SpanWrapper();
-                                    span.start = getSelectionEnd() - size;
-                                    span.end = getSelectionEnd();
-                                    span.span = new UnderlineSpan();
-                                    typingSpans.add(span);
-                                }
-                            } else if (e == RichEditText.STRIKETHROUGH) {
-                                boolean found = false;
-                                for (SpanWrapper span : typingSpans) {
-                                    if (span.span instanceof StrikethroughSpan) {
-                                        if (span.end == getSelectionEnd() - size) {
-                                            span.end = getSelectionEnd();
-                                            found = true;
-                                        }
-                                        break;
-                                    }
-                                }
-                                if (!found) {
-                                    SpanWrapper span = new SpanWrapper();
-                                    span.start = getSelectionEnd() - size;
-                                    span.end = getSelectionEnd();
-                                    span.span = new StrikethroughSpan();
-                                    typingSpans.add(span);
-                                }
-                            } else if (e == RichEditText.FOREGROUND) {
-                                boolean found = false;
-                                for (SpanWrapper span : typingSpans) {
-                                    if (span.span instanceof ForegroundColorSpan && ((ForegroundColorSpan)span.span).getForegroundColor() == typing_fg) {
-                                        if (span.end == getSelectionEnd() - size) {
-                                            span.end = getSelectionEnd();
-                                            found = true;
-                                        }
-                                        break;
-                                    }
-                                }
-                                if (!found) {
-                                    SpanWrapper span = new SpanWrapper();
-                                    span.start = getSelectionEnd() - size;
-                                    span.end = getSelectionEnd();
-                                    span.span = new ForegroundColorSpan(typing_fg);
-                                    typingSpans.add(span);
-                                }
-                            } else if (e == RichEditText.BACKGROUND) {
-                                boolean found = false;
-                                for (SpanWrapper span : typingSpans) {
-                                    if (span.span instanceof BackgroundColorSpan && ((BackgroundColorSpan)span.span).getBackgroundColor() == typing_bg) {
-                                        if (span.end == getSelectionEnd() - size) {
-                                            span.end = getSelectionEnd();
-                                            found = true;
-                                        }
-                                        break;
-                                    }
-                                }
-                                if (!found) {
-                                    SpanWrapper span = new SpanWrapper();
-                                    span.start = getSelectionEnd() - size;
-                                    span.end = getSelectionEnd();
-                                    span.span = new BackgroundColorSpan(typing_bg);
-                                    typingSpans.add(span);
+                                    break;
                                 }
                             }
+                            if (!found) {
+                                SpanWrapper span = new SpanWrapper();
+                                span.start = getSelectionEnd() - size;
+                                span.end = getSelectionEnd();
+                                span.span = new StyleSpan(Typeface.BOLD);
+                                typingSpans.add(span);
+                            }
                         }
-                    } else {
-                        android.util.Log.w("IRCCloud", "TODO: backspace pressed, adjust our spans");
+                        if (typingEffects.contains(RichEditText.ITALIC)) {
+                            boolean found = false;
+                            for (SpanWrapper span : typingSpans) {
+                                if (span.span instanceof StyleSpan && ((StyleSpan) span.span).getStyle() == Typeface.ITALIC) {
+                                    if (span.end == getSelectionEnd() - size) {
+                                        span.end = getSelectionEnd();
+                                        found = true;
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                SpanWrapper span = new SpanWrapper();
+                                span.start = getSelectionEnd() - size;
+                                span.end = getSelectionEnd();
+                                span.span = new StyleSpan(Typeface.ITALIC);
+                                typingSpans.add(span);
+                            }
+                        }
+                        if (typingEffects.contains(RichEditText.UNDERLINE)) {
+                            boolean found = false;
+                            for (SpanWrapper span : typingSpans) {
+                                if (span.span instanceof UnderlineSpan) {
+                                    if (span.end == getSelectionEnd() - size) {
+                                        span.end = getSelectionEnd();
+                                        found = true;
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                SpanWrapper span = new SpanWrapper();
+                                span.start = getSelectionEnd() - size;
+                                span.end = getSelectionEnd();
+                                span.span = new UnderlineSpan();
+                                typingSpans.add(span);
+                            }
+                        }
+                        if (typingEffects.contains(RichEditText.STRIKETHROUGH)) {
+                            boolean found = false;
+                            for (SpanWrapper span : typingSpans) {
+                                if (span.span instanceof StrikethroughSpan) {
+                                    if (span.end == getSelectionEnd() - size) {
+                                        span.end = getSelectionEnd();
+                                        found = true;
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                SpanWrapper span = new SpanWrapper();
+                                span.start = getSelectionEnd() - size;
+                                span.end = getSelectionEnd();
+                                span.span = new StrikethroughSpan();
+                                typingSpans.add(span);
+                            }
+                        }
+                        if (typingEffects.contains(RichEditText.FOREGROUND)) {
+                            boolean found = false;
+                            for (SpanWrapper span : typingSpans) {
+                                if (span.span instanceof ForegroundColorSpan && ((ForegroundColorSpan)span.span).getForegroundColor() == typing_fg) {
+                                    if (span.end == getSelectionEnd() - size) {
+                                        span.end = getSelectionEnd();
+                                        found = true;
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                SpanWrapper span = new SpanWrapper();
+                                span.start = getSelectionEnd() - size;
+                                span.end = getSelectionEnd();
+                                span.span = new ForegroundColorSpan(typing_fg);
+                                typingSpans.add(span);
+                            }
+                        }
+                        if (typingEffects.contains(RichEditText.BACKGROUND)) {
+                            boolean found = false;
+                            for (SpanWrapper span : typingSpans) {
+                                if (span.span instanceof BackgroundColorSpan && ((BackgroundColorSpan)span.span).getBackgroundColor() == typing_bg) {
+                                    if (span.end == getSelectionEnd() - size) {
+                                        span.end = getSelectionEnd();
+                                        found = true;
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                SpanWrapper span = new SpanWrapper();
+                                span.start = getSelectionEnd() - size;
+                                span.end = getSelectionEnd();
+                                span.span = new BackgroundColorSpan(typing_bg);
+                                typingSpans.add(span);
+                            }
+                        }
                     }
                 } else {
                     typingSpans.clear();
@@ -193,7 +196,6 @@ public class IRCEditText extends RichEditText {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                android.util.Log.e("IRCCloud", "after change");
                 ArrayList<SpanWrapper> spansToRemove = new ArrayList<>();
 
                 for(SpanWrapper span : typingSpans) {
@@ -205,6 +207,24 @@ public class IRCEditText extends RichEditText {
                             continue;
                         }
                     }
+
+                    if(editable.getSpanStart(span.span) != -1) {
+                        if (size > 0) {
+                            if (span.start > selectionEnd - size) {
+                                span.start += size;
+                                span.end += size;
+                            } else if(span.end > selectionEnd + size) {
+                                span.end += size;
+                            }
+                        } else {
+                            if (span.start > selectionEnd + size) {
+                                span.start += size;
+                                span.end += size;
+                            } else if(span.end > selectionEnd - size) {
+                                span.end += size;
+                            }
+                        }
+                    }
                     editable.setSpan(span.span, span.start, span.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
 
@@ -212,6 +232,19 @@ public class IRCEditText extends RichEditText {
                     typingSpans.removeAll(spansToRemove);
             }
         });
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        boolean result = super.onKeyUp(keyCode, event);
+        if(!event.isCtrlPressed() && !event.isShiftPressed() && !event.isMetaPressed()) {
+            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                lastSelectionStart = -1;
+                lastSelectionEnd = -2;
+                onSelectionChanged(getSelectionStart(), getSelectionEnd());
+            }
+        }
+        return result;
     }
 
     @Override
@@ -360,7 +393,7 @@ public class IRCEditText extends RichEditText {
     public void onSelectionChanged(int start, int end) {
         Spannable text = getText();
         if (text != null && text.length() > 0) {
-            if(lastSelectionStart != start - 1 || lastSelectionStart != lastSelectionEnd || start != end) {
+            if(start != lastSelectionStart && end != lastSelectionEnd && (lastSelectionStart != start - 1 || lastSelectionStart != lastSelectionEnd || start != end)) {
                 if (typingEffects != null)
                     typingEffects.clear();
                 if (typingSpans != null)
@@ -396,44 +429,61 @@ public class IRCEditText extends RichEditText {
         super.onSelectionChanged(start, end);
     }
 
-    private void splitInactiveSpans() {
-        Spannable text = getText();
-
-        for (CharacterStyle style : text.getSpans(getSelectionStart(), getSelectionEnd(), CharacterStyle.class)) {
-            if(text.getSpanFlags(style) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
-                int start = text.getSpanStart(style);
-                int end = text.getSpanEnd(style);
-
-                if (shouldRemoveSpan(style)) {
-                    if (end > getSelectionEnd()) {
-                        if (end - getSelectionEnd() > 0) {
-                            CharacterStyle newStyle = CharacterStyle.wrap(style);
-                            text.setSpan(newStyle, getSelectionEnd(), end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        }
+    private void splitSpan(Spannable text, CharacterStyle style, int gap) {
+        int start = text.getSpanStart(style);
+        int end = text.getSpanEnd(style);
+        text.removeSpan(style);
+        if (end > getSelectionEnd()) {
+            if (end - getSelectionEnd() > 0) {
+                CharacterStyle newStyle = CharacterStyle.wrap(style);
+                text.setSpan(newStyle, getSelectionEnd() + gap, end + gap, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                for(SpanWrapper w : typingSpans) {
+                    if(w.span == style) {
+                        w = new SpanWrapper();
+                        w.start = getSelectionEnd() + gap;
+                        w.end = end + gap;
+                        w.span = newStyle;
+                        typingSpans.add(w);
+                        break;
                     }
-                    if (start < getSelectionStart()) {
-                        text.setSpan(style, start, getSelectionStart(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    }
-                    if (start >= getSelectionStart() && end <= getSelectionEnd()) {
-                        text.removeSpan(style);
-                    }
+                }
+            }
+        }
+        if (start < getSelectionStart()) {
+            text.setSpan(style, start, getSelectionStart(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            for(SpanWrapper w : typingSpans) {
+                if(w.span == style) {
+                    w.start = start;
+                    w.end = getSelectionStart() - gap;
+                    break;
                 }
             }
         }
     }
 
-    public void clearTypingEffects() {
-        if(typingEffects != null) {
-            for(Effect e : typingEffects) {
-                applyEffect(e, false);
+    private void splitInactiveSpans(Spannable text, int start, int end, int gap) {
+        for (CharacterStyle style : text.getSpans(start, end, CharacterStyle.class)) {
+            if(text.getSpanFlags(style) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
+                if (shouldRemoveSpan(style)) {
+                    splitSpan(text, style, gap);
+                }
             }
-            typingEffects.clear();
         }
-        if(typingSpans != null)
-            typingSpans.clear();
+
+        if(typingSpans != null) {
+            for (SpanWrapper w : typingSpans) {
+                text.setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+    }
+
+    public void clearTypingEffects() {
+        if(typingEffects != null)
+            typingEffects.clear();
         typing_fg = typing_bg = -1;
 
-        splitInactiveSpans();
+        splitInactiveSpans(getText(), getSelectionStart(), getSelectionEnd(), 0);
+        super.onSelectionChanged(getSelectionStart(), getSelectionEnd());
     }
 
     public void toggleTypingEffect(Effect effect) {
@@ -444,7 +494,7 @@ public class IRCEditText extends RichEditText {
             typingEffects.add(effect);
             applyEffect(effect, true);
         }
-        splitInactiveSpans();
+        splitInactiveSpans(getText(), getSelectionStart(), getSelectionEnd(), 0);
         super.onSelectionChanged(getSelectionStart(), getSelectionEnd());
     }
 
@@ -452,7 +502,7 @@ public class IRCEditText extends RichEditText {
         typing_fg = color;
         typingEffects.add(RichEditText.FOREGROUND);
         applyEffect(RichEditText.FOREGROUND, color);
-        splitInactiveSpans();
+        splitInactiveSpans(getText(), getSelectionStart(), getSelectionEnd(), 0);
         super.onSelectionChanged(getSelectionStart(), getSelectionEnd());
     }
 
@@ -460,7 +510,7 @@ public class IRCEditText extends RichEditText {
         typing_bg = color;
         typingEffects.add(RichEditText.BACKGROUND);
         applyEffect(RichEditText.BACKGROUND, color);
-        splitInactiveSpans();
+        splitInactiveSpans(getText(), getSelectionStart(), getSelectionEnd(), 0);
         super.onSelectionChanged(getSelectionStart(), getSelectionEnd());
     }
 }
