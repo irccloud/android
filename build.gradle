@@ -329,12 +329,13 @@ tasks.whenTaskAdded { task ->
 }
 
 ext {
-    supportLibVersion = '26.0.0'
+    supportLibVersion = '26.0.1'
     playServicesVersion = '11.0.2'
     dbflowVersion = "4.0.5"
 }
 
 dependencies {
+    implementation 'com.android.support:support-v4:26.0.1'
     compile "com.android.support:support-v4:$supportLibVersion"
     compile "com.android.support:support-v13:$supportLibVersion"
     compile "com.android.support:appcompat-v7:$supportLibVersion"

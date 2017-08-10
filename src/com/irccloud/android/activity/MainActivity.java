@@ -45,10 +45,8 @@ import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.media.AudioAttributes;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -78,19 +76,11 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.CharacterStyle;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
-import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.DragEvent;
@@ -126,7 +116,6 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.commonsware.cwac.richedit.Effect;
-import com.commonsware.cwac.richedit.ForegroundColorEffect;
 import com.commonsware.cwac.richedit.RichEditText;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
@@ -170,6 +159,7 @@ import com.irccloud.android.fragment.ChannelListFragment;
 import com.irccloud.android.fragment.ChannelModeListFragment;
 import com.irccloud.android.fragment.ChannelOptionsFragment;
 import com.irccloud.android.fragment.EditConnectionFragment;
+import com.irccloud.android.fragment.IRCColorPickerFragment;
 import com.irccloud.android.fragment.IgnoreListFragment;
 import com.irccloud.android.fragment.LinksListFragment;
 import com.irccloud.android.fragment.MessageViewFragment;
@@ -215,7 +205,7 @@ import java.util.UUID;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_FILE;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_THUMBNAIL;
 
-public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler {
+public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler, IRCColorPickerFragment.OnColorPickedListener {
     private Buffer buffer;
     private Server server;
     private ActionEditText messageTxt;
@@ -311,8 +301,29 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private Drawable upDrawable;
 
-    private HashMap<Integer, Event> pendingEvents = new HashMap<Integer, Event>();
+    private HashMap<Integer, Event> pendingEvents = new HashMap<>();
     private int lastDrawerWidth = 0;
+
+    private IRCColorPickerFragment mColorPickerFragment;
+
+    @Override
+    public void onColorPicked(int color, boolean background) {
+        if(background)
+            messageTxt.applyBackgroundColor(color);
+        else
+            messageTxt.applyForegroundColor(color);
+
+        if (Build.VERSION.SDK_INT >= 16) {
+            mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
+                @Override
+                public void run() {
+                    mColorPickerFragment.getView().setVisibility(View.GONE);
+                }
+            });
+        } else {
+            mColorPickerFragment.getView().setVisibility(View.GONE);
+        }
+    }
 
     @SuppressLint("NewApi")
     @SuppressWarnings({"deprecation", "unchecked"})
@@ -342,6 +353,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         errorMsg = findViewById(R.id.errorMsg);
         buffersListView = findViewById(R.id.BuffersList);
         drawerLayout = findViewById(R.id.drawerLayout);
+
+        mColorPickerFragment = (IRCColorPickerFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment).getChildFragmentManager().findFragmentById(R.id.colorPickerFragmet);
+        mColorPickerFragment.getView().setVisibility(View.GONE);
 
         final ImageButton boldBtn = findViewById(R.id.bold);
         boldBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
@@ -373,23 +387,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
 
-        final ImageButton strikethroughBtn = findViewById(R.id.strikethrough);
-        strikethroughBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
-        strikethroughBtn.setFocusable(false);
-        strikethroughBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                messageTxt.toggleTypingEffect(RichEditText.STRIKETHROUGH);
-            }
-        });
-
         final ImageButton colorBtn = findViewById(R.id.color);
         colorBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
         colorBtn.setFocusable(false);
         colorBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                messageTxt.applyForegroundColor(0xFFFF00FF);
+                Bundle b = new Bundle();
+                b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
+                mColorPickerFragment.setArguments(b);
+                if(mColorPickerFragment.getView().getVisibility() == View.GONE) {
+                    if (Build.VERSION.SDK_INT >= 16) {
+                        mColorPickerFragment.getView().setAlpha(0);
+                        mColorPickerFragment.getView().animate().alpha(1.0f);
+                    }
+                    mColorPickerFragment.getView().setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -399,7 +412,27 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         bgcolorBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                messageTxt.applyBackgroundColor(0xFF00FFFF);
+                Bundle b = new Bundle();
+                b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, true);
+                mColorPickerFragment.setArguments(b);
+                if(mColorPickerFragment.getView().getVisibility() == View.GONE) {
+                    if (Build.VERSION.SDK_INT >= 16) {
+                        mColorPickerFragment.getView().setAlpha(0);
+                        mColorPickerFragment.getView().animate().alpha(1.0f);
+                    }
+                    mColorPickerFragment.getView().setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        final ImageButton clearBtn = findViewById(R.id.clear);
+        clearBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+        clearBtn.setFocusable(false);
+        clearBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                messageTxt.clearTypingEffects();
+                messageTxt.onSelectionChanged(messageTxt.getSelectionStart(),messageTxt.getSelectionEnd());
             }
         });
 
@@ -410,7 +443,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 boldBtn.setBackgroundColor(messageTxt.hasEffect(RichEditText.BOLD) ? ColorScheme.getInstance().bufferBackgroundColor : ColorScheme.getInstance().textareaBackgroundColor);
                 italicsBtn.setBackgroundColor(messageTxt.hasEffect(RichEditText.ITALIC) ? ColorScheme.getInstance().bufferBackgroundColor : ColorScheme.getInstance().textareaBackgroundColor);
                 underlineBtn.setBackgroundColor(messageTxt.hasEffect(RichEditText.UNDERLINE) ? ColorScheme.getInstance().bufferBackgroundColor : ColorScheme.getInstance().textareaBackgroundColor);
-                strikethroughBtn.setBackgroundColor(messageTxt.hasEffect(RichEditText.STRIKETHROUGH) ? ColorScheme.getInstance().bufferBackgroundColor : ColorScheme.getInstance().textareaBackgroundColor);
                 if(messageTxt.hasEffect(RichEditText.FOREGROUND))
                     colorBtn.setColorFilter(messageTxt.getEffectValue(RichEditText.FOREGROUND), PorterDuff.Mode.SRC_ATOP);
                 else
@@ -621,18 +653,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         adjustTabletLayout();
-
-        final View splash = findViewById(R.id.splash);
-        if(Build.VERSION.SDK_INT < 16 || savedInstanceState != null || (getIntent() != null && getIntent().hasExtra("nosplash"))) {
-            splash.setVisibility(View.GONE);
-        } else {
-            splash.animate().alpha(0).withEndAction(new Runnable() {
-                @Override
-                public void run() {
-                    splash.setVisibility(View.GONE);
-                }
-            });
-        }
 
         drawerLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -4905,7 +4925,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         }
-        shouldFadeIn = buffer != null && changed && !(buffer != null && buffer.getBid() == bid && findViewById(R.id.splash) != null && findViewById(R.id.splash).getVisibility() == View.GONE);
+        shouldFadeIn = buffer != null && changed && !(buffer != null && buffer.getBid() == bid);
         buffer = BuffersList.getInstance().getBuffer(bid);
         if (buffer != null) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.getCid() + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);

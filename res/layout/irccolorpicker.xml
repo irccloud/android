@@ -1,0 +1,138 @@
+<!--
+  ~ Copyright (c) 2016 IRCCloud, Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?bufferBackgroundDrawable"
+    android:columnCount="8"
+    android:padding="2dp"
+    tools:context="com.irccloud.android.fragment.IRCColorPickerFragment">
+
+    <ImageButton
+        android:id="@+id/color0"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color1"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color2"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color3"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color4"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color5"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color6"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color7"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color8"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color9"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color10"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color11"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color12"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color13"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color14"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+
+    <ImageButton
+        android:id="@+id/color15"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="2dp"
+        android:background="@drawable/highlights_bg" />
+</GridLayout>

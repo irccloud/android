@@ -203,6 +203,16 @@
                     android:columnWidth="160dp" />
             </LinearLayout>
         </LinearLayout>
+
+        <fragment
+            android:id="@+id/colorPickerFragmet"
+            android:name="com.irccloud.android.fragment.IRCColorPickerFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp" />
     </RelativeLayout>
 
     <LinearLayout

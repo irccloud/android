@@ -168,42 +168,40 @@
                                 app:srcCompat="@drawable/ic_format_underline" />
 
                             <ImageButton
-                                android:id="@+id/strikethrough"
-                                style="@style/Widget.Styled.ImageButton"
-                                android:layout_marginLeft="8dp"
-                                android:layout_width="32dp"
-                                android:layout_height="32dp"
-                                android:layout_toRightOf="@id/underline"
-                                android:layout_alignParentTop="true"
-                                android:contentDescription="Strikethrough"
-                                android:scaleType="center"
-                                app:srcCompat="@drawable/ic_format_strikethrough" />
-
-                            <ImageButton
                                 android:id="@+id/color"
                                 style="@style/Widget.Styled.ImageButton"
-                                android:layout_marginLeft="8dp"
                                 android:layout_width="32dp"
                                 android:layout_height="32dp"
-                                android:layout_toRightOf="@id/strikethrough"
                                 android:layout_alignParentTop="true"
+                                android:layout_marginLeft="8dp"
+                                android:layout_toRightOf="@id/underline"
                                 android:contentDescription="Text Color"
                                 android:scaleType="center"
-                                android:visibility="gone"
                                 app:srcCompat="@drawable/ic_format_color" />
 
                             <ImageButton
                                 android:id="@+id/background"
                                 style="@style/Widget.Styled.ImageButton"
-                                android:layout_marginLeft="8dp"
                                 android:layout_width="32dp"
                                 android:layout_height="32dp"
-                                android:layout_toRightOf="@id/color"
                                 android:layout_alignParentTop="true"
+                                android:layout_marginLeft="8dp"
+                                android:layout_toRightOf="@id/color"
                                 android:contentDescription="Background"
                                 android:scaleType="center"
-                                android:visibility="gone"
                                 app:srcCompat="@drawable/ic_format_background" />
+
+                            <ImageButton
+                                android:id="@+id/clear"
+                                style="@style/Widget.Styled.ImageButton"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_alignParentTop="true"
+                                android:layout_marginLeft="8dp"
+                                android:layout_toRightOf="@id/background"
+                                android:contentDescription="Clear Formatting"
+                                android:scaleType="center"
+                                app:srcCompat="@drawable/ic_format_clear" />
 
                             <ImageButton
                                 android:id="@+id/sendBtn"
@@ -284,20 +282,5 @@
         android:layout_gravity="right"
         android:visibility="gone"
         tools:layout="@layout/userslist" />
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/loginTopBackgroundColor"
-        android:id="@+id/splash"
-        android:paddingTop="@dimen/status_bar_height"
-        android:visibility="gone">
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/splash_logo"
-            android:id="@+id/splash_logo"
-            android:layout_gravity="center"/>
-    </FrameLayout>
 
 </android.support.v4.widget.DrawerLayout>

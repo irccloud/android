@@ -68,15 +68,15 @@ public class IRCEditText extends RichEditText {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 int size = count - before;
-                if (getSelectionStart() == getSelectionEnd() && getSelectionStart() == s.length()) {
+                if (getSelectionStart() == getSelectionEnd()) {
                     if(size > 0) {
                         for (Effect e : typingEffects) {
                             if (e == RichEditText.BOLD) {
                                 boolean found = false;
                                 for (SpanWrapper span : typingSpans) {
                                     if (span.span instanceof StyleSpan && ((StyleSpan) span.span).getStyle() == Typeface.BOLD) {
-                                        if (span.end == s.length() - size) {
-                                            span.end = s.length();
+                                        if (span.end == getSelectionEnd() - size) {
+                                            span.end = getSelectionEnd();
                                             found = true;
                                         }
                                         break;
@@ -84,8 +84,8 @@ public class IRCEditText extends RichEditText {
                                 }
                                 if (!found) {
                                     SpanWrapper span = new SpanWrapper();
-                                    span.start = s.length() - size;
-                                    span.end = s.length();
+                                    span.start = getSelectionEnd() - size;
+                                    span.end = getSelectionEnd();
                                     span.span = new StyleSpan(Typeface.BOLD);
                                     typingSpans.add(span);
                                 }
@@ -93,8 +93,8 @@ public class IRCEditText extends RichEditText {
                                 boolean found = false;
                                 for (SpanWrapper span : typingSpans) {
                                     if (span.span instanceof StyleSpan && ((StyleSpan) span.span).getStyle() == Typeface.ITALIC) {
-                                        if (span.end == s.length() - size) {
-                                            span.end = s.length();
+                                        if (span.end == getSelectionEnd() - size) {
+                                            span.end = getSelectionEnd();
                                             found = true;
                                         }
                                         break;
@@ -102,8 +102,8 @@ public class IRCEditText extends RichEditText {
                                 }
                                 if (!found) {
                                     SpanWrapper span = new SpanWrapper();
-                                    span.start = s.length() - size;
-                                    span.end = s.length();
+                                    span.start = getSelectionEnd() - size;
+                                    span.end = getSelectionEnd();
                                     span.span = new StyleSpan(Typeface.ITALIC);
                                     typingSpans.add(span);
                                 }
@@ -111,8 +111,8 @@ public class IRCEditText extends RichEditText {
                                 boolean found = false;
                                 for (SpanWrapper span : typingSpans) {
                                     if (span.span instanceof UnderlineSpan) {
-                                        if (span.end == s.length() - size) {
-                                            span.end = s.length();
+                                        if (span.end == getSelectionEnd() - size) {
+                                            span.end = getSelectionEnd();
                                             found = true;
                                         }
                                         break;
@@ -120,8 +120,8 @@ public class IRCEditText extends RichEditText {
                                 }
                                 if (!found) {
                                     SpanWrapper span = new SpanWrapper();
-                                    span.start = s.length() - size;
-                                    span.end = s.length();
+                                    span.start = getSelectionEnd() - size;
+                                    span.end = getSelectionEnd();
                                     span.span = new UnderlineSpan();
                                     typingSpans.add(span);
                                 }
@@ -129,8 +129,8 @@ public class IRCEditText extends RichEditText {
                                 boolean found = false;
                                 for (SpanWrapper span : typingSpans) {
                                     if (span.span instanceof StrikethroughSpan) {
-                                        if (span.end == s.length() - size) {
-                                            span.end = s.length();
+                                        if (span.end == getSelectionEnd() - size) {
+                                            span.end = getSelectionEnd();
                                             found = true;
                                         }
                                         break;
@@ -138,8 +138,8 @@ public class IRCEditText extends RichEditText {
                                 }
                                 if (!found) {
                                     SpanWrapper span = new SpanWrapper();
-                                    span.start = s.length() - size;
-                                    span.end = s.length();
+                                    span.start = getSelectionEnd() - size;
+                                    span.end = getSelectionEnd();
                                     span.span = new StrikethroughSpan();
                                     typingSpans.add(span);
                                 }
@@ -147,8 +147,8 @@ public class IRCEditText extends RichEditText {
                                 boolean found = false;
                                 for (SpanWrapper span : typingSpans) {
                                     if (span.span instanceof ForegroundColorSpan && ((ForegroundColorSpan)span.span).getForegroundColor() == typing_fg) {
-                                        if (span.end == s.length() - size) {
-                                            span.end = s.length();
+                                        if (span.end == getSelectionEnd() - size) {
+                                            span.end = getSelectionEnd();
                                             found = true;
                                         }
                                         break;
@@ -156,8 +156,8 @@ public class IRCEditText extends RichEditText {
                                 }
                                 if (!found) {
                                     SpanWrapper span = new SpanWrapper();
-                                    span.start = s.length() - size;
-                                    span.end = s.length();
+                                    span.start = getSelectionEnd() - size;
+                                    span.end = getSelectionEnd();
                                     span.span = new ForegroundColorSpan(typing_fg);
                                     typingSpans.add(span);
                                 }
@@ -165,8 +165,8 @@ public class IRCEditText extends RichEditText {
                                 boolean found = false;
                                 for (SpanWrapper span : typingSpans) {
                                     if (span.span instanceof BackgroundColorSpan && ((BackgroundColorSpan)span.span).getBackgroundColor() == typing_bg) {
-                                        if (span.end == s.length() - size) {
-                                            span.end = s.length();
+                                        if (span.end == getSelectionEnd() - size) {
+                                            span.end = getSelectionEnd();
                                             found = true;
                                         }
                                         break;
@@ -174,13 +174,15 @@ public class IRCEditText extends RichEditText {
                                 }
                                 if (!found) {
                                     SpanWrapper span = new SpanWrapper();
-                                    span.start = s.length() - size;
-                                    span.end = s.length();
+                                    span.start = getSelectionEnd() - size;
+                                    span.end = getSelectionEnd();
                                     span.span = new BackgroundColorSpan(typing_bg);
                                     typingSpans.add(span);
                                 }
                             }
                         }
+                    } else {
+                        android.util.Log.w("IRCCloud", "TODO: backspace pressed, adjust our spans");
                     }
                 } else {
                     typingSpans.clear();
@@ -317,7 +319,7 @@ public class IRCEditText extends RichEditText {
 
     @Override
     public boolean hasEffect(Effect effect) {
-        if(getSelectionStart() == getSelectionEnd() && getSelectionStart() == getText().length())
+        if(getSelectionStart() == getSelectionEnd())
             return typingEffects.contains(effect);
         else
             return super.hasEffect(effect);
@@ -326,7 +328,7 @@ public class IRCEditText extends RichEditText {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getEffectValue(Effect<T> effect) {
-        if(getSelectionStart() == getSelectionEnd() && getSelectionStart() == getText().length()) {
+        if(getSelectionStart() == getSelectionEnd()) {
             if(effect == RichEditText.FOREGROUND)
                 return (T)Integer.valueOf(typing_fg);
             else if(effect == RichEditText.BACKGROUND)
@@ -345,7 +347,7 @@ public class IRCEditText extends RichEditText {
     }
 
     public void toggleTypingEffect(Effect effect) {
-        if(getSelectionStart() == getSelectionEnd() && getSelectionStart() == getText().length()) {
+        if(getSelectionStart() == getSelectionEnd()) {
             if(typingEffects.contains(effect))
                 typingEffects.remove(effect);
             else
@@ -357,7 +359,7 @@ public class IRCEditText extends RichEditText {
     }
 
     public void applyForegroundColor(int color) {
-        if(getSelectionStart() == getSelectionEnd() && getSelectionStart() == getText().length()) {
+        if(getSelectionStart() == getSelectionEnd()) {
             typing_fg = color;
             typingEffects.add(RichEditText.FOREGROUND);
         } else {
@@ -367,7 +369,7 @@ public class IRCEditText extends RichEditText {
     }
 
     public void applyBackgroundColor(int color) {
-        if(getSelectionStart() == getSelectionEnd() && getSelectionStart() == getText().length()) {
+        if(getSelectionStart() == getSelectionEnd()) {
             typing_bg = color;
             typingEffects.add(RichEditText.BACKGROUND);
         } else {

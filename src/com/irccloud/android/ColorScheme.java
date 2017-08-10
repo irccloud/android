@@ -33,6 +33,17 @@ public class ColorScheme {
         return PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("theme", "dawn");
     }
 
+    public static int getIRCColor(int color, boolean background) {
+        String s = ColorFormatter.COLOR_MAP[color];
+
+        if(getInstance().isDarkTheme && !background) {
+            if(ColorFormatter.DARK_FG_SUBSTITUTIONS.containsKey(s))
+                s = ColorFormatter.DARK_FG_SUBSTITUTIONS.get(s);
+        }
+
+        return 0xff000000 + Integer.parseInt(s, 16);
+    }
+
     public static int getTheme(String theme, boolean actionbar) {
         switch(theme) {
             case "dawn":
