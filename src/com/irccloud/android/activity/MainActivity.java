@@ -65,6 +65,8 @@ import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.text.emoji.EmojiCompat;
+import android.support.text.emoji.EmojiSpan;
+import android.support.text.emoji.TypefaceEmojiSpan;
 import android.support.v13.view.inputmethod.InputContentInfoCompat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
@@ -80,7 +82,13 @@ import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.CharacterStyle;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
+import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ActionMode;
@@ -414,7 +422,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                         return true;
                     case R.id.menu_color:
+                        b = new Bundle();
+                        b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
                         if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
+                            mColorPickerFragment.setArguments(b);
                             if (Build.VERSION.SDK_INT >= 16) {
                                 mColorPickerFragment.getView().setAlpha(0);
                                 mColorPickerFragment.getView().animate().alpha(1.0f);
@@ -422,8 +433,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             mColorPickerFragment.getView().setVisibility(View.VISIBLE);
                         } else {
                             if(mColorPickerFragment.isBackground()) {
-                                b = new Bundle();
-                                b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
                                 mColorPickerFragment.setArguments(b);
                             } else {
                                 if (Build.VERSION.SDK_INT >= 16) {
@@ -440,7 +449,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                         return true;
                     case R.id.menu_background:
+                        b = new Bundle();
+                        b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, true);
                         if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
+                            mColorPickerFragment.setArguments(b);
                             if (Build.VERSION.SDK_INT >= 16) {
                                 mColorPickerFragment.getView().setAlpha(0);
                                 mColorPickerFragment.getView().animate().alpha(1.0f);
@@ -448,8 +460,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             mColorPickerFragment.getView().setVisibility(View.VISIBLE);
                         } else {
                             if(!mColorPickerFragment.isBackground()) {
-                                b = new Bundle();
-                                b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, true);
                                 mColorPickerFragment.setArguments(b);
                             } else {
                                 if (Build.VERSION.SDK_INT >= 16) {
@@ -632,6 +642,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         });
         textWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
+                Object[] spans = s.getSpans(0, s.length(), Object.class);
+                for (Object o : spans) {
+                    if (((s.getSpanFlags(o) & Spanned.SPAN_COMPOSING) != Spanned.SPAN_COMPOSING) && o instanceof CharacterStyle && o.getClass() != StyleSpan.class && o.getClass() != ForegroundColorSpan.class && o.getClass() != BackgroundColorSpan.class && o.getClass() != UnderlineSpan.class && o.getClass() != StrikethroughSpan.class && o.getClass() != EmojiSpan.class && o.getClass() != TypefaceEmojiSpan.class) {
+                        s.removeSpan(o);
+                    }
+                }
                 if (s.length() > 0 && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
                     sendBtn.setEnabled(true);
                 } else {

@@ -501,7 +501,8 @@ public class IRCEditText extends RichEditText {
     public void applyForegroundColor(int color) {
         typing_fg = color;
         typingEffects.add(RichEditText.FOREGROUND);
-        applyEffect(RichEditText.FOREGROUND, color);
+        if(getSelectionEnd() < getText().length())
+            applyEffect(RichEditText.FOREGROUND, color);
         splitInactiveSpans(getText(), getSelectionStart(), getSelectionEnd(), 0);
         super.onSelectionChanged(getSelectionStart(), getSelectionEnd());
     }
@@ -509,7 +510,8 @@ public class IRCEditText extends RichEditText {
     public void applyBackgroundColor(int color) {
         typing_bg = color;
         typingEffects.add(RichEditText.BACKGROUND);
-        applyEffect(RichEditText.BACKGROUND, color);
+        if(getSelectionEnd() < getText().length())
+            applyEffect(RichEditText.BACKGROUND, color);
         splitInactiveSpans(getText(), getSelectionStart(), getSelectionEnd(), 0);
         super.onSelectionChanged(getSelectionStart(), getSelectionEnd());
     }
