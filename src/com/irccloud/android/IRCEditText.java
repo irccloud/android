@@ -62,11 +62,12 @@ public class IRCEditText extends RichEditText {
 
     private void init() {
         addTextChangedListener(new TextWatcher() {
-            private int size, selectionEnd;
+            private int size, selectionEnd, oldLength;
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 selectionEnd = getSelectionEnd();
+                oldLength = s.length();
             }
 
             @Override
@@ -196,40 +197,45 @@ public class IRCEditText extends RichEditText {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                ArrayList<SpanWrapper> spansToRemove = new ArrayList<>();
+                if(oldLength > 0 && editable.length() == 0) {
+                    typingSpans.clear();
+                    typingEffects.clear();
+                } else {
+                    ArrayList<SpanWrapper> spansToRemove = new ArrayList<>();
 
-                for(SpanWrapper span : typingSpans) {
-                    if(span.end > editable.length()) {
-                        span.end = editable.length();
-                        if(span.end <= span.start) {
-                            editable.removeSpan(span.span);
-                            spansToRemove.add(span);
-                            continue;
-                        }
-                    }
-
-                    if(editable.getSpanStart(span.span) != -1) {
-                        if (size > 0) {
-                            if (span.start > selectionEnd - size) {
-                                span.start += size;
-                                span.end += size;
-                            } else if(span.end > selectionEnd + size) {
-                                span.end += size;
-                            }
-                        } else {
-                            if (span.start > selectionEnd + size) {
-                                span.start += size;
-                                span.end += size;
-                            } else if(span.end > selectionEnd - size) {
-                                span.end += size;
+                    for (SpanWrapper span : typingSpans) {
+                        if (span.end > editable.length()) {
+                            span.end = editable.length();
+                            if (span.end <= span.start) {
+                                editable.removeSpan(span.span);
+                                spansToRemove.add(span);
+                                continue;
                             }
                         }
+
+                        if (editable.getSpanStart(span.span) != -1) {
+                            if (size > 0) {
+                                if (span.start > selectionEnd - size) {
+                                    span.start += size;
+                                    span.end += size;
+                                } else if (span.end > selectionEnd + size) {
+                                    span.end += size;
+                                }
+                            } else {
+                                if (span.start > selectionEnd + size) {
+                                    span.start += size;
+                                    span.end += size;
+                                } else if (span.end > selectionEnd - size) {
+                                    span.end += size;
+                                }
+                            }
+                        }
+                        editable.setSpan(span.span, span.start, span.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
-                    editable.setSpan(span.span, span.start, span.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                    if (spansToRemove.size() > 0)
+                        typingSpans.removeAll(spansToRemove);
                 }
-
-                if(spansToRemove.size() > 0)
-                    typingSpans.removeAll(spansToRemove);
             }
         });
     }
@@ -269,7 +275,7 @@ public class IRCEditText extends RichEditText {
         for (int i = 0; i < text.length(); i = next) {
             next = text.nextSpanTransition(i, text.length(), CharacterStyle.class);
             String fgColorRGB = null, bgColorRGB = null, fgColormIRC = null, bgColormIRC = null;
-            boolean hasURL = false, shouldClear = false;
+            boolean hasURL = false, shouldClear = false, hasBold = false, hasItalics = false, hasUnderline = false, hasStrikethrough = false, hasMonospace = false;
             for (CharacterStyle style : text.getSpans(i, next, CharacterStyle.class)) {
                 if (style instanceof URLSpan) {
                     hasURL = true;
@@ -278,27 +284,27 @@ public class IRCEditText extends RichEditText {
                 if (style instanceof StyleSpan) {
                     int s = ((StyleSpan) style).getStyle();
                     if ((s & Typeface.BOLD) != 0) {
-                        out.append((char)0x02);
+                        hasBold = true;
                         shouldClear = true;
                     }
                     if ((s & Typeface.ITALIC) != 0) {
-                        out.append((char)0x1d);
+                        hasItalics = true;
                         shouldClear = true;
                     }
                 }
                 if (style instanceof TypefaceSpan) {
                     String s = ((TypefaceSpan) style).getFamily();
                     if ("monospace".equals(s)) {
-                        out.append((char)0x11);
+                        hasMonospace = true;
                         shouldClear = true;
                     }
                 }
                 if (style instanceof UnderlineSpan) {
-                    out.append((char)0x1f);
+                    hasUnderline = true;
                     shouldClear = true;
                 }
                 if (style instanceof StrikethroughSpan) {
-                    out.append((char)0x1e);
+                    hasStrikethrough = true;
                     shouldClear = true;
                 }
                 if(!hasURL) {
@@ -328,6 +334,21 @@ public class IRCEditText extends RichEditText {
                     }
                 }
             }
+            if(hasBold)
+                out.append((char)0x02);
+
+            if(hasItalics)
+                out.append((char)0x1d);
+
+            if(hasUnderline)
+                out.append((char)0x1f);
+
+            if(hasMonospace)
+                out.append((char)0x11);
+
+            if(hasStrikethrough)
+                out.append((char)0x1e);
+
             if(fgColorRGB != null || bgColorRGB != null) {
                 if((fgColormIRC != null && (bgColorRGB == null || bgColormIRC != null)) || (fgColormIRC == null && bgColormIRC != null)) {
                     out.append((char) 0x03);
