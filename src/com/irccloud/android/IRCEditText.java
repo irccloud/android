@@ -258,6 +258,11 @@ public class IRCEditText extends RichEditText {
 
     public String toIRC() {
         Spanned text = getText();
+        if(typingSpans != null) {
+            for (SpanWrapper w : typingSpans) {
+                text.setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
         StringBuilder out = new StringBuilder();
 
         int next;
