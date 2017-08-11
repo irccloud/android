@@ -304,19 +304,24 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                 exportButton.setAlpha(0.5f);
                 NetworkConnection.IRCResultCallback callback = new NetworkConnection.IRCResultCallback() {
                     @Override
-                    public void onIRCResult(IRCCloudJSONObject result) {
-                        if(result.getBoolean("success")) {
-                            LogExport e = LogExportsList.getInstance().create(result.getJsonNode("export"));
-                            e.save();
-                            new RefreshTask().execute((Void)null);
-                            Snackbar.make(findViewById(android.R.id.list), "Your log export is in progress.", Snackbar.LENGTH_SHORT).show();
-                        } else if (result.getString("message").equals("rate_limited")) {
-                            Snackbar.make(findViewById(android.R.id.list), "You have requested too many exports, please try again later.", Snackbar.LENGTH_SHORT).show();
-                        } else {
-                            Snackbar.make(findViewById(android.R.id.list), "Unable to export log: " + result.getString("message"), Snackbar.LENGTH_SHORT).show();
-                        }
-                        exportButton.setEnabled(true);
-                        exportButton.setAlpha(1.0f);
+                    public void onIRCResult(final IRCCloudJSONObject result) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(result.getBoolean("success")) {
+                                    LogExport e = LogExportsList.getInstance().create(result.getJsonNode("export"));
+                                    e.save();
+                                    new RefreshTask().execute((Void)null);
+                                    Snackbar.make(findViewById(android.R.id.list), "Your log export is in progress.", Snackbar.LENGTH_SHORT).show();
+                                } else if (result.getString("message").equals("rate_limited")) {
+                                    Snackbar.make(findViewById(android.R.id.list), "You have requested too many exports, please try again later.", Snackbar.LENGTH_SHORT).show();
+                                } else {
+                                    Snackbar.make(findViewById(android.R.id.list), "Unable to export log: " + result.getString("message"), Snackbar.LENGTH_SHORT).show();
+                                }
+                                exportButton.setEnabled(true);
+                                exportButton.setAlpha(1.0f);
+                            }
+                        });
                     }
                 };
 
