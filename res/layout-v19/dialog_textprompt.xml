@@ -31,15 +31,16 @@
         android:textColor="?messageTextColor"
         />
 
-    <android.support.text.emoji.widget.EmojiEditText
+    <com.irccloud.android.IRCEditText
         android:id="@+id/textInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="?editTextTheme"
+        android:inputType="text"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:ems="10">
 
         <requestFocus />
-    </android.support.text.emoji.widget.EmojiEditText>
+    </com.irccloud.android.IRCEditText>
 
 </LinearLayout>

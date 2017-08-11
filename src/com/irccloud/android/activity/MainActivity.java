@@ -144,6 +144,7 @@ import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
+import com.irccloud.android.IRCEditText;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.ImageList;
@@ -4189,15 +4190,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             View view = getDialogTextPrompt();
             TextView prompt = view.findViewById(R.id.prompt);
-            final EditText input = view.findViewById(R.id.textInput);
-            input.setText(c.topic_text);
+            final IRCEditText input = view.findViewById(R.id.textInput);
+            input.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text))), false, null));
             prompt.setVisibility(View.GONE);
             builder.setTitle("Topic for " + c.name);
             builder.setView(view);
             builder.setPositiveButton("Set Topic", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    conn.topic(c.cid, c.name, input.getText().toString(), null);
+                    conn.topic(c.cid, c.name, input.toIRC(), null);
                     dialog.dismiss();
                 }
             });
