@@ -400,29 +400,69 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     case R.id.menu_clear:
                         messageTxt.clearTypingEffects();
                         messageTxt.onSelectionChanged(messageTxt.getSelectionStart(), messageTxt.getSelectionEnd());
+                        if(mColorPickerFragment.getView().getVisibility() == View.VISIBLE) {
+                            if (Build.VERSION.SDK_INT >= 16) {
+                                mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mColorPickerFragment.getView().setVisibility(View.GONE);
+                                    }
+                                });
+                            } else {
+                                mColorPickerFragment.getView().setVisibility(View.GONE);
+                            }
+                        }
                         return true;
                     case R.id.menu_color:
-                        b = new Bundle();
-                        b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
-                        mColorPickerFragment.setArguments(b);
                         if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
                             if (Build.VERSION.SDK_INT >= 16) {
                                 mColorPickerFragment.getView().setAlpha(0);
                                 mColorPickerFragment.getView().animate().alpha(1.0f);
                             }
                             mColorPickerFragment.getView().setVisibility(View.VISIBLE);
+                        } else {
+                            if(mColorPickerFragment.isBackground()) {
+                                b = new Bundle();
+                                b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
+                                mColorPickerFragment.setArguments(b);
+                            } else {
+                                if (Build.VERSION.SDK_INT >= 16) {
+                                    mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mColorPickerFragment.getView().setVisibility(View.GONE);
+                                        }
+                                    });
+                                } else {
+                                    mColorPickerFragment.getView().setVisibility(View.GONE);
+                                }
+                            }
                         }
                         return true;
                     case R.id.menu_background:
-                        b = new Bundle();
-                        b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, true);
-                        mColorPickerFragment.setArguments(b);
                         if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
                             if (Build.VERSION.SDK_INT >= 16) {
                                 mColorPickerFragment.getView().setAlpha(0);
                                 mColorPickerFragment.getView().animate().alpha(1.0f);
                             }
                             mColorPickerFragment.getView().setVisibility(View.VISIBLE);
+                        } else {
+                            if(!mColorPickerFragment.isBackground()) {
+                                b = new Bundle();
+                                b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, true);
+                                mColorPickerFragment.setArguments(b);
+                            } else {
+                                if (Build.VERSION.SDK_INT >= 16) {
+                                    mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mColorPickerFragment.getView().setVisibility(View.GONE);
+                                        }
+                                    });
+                                } else {
+                                    mColorPickerFragment.getView().setVisibility(View.GONE);
+                                }
+                            }
                         }
                         return true;
                 }

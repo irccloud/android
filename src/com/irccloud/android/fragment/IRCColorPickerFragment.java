@@ -88,6 +88,10 @@ public class IRCColorPickerFragment extends Fragment {
         updateColors();
     }
 
+    public boolean isBackground() {
+        return mBackground;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
