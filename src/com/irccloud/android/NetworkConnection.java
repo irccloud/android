@@ -1241,7 +1241,6 @@ public class NetworkConnection {
             public void onConnect() {
                 if (client != null && client.getListener() == this) {
                     Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
-                    state = STATE_CONNECTED;
                     try {
                         JSONObject o = new JSONObject();
                         o.put("cookie", session);
@@ -1464,14 +1463,12 @@ public class NetworkConnection {
     }
 
     private synchronized int send(String method, JSONObject params, IRCResultCallback callback) {
-        if (client == null || state != STATE_CONNECTED)
+        if (client == null || (state != STATE_CONNECTED && !method.equals("auth")))
             return -1;
         try {
-            if(!method.equals("auth")) {
-                params.put("_reqid", ++last_reqid);
-                if(callback != null)
-                    resultCallbacks.put(last_reqid, callback);
-            }
+            params.put("_reqid", ++last_reqid);
+            if(callback != null)
+                resultCallbacks.put(last_reqid, callback);
             params.put("_method", method);
             //Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method + " Params: " + params.toString());
             client.send(params.toString());
@@ -2085,6 +2082,8 @@ public class NetworkConnection {
                 streamId = object.getString("streamid");
                 if (object.has("accrued"))
                     accrued = object.getInt("accrued");
+                state = STATE_CONNECTED;
+                notifyHandlers(EVENT_CONNECTIVITY, null);
             }
         });
 
