@@ -2050,7 +2050,7 @@ public class NetworkConnection {
         }
     }
 
-    HashMap<String, Parser> parserMap = new HashMap<String, Parser>() {{
+    public HashMap<String, Parser> parserMap = new HashMap<String, Parser>() {{
         //Ignored events
         put("idle", null);
         put("end_of_backlog", null);
