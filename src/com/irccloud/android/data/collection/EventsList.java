@@ -753,7 +753,7 @@ public class EventsList {
             put(stat, statsFormatter);
 
         String[] caps = {
-                "cap_ls", "cap_req", "cap_ack", "cap_raw", "cap_new"
+                "cap_ls", "cap_req", "cap_ack", "cap_raw", "cap_new", "cap_list", "cap_invalid"
         };
         Formatter capsFormatter = new Formatter() {
             @Override
@@ -783,6 +783,12 @@ public class EventsList {
                             break;
                         case "cap_del":
                             sb.append("<b>CAP</b> Server removed: ");
+                            break;
+                        case "cap_list":
+                            sb.append("<b>CAP</b> Enabled: ");
+                            break;
+                        case "cap_invalid":
+                            sb.append("<b>CAP</b> ").append(event.getString("msg"));
                             break;
                     }
                     JsonNode caps = event.getJsonNode("caps");

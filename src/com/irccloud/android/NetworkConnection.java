@@ -2648,7 +2648,7 @@ public class NetworkConnection {
                 "you_are_operator",
                 "btn_metadata_set",
                 "sasl_success",
-                "cap_ls", "cap_req", "cap_ack", "cap_nak", "cap_raw", "cap_new", "cap_del",
+                "cap_ls", "cap_req", "cap_ack", "cap_nak", "cap_raw", "cap_new", "cap_del", "cap_list", "cap_invalid",
                 "help_topics_start", "help_topics", "help_topics_end", "helphdr", "helpop", "helptlr", "helphlp", "helpfwd", "helpign",
                 "version",
                 "newsflash",
