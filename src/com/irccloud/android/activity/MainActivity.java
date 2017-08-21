@@ -1542,10 +1542,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 e.highlight = false;
                 e.reqid = -1;
                 e.pending = true;
-                if (e.msg != null) {
-                    e.msg = TextUtils.htmlEncode(e.msg);
-                    EventsList.getInstance().addEvent(e);
-                }
             }
         }
 
@@ -1560,10 +1556,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (e != null && e.command != null && e.command.equals("/ignore")) {
                 e.reqid = -2;
                 return null;
-            }
-            if (e != null && e.msg != null) {
-                conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
-                RecentConversationsList.getInstance().updateConversation(e.cid, e.bid, System.currentTimeMillis());
             }
             if (e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                 e.reqid = conn.say(e.cid, e.chan, e.command, new NetworkConnection.IRCResultCallback() {
@@ -1588,6 +1580,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         @Override
         protected void onPostExecute(Void result) {
+            if (e != null && e.msg != null) {
+                e.msg = TextUtils.htmlEncode(e.msg);
+                EventsList.getInstance().addEvent(e);
+                conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
+                RecentConversationsList.getInstance().updateConversation(e.cid, e.bid, System.currentTimeMillis());
+            }
             if (BuildConfig.DEBUG) {
                 if (messageTxt.getText().toString().equals("/starttrace")) {
                     Debug.startMethodTracing("irccloud");
