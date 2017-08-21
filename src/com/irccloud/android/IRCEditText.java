@@ -215,10 +215,10 @@ public class IRCEditText extends RichEditText {
 
                         if (editable.getSpanStart(span.span) != -1) {
                             if (size > 0) {
-                                if (span.start > selectionEnd - size) {
+                                if (span.start > getSelectionEnd() - size) {
                                     span.start += size;
                                     span.end += size;
-                                } else if (span.end > selectionEnd + size) {
+                                } else if (span.end > getSelectionEnd() + size) {
                                     span.end += size;
                                 }
                             } else {
