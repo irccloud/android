@@ -82,6 +82,8 @@ def theme(f, t, parent):
     f.write(style("selectedArchivedBufferBackgroundColor", "text6"))
     f.write(style("listItemBackgroundColor", "background5"))
     f.write(style("backlogMarkerColor", "border1"))
+    f.write(style("codeSpanForegroundColor", "text3"))
+    f.write(style("codeSpanBackgroundColor", "background1"))
     
     f.write(style("colorPrimary", "background5"))
     f.write(style("colorPrimaryDark", "background7"))

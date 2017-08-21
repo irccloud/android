@@ -295,6 +295,8 @@ public class ColorScheme {
         row_halfops_bg_drawable = resourceForAttribute(ctx, R.attr.row_halfops_bg_drawable);
         row_voiced_bg_drawable = resourceForAttribute(ctx, R.attr.row_voiced_bg_drawable);
         row_members_bg_drawable = resourceForAttribute(ctx, R.attr.row_members_bg_drawable);
+        codeSpanForegroundColor = colorForAttribute(ctx, R.attr.codeSpanForegroundColor);
+        codeSpanBackgroundColor = colorForAttribute(ctx, R.attr.codeSpanBackgroundColor);
         if(Build.VERSION.SDK_INT >= 21)
             statusBarColor = colorForAttribute(ctx, android.R.attr.statusBarColor);
         isDarkTheme = !theme.equals("dawn");
@@ -414,4 +416,6 @@ public class ColorScheme {
     public String theme;
     public boolean isDarkTheme;
     public String selfTextColor;
+    public int codeSpanForegroundColor;
+    public int codeSpanBackgroundColor;
 }

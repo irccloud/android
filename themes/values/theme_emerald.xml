@@ -67,6 +67,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
 		<item name="listItemBackgroundColor">@color/emerald_background5</item>
 		<item name="backlogMarkerColor">@color/emerald_border1</item>
+		<item name="codeSpanForegroundColor">@color/emerald_text3</item>
+		<item name="codeSpanBackgroundColor">@color/emerald_background1</item>
 		<item name="colorPrimary">@color/emerald_background5</item>
 		<item name="colorPrimaryDark">@color/emerald_background7</item>
 		<item name="colorAccent">@color/emerald_text8</item>
@@ -155,6 +157,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
 		<item name="listItemBackgroundColor">@color/emerald_background5</item>
 		<item name="backlogMarkerColor">@color/emerald_border1</item>
+		<item name="codeSpanForegroundColor">@color/emerald_text3</item>
+		<item name="codeSpanBackgroundColor">@color/emerald_background1</item>
 		<item name="colorPrimary">@color/emerald_background5</item>
 		<item name="colorPrimaryDark">@color/emerald_background7</item>
 		<item name="colorAccent">@color/emerald_text8</item>
@@ -243,6 +247,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
 		<item name="listItemBackgroundColor">@color/emerald_background5</item>
 		<item name="backlogMarkerColor">@color/emerald_border1</item>
+		<item name="codeSpanForegroundColor">@color/emerald_text3</item>
+		<item name="codeSpanBackgroundColor">@color/emerald_background1</item>
 		<item name="colorPrimary">@color/emerald_background5</item>
 		<item name="colorPrimaryDark">@color/emerald_background7</item>
 		<item name="colorAccent">@color/emerald_text8</item>
@@ -331,6 +337,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
 		<item name="listItemBackgroundColor">@color/emerald_background5</item>
 		<item name="backlogMarkerColor">@color/emerald_border1</item>
+		<item name="codeSpanForegroundColor">@color/emerald_text3</item>
+		<item name="codeSpanBackgroundColor">@color/emerald_background1</item>
 		<item name="colorPrimary">@color/emerald_background5</item>
 		<item name="colorPrimaryDark">@color/emerald_background7</item>
 		<item name="colorAccent">@color/emerald_text8</item>
@@ -419,6 +427,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
 		<item name="listItemBackgroundColor">@color/emerald_background5</item>
 		<item name="backlogMarkerColor">@color/emerald_border1</item>
+		<item name="codeSpanForegroundColor">@color/emerald_text3</item>
+		<item name="codeSpanBackgroundColor">@color/emerald_background1</item>
 		<item name="colorPrimary">@color/emerald_background5</item>
 		<item name="colorPrimaryDark">@color/emerald_background7</item>
 		<item name="colorAccent">@color/emerald_text8</item>

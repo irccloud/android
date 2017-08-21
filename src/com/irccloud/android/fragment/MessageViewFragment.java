@@ -118,6 +118,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MessageViewFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
     private NetworkConnection conn;
@@ -205,7 +207,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_compact = false;
     private boolean pref_disableLargeEmoji = false;
     private boolean pref_disableInlineFiles = false;
+    private boolean pref_disableCodeSpan = false;
+    private boolean pref_disableCodeBlock = false;
     private boolean pref_disableQuote = false;
+
+    private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
     private class LinkMovementMethodNoLongPress extends IRCCloudLinkMovementMethod {
         @Override
@@ -784,7 +790,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.message.setMovementMethod(linkMovementMethodNoLongPress);
                     holder.message.setOnClickListener(new OnItemClickListener(position));
                     holder.message.setOnLongClickListener(new OnItemLongClickListener(position));
-                    if (mono || (e.msg != null && e.msg.startsWith("<pre>"))) {
+                    if (mono || (e.msg != null && e.msg.startsWith("<pre>")) || e.code_block) {
                         holder.message.setTypeface(hackRegular);
                     } else {
                         holder.message.setTypeface(Typeface.DEFAULT);
@@ -805,7 +811,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.message.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),1);
 
                     Spanned formatted = e.formatted;
-                    if(formatted != null && !pref_avatarsOff && !e.quoted && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
+                    if(formatted != null && !pref_avatarsOff && e.parent_eid == 0 && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
                         Bitmap b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize+4, getResources().getDisplayMetrics()), e.self);
                         if(b != null) {
                             SpannableStringBuilder s = new SpannableStringBuilder(formatted);
@@ -829,6 +835,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.message.setContentDescription(e.from + ": " + e.contentDescription);
                     }
                     holder.message.setTextSize(textSize);
+                    if(e.code_block) {
+                        int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
+                        holder.message.setPadding(padding, padding, padding, padding);
+                        holder.message.setBackgroundColor(ColorScheme.getInstance().codeSpanBackgroundColor);
+                    } else {
+                        holder.message.setPadding(0,0,0,0);
+                        holder.message.setBackgroundDrawable(null);
+                    }
                 }
 
                 if (holder.expandable != null) {
@@ -1743,6 +1757,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 e.html = event.html;
                                 event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
                                 adapter.addItem(event.eid, event);
+                                e.day = event.day;
                                 adapter.insertBelow(event.eid, e);
                             } else {
                                 event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + event.html;
@@ -1795,6 +1810,63 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 adapter.addItem(eid, event);
+                if(!pref_disableCodeBlock && event.type.equals("buffer_msg") && event.html.length() > 0) {
+                    String html = event.html;
+                    Matcher m = IS_CODE_BLOCK.matcher(html);
+                    int pos = -1;
+                    String lastChunk = "";
+
+                    while(m.find()) {
+                        if(pos == -1)
+                            pos = 0;
+
+                        if(m.start() > 0)
+                            lastChunk = html.substring(pos, m.start());
+                        if(lastChunk.startsWith(" ") && lastChunk.length() > 1)
+                            lastChunk = lastChunk.substring(1);
+
+                        if(pos > 0) {
+                            Event e = new Event(event);
+                            e.html = lastChunk;
+                            e.timestamp = "";
+                            e.header = false;
+                            e.parent_eid = eid;
+                            adapter.insertBelow(eid, e);
+                        } else {
+                            event.html = lastChunk;
+                        }
+
+                        if(m.start() == 0 && !pref_chatOneLine) {
+                            event.html = html.substring(3, m.end() - 3);
+                            event.code_block = true;
+                            event.color = ColorScheme.getInstance().codeSpanForegroundColor;
+                        } else {
+                            Event e = new Event(event);
+                            e.html = html.substring(m.start() + 3, m.end() - 3);
+                            e.timestamp = "";
+                            e.code_block = true;
+                            e.color = ColorScheme.getInstance().codeSpanForegroundColor;
+                            e.header = false;
+                            e.parent_eid = eid;
+                            adapter.insertBelow(eid, e);
+                        }
+
+                        pos = m.end();
+                    }
+
+                    if(pos > 0 && pos < html.length()) {
+                        Event e = new Event(event);
+                        e.html = html.substring(pos, html.length());
+                        if(e.html.startsWith(" "))
+                            e.html = e.html.substring(1);
+                        e.timestamp = "";
+                        e.header = false;
+                        e.parent_eid = eid;
+                        if(e.html.length() > 0)
+                            adapter.insertBelow(eid, e);
+                    }
+                }
+
                 if (!backlog)
                     adapter.notifyDataSetChanged();
 
@@ -1885,6 +1957,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         e.from_mode = parent.from_mode;
         e.from_realname = parent.from_realname;
         e.hostmask = parent.hostmask;
+        e.parent_eid = parent.eid;
 
         if(properties.get("mime_type").asText().startsWith("image/"))
             e.row_type = ROW_THUMBNAIL;
@@ -2384,6 +2457,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_compact = false;
         pref_disableLargeEmoji = false;
         pref_disableInlineFiles = false;
+        pref_disableCodeSpan = false;
+        pref_disableCodeBlock = false;
         pref_disableQuote = false;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
@@ -2397,6 +2472,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_chatOneLine = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-oneline", true);
                 pref_norealname = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-norealname", true);
                 pref_disableLargeEmoji = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("emoji-nobig", true);
+                pref_disableCodeSpan = (prefs.has("chat-nocodespan") && prefs.get("chat-nocodespan") instanceof Boolean && prefs.getBoolean("chat-nocodespan"));
+                pref_disableCodeBlock = (prefs.has("chat-nocodeblock") && prefs.get("chat-nocodeblock") instanceof Boolean && prefs.getBoolean("chat-nocodeblock"));
                 pref_disableQuote = (prefs.has("chat-noquote") && prefs.get("chat-noquote") instanceof Boolean && prefs.getBoolean("chat-noquote"));
                 if(prefs.has("channel-disableTrackUnread")) {
                     JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");

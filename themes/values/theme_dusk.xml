@@ -67,6 +67,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
 		<item name="listItemBackgroundColor">@color/dusk_background5</item>
 		<item name="backlogMarkerColor">@color/dusk_border1</item>
+		<item name="codeSpanForegroundColor">@color/dusk_text3</item>
+		<item name="codeSpanBackgroundColor">@color/dusk_background1</item>
 		<item name="colorPrimary">@color/dusk_background5</item>
 		<item name="colorPrimaryDark">@color/dusk_background7</item>
 		<item name="colorAccent">@color/dusk_text8</item>
@@ -155,6 +157,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
 		<item name="listItemBackgroundColor">@color/dusk_background5</item>
 		<item name="backlogMarkerColor">@color/dusk_border1</item>
+		<item name="codeSpanForegroundColor">@color/dusk_text3</item>
+		<item name="codeSpanBackgroundColor">@color/dusk_background1</item>
 		<item name="colorPrimary">@color/dusk_background5</item>
 		<item name="colorPrimaryDark">@color/dusk_background7</item>
 		<item name="colorAccent">@color/dusk_text8</item>
@@ -243,6 +247,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
 		<item name="listItemBackgroundColor">@color/dusk_background5</item>
 		<item name="backlogMarkerColor">@color/dusk_border1</item>
+		<item name="codeSpanForegroundColor">@color/dusk_text3</item>
+		<item name="codeSpanBackgroundColor">@color/dusk_background1</item>
 		<item name="colorPrimary">@color/dusk_background5</item>
 		<item name="colorPrimaryDark">@color/dusk_background7</item>
 		<item name="colorAccent">@color/dusk_text8</item>
@@ -331,6 +337,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
 		<item name="listItemBackgroundColor">@color/dusk_background5</item>
 		<item name="backlogMarkerColor">@color/dusk_border1</item>
+		<item name="codeSpanForegroundColor">@color/dusk_text3</item>
+		<item name="codeSpanBackgroundColor">@color/dusk_background1</item>
 		<item name="colorPrimary">@color/dusk_background5</item>
 		<item name="colorPrimaryDark">@color/dusk_background7</item>
 		<item name="colorAccent">@color/dusk_text8</item>
@@ -419,6 +427,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
 		<item name="listItemBackgroundColor">@color/dusk_background5</item>
 		<item name="backlogMarkerColor">@color/dusk_border1</item>
+		<item name="codeSpanForegroundColor">@color/dusk_text3</item>
+		<item name="codeSpanBackgroundColor">@color/dusk_background1</item>
 		<item name="colorPrimary">@color/dusk_background5</item>
 		<item name="colorPrimaryDark">@color/dusk_background7</item>
 		<item name="colorAccent">@color/dusk_text8</item>

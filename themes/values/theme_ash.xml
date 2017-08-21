@@ -67,6 +67,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
 		<item name="listItemBackgroundColor">@color/ash_background5</item>
 		<item name="backlogMarkerColor">@color/ash_border1</item>
+		<item name="codeSpanForegroundColor">@color/ash_text3</item>
+		<item name="codeSpanBackgroundColor">@color/ash_background1</item>
 		<item name="colorPrimary">@color/ash_background5</item>
 		<item name="colorPrimaryDark">@color/ash_background7</item>
 		<item name="colorAccent">@color/ash_text8</item>
@@ -155,6 +157,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
 		<item name="listItemBackgroundColor">@color/ash_background5</item>
 		<item name="backlogMarkerColor">@color/ash_border1</item>
+		<item name="codeSpanForegroundColor">@color/ash_text3</item>
+		<item name="codeSpanBackgroundColor">@color/ash_background1</item>
 		<item name="colorPrimary">@color/ash_background5</item>
 		<item name="colorPrimaryDark">@color/ash_background7</item>
 		<item name="colorAccent">@color/ash_text8</item>
@@ -243,6 +247,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
 		<item name="listItemBackgroundColor">@color/ash_background5</item>
 		<item name="backlogMarkerColor">@color/ash_border1</item>
+		<item name="codeSpanForegroundColor">@color/ash_text3</item>
+		<item name="codeSpanBackgroundColor">@color/ash_background1</item>
 		<item name="colorPrimary">@color/ash_background5</item>
 		<item name="colorPrimaryDark">@color/ash_background7</item>
 		<item name="colorAccent">@color/ash_text8</item>
@@ -331,6 +337,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
 		<item name="listItemBackgroundColor">@color/ash_background5</item>
 		<item name="backlogMarkerColor">@color/ash_border1</item>
+		<item name="codeSpanForegroundColor">@color/ash_text3</item>
+		<item name="codeSpanBackgroundColor">@color/ash_background1</item>
 		<item name="colorPrimary">@color/ash_background5</item>
 		<item name="colorPrimaryDark">@color/ash_background7</item>
 		<item name="colorAccent">@color/ash_text8</item>
@@ -419,6 +427,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
 		<item name="listItemBackgroundColor">@color/ash_background5</item>
 		<item name="backlogMarkerColor">@color/ash_border1</item>
+		<item name="codeSpanForegroundColor">@color/ash_text3</item>
+		<item name="codeSpanBackgroundColor">@color/ash_background1</item>
 		<item name="colorPrimary">@color/ash_background5</item>
 		<item name="colorPrimaryDark">@color/ash_background7</item>
 		<item name="colorAccent">@color/ash_text8</item>

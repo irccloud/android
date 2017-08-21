@@ -122,6 +122,8 @@
     <attr name="windowBackgroundDrawable" format="reference"/>
     <attr name="dialogBackgroundDrawable" format="reference"/>
     <attr name="editTextTheme" format="reference"/>
+    <attr name="codeSpanForegroundColor" format="color"/>
+    <attr name="codeSpanBackgroundColor" format="color"/>
 
     <attr name="row_opers_bg_drawable" format="reference"/>
     <attr name="row_owners_bg_drawable" format="reference"/>

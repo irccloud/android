@@ -2151,6 +2151,12 @@ public class NetworkConnection {
                     if(userInfo.prefs.has("chat-norealname") && !prefs.contains("chat-norealname")) {
                         editor.putBoolean("chat-norealname", !(userInfo.prefs.has("chat-norealname") && userInfo.prefs.get("chat-norealname") instanceof Boolean && userInfo.prefs.getBoolean("chat-norealname")));
                     }
+                    if(userInfo.prefs.has("chat-nocodespan") && !prefs.contains("chat-nocodespan")) {
+                        editor.putBoolean("chat-nocodespan", !(userInfo.prefs.has("chat-nocodespan") && userInfo.prefs.get("chat-nocodespan") instanceof Boolean && userInfo.prefs.getBoolean("chat-nocodespan")));
+                    }
+                    if(userInfo.prefs.has("chat-nocodeblock") && !prefs.contains("chat-nocodeblock")) {
+                        editor.putBoolean("chat-nocodeblock", !(userInfo.prefs.has("chat-nocodeblock") && userInfo.prefs.get("chat-nocodeblock") instanceof Boolean && userInfo.prefs.getBoolean("chat-nocodeblock")));
+                    }
                     if(userInfo.prefs.has("chat-noquote") && !prefs.contains("chat-noquote")) {
                         editor.putBoolean("chat-noquote", !(userInfo.prefs.has("chat-noquote") && userInfo.prefs.get("chat-noquote") instanceof Boolean && userInfo.prefs.getBoolean("chat-noquote")));
                     }
@@ -2168,6 +2174,8 @@ public class NetworkConnection {
                     editor.putBoolean("ascii-compact", false);
                     editor.putBoolean("emoji-nobig", true);
                     editor.putBoolean("files-disableinline", true);
+                    editor.putBoolean("chat-nocodespan", true);
+                    editor.putBoolean("chat-nocodeblock", true);
                     editor.putBoolean("chat-noquote", true);
                 }
                 editor.commit();

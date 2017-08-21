@@ -157,6 +157,7 @@ public class Event /*extends ObservableBaseModel*/ {
     public boolean header;
     public boolean quoted;
     public boolean code_block;
+    public long parent_eid;
 
     public Event() {
 

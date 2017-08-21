@@ -77,6 +77,16 @@
 			android:dependency="files-disableinline"
 			android:title="Download thumbnails only on wifi"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="chat-nocodespan"
+			android:defaultValue="false"
+			android:title="Format inline code"
+			android:summary="`print('hello world')`"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="chat-nocodeblock"
+			android:defaultValue="false"
+			android:title="Format code blocks"
+			android:summary="```multiline text snippet```"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="chat-noquote"
 			android:defaultValue="false"
 			android:title="Format quoted text"
