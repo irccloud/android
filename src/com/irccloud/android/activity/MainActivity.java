@@ -4611,7 +4611,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 CollapsedEventsList c = new CollapsedEventsList();
                 html = "<b>&lt;" + ColorFormatter.irc_to_html(c.formatNick(event.from, event.from_mode, false)) + "&gt;</b> " + ColorFormatter.irc_to_html(event.msg);
             }
-            showUserPopup(user, ColorFormatter.html_to_spanned(event.timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)), null);
+            String timestamp = event.timestamp;
+            if(timestamp.length() == 0 && event.parent_eid > 0) {
+                Event e = EventsList.getInstance().getEvent(event.parent_eid, event.bid);
+                timestamp = e.timestamp;
+            }
+            showUserPopup(user, ColorFormatter.html_to_spanned(timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)), null);
         } else {
             showUserPopup(user, null, null);
         }
