@@ -64,7 +64,7 @@
 		<item name="listItemBackgroundColor">#fff</item>
 		<item name="backlogMarkerColor">#1E72FF</item>
 		<item name="codeSpanForegroundColor">#555</item>
-		<item name="codeSpanBackgroundColor">#fff</item>
+		<item name="codeSpanBackgroundColor">#f0f0f0</item>
 
 		<item name="colorPrimary">#F2F7FC</item>
 		<item name="colorPrimaryDark">#D9E7FF</item>
@@ -147,7 +147,7 @@
 		<item name="listItemBackgroundColor">#fff</item>
 		<item name="backlogMarkerColor">#1E72FF</item>
 		<item name="codeSpanForegroundColor">#555</item>
-		<item name="codeSpanBackgroundColor">#fff</item>
+		<item name="codeSpanBackgroundColor">#f0f0f0</item>
 
 		<item name="colorPrimary">#F2F7FC</item>
 		<item name="colorPrimaryDark">#D9E7FF</item>
@@ -228,7 +228,7 @@
 		<item name="listItemBackgroundColor">#fff</item>
 		<item name="backlogMarkerColor">#1E72FF</item>
 		<item name="codeSpanForegroundColor">#555</item>
-		<item name="codeSpanBackgroundColor">#fff</item>
+		<item name="codeSpanBackgroundColor">#f0f0f0</item>
 
 		<item name="colorPrimary">#F2F7FC</item>
 		<item name="colorPrimaryDark">#D9E7FF</item>
@@ -309,7 +309,7 @@
 		<item name="listItemBackgroundColor">#fff</item>
 		<item name="backlogMarkerColor">#1E72FF</item>
 		<item name="codeSpanForegroundColor">#555</item>
-		<item name="codeSpanBackgroundColor">#fff</item>
+		<item name="codeSpanBackgroundColor">#f0f0f0</item>
 
 		<item name="colorPrimary">#F2F7FC</item>
 		<item name="colorPrimaryDark">#D9E7FF</item>
@@ -392,7 +392,7 @@
 		<item name="listItemBackgroundColor">#fff</item>
 		<item name="backlogMarkerColor">#1E72FF</item>
 		<item name="codeSpanForegroundColor">#555</item>
-		<item name="codeSpanBackgroundColor">#fff</item>
+		<item name="codeSpanBackgroundColor">#f0f0f0</item>
 
 		<item name="colorPrimary">#F2F7FC</item>
 		<item name="colorPrimaryDark">#D9E7FF</item>

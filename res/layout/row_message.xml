@@ -101,7 +101,7 @@
 
             <View
                 android:id="@+id/quoteBorder"
-                android:background="?messageTextColor"
+                android:background="#ddd"
                 android:layout_marginRight="6dp"
                 android:layout_width="3dp"
                 android:layout_height="match_parent"
