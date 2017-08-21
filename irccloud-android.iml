@@ -147,8 +147,5 @@
     <orderEntry type="library" name="switch-preference-compat-1.0.0" level="project" />
     <orderEntry type="module" module-name="android-websockets" />
     <orderEntry type="library" name="org.apache.http.legacy-android-26" level="project" />
-    <orderEntry type="module" module-name="android-websockets" />
-    <orderEntry type="module" module-name="android-websockets" />
-    <orderEntry type="module" module-name="android-websockets" />
   </component>
 </module>

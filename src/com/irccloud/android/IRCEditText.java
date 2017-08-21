@@ -230,6 +230,9 @@ public class IRCEditText extends RichEditText {
                                 }
                             }
                         }
+
+                        if (span.end > editable.length())
+                            span.end = editable.length();
                         editable.setSpan(span.span, span.start, span.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
 
