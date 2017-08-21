@@ -211,6 +211,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_disableCodeBlock = false;
     private boolean pref_disableQuote = false;
 
+    private static Pattern IS_CODE_SPAN = Pattern.compile("`([^`\\n]+?)`");
     private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
     private class LinkMovementMethodNoLongPress extends IRCCloudLinkMovementMethod {
@@ -614,6 +615,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 synchronized (e) {
                     if (e.html != null) {
                         try {
+                            if(!pref_disableCodeSpan && e.row_type == ROW_MESSAGE) {
+                                StringBuilder html = new StringBuilder(e.html);
+                                Matcher m = IS_CODE_SPAN.matcher(e.html);
+
+                                while(m.find()) {
+                                    html.setCharAt(m.start(), (char)0x11);
+                                    html.setCharAt(m.end() - 1, (char)0x11);
+                                }
+
+                                e.html = html.toString();
+                            }
                             e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
                             e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server, e.entities);
                             if (e.msg != null && e.msg.length() > 0)

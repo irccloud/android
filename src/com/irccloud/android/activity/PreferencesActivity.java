@@ -228,6 +228,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         }
         addPreferencesFromResource(R.xml.preferences_display);
         addPreferencesFromResource(R.xml.preferences_message);
+        addPreferencesFromResource(R.xml.preferences_embeds);
         addPreferencesFromResource(R.xml.preferences_device);
         addPreferencesFromResource(R.xml.preferences_photos);
         addPreferencesFromResource(R.xml.preferences_notifications);

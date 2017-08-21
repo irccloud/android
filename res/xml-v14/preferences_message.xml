@@ -65,40 +65,6 @@
             android:key="nick-colors"
             android:defaultValue="false"
             android:title="Colourise nicknames"/>
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-            android:key="hideJoinPart"
-            android:defaultValue="true"
-            android:title="Show nick changes, joins, parts"/>
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-            android:key="expandJoinPart"
-            android:defaultValue="true"
-            android:dependency="hideJoinPart"
-            android:title="Collapse nick changes, joins, parts"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-			android:key="files-disableinline"
-			android:defaultValue="true"
-			android:summary="Not including 3rd party images"
-			android:title="Embed uploaded files"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-			android:key="files-wifionly"
-			android:defaultValue="false"
-			android:dependency="files-disableinline"
-			android:title="Download thumbnails only on wifi"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-			android:key="chat-nocodespan"
-			android:defaultValue="false"
-			android:title="Format inline code"
-			android:summary="`print('hello world')`"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-			android:key="chat-nocodeblock"
-			android:defaultValue="false"
-			android:title="Format code blocks"
-			android:summary="```multiline text snippet```"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-			android:key="chat-noquote"
-			android:defaultValue="false"
-			android:title="Format quoted text"
-			android:summary="> The quick brown fox jumped straight over the lazy dog"/>
 	</PreferenceCategory>
 
 </PreferenceScreen>

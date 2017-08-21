@@ -2343,8 +2343,18 @@ public class ColorFormatter {
                 String html = closeTags(bold, underline, italics, strike, fg, bg);
                 if (monospace) {
                     html += "</pre>";
+                    if(fg.equals(Integer.toHexString(ColorScheme.getInstance().codeSpanForegroundColor).substring(2))) {
+                        fg = "";
+                    }
+                    if(bg.equals(Integer.toHexString(ColorScheme.getInstance().codeSpanBackgroundColor).substring(2))) {
+                        bg = "";
+                    }
                 } else {
                     html += "<pre>";
+                    if(fg.length() == 0 && bg.length() == 0) {
+                        fg = Integer.toHexString(ColorScheme.getInstance().codeSpanForegroundColor).substring(2);
+                        bg = Integer.toHexString(ColorScheme.getInstance().codeSpanBackgroundColor).substring(2);
+                    }
                 }
                 html += openTags(bold, underline, italics, strike, fg, bg);
                 monospace = !monospace;
