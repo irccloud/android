@@ -440,86 +440,161 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             case NetworkConnection.EVENT_ALERT:
                 try {
                     o = (IRCCloudJSONObject) obj;
-                    String type = o.type();
 
-                    if (type.equalsIgnoreCase("invite_only_chan"))
-                        showAlert(o.cid(), "You need an invitation to join " + o.getString("chan"));
-                    else if (type.equalsIgnoreCase("channel_full"))
-                        showAlert(o.cid(), o.getString("chan") + " isn't allowing any more members to join.");
-                    else if (type.equalsIgnoreCase("banned_from_channel"))
-                        showAlert(o.cid(), "You've been banned from " + o.getString("chan"));
-                    else if (type.equalsIgnoreCase("invalid_nickchange"))
-                        showAlert(o.cid(), o.getString("ban_channel") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("no_messages_from_non_registered")) {
-                        if (o.has("nick") && o.getString("nick").length() > 0)
+                    switch(o.type()) {
+                        case "invite_only_chan":
+                            showAlert(o.cid(), "You need an invitation to join " + o.getString("chan"));
+                            break;
+                        case "channel_full":
+                            showAlert(o.cid(), o.getString("chan") + " isn't allowing any more members to join.");
+                            break;
+                        case "banned_from_channel":
+                            showAlert(o.cid(), "You've been banned from " + o.getString("chan"));
+                            break;
+                        case "invalid_nickchange":
+                            showAlert(o.cid(), o.getString("ban_channel") + ": " + o.getString("msg"));
+                            break;
+                        case "no_messages_from_non_registered":
+                            if (o.has("nick") && o.getString("nick").length() > 0)
+                                showAlert(o.cid(), o.getString("nick") + ": " + o.getString("msg"));
+                            else
+                                showAlert(o.cid(), o.getString("msg"));
+                            break;
+                        case "not_registered":
+                            String first = o.getString("first");
+                            if (o.has("rest"))
+                                first += " " + o.getString("rest");
+                            showAlert(o.cid(), first + ": " + o.getString("msg"));
+                            break;
+                        case "too_many_channels":
+                            showAlert(o.cid(), "Couldn't join " + o.getString("chan") + ": " + o.getString("msg"));
+                            break;
+                        case "too_many_targets":
+                            showAlert(o.cid(), o.getString("description") + ": " + o.getString("msg"));
+                            break;
+                        case "no_such_server":
+                            showAlert(o.cid(), o.getString("server") + ": " + o.getString("msg"));
+                            break;
+                        case "unknown_command":
+                            showAlert(o.cid(), "Unknown command: " + o.getString("command"));
+                            break;
+                        case "help_not_found":
+                            showAlert(o.cid(), o.getString("topic") + ": " + o.getString("msg"));
+                            break;
+                        case "accept_exists":
+                            showAlert(o.cid(), o.getString("nick") + " " + o.getString("msg"));
+                            break;
+                        case "accept_not":
+                            showAlert(o.cid(), o.getString("nick") + " " + o.getString("msg"));
+                            break;
+                        case "nick_collision":
+                            showAlert(o.cid(), o.getString("collision") + ": " + o.getString("msg"));
+                            break;
+                        case "nick_too_fast":
                             showAlert(o.cid(), o.getString("nick") + ": " + o.getString("msg"));
-                        else
+                            break;
+                        case "save_nick":
+                            showAlert(o.cid(), o.getString("nick") + ": " + o.getString("msg") + ": " + o.getString("new_nick"));
+                            break;
+                        case "unknown_mode":
+                            showAlert(o.cid(), "Missing mode: " + o.getString("params"));
+                            break;
+                        case "user_not_in_channel":
+                            showAlert(o.cid(), o.getString("nick") + " is not in " + o.getString("channel"));
+                            break;
+                        case "need_more_params":
+                            showAlert(o.cid(), "Missing parameters for command: " + o.getString("command"));
+                            break;
+                        case "chan_privs_needed":
+                            showAlert(o.cid(), o.getString("chan") + ": " + o.getString("msg"));
+                            break;
+                        case "not_on_channel":
+                            showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
+                            break;
+                        case "ban_on_chan":
+                            showAlert(o.cid(), "You cannot change your nick to " + o.getString("proposed_nick") + " while banned on " + o.getString("channel"));
+                            break;
+                        case "cannot_send_to_chan":
+                            showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
+                            break;
+                        case "user_on_channel":
+                            showAlert(o.cid(), o.getString("nick") + " is already a member of " + o.getString("channel"));
+                            break;
+                        case "no_nick_given":
+                            showAlert(o.cid(), "No nickname given");
+                            break;
+                        case "nickname_in_use":
+                            showAlert(o.cid(), o.getString("nick") + " is already in use");
+                            break;
+                        case "silence":
+                            String mask = o.getString("usermask");
+                            if (mask.startsWith("-"))
+                                message = mask.substring(1) + " removed from silence list";
+                            else if (mask.startsWith("+"))
+                                message = mask.substring(1) + " added to silence list";
+                            else
+                                message = "Silence list change: " + mask;
+                            showAlert(o.cid(), message);
+                            break;
+                        case "no_channel_topic":
+                            showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
+                            break;
+                        case "time":
+                            message = o.getString("time_string");
+                            if (o.has("time_stamp") && o.getString("time_stamp").length() > 0)
+                                message += " (" + o.getString("time_stamp") + ")";
+                            message += " — " + o.getString("time_server");
+                            showAlert(o.cid(), message);
+                            break;
+                        case "blocked_channel":
+                            showAlert(o.cid(), "This channel is blocked, you have been disconnected");
+                            break;
+                        case "unknown_error":
+                            showAlert(o.cid(), "Unknown error: [" + o.getString("command") + "] " + o.getString("msg"));
+                            break;
+                        case "pong":
+                            if(o.has("origin") && o.getString("origin").length() > 0)
+                                showAlert(o.cid(), "PONG from: " + o.getString("origin") + ": " + o.getString("msg"));
+                            else
+                                showAlert(o.cid(), "PONG: " + o.getString("msg"));
+                            break;
+                        case "monitor_full":
+                            showAlert(o.cid(), o.getString("targets") + ": " + o.getString("msg"));
+                            break;
+                        case "mlock_restricted":
+                            showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg") + "\nMLOCK: " + o.getString("mlock") + "\nRequested mode change: " + o.getString("mode_change"));
+                            break;
+                        case "cannot_do_cmd":
+                            if(o.has("cmd") && o.getString("cmd").length() > 0)
+                                showAlert(o.cid(), o.getString("cmd") + ": " + o.getString("msg"));
+                            else
+                                showAlert(o.cid(), o.getString("msg"));
+                            break;
+                        case "cannot_change_chan_mode":
+                            if(o.has("mode") && o.getString("mode").length() > 0)
+                                showAlert(o.cid(), "You can't change channel mode: " + o.getString("mode") + "; " + o.getString("msg"));
+                            else
+                                showAlert(o.cid(), "You can't change channel mode; " + o.getString("msg"));
+                            break;
+                        case "metadata_limit":
+                        case "metadata_targetinvalid":
+                            showAlert(o.cid(), o.getString("msg") + ": " + o.getString("target"));
+                            break;
+                        case "metadata_nomatchingkey":
+                        case "metadata_keynotset":
+                        case "metadata_keynopermission":
+                            showAlert(o.cid(), o.getString("msg") + ": " + o.getString("key") + " for target " + o.getString("target"));
+                            break;
+                        case "metadata_keyinvalid":
+                            showAlert(o.cid(), "Invalid metadata for key: " + o.getString("key"));
+                            break;
+                        case "metadata_toomanysubs":
+                            showAlert(o.cid(), "Metadata key subscription limit reached, keys after and including '" + o.getString("key") + "' are not subscribed");
+                            break;
+                        default:
                             showAlert(o.cid(), o.getString("msg"));
-                    } else if (type.equalsIgnoreCase("not_registered")) {
-                        String first = o.getString("first");
-                        if (o.has("rest"))
-                            first += " " + o.getString("rest");
-                        showAlert(o.cid(), first + ": " + o.getString("msg"));
-                    } else if (type.equalsIgnoreCase("too_many_channels"))
-                        showAlert(o.cid(), "Couldn't join " + o.getString("chan") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("too_many_targets"))
-                        showAlert(o.cid(), o.getString("description") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("no_such_server"))
-                        showAlert(o.cid(), o.getString("server") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("unknown_command"))
-                        showAlert(o.cid(), "Unknown command: " + o.getString("command"));
-                    else if (type.equalsIgnoreCase("help_not_found"))
-                        showAlert(o.cid(), o.getString("topic") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("accept_exists"))
-                        showAlert(o.cid(), o.getString("nick") + " " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("accept_not"))
-                        showAlert(o.cid(), o.getString("nick") + " " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("nick_collision"))
-                        showAlert(o.cid(), o.getString("collision") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("nick_too_fast"))
-                        showAlert(o.cid(), o.getString("nick") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("save_nick"))
-                        showAlert(o.cid(), o.getString("nick") + ": " + o.getString("msg") + ": " + o.getString("new_nick"));
-                    else if (type.equalsIgnoreCase("unknown_mode"))
-                        showAlert(o.cid(), "Missing mode: " + o.getString("params"));
-                    else if (type.equalsIgnoreCase("user_not_in_channel"))
-                        showAlert(o.cid(), o.getString("nick") + " is not in " + o.getString("channel"));
-                    else if (type.equalsIgnoreCase("need_more_params"))
-                        showAlert(o.cid(), "Missing parameters for command: " + o.getString("command"));
-                    else if (type.equalsIgnoreCase("chan_privs_needed"))
-                        showAlert(o.cid(), o.getString("chan") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("not_on_channel"))
-                        showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("ban_on_chan"))
-                        showAlert(o.cid(), "You cannot change your nick to " + o.getString("proposed_nick") + " while banned on " + o.getString("channel"));
-                    else if (type.equalsIgnoreCase("cannot_send_to_chan"))
-                        showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("user_on_channel"))
-                        showAlert(o.cid(), o.getString("nick") + " is already a member of " + o.getString("channel"));
-                    else if (type.equalsIgnoreCase("no_nick_given"))
-                        showAlert(o.cid(), "No nickname given");
-                    else if (type.equalsIgnoreCase("nickname_in_use"))
-                        showAlert(o.cid(), o.getString("nick") + " is already in use");
-                    else if (type.equalsIgnoreCase("silence")) {
-                        String mask = o.getString("usermask");
-                        if (mask.startsWith("-"))
-                            message = mask.substring(1) + " removed from silence list";
-                        else if (mask.startsWith("+"))
-                            message = mask.substring(1) + " added to silence list";
-                        else
-                            message = "Silence list change: " + mask;
-                        showAlert(o.cid(), message);
-                    } else if (type.equalsIgnoreCase("no_channel_topic"))
-                        showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
-                    else if (type.equalsIgnoreCase("time")) {
-                        message = o.getString("time_string");
-                        if (o.has("time_stamp") && o.getString("time_stamp").length() > 0)
-                            message += " (" + o.getString("time_stamp") + ")";
-                        message += " — " + o.getString("time_server");
-                        showAlert(o.cid(), message);
-                    } else
-                        showAlert(o.cid(), o.getString("msg"));
-                } catch (Exception e2) {
+                        }
+                    } catch (Exception e2) {
                     NetworkConnection.printStackTraceToCrashlytics(e2);
                 }
                 break;

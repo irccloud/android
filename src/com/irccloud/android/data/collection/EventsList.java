@@ -976,6 +976,46 @@ public class EventsList {
             }
         });
 
+        put("loaded_module", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
+                e.bg_color = colorScheme.statusBackgroundColor;
+                e.linkify = false;
+                if(event != null) {
+                    e.msg = sb.append("<pre><b>").append(event.getString("module")).append("</b> ").append(e.msg).append("</pre>").toString();
+                }
+            }
+        });
+
+        put("unloaded_module", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
+                e.bg_color = colorScheme.statusBackgroundColor;
+                e.linkify = false;
+                if(event != null) {
+                    e.msg = sb.append("<pre><b>").append(event.getString("module")).append("</b> ").append(e.msg).append("</pre>").toString();
+                }
+            }
+        });
+
+        put("invite_notify", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
+                if(event != null) {
+                    e.msg = sb.append("invited ").append(event.getString("target")).append(" to join ").append(event.getString("channel")).toString();
+                }
+            }
+        });
+
+        put("channel_name_change", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
+                if(event != null) {
+                    e.msg = sb.append("renamed the channel: ").append(event.getString("old_name")).append(" → <b>").append(event.getString("new_name")).append("</b>").toString();
+                }
+            }
+        });
+
     }};
 
     private final StringBuilder eventStringBuilder = new StringBuilder(1024);

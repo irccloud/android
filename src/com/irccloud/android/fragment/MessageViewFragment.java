@@ -1760,6 +1760,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     case "user_chghost":
                         event.html = "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false, collapsedNickColor) + "</b> " + event.msg;
                         break;
+                    case "channel_name_change":
+                        if (event.from.length() == 0) {
+                            if(event.server != null && event.server.length() > 0)
+                                event.html = "The server <b>" + event.server + "</b> " + event.msg;
+                            else
+                                event.html = "The server " + event.msg;
+                        } else {
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> " + event.msg;
+                        }
+                        break;
                 }
 
                 adapter.addItem(eid, event);
