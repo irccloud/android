@@ -155,6 +155,8 @@ public class Event /*extends ObservableBaseModel*/ {
     public Spanned formatted_realname;
     public TimerTask expiration_timer;
     public boolean header;
+    public boolean quoted;
+    public boolean code_block;
 
     public Event() {
 

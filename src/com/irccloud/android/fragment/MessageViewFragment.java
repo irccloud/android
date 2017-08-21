@@ -205,6 +205,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_compact = false;
     private boolean pref_disableLargeEmoji = false;
     private boolean pref_disableInlineFiles = false;
+    private boolean pref_disableQuote = false;
 
     private class LinkMovementMethodNoLongPress extends IRCCloudLinkMovementMethod {
         @Override
@@ -248,6 +249,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             ImageView avatar;
             ImageView thumbnail;
             ProgressBar progress;
+            View quoteBorder;
         }
 
         public MessageAdapter(ListFragment context, int capacity) {
@@ -601,28 +603,38 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         }
 
-        public void format() {
-            for (int i = 0; i < data.size(); i++) {
-                Event e = data.get(i);
-                if (e != null) {
-                    synchronized (e) {
-                        if (e.html != null) {
-                            try {
-                                e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
-                                e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server, e.entities);
-                                if (e.msg != null && e.msg.length() > 0)
-                                    e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
-                                if (e.from != null && e.from.length() > 0) {
-                                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>");
-                                }
-                                if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
-                                    e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
-                                }
-                            } catch (Exception ex) {
+        public void format(Event e) {
+            if (e != null) {
+                synchronized (e) {
+                    if (e.html != null) {
+                        try {
+                            e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
+                            e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server, e.entities);
+                            if (e.msg != null && e.msg.length() > 0)
+                                e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
+                            if (e.from != null && e.from.length() > 0) {
+                                e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>");
                             }
+                            if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
+                                e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
+                            }
+                            if(!pref_disableQuote && e.type.equals("buffer_msg") && e.formatted.toString().startsWith(">")) {
+                                e.formatted = (Spanned)e.formatted.subSequence(1, e.formatted.length());
+                                e.quoted = true;
+                            } else {
+                                e.quoted = false;
+                            }
+                        } catch (Exception ex) {
                         }
                     }
                 }
+            }
+        }
+
+        public void format() {
+            for (int i = 0; i < data.size(); i++) {
+                Event e = data.get(i);
+                format(e);
             }
         }
 
@@ -685,6 +697,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.metadata = row.findViewById(R.id.metadata);
                     holder.extension = row.findViewById(R.id.extension);
                     holder.progress = row.findViewById(R.id.progress);
+                    holder.quoteBorder = row.findViewById(R.id.quoteBorder);
                     holder.type = e.row_type;
 
                     row.setTag(holder);
@@ -696,18 +709,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 row.setOnLongClickListener(new OnItemLongClickListener(position));
 
                 if (e.html != null && e.formatted == null) {
-                    e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
-                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server, e.entities);
-                    if (e.msg != null && e.msg.length() > 0)
-                        e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
+                    adapter.format(e);
                 }
 
                 if (e.formatted_nick == null && e.from != null && e.from.length() > 0) {
-                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>");
+                    adapter.format(e);
                 }
 
                 if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
-                    e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
+                    adapter.format(e);
                 }
 
                 if (e.row_type == ROW_MESSAGE) {
@@ -795,7 +805,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.message.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),1);
 
                     Spanned formatted = e.formatted;
-                    if(formatted != null && !pref_avatarsOff && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
+                    if(formatted != null && !pref_avatarsOff && !e.quoted && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
                         Bitmap b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize+4, getResources().getDisplayMetrics()), e.self);
                         if(b != null) {
                             SpannableStringBuilder s = new SpannableStringBuilder(formatted);
@@ -934,6 +944,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(e.row_type == ROW_BACKLOGMARKER)
                     row.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pref_compact?4:(textSize + 2), getResources().getDisplayMetrics()));
+
+                if(holder.quoteBorder != null)
+                    holder.quoteBorder.setVisibility(e.quoted ? View.VISIBLE : View.GONE );
 
                 if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
                     if(e.row_type == ROW_THUMBNAIL) {
@@ -1701,10 +1714,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                             msg = "<large>" + msg + "</large>";
 
-                        if (pref_chatOneLine && event.from != null && event.from.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> ";
-                        else
-                            event.html = "";
+                        event.html = "";
                         if(event.target_mode != null && server != null && server.PREFIX != null) {
                             if (server.PREFIX.has(server.MODE_OPER) && server.PREFIX.get(server.MODE_OPER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
                                 event.html += collapsedEvents.formatNick("Opers", server.MODE_OPER, false) + " ";
@@ -1725,6 +1735,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.html += "<b>" + event.nick + "</b>: " + msg;
                         } else {
                             event.html += msg;
+                        }
+                        if (pref_chatOneLine && event.from != null && event.from.length() > 0) {
+                            if(!pref_disableQuote && event.html.length() > 0 && event.html.startsWith("&gt;")) {
+                                Event e = new Event(event);
+                                e.timestamp = "";
+                                e.html = event.html;
+                                event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
+                                adapter.addItem(event.eid, event);
+                                adapter.insertBelow(event.eid, e);
+                            } else {
+                                event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + event.html;
+                            }
                         }
                         break;
                     case "kicked_channel":
@@ -2362,6 +2384,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_compact = false;
         pref_disableLargeEmoji = false;
         pref_disableInlineFiles = false;
+        pref_disableQuote = false;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -2374,6 +2397,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_chatOneLine = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-oneline", true);
                 pref_norealname = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-norealname", true);
                 pref_disableLargeEmoji = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("emoji-nobig", true);
+                pref_disableQuote = (prefs.has("chat-noquote") && prefs.get("chat-noquote") instanceof Boolean && prefs.getBoolean("chat-noquote"));
                 if(prefs.has("channel-disableTrackUnread")) {
                     JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
                     if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {

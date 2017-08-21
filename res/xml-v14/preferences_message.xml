@@ -84,6 +84,11 @@
 			android:defaultValue="false"
 			android:dependency="files-disableinline"
 			android:title="Download thumbnails only on wifi"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="chat-noquote"
+			android:defaultValue="false"
+			android:title="Format quoted text"
+			android:summary="> The quick brown fox jumped straight over the lazy dog"/>
 	</PreferenceCategory>
 
 </PreferenceScreen>
