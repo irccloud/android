@@ -1767,6 +1767,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 Event e = new Event(event);
                                 e.timestamp = "";
                                 e.html = event.html;
+                                e.parent_eid = event.eid;
                                 event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
                                 adapter.addItem(event.eid, event);
                                 e.day = event.day;
