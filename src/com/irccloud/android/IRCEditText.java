@@ -390,7 +390,7 @@ public class IRCEditText extends RichEditText {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getEffectValue(Effect<T> effect) {
-        if(getSelectionStart() == getSelectionEnd()) {
+        if(getSelectionStart() == getSelectionEnd() || effect.valueInSelection(this) == null) {
             if(effect == RichEditText.FOREGROUND)
                 return (T)Integer.valueOf(typing_fg);
             else if(effect == RichEditText.BACKGROUND)
@@ -530,7 +530,7 @@ public class IRCEditText extends RichEditText {
     public void applyForegroundColor(int color) {
         typing_fg = color;
         typingEffects.add(RichEditText.FOREGROUND);
-        if(getSelectionEnd() < getText().length())
+        if(getSelectionEnd() <= getText().length())
             applyEffect(RichEditText.FOREGROUND, color);
         splitInactiveSpans(getText(), getSelectionStart(), getSelectionEnd(), 0);
         super.onSelectionChanged(getSelectionStart(), getSelectionEnd());
@@ -539,7 +539,7 @@ public class IRCEditText extends RichEditText {
     public void applyBackgroundColor(int color) {
         typing_bg = color;
         typingEffects.add(RichEditText.BACKGROUND);
-        if(getSelectionEnd() < getText().length())
+        if(getSelectionEnd() <= getText().length())
             applyEffect(RichEditText.BACKGROUND, color);
         splitInactiveSpans(getText(), getSelectionStart(), getSelectionEnd(), 0);
         super.onSelectionChanged(getSelectionStart(), getSelectionEnd());

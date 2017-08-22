@@ -1743,6 +1743,12 @@ public class ColorFormatter {
     public static Pattern IS_EMOJI = null;
 
     public static void init() {
+        if(sourceSansPro == null)
+            sourceSansPro = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansproregular);
+
+        if(Hack == null)
+            Hack = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.hackregular);
+
         if(EMOJI == null) {
             long start = System.currentTimeMillis();
             StringBuilder sb = new StringBuilder(16384);
@@ -2146,12 +2152,6 @@ public class ColorFormatter {
             output.setSpan(span, start, end, 0);
         }
 
-        if(sourceSansPro == null)
-            sourceSansPro = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansproregular);
-
-        if(Hack == null)
-            Hack = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.hackregular);
-
         for(int i = 0; i < output.length(); i++) {
             if(i < output.length() - 1 && (output.charAt(i) == '←' || output.charAt(i) == '→' || output.charAt(i) == '⇐' || output.charAt(i) == '↔' || output.charAt(i) == '↮') && output.charAt(i+1) != 0xFE0F) {
                 output.setSpan(new TypefaceSpan(sourceSansPro), i, i+1, 0);
@@ -2183,22 +2183,24 @@ public class ColorFormatter {
 
         @Override
         public void updateDrawState(TextPaint paint) {
-            int oldStyle;
-            Typeface old = paint.getTypeface();
-            if (old == null) {
-                oldStyle = 0;
-            } else {
-                oldStyle = old.getStyle();
-            }
+            if(typeFace != null) {
+                int oldStyle;
+                Typeface old = paint.getTypeface();
+                if (old == null) {
+                    oldStyle = 0;
+                } else {
+                    oldStyle = old.getStyle();
+                }
 
-            int fake = oldStyle & ~typeFace.getStyle();
-            if ((fake & Typeface.BOLD) != 0) {
-                paint.setFakeBoldText(true);
+                int fake = oldStyle & ~typeFace.getStyle();
+                if ((fake & Typeface.BOLD) != 0) {
+                    paint.setFakeBoldText(true);
+                }
+                if ((fake & Typeface.ITALIC) != 0) {
+                    paint.setTextSkewX(-0.25f);
+                }
+                paint.setTypeface(typeFace);
             }
-            if ((fake & Typeface.ITALIC) != 0) {
-                paint.setTextSkewX(-0.25f);
-            }
-            paint.setTypeface(typeFace);
         }
     }
 
