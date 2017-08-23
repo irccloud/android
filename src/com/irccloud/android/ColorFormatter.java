@@ -1742,6 +1742,8 @@ public class ColorFormatter {
 
     public static Pattern IS_EMOJI = null;
 
+    public static Pattern IS_BLOCKQUOTE = Pattern.compile("(^|\\n)>(?![<>]|[\\W_](?:[<>/Dpb|\\\\{}()\\[\\]](?=\\s|$)))([^\\n]+)");
+
     public static void init() {
         if(sourceSansPro == null)
             sourceSansPro = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansproregular);
@@ -1840,6 +1842,10 @@ public class ColorFormatter {
 
     public static boolean is_emoji(String text) {
         return text != null && text.length() > 0 && IS_EMOJI.matcher(text.trim()).matches();
+    }
+
+    public static boolean is_blockquote(String text) {
+        return text != null && text.length() > 0 && IS_BLOCKQUOTE.matcher(text).matches();
     }
 
     public static Spanned html_to_spanned(String msg) {

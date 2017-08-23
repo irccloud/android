@@ -636,7 +636,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
                                 e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
                             }
-                            if(!pref_disableQuote && e.type.equals("buffer_msg") && e.formatted.toString().startsWith(">")) {
+                            if(!pref_disableQuote && e.type.equals("buffer_msg") && ColorFormatter.is_blockquote(e.formatted.toString())) {
                                 e.formatted = (Spanned)e.formatted.subSequence(1, e.formatted.length());
                                 e.quoted = true;
                             } else {
@@ -1763,7 +1763,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.html += msg;
                         }
                         if (pref_chatOneLine && event.from != null && event.from.length() > 0) {
-                            if(!pref_disableQuote && event.html.length() > 0 && event.html.startsWith("&gt;")) {
+                            if(!pref_disableQuote && event.html.length() > 0 && ColorFormatter.is_blockquote(ColorFormatter.html_to_spanned(event.html).toString())) {
                                 Event e = new Event(event);
                                 e.timestamp = "";
                                 e.html = event.html;
