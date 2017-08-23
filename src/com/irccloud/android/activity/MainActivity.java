@@ -1638,6 +1638,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 sendBtn.setEnabled(true);
             }
+            if(formattingActionMode != null)
+                formattingActionMode.finish();
         }
     }
 
