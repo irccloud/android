@@ -1940,7 +1940,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 adapter.addItem(eid, event);
 
-                if(pref_inlineImages && event.type.equals("buffer_msg") && event.msg.length() > 0) {
+                if(!event.pending && pref_inlineImages && event.type.equals("buffer_msg") && event.msg.length() > 0) {
                     Matcher m = ColorFormatter.WEB_URL.matcher(event.msg);
 
                     while(m.find()) {
@@ -2066,6 +2066,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         e.from_realname = parent.from_realname;
         e.hostmask = parent.hostmask;
         e.parent_eid = parent.eid;
+        e.reqid = parent.reqid;
 
         if(properties.get("mime_type").asText().startsWith("image/"))
             e.row_type = ROW_THUMBNAIL;
