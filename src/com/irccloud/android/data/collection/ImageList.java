@@ -52,12 +52,15 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import pl.droidsonroids.gif.GifDrawable;
+
 import static com.irccloud.android.NetworkConnection.printStackTraceToCrashlytics;
 
 public class ImageList {
     private static java.security.MessageDigest md;
     private static ImageList instance = null;
     private HashMap<String, Bitmap> images;
+    private HashMap<String, GifDrawable> GIFs;
     private final ArrayList<String> failedURLs;
     private final BlockingQueue<Runnable> mWorkQueue = new LinkedBlockingQueue<>();
     private static final int KEEP_ALIVE_TIME = 10;
@@ -77,11 +80,13 @@ public class ImageList {
 
     public ImageList() {
         images = new HashMap<>();
+        GIFs = new HashMap<>();
         failedURLs = new ArrayList<>();
     }
 
     public void clear() {
         images.clear();
+        GIFs.clear();
         failedURLs.clear();
         mDownloadThreadPool.purge();
     }
@@ -121,6 +126,44 @@ public class ImageList {
             }
         }
     }
+
+    public GifDrawable getGIF(URL url) throws OutOfMemoryError, FileNotFoundException {
+        if(failedURLs.contains(MD5(url.toString())))
+            throw new FileNotFoundException();
+
+        GifDrawable gif = GIFs.get(MD5(url.toString()));
+        if(gif != null)
+            return gif;
+
+        if(cacheFile(url).exists()) {
+            try {
+                gif = new GifDrawable(cacheFile(url).getAbsolutePath());
+                GIFs.put(MD5(url.toString()), gif);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return gif;
+    }
+
+    public GifDrawable getGIF(String fileID) throws OutOfMemoryError, FileNotFoundException {
+        try {
+            if(ColorFormatter.file_uri_template != null)
+                return getGIF(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()));
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    public GifDrawable getGIF(String fileID, int width) throws OutOfMemoryError, FileNotFoundException {
+        try {
+            if(ColorFormatter.file_uri_template != null)
+                return getGIF(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
 
     public Bitmap getImage(URL url) throws OutOfMemoryError, FileNotFoundException {
         if(failedURLs.contains(MD5(url.toString())))

@@ -87,7 +87,7 @@
                     android:padding="16dp"
                     android:visibility="visible" />
 
-                <ImageView
+                <pl.droidsonroids.gif.GifImageView
                     android:id="@+id/thumbnail"
                     android:layout_marginBottom="6dp"
                     android:layout_width="wrap_content"

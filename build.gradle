@@ -354,6 +354,7 @@ dependencies {
     compile 'com.infstory:switch-preference-compat:1.0.+'
     compile 'com.damnhandy:handy-uri-templates:2.0.2'
     compile 'com.commonsware.cwac:richedit:0.5.2'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
     compile project(':android-websockets')
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
     annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:$dbflowVersion"

@@ -124,6 +124,9 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
+
 public class MessageViewFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
     private NetworkConnection conn;
     private TextView statusView;
@@ -257,7 +260,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             TextView extension;
             ImageView failed;
             ImageView avatar;
-            ImageView thumbnail;
+            GifImageView thumbnail;
             ProgressBar progress;
             View quoteBorder;
         }
@@ -994,13 +997,25 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (e.entities.get("properties") != null && e.entities.get("properties").get("width") != null && width > e.entities.get("properties").get("width").asInt())
                             width = e.entities.get("properties").get("width").asInt();
                         try {
-                            Bitmap b;
-                            if (e.entities.has("id"))
-                                b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
-                            else
-                                b = ImageList.getInstance().getImage(new URL(e.entities.get("url").asText()));
+                            Bitmap b = null;
+                            GifDrawable d = null;
+                            if(e.entities.get("mime_type").asText().equals("image/gif")) {
+                                if (e.entities.has("id"))
+                                    d = ImageList.getInstance().getGIF(e.entities.get("id").asText(), width);
+                                else
+                                    d = ImageList.getInstance().getGIF(new URL(e.entities.get("url").asText()));
+                            } else {
+                                if (e.entities.has("id"))
+                                    b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
+                                else
+                                    b = ImageList.getInstance().getImage(new URL(e.entities.get("url").asText()));
+                            }
                             if (b != null) {
                                 holder.thumbnail.setImageBitmap(b);
+                                holder.thumbnail.setVisibility(View.VISIBLE);
+                                holder.progress.setVisibility(View.GONE);
+                            } else if(d != null) {
+                                holder.thumbnail.setImageDrawable(d);
                                 holder.thumbnail.setVisibility(View.VISIBLE);
                                 holder.progress.setVisibility(View.GONE);
                             } else {
