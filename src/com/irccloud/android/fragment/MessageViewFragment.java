@@ -211,7 +211,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_disableCodeBlock = false;
     private boolean pref_disableQuote = false;
 
-    private static Pattern IS_CODE_SPAN = Pattern.compile("`([^`\\n]+?)`");
     private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
     private class LinkMovementMethodNoLongPress extends IRCCloudLinkMovementMethod {
@@ -615,17 +614,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 synchronized (e) {
                     if (e.html != null) {
                         try {
-                            if(!pref_disableCodeSpan && e.row_type == ROW_MESSAGE) {
-                                StringBuilder html = new StringBuilder(e.html);
-                                Matcher m = IS_CODE_SPAN.matcher(e.html);
-
-                                while(m.find()) {
-                                    html.setCharAt(m.start(), (char)0x11);
-                                    html.setCharAt(m.end() - 1, (char)0x11);
-                                }
-
-                                e.html = html.toString();
-                            }
                             e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
                             e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server, e.entities);
                             if (e.msg != null && e.msg.length() > 0)
@@ -1736,9 +1724,81 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         break;
                     case "buffer_msg":
                     case "notice":
+                        event.code_block = false;
+                        event.color = ColorScheme.getInstance().messageTextColor;
+                        event.bg_color = ColorScheme.getInstance().contentBackgroundColor;
                         msg = event.msg;
                         if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                             msg = "<large>" + msg + "</large>";
+
+                        if(!pref_disableCodeBlock) {
+                            String original_msg = msg;
+                            Matcher m = IS_CODE_BLOCK.matcher(original_msg);
+                            int pos = -1;
+                            String lastChunk = "";
+
+                            while(m.find()) {
+                                if(pos == -1)
+                                    pos = 0;
+
+                                if(m.start() > 0)
+                                    lastChunk = original_msg.substring(pos, m.start());
+                                if(lastChunk.startsWith(" ") && lastChunk.length() > 1)
+                                    lastChunk = lastChunk.substring(1);
+
+                                if(pos > 0) {
+                                    Event e = new Event(event);
+                                    e.html = lastChunk;
+                                    e.timestamp = "";
+                                    e.header = false;
+                                    e.parent_eid = eid;
+                                    if(!pref_disableCodeSpan) {
+                                        e.html = ColorFormatter.insert_codespans(e.html);
+                                    }
+                                    adapter.insertBelow(eid, e);
+                                } else {
+                                    msg = lastChunk;
+                                    adapter.addItem(event.eid, event);
+                                }
+
+                                if(m.start() == 0 && !pref_chatOneLine) {
+                                    msg = original_msg.substring(3, m.end() - 3);
+                                    event.code_block = true;
+                                    event.color = ColorScheme.getInstance().codeSpanForegroundColor;
+                                    adapter.addItem(event.eid, event);
+                                } else {
+                                    Event e = new Event(event);
+                                    e.html = original_msg.substring(m.start() + 3, m.end() - 3);
+                                    e.timestamp = "";
+                                    e.code_block = true;
+                                    e.color = ColorScheme.getInstance().codeSpanForegroundColor;
+                                    e.header = false;
+                                    e.parent_eid = eid;
+                                    adapter.insertBelow(eid, e);
+                                }
+
+                                pos = m.end();
+                            }
+
+                            if(pos > 0 && pos < original_msg.length()) {
+                                Event e = new Event(event);
+                                e.html = original_msg.substring(pos, original_msg.length());
+                                if(e.html.startsWith(" "))
+                                    e.html = e.html.substring(1);
+                                if(!pref_disableCodeSpan) {
+                                    e.html = ColorFormatter.insert_codespans(e.html);
+                                }
+                                e.timestamp = "";
+                                e.header = false;
+                                e.parent_eid = eid;
+                                if(e.html.length() > 0)
+                                    adapter.insertBelow(eid, e);
+                            }
+                        }
+
+                        if(!pref_disableCodeSpan) {
+                            msg = ColorFormatter.insert_codespans(msg);
+                        }
 
                         event.html = "";
                         if(event.target_mode != null && server != null && server.PREFIX != null) {
@@ -1823,62 +1883,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 adapter.addItem(eid, event);
-                if(!pref_disableCodeBlock && event.type.equals("buffer_msg") && event.html.length() > 0) {
-                    String html = event.html;
-                    Matcher m = IS_CODE_BLOCK.matcher(html);
-                    int pos = -1;
-                    String lastChunk = "";
-
-                    while(m.find()) {
-                        if(pos == -1)
-                            pos = 0;
-
-                        if(m.start() > 0)
-                            lastChunk = html.substring(pos, m.start());
-                        if(lastChunk.startsWith(" ") && lastChunk.length() > 1)
-                            lastChunk = lastChunk.substring(1);
-
-                        if(pos > 0) {
-                            Event e = new Event(event);
-                            e.html = lastChunk;
-                            e.timestamp = "";
-                            e.header = false;
-                            e.parent_eid = eid;
-                            adapter.insertBelow(eid, e);
-                        } else {
-                            event.html = lastChunk;
-                        }
-
-                        if(m.start() == 0 && !pref_chatOneLine) {
-                            event.html = html.substring(3, m.end() - 3);
-                            event.code_block = true;
-                            event.color = ColorScheme.getInstance().codeSpanForegroundColor;
-                        } else {
-                            Event e = new Event(event);
-                            e.html = html.substring(m.start() + 3, m.end() - 3);
-                            e.timestamp = "";
-                            e.code_block = true;
-                            e.color = ColorScheme.getInstance().codeSpanForegroundColor;
-                            e.header = false;
-                            e.parent_eid = eid;
-                            adapter.insertBelow(eid, e);
-                        }
-
-                        pos = m.end();
-                    }
-
-                    if(pos > 0 && pos < html.length()) {
-                        Event e = new Event(event);
-                        e.html = html.substring(pos, html.length());
-                        if(e.html.startsWith(" "))
-                            e.html = e.html.substring(1);
-                        e.timestamp = "";
-                        e.header = false;
-                        e.parent_eid = eid;
-                        if(e.html.length() > 0)
-                            adapter.insertBelow(eid, e);
-                    }
-                }
 
                 if (!backlog)
                     adapter.notifyDataSetChanged();

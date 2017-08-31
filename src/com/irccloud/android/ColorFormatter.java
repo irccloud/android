@@ -1743,6 +1743,7 @@ public class ColorFormatter {
     public static Pattern IS_EMOJI = null;
 
     public static Pattern IS_BLOCKQUOTE = Pattern.compile("(^|\\n)>(?![<>]|[\\W_](?:[<>/Dpb|\\\\{}()\\[\\]](?=\\s|$)))([^\\n]+)");
+    public static Pattern IS_CODE_SPAN = Pattern.compile("`([^`\\n]+?)`");
 
     public static void init() {
         if(sourceSansPro == null)
@@ -1846,6 +1847,18 @@ public class ColorFormatter {
 
     public static boolean is_blockquote(String text) {
         return text != null && text.length() > 0 && IS_BLOCKQUOTE.matcher(text).matches();
+    }
+
+    public static String insert_codespans(String msg) {
+        StringBuilder output = new StringBuilder(msg);
+        Matcher m = IS_CODE_SPAN.matcher(msg);
+
+        while(m.find()) {
+            output.setCharAt(m.start(), (char)0x11);
+            output.setCharAt(m.end() - 1, (char)0x11);
+        }
+
+        return output.toString();
     }
 
     public static Spanned html_to_spanned(String msg) {
