@@ -83,5 +83,11 @@
             android:text="Embed uploaded files"
             android:textSize="16sp" />
 
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/inlineImages"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Embed external media"
+            android:textSize="16sp" />
     </LinearLayout>
 </ScrollView>

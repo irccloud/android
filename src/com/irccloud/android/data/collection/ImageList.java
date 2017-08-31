@@ -43,6 +43,7 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -57,6 +58,7 @@ public class ImageList {
     private static java.security.MessageDigest md;
     private static ImageList instance = null;
     private HashMap<String, Bitmap> images;
+    private final ArrayList<String> failedURLs;
     private final BlockingQueue<Runnable> mWorkQueue = new LinkedBlockingQueue<>();
     private static final int KEEP_ALIVE_TIME = 10;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
@@ -75,10 +77,12 @@ public class ImageList {
 
     public ImageList() {
         images = new HashMap<>();
+        failedURLs = new ArrayList<>();
     }
 
     public void clear() {
         images.clear();
+        failedURLs.clear();
         mDownloadThreadPool.purge();
     }
 
@@ -118,7 +122,10 @@ public class ImageList {
         }
     }
 
-    public Bitmap getImage(URL url) throws OutOfMemoryError {
+    public Bitmap getImage(URL url) throws OutOfMemoryError, FileNotFoundException {
+        if(failedURLs.contains(MD5(url.toString())))
+            throw new FileNotFoundException();
+
         Bitmap bitmap = images.get(MD5(url.toString()));
         if(bitmap != null)
             return bitmap;
@@ -131,7 +138,7 @@ public class ImageList {
         return bitmap;
     }
 
-    public Bitmap getImage(String fileID) throws OutOfMemoryError {
+    public Bitmap getImage(String fileID) throws OutOfMemoryError, FileNotFoundException {
         try {
             if(ColorFormatter.file_uri_template != null)
                 return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()));
@@ -140,7 +147,7 @@ public class ImageList {
         return null;
     }
 
-    public Bitmap getImage(String fileID, int width) throws OutOfMemoryError {
+    public Bitmap getImage(String fileID, int width) throws OutOfMemoryError, FileNotFoundException {
         try {
             if(ColorFormatter.file_uri_template != null)
                 return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
@@ -219,16 +226,25 @@ public class ImageList {
                         Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
                         if (bitmap != null)
                             images.put(MD5(url.toString()), bitmap);
+                        else
+                            failedURLs.add(MD5(url.toString()));
                         if (listener != null)
                             listener.onImageFetched(bitmap);
+                    } else {
+                        failedURLs.add(MD5(url.toString()));
+                        if (listener != null)
+                            listener.onImageFetched(null);
                     }
                 } catch (OutOfMemoryError e) {
+                    failedURLs.add(MD5(url.toString()));
                     if (listener != null)
                         listener.onImageFetched(null);
                 } catch (FileNotFoundException e) {
+                    failedURLs.add(MD5(url.toString()));
                     if (listener != null)
                         listener.onImageFetched(null);
                 } catch (IOException e) {
+                    failedURLs.add(MD5(url.toString()));
                     printStackTraceToCrashlytics(e);
                     if (listener != null)
                         listener.onImageFetched(null);

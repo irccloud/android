@@ -74,6 +74,8 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
@@ -103,6 +105,7 @@ import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListene
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
@@ -210,6 +213,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_disableCodeSpan = false;
     private boolean pref_disableCodeBlock = false;
     private boolean pref_disableQuote = false;
+    private boolean pref_inlineImages = false;
 
     private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
@@ -554,6 +558,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         public void insertAbove(long eid, Event e) {
             synchronized (data) {
+                if (e.day < 1) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(e.getTime());
+                    e.day = calendar.get(Calendar.DAY_OF_YEAR);
+                }
                 for (int i = 0; i < data.size(); i++) {
                     if(data.get(i).eid == eid) {
                         data.add(i, e);
@@ -565,6 +574,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         public void insertBelow(long eid, Event e) {
             synchronized (data) {
+                if (e.day < 1) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(e.getTime());
+                    e.day = calendar.get(Calendar.DAY_OF_YEAR);
+                }
                 if(data.size() == 0 || data.get(data.size() - 1).eid == eid) {
                     data.add(e);
                     return;
@@ -652,7 +666,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             if (position >= data.size() || ctx == null)
                 return null;
 
@@ -964,6 +978,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
                     if(e.row_type == ROW_THUMBNAIL) {
+                        if(e.entities.has("id")) {
+                            holder.filename.setVisibility(View.VISIBLE);
+                            holder.metadata.setVisibility(View.VISIBLE);
+                            holder.thumbnailWrapper.setBackgroundResource(ColorScheme.getInstance().bufferBackgroundDrawable);
+                        } else {
+                            holder.filename.setVisibility(View.GONE);
+                            holder.metadata.setVisibility(View.GONE);
+                            holder.thumbnailWrapper.setBackgroundDrawable(null);
+                        }
                         int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
                         if(getActivity().getWindowManager().getDefaultDisplay().getHeight() < width)
                             width = getActivity().getWindowManager().getDefaultDisplay().getHeight();
@@ -971,28 +994,61 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (e.entities.get("properties") != null && e.entities.get("properties").get("width") != null && width > e.entities.get("properties").get("width").asInt())
                             width = e.entities.get("properties").get("width").asInt();
                         try {
-                            Bitmap b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
+                            Bitmap b;
+                            if (e.entities.has("id"))
+                                b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
+                            else
+                                b = ImageList.getInstance().getImage(new URL(e.entities.get("url").asText()));
                             if (b != null) {
                                 holder.thumbnail.setImageBitmap(b);
                                 holder.thumbnail.setVisibility(View.VISIBLE);
                                 holder.progress.setVisibility(View.GONE);
                             } else {
-                                ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
-                                    @Override
-                                    public void onImageFetched(Bitmap image) {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                notifyDataSetChanged();
-                                            }
-                                        });
-                                    }
-                                });
+                                if (e.entities.has("id")) {
+                                    ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
+                                        @Override
+                                        public void onImageFetched(Bitmap image) {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    notifyDataSetChanged();
+                                                }
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    ImageList.getInstance().fetchImage(new URL(e.entities.get("url").asText()), new ImageList.OnImageFetchedListener() {
+                                        @Override
+                                        public void onImageFetched(Bitmap image) {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    notifyDataSetChanged();
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
                                 holder.thumbnail.setVisibility(View.GONE);
                                 holder.progress.setVisibility(View.VISIBLE);
                             }
                             holder.thumbnail.setVisibility(View.VISIBLE);
                             holder.extension.setVisibility(View.GONE);
+                        } catch (FileNotFoundException e1) {
+                            holder.thumbnail.setVisibility(View.GONE);
+                            holder.progress.setVisibility(View.GONE);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    synchronized (data) {
+                                        data.remove(position);
+                                        notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        } catch (MalformedURLException e1) {
+                            holder.thumbnail.setVisibility(View.GONE);
+                            holder.progress.setVisibility(View.GONE);
                         } catch (OutOfMemoryError e1) {
                             String ext = "???";
 
@@ -1726,7 +1782,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     case "notice":
                         event.code_block = false;
                         event.color = ColorScheme.getInstance().messageTextColor;
-                        event.bg_color = ColorScheme.getInstance().contentBackgroundColor;
+                        event.bg_color = event.self ? ColorScheme.getInstance().selfBackgroundColor : ColorScheme.getInstance().contentBackgroundColor;
                         msg = event.msg;
                         if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                             msg = "<large>" + msg + "</large>";
@@ -1884,6 +1940,41 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 adapter.addItem(eid, event);
 
+                if(pref_inlineImages && event.type.equals("buffer_msg") && event.msg.length() > 0) {
+                    Matcher m = ColorFormatter.WEB_URL.matcher(event.msg);
+
+                    while(m.find()) {
+                        String url = event.msg.substring(m.start(), m.end());
+                        boolean found = false;
+                        if(event.entities != null && event.entities.has("files")) {
+                            JsonNode files = event.entities.get("files");
+
+                            for (int i = 0; i < files.size(); i++) {
+                                JsonNode entity = files.get(i);
+                                String fileID = entity.get("id").asText();
+                                if (url.contains("/file/" + fileID + "/")) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(!found) {
+                            Uri uri = Uri.parse(url);
+                            if (uri.getLastPathSegment().contains(".")) {
+                                String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
+                                if (extension.equals("png") || extension.equals("jpg") || extension.equals("jpeg") || extension.equals("webp") || extension.equals("gif")) {
+                                    ObjectNode properties = new ObjectMapper().createObjectNode();
+
+                                    properties.put("mime_type", "image/" + extension);
+                                    properties.put("url", url);
+
+                                    insertEntity(adapter, event, properties, backlog);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if (!backlog)
                     adapter.notifyDataSetChanged();
 
@@ -1988,21 +2079,22 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         e.bg_color = (e.self && e.type.equals("buffer_msg")) ? ColorScheme.getInstance().selfBackgroundColor : parent.bg_color;
         e.entities = properties;
 
-        int size = properties.get("size").asInt();
-        if (size < 1024) {
-            e.msg = size + " B";
-        } else {
-            int exp = (int) (Math.log(size) / Math.log(1024));
-            e.msg = String.format("%.1f ", size / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
+        if(properties.has("size")) {
+            int size = properties.get("size").asInt();
+            if (size < 1024) {
+                e.msg = size + " B";
+            } else {
+                int exp = (int) (Math.log(size) / Math.log(1024));
+                e.msg = String.format("%.1f ", size / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
+            }
+
+            if (e.row_type == ROW_THUMBNAIL)
+                e.msg += " • ";
+            else
+                e.msg += "\n";
+
+            e.msg += properties.get("mime_type").asText();
         }
-
-        if(e.row_type == ROW_THUMBNAIL)
-            e.msg += " • ";
-        else
-            e.msg += "\n";
-
-        e.msg += properties.get("mime_type").asText();
-
         adapter.insertBelow(parent.eid, e);
         if(!backlog) {
             if (!buffer.getScrolledUp()) {
@@ -2477,6 +2569,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_disableCodeSpan = false;
         pref_disableCodeBlock = false;
         pref_disableQuote = false;
+        pref_inlineImages = false;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -2527,9 +2620,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (buffer.isChannel()) {
                     if (prefs.has("channel-files-disableinline"))
                         disableFilesMap = prefs.getJSONObject("channel-files-disableinline");
-                } else if (buffer.isConsole()) {
-                    if (prefs.has("buffer-files-disableinline"))
-                        disableFilesMap = prefs.getJSONObject("buffer-files-disableinline");
                 } else {
                     if (prefs.has("buffer-files-disableinline"))
                         disableFilesMap = prefs.getJSONObject("buffer-files-disableinline");
@@ -2537,8 +2627,34 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 pref_disableInlineFiles = ((prefs.has("files-disableinline") && prefs.get("files-disableinline") instanceof Boolean && prefs.getBoolean("files-disableinline")) || (disableFilesMap != null && disableFilesMap.has(String.valueOf(buffer.getBid())) && disableFilesMap.getBoolean(String.valueOf(buffer.getBid()))));
 
-                if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("files-wifionly", false) && !conn.isWifi())
+                if(prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
+                    JSONObject inlineImagesMap = null;
+                    if (buffer.isChannel()) {
+                        if (prefs.has("channel-inlineimages-disable"))
+                            inlineImagesMap = prefs.getJSONObject("channel-inlineimages-disable");
+                    } else {
+                        if (prefs.has("buffer-inlineimages-disable"))
+                            inlineImagesMap = prefs.getJSONObject("buffer-inlineimages-disable");
+                    }
+
+                    pref_inlineImages = !(inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
+                } else {
+                    JSONObject inlineImagesMap = null;
+                    if (buffer.isChannel()) {
+                        if (prefs.has("channel-inlineimages"))
+                            inlineImagesMap = prefs.getJSONObject("channel-inlineimages");
+                    } else {
+                        if (prefs.has("buffer-inlineimages"))
+                            inlineImagesMap = prefs.getJSONObject("buffer-inlineimages");
+                    }
+
+                    pref_inlineImages = (inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
+                }
+
+                if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("files-wifionly", false) && !conn.isWifi()) {
                     pref_disableInlineFiles = true;
+                    pref_inlineImages = false;
+                }
             } catch (JSONException e1) {
                 NetworkConnection.printStackTraceToCrashlytics(e1);
             }

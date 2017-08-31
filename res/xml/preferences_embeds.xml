@@ -35,9 +35,13 @@
 			android:summary="Not including 3rd party images"
 			android:title="Embed uploaded files"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="inlineimages"
+			android:defaultValue="false"
+			android:summary="May result in your IP address being revealed to external site operators"
+			android:title="Embed 3rd party images"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="files-wifionly"
 			android:defaultValue="false"
-			android:dependency="files-disableinline"
 			android:title="Download thumbnails only on wifi"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="chat-nocodespan"

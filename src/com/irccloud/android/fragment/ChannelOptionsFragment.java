@@ -47,6 +47,7 @@ public class ChannelOptionsFragment extends DialogFragment {
     SwitchCompat autosuggest;
     SwitchCompat readOnSelect;
     SwitchCompat inlineFiles;
+    SwitchCompat inlineImages;
     int cid;
     int bid;
 
@@ -101,6 +102,8 @@ public class ChannelOptionsFragment extends DialogFragment {
                     prefs = updatePref(prefs, readOnSelect.isChecked(), "channel-disableReadOnSelect");
                     prefs = updatePref(prefs, !readOnSelect.isChecked(), "channel-enableReadOnSelect");
                     prefs = updatePref(prefs, inlineFiles.isChecked(), "channel-files-disableinline");
+                    prefs = updatePref(prefs, inlineImages.isChecked(), "channel-inlineimages-disable");
+                    prefs = updatePref(prefs, !inlineImages.isChecked(), "channel-inlineimages");
 
                     NetworkConnection.getInstance().set_prefs(prefs.toString(), null);
                 } else {
@@ -202,6 +205,20 @@ public class ChannelOptionsFragment extends DialogFragment {
                             enabled = false;
                     }
                     readOnSelect.setChecked(enabled);
+                    if(prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
+                        JSONObject inlineImagesMap = null;
+                        if (prefs.has("channel-inlineimages-disable"))
+                            inlineImagesMap = prefs.getJSONObject("channel-inlineimages-disable");
+
+                        inlineImages.setChecked(!(inlineImagesMap != null && inlineImagesMap.has(String.valueOf(bid)) && inlineImagesMap.getBoolean(String.valueOf(bid))));
+                    } else {
+                        JSONObject inlineImagesMap = null;
+                        if (prefs.has("channel-inlineimages"))
+                            inlineImagesMap = prefs.getJSONObject("channel-inlineimages");
+
+                        inlineImages.setChecked((inlineImagesMap != null && inlineImagesMap.has(String.valueOf(bid)) && inlineImagesMap.getBoolean(String.valueOf(bid))));
+                    }
+
                 } else {
                     notifyAll.setChecked(false);
                     joinpart.setChecked(true);
@@ -211,6 +228,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     autosuggest.setChecked(true);
                     readOnSelect.setChecked(false);
                     inlineFiles.setChecked(true);
+                    inlineImages.setChecked(false);
                 }
             } else {
                 notifyAll.setChecked(false);
@@ -220,6 +238,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                 collapse.setChecked(true);
                 autosuggest.setChecked(true);
                 readOnSelect.setChecked(false);
+                inlineImages.setChecked(false);
             }
             if (!getActivity().getResources().getBoolean(R.bool.isTablet))
                 members.setVisibility(View.GONE);
@@ -247,6 +266,7 @@ public class ChannelOptionsFragment extends DialogFragment {
         autosuggest = v.findViewById(R.id.autosuggest);
         readOnSelect = v.findViewById(R.id.readOnSelect);
         inlineFiles = v.findViewById(R.id.inlineFiles);
+        inlineImages = v.findViewById(R.id.inlineImages);
 
         return new AlertDialog.Builder(ctx)
                 .setTitle("Display Options")

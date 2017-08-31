@@ -319,6 +319,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             findPreference("emoji-nobig").setOnPreferenceChangeListener(prefstoggle);
         }
         findPreference("files-disableinline").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("inlineimages").setOnPreferenceChangeListener(prefstoggle);
         findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
         findPreference("chat-nocodespan").setOnPreferenceChangeListener(prefstoggle);
         findPreference("chat-nocodeblock").setOnPreferenceChangeListener(prefstoggle);

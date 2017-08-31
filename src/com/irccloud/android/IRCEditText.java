@@ -78,7 +78,7 @@ public class IRCEditText extends RichEditText {
                 selectionChangedByUser = false;
                 oldLength = s.length();
                 changeStart = start;
-                android.util.Log.d("IRCCloud", "Text will change: " + start + ", " + count + ", after: " + after);
+                //android.util.Log.d("IRCCloud", "Text will change: " + start + ", " + count + ", after: " + after);
                 removeCallbacks(selectionChangeRunnable);
             }
 
@@ -86,19 +86,19 @@ public class IRCEditText extends RichEditText {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 size = count - before;
                 if (getSelectionStart() == getSelectionEnd()) {
-                    android.util.Log.d("IRCCloud", "change start: " + changeStart + " end: " + getSelectionEnd() + " size: " + size);
+                    //android.util.Log.d("IRCCloud", "change start: " + changeStart + " end: " + getSelectionEnd() + " size: " + size);
                     if(size > 0) {
                         if (typingEffects.contains(RichEditText.BOLD)) {
-                            android.util.Log.d("IRCCloud", "Typing effects contains bold");
+                            //android.util.Log.d("IRCCloud", "Typing effects contains bold");
                             boolean found = false;
                             for (SpanWrapper span : typingSpans) {
                                 if (span.span instanceof StyleSpan && ((StyleSpan) span.span).getStyle() == Typeface.BOLD) {
                                     if (changeStart >= span.start && changeStart <= span.end) {
                                         if(span.start == span.end) {
-                                            android.util.Log.d("IRCCloud", "Replacing zero-length span");
+                                            //android.util.Log.d("IRCCloud", "Replacing zero-length span");
                                             typingSpans.remove(span);
                                         } else {
-                                            android.util.Log.d("IRCCloud", "Expanding existing span");
+                                            //android.util.Log.d("IRCCloud", "Expanding existing span");
                                             found = true;
                                             span.end += size;
                                             span.added = false;
@@ -108,7 +108,7 @@ public class IRCEditText extends RichEditText {
                                 }
                             }
                             if (!found) {
-                                android.util.Log.d("IRCCloud", "Inserting new span");
+                                //android.util.Log.d("IRCCloud", "Inserting new span");
                                 SpanWrapper span = new SpanWrapper();
                                 span.start = changeStart;
                                 span.end = span.start + size;
@@ -250,36 +250,36 @@ public class IRCEditText extends RichEditText {
                     ArrayList<SpanWrapper> spansToRemove = new ArrayList<>();
 
                     for (SpanWrapper span : typingSpans) {
-                        android.util.Log.d("IRCCloud", "Span: " + span);
+                        //android.util.Log.d("IRCCloud", "Span: " + span);
                         if (size > 0) {
                             if (span.added) {
                                 if (span.start >= changeStart) {
-                                    android.util.Log.d("IRCCloud", "span starts after insertion range, offsetting");
+                                    //android.util.Log.d("IRCCloud", "span starts after insertion range, offsetting");
                                     span.start += size;
                                     span.end += size;
                                 } else if (span.end > changeStart) {
-                                    android.util.Log.d("IRCCloud", "span ends within insertion range, expanding");
+                                    //android.util.Log.d("IRCCloud", "span ends within insertion range, expanding");
                                     span.end += size;
                                 }
                             }
                         } else {
                             if (span.start > changeStart) {
-                                android.util.Log.d("IRCCloud", "span starts after deletion range, offsetting");
+                                //android.util.Log.d("IRCCloud", "span starts after deletion range, offsetting");
                                 span.start += size;
                                 span.end += size;
                             } else if (span.end > changeStart) {
-                                android.util.Log.d("IRCCloud", "span ends after deletion range, shrinking");
+                                //android.util.Log.d("IRCCloud", "span ends after deletion range, shrinking");
                                 span.end += size;
                             }
                         }
 
                         if (span.end > editable.length()) {
-                            android.util.Log.d("IRCCloud", "span exceeds editable range, truncating");
+                            //android.util.Log.d("IRCCloud", "span exceeds editable range, truncating");
                             span.end = editable.length();
                         }
 
                         if (span.end < span.start) {
-                            android.util.Log.d("IRCCloud", "span too small, removing");
+                            //android.util.Log.d("IRCCloud", "span too small, removing");
                             editable.removeSpan(span.span);
                             spansToRemove.add(span);
                             continue;
@@ -292,10 +292,10 @@ public class IRCEditText extends RichEditText {
                     }
 
                     if (spansToRemove.size() > 0) {
-                        android.util.Log.d("IRCCloud", "Removing spans: " + typingSpans);
+                        //android.util.Log.d("IRCCloud", "Removing spans: " + typingSpans);
                         typingSpans.removeAll(spansToRemove);
                     }
-                    android.util.Log.d("IRCCloud", "Spans: " + typingSpans);
+                    //android.util.Log.d("IRCCloud", "Spans: " + typingSpans);
                 }
                 postDelayed(selectionChangeRunnable, 100);
             }
@@ -523,7 +523,7 @@ public class IRCEditText extends RichEditText {
                     w.end = text.getSpanEnd(style);
                     w.span = style;
                     typingSpans.add(w);
-                    android.util.Log.d("IRCCloud", "Adding span at " + w.start + ", " + w.end);
+                    //android.util.Log.d("IRCCloud", "Adding span at " + w.start + ", " + w.end);
                 }
             }
         }
@@ -537,11 +537,11 @@ public class IRCEditText extends RichEditText {
         }
 
         if(spansToRemove.size() > 0) {
-            android.util.Log.d("IRCCloud", "Removing duplicates: " + spansToRemove);
+            //android.util.Log.d("IRCCloud", "Removing duplicates: " + spansToRemove);
             typingSpans.removeAll(spansToRemove);
         }
 
-        android.util.Log.d("IRCCloud", "Spans: " + typingSpans);
+        //android.util.Log.d("IRCCloud", "Spans: " + typingSpans);
     }
 
     @Override
