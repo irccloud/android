@@ -4886,8 +4886,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 } else if (items[item].equals("Close Preview")) {
                     MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
-                    if (mvf != null)
-                        mvf.hideFileId(entities.get("id").asText());
+                    if (mvf != null) {
+                        if(entities.has("id"))
+                            mvf.hideFileId(entities.get("id").asText());
+                        else
+                            mvf.hideFileId(entities.get("url").asText());
+                    }
                 } else if (items[item].equals("Whois…")) {
                     if(selected_user.ircserver != null && selected_user.ircserver.length() > 0)
                         conn.whois(buffer.getCid(), selected_user.nick, selected_user.ircserver, null);

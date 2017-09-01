@@ -981,7 +981,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.quoteBorder.setVisibility(e.quoted ? View.VISIBLE : View.GONE );
 
                 if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
-                    holder.thumbnailWrapper.setVisibility(View.VISIBLE);
                     if(e.row_type == ROW_THUMBNAIL) {
                         if(e.entities.has("id")) {
                             holder.metadata.setVisibility(View.VISIBLE);
@@ -1067,7 +1066,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             holder.thumbnail.setVisibility(View.VISIBLE);
                             holder.extension.setVisibility(View.GONE);
                         } catch (FileNotFoundException e1) {
-                            holder.thumbnailWrapper.setVisibility(View.GONE);
+                            hideFileId(e.entities.get("url").asText());
                         } catch (MalformedURLException e1) {
                             holder.thumbnail.setVisibility(View.GONE);
                             holder.progress.setVisibility(View.GONE);
@@ -1970,21 +1969,21 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                     while(m.find()) {
                         String url = event.msg.substring(m.start(), m.end());
-                        boolean found = false;
-                        if(event.entities != null && event.entities.has("files")) {
-                            JsonNode files = event.entities.get("files");
+                        if(!hiddenFileIDs.contains(url)) {
+                            boolean found = false;
+                            if (event.entities != null && event.entities.has("files")) {
+                                JsonNode files = event.entities.get("files");
 
-                            for (int i = 0; i < files.size(); i++) {
-                                JsonNode entity = files.get(i);
-                                String fileID = entity.get("id").asText();
-                                if (url.contains("/file/" + fileID + "/")) {
-                                    found = true;
-                                    break;
+                                for (int i = 0; i < files.size(); i++) {
+                                    JsonNode entity = files.get(i);
+                                    String fileID = entity.get("id").asText();
+                                    if (url.contains("/file/" + fileID + "/")) {
+                                        found = true;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        if(!found) {
-                            if(!ImageList.getInstance().isFailedURL(new URL(url))) {
+                            if (!found && !ImageList.getInstance().isFailedURL(new URL(url))) {
                                 Uri uri = Uri.parse(url);
                                 if (uri.getLastPathSegment().contains(".")) {
                                     String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
