@@ -981,6 +981,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.quoteBorder.setVisibility(e.quoted ? View.VISIBLE : View.GONE );
 
                 if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
+                    holder.thumbnailWrapper.setVisibility(View.VISIBLE);
                     if(e.row_type == ROW_THUMBNAIL) {
                         if(e.entities.has("id")) {
                             holder.metadata.setVisibility(View.VISIBLE);
@@ -1066,17 +1067,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             holder.thumbnail.setVisibility(View.VISIBLE);
                             holder.extension.setVisibility(View.GONE);
                         } catch (FileNotFoundException e1) {
-                            holder.thumbnail.setVisibility(View.GONE);
-                            holder.progress.setVisibility(View.GONE);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    synchronized (data) {
-                                        data.remove(position);
-                                        notifyDataSetChanged();
-                                    }
-                                }
-                            });
+                            holder.thumbnailWrapper.setVisibility(View.GONE);
                         } catch (MalformedURLException e1) {
                             holder.thumbnail.setVisibility(View.GONE);
                             holder.progress.setVisibility(View.GONE);
@@ -1123,7 +1114,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
 
                     holder.metadata.setText(e.msg);
-                    holder.timestamp.setVisibility(View.INVISIBLE);
+                    if(holder.thumbnailWrapper.getVisibility() == View.VISIBLE)
+                        holder.timestamp.setVisibility(View.INVISIBLE);
+                    else
+                        holder.timestamp.setVisibility(View.GONE);
                     row.setBackgroundColor(e.bg_color);
                 }
                 return row;
@@ -1990,16 +1984,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                         }
                         if(!found) {
-                            Uri uri = Uri.parse(url);
-                            if (uri.getLastPathSegment().contains(".")) {
-                                String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
-                                if (extension.equals("png") || extension.equals("jpg") || extension.equals("jpeg") || extension.equals("webp") || extension.equals("gif")) {
-                                    ObjectNode properties = new ObjectMapper().createObjectNode();
+                            if(!ImageList.getInstance().isFailedURL(new URL(url))) {
+                                Uri uri = Uri.parse(url);
+                                if (uri.getLastPathSegment().contains(".")) {
+                                    String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
+                                    if (extension.equals("png") || extension.equals("jpg") || extension.equals("jpeg") || extension.equals("webp") || extension.equals("gif")) {
+                                        ObjectNode properties = new ObjectMapper().createObjectNode();
 
-                                    properties.put("mime_type", "image/" + extension);
-                                    properties.put("url", url);
+                                        properties.put("mime_type", "image/" + extension);
+                                        properties.put("url", url);
 
-                                    insertEntity(adapter, event, properties, backlog);
+                                        insertEntity(adapter, event, properties, backlog);
+                                    }
                                 }
                             }
                         }
@@ -2164,6 +2160,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 longPressOverride = mListener.onMessageLongClicked((Event) adapter.getItem(pos));
                 return longPressOverride;
             } catch (Exception e) {
+                e.printStackTrace();
             }
             return false;
         }
@@ -2216,7 +2213,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                             } else if (e.row_type == ROW_THUMBNAIL) {
                                                 try {
                                                     Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
-                                                    intent.setData(Uri.parse(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", e.entities.get("id").asText()).expand()));
+                                                    if(e.entities.has("id"))
+                                                        intent.setData(Uri.parse(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", e.entities.get("id").asText()).expand()));
+                                                    else
+                                                        intent.setData(Uri.parse(e.entities.get("url").asText()));
                                                     startActivity(intent);
                                                 } catch (Exception ex) {
                                                     ex.printStackTrace();

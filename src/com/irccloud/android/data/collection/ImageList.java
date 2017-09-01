@@ -87,7 +87,6 @@ public class ImageList {
     public void clear() {
         images.clear();
         GIFs.clear();
-        failedURLs.clear();
         mDownloadThreadPool.purge();
     }
 
@@ -125,6 +124,10 @@ public class ImageList {
                 }
             }
         }
+    }
+
+    public boolean isFailedURL(URL url) {
+        return failedURLs.contains(MD5(url.toString()));
     }
 
     public GifDrawable getGIF(URL url) throws OutOfMemoryError, FileNotFoundException {
