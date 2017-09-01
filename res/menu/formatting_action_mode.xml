@@ -38,7 +38,7 @@
         android:icon="@drawable/ic_format_background"/>
 
     <item android:id="@+id/menu_clear"
-        android:title="Clear Formatting"
+        android:title="Remove Formatting"
         android:icon="@drawable/ic_format_clear"/>
 
 </menu>

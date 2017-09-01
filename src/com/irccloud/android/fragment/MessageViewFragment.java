@@ -126,6 +126,7 @@ import java.util.regex.Pattern;
 
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
+import pl.droidsonroids.gif.MultiCallback;
 
 public class MessageViewFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
     private NetworkConnection conn;
@@ -982,11 +983,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
                     if(e.row_type == ROW_THUMBNAIL) {
                         if(e.entities.has("id")) {
-                            holder.filename.setVisibility(View.VISIBLE);
                             holder.metadata.setVisibility(View.VISIBLE);
                             holder.thumbnailWrapper.setBackgroundResource(ColorScheme.getInstance().bufferBackgroundDrawable);
                         } else {
-                            holder.filename.setVisibility(View.GONE);
                             holder.metadata.setVisibility(View.GONE);
                             holder.thumbnailWrapper.setBackgroundDrawable(null);
                         }
@@ -1011,13 +1010,30 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     b = ImageList.getInstance().getImage(new URL(e.entities.get("url").asText()));
                             }
                             if (b != null) {
+                                float ratio = (float)b.getHeight() / (float)b.getWidth();
+                                ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
+                                lp.width = width;
+                                lp.height = (int)(width * ratio);
+                                holder.thumbnail.setLayoutParams(lp);
                                 holder.thumbnail.setImageBitmap(b);
                                 holder.thumbnail.setVisibility(View.VISIBLE);
                                 holder.progress.setVisibility(View.GONE);
                             } else if(d != null) {
+                                float ratio = (float)d.getCurrentFrame().getHeight() / (float)d.getCurrentFrame().getWidth();
+                                ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
+                                lp.width = width;
+                                lp.height = (int)(width * ratio);
+                                holder.thumbnail.setLayoutParams(lp);
                                 holder.thumbnail.setImageDrawable(d);
                                 holder.thumbnail.setVisibility(View.VISIBLE);
                                 holder.progress.setVisibility(View.GONE);
+                                MultiCallback cb;
+                                if(d.getCallback() != null && d.getCallback() instanceof MultiCallback)
+                                    cb = (MultiCallback)d.getCallback();
+                                else
+                                    cb = new MultiCallback();
+                                cb.addView(holder.thumbnail);
+                                d.setCallback(cb);
                             } else {
                                 if (e.entities.has("id")) {
                                     ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
@@ -1099,7 +1115,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.progress.setVisibility(View.GONE);
                     }
 
-                    if(e.entities.get("name") != null) {
+                    if(e.entities.has("name") && e.entities.get("name") != null && e.entities.get("name").asText().length() > 0) {
                         holder.filename.setText(e.entities.get("name").asText());
                         holder.filename.setVisibility(View.VISIBLE);
                     } else {

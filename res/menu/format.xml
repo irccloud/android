@@ -19,5 +19,5 @@
     <item
         android:id="@+id/menu_format"
         android:icon="@drawable/ic_text_format"
-        android:title="Format Text" />
+        android:title="Format" />
 </menu>
