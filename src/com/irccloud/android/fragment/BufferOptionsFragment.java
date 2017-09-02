@@ -45,6 +45,7 @@ public class BufferOptionsFragment extends DialogFragment {
     SwitchCompat expandDisco;
     SwitchCompat readOnSelect;
     SwitchCompat inlineFiles;
+    SwitchCompat inlineImages;
     int cid;
     int bid;
     String type;
@@ -101,6 +102,8 @@ public class BufferOptionsFragment extends DialogFragment {
                     } else {
                         prefs = updatePref(prefs, expandDisco.isChecked(), "buffer-expandDisco");
                     }
+                    prefs = updatePref(prefs, inlineImages.isChecked(), "buffer-inlineimages-disable");
+                    prefs = updatePref(prefs, !inlineImages.isChecked(), "buffer-inlineimages");
                     NetworkConnection.getInstance().set_prefs(prefs.toString(), null);
                 } else {
                     Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
@@ -180,6 +183,19 @@ public class BufferOptionsFragment extends DialogFragment {
                             enabled = false;
                     }
                     readOnSelect.setChecked(enabled);
+                    if(prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
+                        JSONObject inlineImagesMap = null;
+                        if (prefs.has("buffer-inlineimages-disable"))
+                            inlineImagesMap = prefs.getJSONObject("buffer-inlineimages-disable");
+
+                        inlineImages.setChecked(!(inlineImagesMap != null && inlineImagesMap.has(String.valueOf(bid)) && inlineImagesMap.getBoolean(String.valueOf(bid))));
+                    } else {
+                        JSONObject inlineImagesMap = null;
+                        if (prefs.has("buffer-inlineimages"))
+                            inlineImagesMap = prefs.getJSONObject("buffer-inlineimages");
+
+                        inlineImages.setChecked((inlineImagesMap != null && inlineImagesMap.has(String.valueOf(bid)) && inlineImagesMap.getBoolean(String.valueOf(bid))));
+                    }
                 } else {
                     joinpart.setChecked(true);
                     unread.setChecked(true);
@@ -187,6 +203,7 @@ public class BufferOptionsFragment extends DialogFragment {
                     expandDisco.setChecked(true);
                     readOnSelect.setChecked(false);
                     inlineFiles.setChecked(true);
+                    inlineImages.setChecked(false);
                 }
             }
         } catch (JSONException e) {
@@ -207,6 +224,7 @@ public class BufferOptionsFragment extends DialogFragment {
         expandDisco = v.findViewById(R.id.expandDisco);
         readOnSelect = v.findViewById(R.id.readOnSelect);
         inlineFiles = v.findViewById(R.id.inlineFiles);
+        inlineImages = v.findViewById(R.id.inlineImages);
 
         if (savedInstanceState != null && bid == -1 && savedInstanceState.containsKey("bid")) {
             bid = savedInstanceState.getInt("bid");
@@ -218,6 +236,7 @@ public class BufferOptionsFragment extends DialogFragment {
             joinpart.setVisibility(View.GONE);
             collapse.setVisibility(View.GONE);
             inlineFiles.setVisibility(View.GONE);
+            inlineImages.setVisibility(View.GONE);
         } else {
             expandDisco.setVisibility(View.GONE);
         }
