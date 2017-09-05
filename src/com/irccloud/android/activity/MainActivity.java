@@ -4750,12 +4750,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 itemList.add("Deop");
                             else
                                 itemList.add("Op");
+                        }
+                        if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")) {
                             if (selected_user.mode.contains(server != null ? server.MODE_VOICED : "v"))
                                 itemList.add("Devoice");
                             else
                                 itemList.add("Voice");
-                        }
-                        if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")) {
                             itemList.add("Kick…");
                             itemList.add("Ban…");
                         }
