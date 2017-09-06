@@ -1880,7 +1880,7 @@ public class ColorFormatter {
         if (msg == null)
             msg = "";
 
-        Spannable output = (Spannable) Html.fromHtml(msg, null, new Html.TagHandler() {
+        final Spannable output = (Spannable) Html.fromHtml(msg, null, new Html.TagHandler() {
             @Override
             public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
                 int len = output.length();
@@ -1962,6 +1962,16 @@ public class ColorFormatter {
             chanTypes = server.CHANTYPES;
 
         final String pattern = "\\B([" + chanTypes + "]([^\ufe0e\ufe0f\u20e3<>\",\\s][^<>\",\\s]*))";
+
+        MatchFilter noOverlapFilter = new MatchFilter() {
+            @Override
+            public boolean acceptMatch(CharSequence s, int start, int end) {
+                if(output.getSpans(start, end, URLSpan.class).length > 0)
+                    return false;
+                else
+                    return true;
+            }
+        };
 
         if (linkify) {
             Linkify.addLinks(output, WEB_URL, null, new MatchFilter() {
@@ -2106,13 +2116,13 @@ public class ColorFormatter {
                     return url;
                 }
             });
-            Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:");
-            Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\",\\s]+"), null, null, new TransformFilter() {
+            Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:", noOverlapFilter, null);
+            Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\",\\s]+"), null, noOverlapFilter, new TransformFilter() {
                 public final String transformUrl(final Matcher match, String url) {
                     return url.replace("#", "%23");
                 }
             });
-            Linkify.addLinks(output, Pattern.compile("spotify:([a-zA-Z0-9:]+)"), null, null, new TransformFilter() {
+            Linkify.addLinks(output, Pattern.compile("spotify:([a-zA-Z0-9:]+)"), null, noOverlapFilter, new TransformFilter() {
                 public final String transformUrl(final Matcher match, String url) {
                     return "http://open.spotify.com/" + url.substring(8).replace(":", "/");
                 }
@@ -2126,7 +2136,7 @@ public class ColorFormatter {
                         Integer.parseInt(s.subSequence(start + 1, end).toString());
                         return false;
                     } catch (NumberFormatException e) {
-                        return true;
+                        return output.getSpans(start, end, URLSpan.class).length == 0;
                     }
                 }
             }, new TransformFilter() {
