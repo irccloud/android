@@ -1742,7 +1742,7 @@ public class ColorFormatter {
 
     public static Pattern IS_EMOJI = null;
 
-    public static Pattern IS_BLOCKQUOTE = Pattern.compile("(^|\\n)>(?![<>]|[\\W_](?:[<>/Dpb|\\\\{}()\\[\\]](?=\\s|$)))([^\\n]+)");
+    public static Pattern IS_BLOCKQUOTE = Pattern.compile("(^|\\n)>(?![<>]|[\\W_](?:[<>/OoDpb|\\\\{}()\\[\\]](?=\\s|$)))([^\\n]+)");
     public static Pattern IS_CODE_SPAN = Pattern.compile("`([^`\\n]+?)`");
 
     public static void init() {
@@ -1966,10 +1966,7 @@ public class ColorFormatter {
         MatchFilter noOverlapFilter = new MatchFilter() {
             @Override
             public boolean acceptMatch(CharSequence s, int start, int end) {
-                if(output.getSpans(start, end, URLSpan.class).length > 0)
-                    return false;
-                else
-                    return true;
+                return output.getSpans(start, end, URLSpan.class).length == 0;
             }
         };
 
