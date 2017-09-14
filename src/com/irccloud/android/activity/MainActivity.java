@@ -4189,8 +4189,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return true;
             case R.id.menu_download_logs:
                 Intent i = new Intent(this, LogExportsActivity.class);
-                i.putExtra("cid", buffer.getCid());
-                i.putExtra("bid", buffer.getBid());
+                if(buffer != null) {
+                    i.putExtra("cid", buffer.getCid());
+                    i.putExtra("bid", buffer.getBid());
+                }
                 startActivity(i);
                 return true;
         }
