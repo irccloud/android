@@ -670,6 +670,23 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         }
 
+        private Runnable refreshSoonRunnable = new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
+            }
+        };
+
+        private void refreshSoon() {
+            mHandler.removeCallbacks(refreshSoonRunnable);
+            mHandler.postDelayed(refreshSoonRunnable, 100);
+        }
+
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             if (position >= data.size() || ctx == null)
@@ -999,75 +1016,70 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         try {
                             Bitmap b = null;
                             GifDrawable d = null;
-                            if(e.entities.get("mime_type").asText().equals("image/gif")) {
-                                if (e.entities.has("id"))
-                                    d = ImageList.getInstance().getGIF(e.entities.get("id").asText(), width);
-                                else
-                                    d = ImageList.getInstance().getGIF(new URL(e.entities.get("thumbnail").asText()));
-                            } else {
-                                if (e.entities.has("id"))
-                                    b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
-                                else
-                                    b = ImageList.getInstance().getImage(new URL(e.entities.get("thumbnail").asText()));
-                            }
-                            if (b != null) {
-                                float ratio = (float)b.getHeight() / (float)b.getWidth();
-                                ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
-                                lp.width = width;
-                                lp.height = (int)(width * ratio);
-                                holder.thumbnail.setLayoutParams(lp);
-                                holder.thumbnail.setImageBitmap(b);
-                                holder.thumbnail.setVisibility(View.VISIBLE);
-                                holder.progress.setVisibility(View.GONE);
-                            } else if(d != null) {
-                                float ratio = (float)d.getCurrentFrame().getHeight() / (float)d.getCurrentFrame().getWidth();
-                                ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
-                                lp.width = width;
-                                lp.height = (int)(width * ratio);
-                                holder.thumbnail.setLayoutParams(lp);
-                                holder.thumbnail.setImageDrawable(d);
-                                holder.thumbnail.setVisibility(View.VISIBLE);
-                                holder.progress.setVisibility(View.GONE);
-                                MultiCallback cb;
-                                if(d.getCallback() != null && d.getCallback() instanceof MultiCallback)
-                                    cb = (MultiCallback)d.getCallback();
-                                else
-                                    cb = new MultiCallback();
-                                cb.addView(holder.thumbnail);
-                                d.setCallback(cb);
-                            } else {
-                                if (e.entities.has("id")) {
-                                    ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
-                                        @Override
-                                        public void onImageFetched(Bitmap image) {
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    notifyDataSetChanged();
-                                                }
-                                            });
-                                        }
-                                    });
+
+                            if (e.entities.has("id") ? ImageList.getInstance().isFailedURL(e.entities.get("id").asText(), width) : ImageList.getInstance().isFailedURL(e.entities.get("thumbnail").asText())) {
+                                holder.thumbnailWrapper.setVisibility(View.GONE);
+                            } else{
+                                if (e.entities.get("mime_type").asText().equals("image/gif")) {
+                                    if (e.entities.has("id"))
+                                        d = ImageList.getInstance().getGIF(e.entities.get("id").asText(), width);
+                                    else
+                                        d = ImageList.getInstance().getGIF(new URL(e.entities.get("thumbnail").asText()));
                                 } else {
-                                    ImageList.getInstance().fetchImage(new URL(e.entities.get("thumbnail").asText()), new ImageList.OnImageFetchedListener() {
-                                        @Override
-                                        public void onImageFetched(Bitmap image) {
-                                            runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    notifyDataSetChanged();
-                                                }
-                                            });
-                                        }
-                                    });
+                                    if (e.entities.has("id"))
+                                        b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
+                                    else
+                                        b = ImageList.getInstance().getImage(new URL(e.entities.get("thumbnail").asText()));
                                 }
-                                holder.thumbnail.setVisibility(View.GONE);
-                                holder.progress.setVisibility(View.VISIBLE);
+                                if (b != null) {
+                                    float ratio = (float) b.getHeight() / (float) b.getWidth();
+                                    ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
+                                    lp.width = width;
+                                    lp.height = (int) (width * ratio);
+                                    holder.thumbnail.setLayoutParams(lp);
+                                    holder.thumbnail.setImageBitmap(b);
+                                    holder.thumbnail.setVisibility(View.VISIBLE);
+                                    holder.progress.setVisibility(View.GONE);
+                                } else if (d != null) {
+                                    float ratio = (float) d.getCurrentFrame().getHeight() / (float) d.getCurrentFrame().getWidth();
+                                    ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
+                                    lp.width = width;
+                                    lp.height = (int) (width * ratio);
+                                    holder.thumbnail.setLayoutParams(lp);
+                                    holder.thumbnail.setImageDrawable(d);
+                                    holder.thumbnail.setVisibility(View.VISIBLE);
+                                    holder.progress.setVisibility(View.GONE);
+                                    MultiCallback cb;
+                                    if (d.getCallback() != null && d.getCallback() instanceof MultiCallback)
+                                        cb = (MultiCallback) d.getCallback();
+                                    else
+                                        cb = new MultiCallback();
+                                    cb.addView(holder.thumbnail);
+                                    d.setCallback(cb);
+                                } else {
+                                    if (e.entities.has("id")) {
+                                        ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
+                                            @Override
+                                            public void onImageFetched(Bitmap image) {
+                                                refreshSoon();
+                                            }
+                                        });
+                                    } else {
+                                        ImageList.getInstance().fetchImage(new URL(e.entities.get("thumbnail").asText()), new ImageList.OnImageFetchedListener() {
+                                            @Override
+                                            public void onImageFetched(Bitmap image) {
+                                                refreshSoon();
+                                            }
+                                        });
+                                    }
+                                    holder.thumbnail.setVisibility(View.GONE);
+                                    holder.progress.setVisibility(View.VISIBLE);
+                                }
+                                holder.thumbnail.setVisibility(View.VISIBLE);
+                                holder.extension.setVisibility(View.GONE);
                             }
-                            holder.thumbnail.setVisibility(View.VISIBLE);
-                            holder.extension.setVisibility(View.GONE);
                         } catch (FileNotFoundException e1) {
-                            hideFileId(e.entities.get("url").asText());
+                            refreshSoon();
                         } catch (MalformedURLException e1) {
                             holder.thumbnail.setVisibility(View.GONE);
                             holder.progress.setVisibility(View.GONE);
@@ -1113,7 +1125,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.filename.setVisibility(View.GONE);
                     }
 
-                    holder.metadata.setText(e.msg);
+                    if(e.msg != null && e.msg.length() > 0) {
+                        holder.metadata.setText(e.msg);
+                        holder.metadata.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.metadata.setVisibility(View.GONE);
+                    }
                     if(holder.thumbnailWrapper.getVisibility() == View.VISIBLE)
                         holder.timestamp.setVisibility(View.INVISIBLE);
                     else
@@ -1985,7 +2002,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     }
                                 }
                             }
-                            android.util.Log.e("IRCCloud", "URL: " + url);
+
                             if (!found && ImageList.isImageURL(url) && !ImageList.getInstance().isFailedURL(new URL(url))) {
                                 ImageList.getInstance().fetchImageInfo(url, new ImageList.OnImageInfoListener() {
                                     @Override
@@ -2009,6 +2026,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                             }
 
                                             insertEntity(adapter, event, properties, !ready);
+                                            try {
+                                                URL u = new URL(info.thumbnail);
+                                                ImageList.getInstance().fetchImage(u, null);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                         }
                                     }
                                 });

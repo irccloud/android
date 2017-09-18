@@ -81,11 +81,14 @@ public class ImageList {
             mWorkQueue);
 
     public static boolean isImageURL(String url) {
-        Uri uri = Uri.parse(url);
-        if (uri.getLastPathSegment().contains(".")) {
-            String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
-            if(extension.equals("jpg") || extension.equals("jpeg") || extension.equals("png") || extension.equals("gif") || extension.equals("bmp") || extension.equals("webp"))
-                return true;
+        try {
+            Uri uri = Uri.parse(url);
+            if (uri != null && uri.getLastPathSegment() != null && uri.getLastPathSegment().contains(".")) {
+                String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
+                if (extension.equals("jpg") || extension.equals("jpeg") || extension.equals("png") || extension.equals("gif") || extension.equals("bmp") || extension.equals("webp"))
+                    return true;
+            }
+        } catch (Exception e) {
         }
         return url != null && url.matches(
             "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
@@ -160,6 +163,23 @@ public class ImageList {
                 }
             }
         }
+    }
+
+    public boolean isFailedURL(String fileID, int width) {
+        try {
+            if(ColorFormatter.file_uri_template != null)
+                return isFailedURL(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()));
+        } catch (Exception e) {
+        }
+        return false;
+    }
+
+    public boolean isFailedURL(String url) {
+        try {
+            return isFailedURL(new URL(url));
+        } catch (Exception e) {
+        }
+        return false;
     }
 
     public boolean isFailedURL(URL url) {
@@ -238,73 +258,15 @@ public class ImageList {
         return null;
     }
 
-    public void fetchImage(final URL url, final OnImageFetchedListener listener) {
+    public void fetchImage(final URL url, final OnImageFetchedListener listener) throws FileNotFoundException {
+        if(failedURLs.contains(MD5(url.toString())))
+            throw new FileNotFoundException();
+
         mDownloadThreadPool.execute(new Runnable() {
             @Override
             public void run() {
-                HttpURLConnection conn;
-
-                Proxy proxy = null;
-                int port = -1;
-
-                String host = System.getProperty("http.proxyHost", null);
                 try {
-                    port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
-                } catch (NumberFormatException e) {
-                    port = -1;
-                }
-
-                if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-                    InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
-                    proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
-                }
-
-                if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url + " via proxy: " + host);
-                } else {
-                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url);
-                }
-
-                try {
-                    if (url.getProtocol().toLowerCase().equals("https")) {
-                        conn = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-                    } else {
-                        conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-                    }
-                } catch (IOException e) {
-                    printStackTraceToCrashlytics(e);
-                    return;
-                }
-
-                conn.setConnectTimeout(30000);
-                conn.setReadTimeout(30000);
-                conn.setUseCaches(true);
-                conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
-
-                try {
-                    ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo ni = cm.getActiveNetworkInfo();
-                    if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
-                        Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via WiFi");
-                    } else {
-                        Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via mobile");
-                    }
-                } catch (Exception e) {
-                    printStackTraceToCrashlytics(e);
-                }
-
-                try {
-                    if (conn.getInputStream() != null) {
-                        InputStream is = conn.getInputStream();
-                        OutputStream os = new FileOutputStream(cacheFile(url));
-                        byte[] buffer = new byte[8192];
-                        int len;
-                        while ((len = is.read(buffer)) != -1) {
-                            os.write(buffer, 0, len);
-                        }
-                        is.close();
-                        os.close();
-
+                    if (cacheFile(url).exists()) {
                         Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
                         if (bitmap != null)
                             images.put(MD5(url.toString()), bitmap);
@@ -313,26 +275,101 @@ public class ImageList {
                         if (listener != null)
                             listener.onImageFetched(bitmap);
                     } else {
-                        failedURLs.add(MD5(url.toString()));
-                        if (listener != null)
-                            listener.onImageFetched(null);
-                    }
-                } catch (OutOfMemoryError e) {
-                    failedURLs.add(MD5(url.toString()));
-                    if (listener != null)
-                        listener.onImageFetched(null);
-                } catch (FileNotFoundException e) {
-                    failedURLs.add(MD5(url.toString()));
-                    if (listener != null)
-                        listener.onImageFetched(null);
-                } catch (IOException e) {
-                    failedURLs.add(MD5(url.toString()));
-                    printStackTraceToCrashlytics(e);
-                    if (listener != null)
-                        listener.onImageFetched(null);
-                }
+                        HttpURLConnection conn;
 
-                conn.disconnect();
+                        Proxy proxy = null;
+                        int port = -1;
+
+                        String host = System.getProperty("http.proxyHost", null);
+                        try {
+                            port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+                        } catch (NumberFormatException e) {
+                            port = -1;
+                        }
+
+                        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+                            InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
+                            proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
+                        }
+
+                        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url + " via proxy: " + host);
+                        } else {
+                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url);
+                        }
+
+                        try {
+                            if (url.getProtocol().toLowerCase().equals("https")) {
+                                conn = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+                            } else {
+                                conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+                            }
+                        } catch (IOException e) {
+                            printStackTraceToCrashlytics(e);
+                            return;
+                        }
+
+                        conn.setConnectTimeout(30000);
+                        conn.setReadTimeout(30000);
+                        conn.setUseCaches(true);
+                        conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
+
+                        try {
+                            ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+                            NetworkInfo ni = cm.getActiveNetworkInfo();
+                            if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
+                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via WiFi");
+                            } else {
+                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via mobile");
+                            }
+                        } catch (Exception e) {
+                            printStackTraceToCrashlytics(e);
+                        }
+
+                        try {
+                            if (conn.getInputStream() != null) {
+                                InputStream is = conn.getInputStream();
+                                OutputStream os = new FileOutputStream(cacheFile(url));
+                                byte[] buffer = new byte[8192];
+                                int len;
+                                while ((len = is.read(buffer)) != -1) {
+                                    os.write(buffer, 0, len);
+                                }
+                                is.close();
+                                os.close();
+
+                                Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
+                                if (bitmap != null)
+                                    images.put(MD5(url.toString()), bitmap);
+                                else
+                                    failedURLs.add(MD5(url.toString()));
+                                if (listener != null)
+                                    listener.onImageFetched(bitmap);
+                            } else {
+                                failedURLs.add(MD5(url.toString()));
+                                if (listener != null)
+                                    listener.onImageFetched(null);
+                            }
+                        } catch (OutOfMemoryError e) {
+                            failedURLs.add(MD5(url.toString()));
+                            if (listener != null)
+                                listener.onImageFetched(null);
+                        } catch (FileNotFoundException e) {
+                            failedURLs.add(MD5(url.toString()));
+                            if (listener != null)
+                                listener.onImageFetched(null);
+                        } catch (IOException e) {
+                            failedURLs.add(MD5(url.toString()));
+                            printStackTraceToCrashlytics(e);
+                            if (listener != null)
+                                listener.onImageFetched(null);
+                        }
+
+                        conn.disconnect();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -357,7 +394,7 @@ public class ImageList {
         }
     }
 
-    private File cacheFile(URL url) {
+    public File cacheFile(URL url) {
         new File(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir(), "ImageCache").mkdirs();
         return new File(new File(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir(), "ImageCache"), MD5(url.toString()));
     }
@@ -559,7 +596,7 @@ public class ImageList {
                     } else {
                         info.thumbnail = data.getString("link");
                     }
-                    if(data.has("description"))
+                    if(data.has("description") && !data.isNull("description") && data.getString("description").length() > 0)
                         info.description = data.getString("description");
                     putImageInfo(info);
                     listener.onImageInfo(info);
