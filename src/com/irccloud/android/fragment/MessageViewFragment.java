@@ -99,6 +99,7 @@ import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.collection.EventsList;
+import com.irccloud.android.data.model.ImageURLInfo;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
 
@@ -982,7 +983,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
                     if(e.row_type == ROW_THUMBNAIL) {
-                        if(e.entities.has("id")) {
+                        if(e.entities.has("id") || e.entities.has("name") || e.entities.has("description")) {
                             holder.metadata.setVisibility(View.VISIBLE);
                             holder.thumbnailWrapper.setBackgroundResource(ColorScheme.getInstance().bufferBackgroundDrawable);
                         } else {
@@ -1002,12 +1003,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 if (e.entities.has("id"))
                                     d = ImageList.getInstance().getGIF(e.entities.get("id").asText(), width);
                                 else
-                                    d = ImageList.getInstance().getGIF(new URL(e.entities.get("url").asText()));
+                                    d = ImageList.getInstance().getGIF(new URL(e.entities.get("thumbnail").asText()));
                             } else {
                                 if (e.entities.has("id"))
                                     b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
                                 else
-                                    b = ImageList.getInstance().getImage(new URL(e.entities.get("url").asText()));
+                                    b = ImageList.getInstance().getImage(new URL(e.entities.get("thumbnail").asText()));
                             }
                             if (b != null) {
                                 float ratio = (float)b.getHeight() / (float)b.getWidth();
@@ -1048,7 +1049,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         }
                                     });
                                 } else {
-                                    ImageList.getInstance().fetchImage(new URL(e.entities.get("url").asText()), new ImageList.OnImageFetchedListener() {
+                                    ImageList.getInstance().fetchImage(new URL(e.entities.get("thumbnail").asText()), new ImageList.OnImageFetchedListener() {
                                         @Override
                                         public void onImageFetched(Bitmap image) {
                                             runOnUiThread(new Runnable() {
@@ -1608,7 +1609,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    private void insertEvent(final MessageAdapter adapter, Event event, boolean backlog, boolean nextIsGrouped) {
+    private void insertEvent(final MessageAdapter adapter, final Event event, boolean backlog, boolean nextIsGrouped) {
         synchronized (adapterLock) {
             try {
                 long start = System.currentTimeMillis();
@@ -1968,6 +1969,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                     while(m.find()) {
                         String url = event.msg.substring(m.start(), m.end());
+                        if(!url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
                         if(!hiddenFileIDs.contains(url)) {
                             boolean found = false;
                             if (event.entities != null && event.entities.has("files")) {
@@ -1982,19 +1985,33 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     }
                                 }
                             }
-                            if (!found && !ImageList.getInstance().isFailedURL(new URL(url))) {
-                                Uri uri = Uri.parse(url);
-                                if (uri.getLastPathSegment().contains(".")) {
-                                    String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
-                                    if (extension.equals("png") || extension.equals("jpg") || extension.equals("jpeg") || extension.equals("webp") || extension.equals("gif")) {
-                                        ObjectNode properties = new ObjectMapper().createObjectNode();
+                            android.util.Log.e("IRCCloud", "URL: " + url);
+                            if (!found && ImageList.isImageURL(url) && !ImageList.getInstance().isFailedURL(new URL(url))) {
+                                ImageList.getInstance().fetchImageInfo(url, new ImageList.OnImageInfoListener() {
+                                    @Override
+                                    public void onImageInfo(ImageURLInfo info) {
+                                        if(info != null) {
+                                            ObjectNode properties = new ObjectMapper().createObjectNode();
 
-                                        properties.put("mime_type", "image/" + extension);
-                                        properties.put("url", url);
+                                            properties.put("url", info.original_url);
+                                            properties.put("thumbnail", info.thumbnail);
+                                            if(info.title != null)
+                                                properties.put("name", info.title);
+                                            if(info.description != null)
+                                                properties.put("description", info.description);
 
-                                        insertEntity(adapter, event, properties, backlog);
+                                            Uri uri = Uri.parse(info.thumbnail);
+                                            if (uri.getLastPathSegment().contains(".")) {
+                                                String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
+                                                properties.put("mime_type", "image/" + extension);
+                                            } else {
+                                                properties.put("mime_type", "image/image");
+                                            }
+
+                                            insertEntity(adapter, event, properties, !ready);
+                                        }
                                     }
-                                }
+                                });
                             }
                         }
                     }
@@ -2120,6 +2137,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 e.msg += "\n";
 
             e.msg += properties.get("mime_type").asText();
+        } else if(properties.has("description")) {
+            e.msg = properties.get("description").asText();
         }
         adapter.insertBelow(parent.eid, e);
         if(!backlog) {

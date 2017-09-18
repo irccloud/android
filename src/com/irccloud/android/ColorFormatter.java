@@ -42,6 +42,7 @@ import android.util.Patterns;
 import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.model.Server;
 
 import org.xml.sax.XMLReader;
@@ -2038,21 +2039,7 @@ public class ColorFormatter {
                             }
                         }
 
-                        if (isImageEnt || lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|(^.*\\/.*\\.bmp$)|(^.*\\/.*\\.webp$)|" +
-                                        "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
-                                        "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
-                                        "(^https?://(www\\.)?imgur\\.com/.*$)|(^https?://m\\.imgur\\.com/.*$)|" +
-                                        "(^https?://d\\.pr/i/.*)|(^https?://droplr\\.com/i/.*)|" +
-                                        "(^https?://cl\\.ly/.*)|" +
-                                        "(^https?://(www\\.)?leetfiles\\.com/image/.*)|" +
-                                        "(^https?://(www\\.)?leetfil\\.es/image/.*)|" +
-                                        "(^https?://i.imgur.com/.*\\.gifv$)|" +
-                                        "(^https?://(www\\.)?gfycat\\.com/[a-z]+$)|" +
-                                        "(^https?://(www\\.)?giphy\\.com/gifs/.*)|" +
-                                        "(^https?://gph\\.is/.*)|" +
-                                        "(^https?://.*\\.twimg\\.com/media/.*\\.(png|jpe?g|gif|bmp):[a-z]+$)|" +
-                                        "(^https?://.*\\.steampowered\\.com/ugc/.*)"
-                        ) && !lower.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)") && !(lower.contains("imgur.com") && lower.contains(","))) {
+                        if (isImageEnt || ImageList.isImageURL(lower)) {
                             if (lower.startsWith("http://"))
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url.substring(7);
                             else if (lower.startsWith("https://"))

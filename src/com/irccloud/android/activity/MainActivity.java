@@ -2048,7 +2048,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public void onPause() {
         super.onPause();
 
-        if(!isMultiWindow()) {
+        if(isFinishing()) {
             if (imgurTask != null)
                 imgurTask.setActivity(null);
             if (fileUploadTask != null)
@@ -2081,6 +2081,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (buffer != null)
                     backStack.add(0, buffer.getBid());
             }
+            ImageList.getInstance().clearFailures();
         }
         excludeBIDTask = new ExcludeBIDTask();
         excludeBIDTask.execute(-1);

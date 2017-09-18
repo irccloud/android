@@ -74,6 +74,8 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
+import com.irccloud.android.data.collection.ImageList;
+import com.irccloud.android.data.model.ImageURLInfo;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONObject;
@@ -88,236 +90,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     private MediaPlayer player = null;
     private String mVideoURL = null;
     private String mImageURL = null;
-
-    private class OEmbedTask extends AsyncTaskEx<String, Void, String> {
-        private String provider = null;
-        private String giphy_fallback = null;
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
-                if (o.has("provider_name"))
-                    provider = o.getString("provider_name");
-
-                if (provider != null && provider.equals("Giphy") && o.has("image") && o.getString("image").endsWith(".gif"))
-                    giphy_fallback = o.getString("image");
-
-                if ((provider != null && provider.equals("Giphy")) || o.getString("type").equalsIgnoreCase("photo"))
-                    return o.getString("url");
-            } catch (Exception e) {
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String url) {
-            if (url != null) {
-                if (provider != null && provider.equals("Giphy"))
-                    new GiphyTask().execute(url.substring(url.indexOf("/gifs/") + 6), giphy_fallback);
-                else
-                    loadImage(url);
-            } else {
-                fail();
-            }
-        }
-    }
-
-    public class ImgurImageTask extends AsyncTaskEx<String, Void, String> {
-        private final String IMAGE_URL = (BuildConfig.MASHAPE_KEY.length() > 0) ? "https://imgur-apiv3.p.mashape.com/3/image/" : "https://api.imgur.com/3/image/";
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                HashMap<String, String> headers = new HashMap<>();
-                if (BuildConfig.MASHAPE_KEY.length() > 0)
-                    headers.put("X-Mashape-Authorization", BuildConfig.MASHAPE_KEY);
-                headers.put("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
-                JSONObject o = NetworkConnection.getInstance().fetchJSON(IMAGE_URL + params[0], headers);
-                if (o.getBoolean("success")) {
-                    JSONObject data = o.getJSONObject("data");
-                    if (data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
-                        return data.getString("link");
-                    else if (data.getBoolean("animated"))
-                        return data.getString("mp4");
-                }
-            } catch (Exception e) {
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String url) {
-            if (url != null) {
-                if (url.endsWith(".mp4")) {
-                    loadVideo(url);
-                } else {
-                    loadImage(url);
-                }
-            } else {
-                fail();
-            }
-        }
-    }
-
-    public class ImgurGalleryTask extends AsyncTaskEx<String, Void, String> {
-        private String type = "gallery";
-        private final String GALLERY_URL = (BuildConfig.MASHAPE_KEY.length() > 0) ? "https://imgur-apiv3.p.mashape.com/3/" : "https://api.imgur.com/3/";
-
-        public ImgurGalleryTask(String type) {
-            this.type = type;
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                HashMap<String, String> headers = new HashMap<>();
-                if (BuildConfig.MASHAPE_KEY.length() > 0)
-                    headers.put("X-Mashape-Authorization", BuildConfig.MASHAPE_KEY);
-                headers.put("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
-                JSONObject o = NetworkConnection.getInstance().fetchJSON(GALLERY_URL + type + "/" + params[0], headers);
-                if (o.getBoolean("success")) {
-                    JSONObject data = o.getJSONObject("data");
-                    if((data.has("images_count") && data.getInt("images_count") == 1) || !data.getBoolean("is_album")) {
-                        if(data.getBoolean("is_album"))
-                            data = data.getJSONArray("images").getJSONObject(0);
-                        if (data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
-                            return data.getString("link");
-                        else if (data.getBoolean("animated"))
-                            return data.getString("mp4");
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String url) {
-            if (url != null) {
-                if (url.endsWith(".mp4")) {
-                    loadVideo(url);
-                } else {
-                    loadImage(url);
-                }
-            } else {
-                fail();
-            }
-        }
-    }
-
-    public class GfyCatTask extends AsyncTaskEx<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                HashMap<String, String> headers = new HashMap<>();
-                JSONObject o = NetworkConnection.getInstance().fetchJSON("https://gfycat.com/cajax/get/" + params[0], headers);
-                if (o.has("gfyItem")) {
-                    JSONObject data = o.getJSONObject("gfyItem");
-                    if (data.has("mp4Url") && data.getString("mp4Url").length() > 0)
-                        return data.getString("mp4Url");
-                    else if (data.has("gifUrl") && data.getString("gifUrl").length() > 0)
-                        return data.getString("gifUrl");
-                }
-            } catch (Exception e) {
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String url) {
-            if (url != null) {
-                if (url.endsWith(".mp4")) {
-                    loadVideo(url);
-                } else {
-                    loadImage(url);
-                }
-            } else {
-                fail();
-            }
-        }
-    }
-
-    public class GiphyTask extends AsyncTaskEx<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                HashMap<String, String> headers = new HashMap<>();
-                JSONObject o = NetworkConnection.getInstance().fetchJSON("https://api.giphy.com/v1/gifs/" + params[0] + "?api_key=dc6zaTOxFJmzC", headers);
-                if (o.has("data") && o.getJSONObject("data").has("images")) {
-                    JSONObject data = o.getJSONObject("data").getJSONObject("images").getJSONObject("original");
-                    if (data.has("mp4") && data.getString("mp4").length() > 0)
-                        return data.getString("mp4");
-                    else if (data.getString("url").endsWith(".gif"))
-                        return data.getString("url");
-                }
-            } catch (Exception e) {
-            }
-            return params[1];
-        }
-
-        @Override
-        protected void onPostExecute(String url) {
-            if (url != null) {
-                if (url.endsWith(".mp4")) {
-                    loadVideo(url);
-                } else {
-                    loadImage(url);
-                }
-            } else {
-                fail();
-            }
-        }
-    }
-
-    private class ClLyTask extends AsyncTaskEx<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
-                if (o.getString("item_type").equalsIgnoreCase("image"))
-                    return o.getString("content_url");
-            } catch (Exception e) {
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String url) {
-            if (url != null) {
-                loadImage(url);
-            } else {
-                fail();
-            }
-        }
-    }
-
-    private class WikiTask extends AsyncTaskEx<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
-                JSONObject pages = o.getJSONObject("query").getJSONObject("pages");
-                Iterator<String> i = pages.keys();
-                String pageid = i.next();
-                return pages.getJSONObject(pageid).getJSONArray("imageinfo").getJSONObject(0).getString("url");
-            } catch (Exception e) {
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String url) {
-            if (url != null) {
-                loadImage(url);
-            } else {
-                fail();
-            }
-        }
-    }
 
     WebView mImage;
     ProgressBar mSpinner;
@@ -535,64 +307,20 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             loadVideo(savedInstanceState.getString("videoURL"));
         } else if (getIntent() != null && getIntent().getDataString() != null) {
             String url = getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http");
-            String lower = url.toLowerCase().replace("https://", "").replace("http://", "");
-            if (lower.startsWith("www.dropbox.com/")) {
-                if (lower.startsWith("www.dropbox.com/s/")) {
-                    url = url.replace("://www.dropbox.com/s/", "://dl.dropboxusercontent.com/s/");
-                } else {
-                    url = url + "?dl=1";
+            ImageList.getInstance().fetchImageInfo(url, new ImageList.OnImageInfoListener() {
+                @Override
+                public void onImageInfo(ImageURLInfo info) {
+                    if(info != null) {
+                        if(info.mp4 != null)
+                            loadVideo(info.mp4);
+                        else
+                            loadImage(info.thumbnail);
+                    } else {
+                        fail();
+                    }
                 }
-            } else if ((lower.startsWith("d.pr/i/") || lower.startsWith("droplr.com/i/")) && !lower.endsWith("+")) {
-                url += "+";
-            } else if (lower.startsWith("imgur.com/") || lower.startsWith("www.imgur.com/") || lower.startsWith("m.imgur.com/")) {
-                String id = url.replace("https://", "").replace("http://", "");
-                id = id.substring(id.indexOf("/") + 1);
+            });
 
-                if (!id.contains("/") && id.length() > 0) {
-                    new ImgurImageTask().execute(id);
-                } else if (id.startsWith("gallery/") && id.length() > 8) {
-                    new ImgurGalleryTask("gallery").execute(id.substring(8));
-                } else if (id.startsWith("a/") && id.length() > 2) {
-                    new ImgurGalleryTask("album").execute(id.substring(2));
-                } else {
-                    fail();
-                }
-                return;
-            } else if (lower.startsWith("i.imgur.com") && (lower.endsWith(".gifv") || lower.endsWith(".gif"))) {
-                String id = url.replace("https://", "").replace("http://", "");
-                id = id.substring(id.indexOf("/") + 1);
-                id = id.substring(0, id.lastIndexOf("."));
-                new ImgurImageTask().execute(id);
-                return;
-            } else if (lower.startsWith("gfycat.com/") || lower.startsWith("www.gfycat.com/")) {
-                String id = url;
-                if (id.endsWith("/"))
-                    id = id.substring(0, id.length() - 1);
-                id = id.substring(id.lastIndexOf("/") + 1, id.length());
-                new GfyCatTask().execute(id);
-                return;
-            } else if (lower.startsWith("giphy.com/") || lower.startsWith("www.giphy.com/") || lower.startsWith("gph.is/")) {
-                if (lower.contains("/gifs/") && lower.lastIndexOf("/") > lower.indexOf("/gifs/") + 6)
-                    url = url.substring(0, lower.lastIndexOf("/"));
-                new OEmbedTask().execute("https://giphy.com/services/oembed/?url=" + url);
-                return;
-            } else if (lower.startsWith("flickr.com/") || lower.startsWith("www.flickr.com/")) {
-                new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);
-                return;
-            } else if (lower.startsWith("instagram.com/") || lower.startsWith("www.instagram.com/") || lower.startsWith("instagr.am/") || lower.startsWith("www.instagr.am/")) {
-                new OEmbedTask().execute("http://api.instagram.com/oembed?url=" + url);
-                return;
-            } else if (lower.startsWith("cl.ly")) {
-                new ClLyTask().execute(url);
-                return;
-            } else if (url.matches(".*/wiki/.*/File:.*")) {
-                new WikiTask().execute(url.replaceAll("/wiki/.*/File:", "/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles=File:"));
-            } else if (lower.startsWith("leetfiles.com/") || lower.startsWith("www.leetfiles.com/")) {
-                url = url.replace("www.", "").replace("leetfiles.com/image/", "i.leetfiles.com/").replace("?id=", "");
-            } else if (lower.startsWith("leetfil.es/") || lower.startsWith("www.leetfil.es/")) {
-                url = url.replace("www.", "").replace("leetfil.es/image/", "i.leetfiles.com/").replace("?id=", "");
-            }
-            loadImage(url);
         } else {
             finish();
         }
