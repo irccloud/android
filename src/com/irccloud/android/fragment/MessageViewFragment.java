@@ -2165,27 +2165,32 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
         adapter.insertBelow(parent.eid, e);
         if(!backlog) {
-            if (!buffer.getScrolledUp()) {
-                getListView().setSelection(adapter.getCount() - 1);
-                if (tapTimer != null) {
-                    tapTimer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!buffer.getScrolledUp()) {
+                        getListView().setSelection(adapter.getCount() - 1);
+                        if (tapTimer != null) {
+                            tapTimer.schedule(new TimerTask() {
                                 @Override
                                 public void run() {
-                                    try {
-                                        getListView().setSelection(adapter.getCount() - 1);
-                                    } catch (Exception e) {
-                                        //List view isn't ready yet
-                                    }
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                getListView().setSelection(adapter.getCount() - 1);
+                                            } catch (Exception e) {
+                                                //List view isn't ready yet
+                                            }
+                                        }
+                                    });
                                 }
-                            });
+                            }, 200);
                         }
-                    }, 200);
+                    }
+                    adapter.notifyDataSetChanged();
                 }
-            }
-            adapter.notifyDataSetChanged();
+            });
         }
     }
 
