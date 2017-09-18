@@ -225,6 +225,35 @@ public class BufferOptionsFragment extends DialogFragment {
         readOnSelect = v.findViewById(R.id.readOnSelect);
         inlineFiles = v.findViewById(R.id.inlineFiles);
         inlineImages = v.findViewById(R.id.inlineImages);
+        inlineImages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(inlineImages.isChecked()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Warning");
+                    builder.setMessage("External URLs may load insecurely and could result in your IP address being revealed to external site operators");
+
+                    builder.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            inlineImages.setChecked(false);
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog d = builder.create();
+                    if (!getActivity().isFinishing()) {
+                        d.setOwnerActivity(getActivity());
+                        d.show();
+                    }
+                }
+            }
+        });
 
         if (savedInstanceState != null && bid == -1 && savedInstanceState.containsKey("bid")) {
             bid = savedInstanceState.getInt("bid");

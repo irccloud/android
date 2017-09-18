@@ -527,7 +527,6 @@ public class UploadsActivity extends BaseActivity {
                     final File f = (File) adapter.getItem(i);
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
-                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                     final View v = getLayoutInflater().inflate(R.layout.dialog_upload, null);
                     final EditText messageinput = v.findViewById(R.id.message);
                     messageinput.setText(msg);

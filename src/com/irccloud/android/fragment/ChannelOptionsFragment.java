@@ -25,14 +25,17 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
+import com.cgollner.unclouded.preferences.SwitchPreferenceCompat;
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.activity.PreferencesActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -267,6 +270,35 @@ public class ChannelOptionsFragment extends DialogFragment {
         readOnSelect = v.findViewById(R.id.readOnSelect);
         inlineFiles = v.findViewById(R.id.inlineFiles);
         inlineImages = v.findViewById(R.id.inlineImages);
+        inlineImages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(inlineImages.isChecked()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Warning");
+                    builder.setMessage("External URLs may load insecurely and could result in your IP address being revealed to external site operators");
+
+                    builder.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            inlineImages.setChecked(false);
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog d = builder.create();
+                    if (!getActivity().isFinishing()) {
+                        d.setOwnerActivity(getActivity());
+                        d.show();
+                    }
+                }
+            }
+        });
 
         return new AlertDialog.Builder(ctx)
                 .setTitle("Display Options")

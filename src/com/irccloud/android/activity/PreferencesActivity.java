@@ -549,6 +549,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                                     ((SwitchPreferenceCompat) findPreference("hideJoinPart")).setChecked(!(prefs.has("hideJoinPart") && prefs.get("hideJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("hideJoinPart")));
                                     ((SwitchPreferenceCompat) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
                                     ((SwitchPreferenceCompat) findPreference("files-disableinline")).setChecked(!(prefs.has("files-disableinline") && prefs.get("files-disableinline").getClass().equals(Boolean.class) && prefs.getBoolean("files-disableinline")));
+                                    ((SwitchPreferenceCompat) findPreference("inlineimages")).setChecked((prefs.has("inlineimages") && prefs.get("inlineimages").getClass().equals(Boolean.class) && prefs.getBoolean("inlineimages")));
                                 } catch (JSONException e) {
                                     NetworkConnection.printStackTraceToCrashlytics(e);
                                 }
@@ -635,7 +636,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
     };
 
     Preference.OnPreferenceChangeListener prefstoggle = new Preference.OnPreferenceChangeListener() {
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
+        public boolean onPreferenceChange(final Preference preference, final Object newValue) {
             if (conn == null || conn.getUserInfo() == null) {
                 Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 return false;
@@ -645,6 +646,45 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 if (prefs == null) {
                     prefs = new JSONObject();
                     conn.getUserInfo().prefs = prefs;
+                }
+
+                if (preference.getKey().equals("inlineimages") && (Boolean)newValue) {
+                    final JSONObject p = prefs;
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
+                    builder.setTitle("Warning");
+                    builder.setMessage("External URLs may load insecurely and could result in your IP address being revealed to external site operators");
+
+                    builder.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                p.put(preference.getKey(), newValue);
+
+                                if (savePreferencesTask != null)
+                                    savePreferencesTask.cancel(true);
+                                savePreferencesTask = new SavePreferencesTask();
+                                savePreferencesTask.execute((Void) null);
+                                ((SwitchPreferenceCompat) findPreference("inlineimages")).setChecked(true);
+                            } catch (Exception e) {
+                                Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: " + preference.getKey());
+                                Crashlytics.logException(e);
+                                Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
+                            }
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog d = builder.create();
+                    if(!isFinishing())
+                        d.setOwnerActivity(PreferencesActivity.this);
+                    d.show();
+                    return false;
                 }
 
                 if (preference.getKey().equals("disableTrackUnread") || preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left") || preference.getKey().equals("avatars-off") || preference.getKey().equals("chat-oneline") || preference.getKey().equals("chat-norealname") || preference.getKey().equals("emoji-nobig") || preference.getKey().equals("files-disableinline") || preference.getKey().equals("chat-nocodespan") || preference.getKey().equals("chat-nocodeblock") || preference.getKey().equals("chat-noquote"))
@@ -850,7 +890,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             sb.append(GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(PreferencesActivity.this));
             tv.setText(sb.toString());
             builder.setView(v);
-            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
