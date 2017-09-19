@@ -30,11 +30,11 @@
         android:icon="@drawable/ic_format_underline"/>
 
     <item android:id="@+id/menu_color"
-        android:title="Color"
+        android:title="Text Color"
         android:icon="@drawable/ic_format_color"/>
 
     <item android:id="@+id/menu_background"
-        android:title="Background"
+        android:title="Background Color"
         android:icon="@drawable/ic_format_background"/>
 
     <item android:id="@+id/menu_clear"

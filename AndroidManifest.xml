@@ -65,7 +65,8 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher"
-        android:theme="@style/dawn">
+        android:theme="@style/dawn"
+        android:largeHeap="true">
         <meta-data
             android:name="com.samsung.android.sdk.multiwindow.enable"
             android:value="true" />

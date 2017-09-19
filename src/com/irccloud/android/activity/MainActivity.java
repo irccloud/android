@@ -352,10 +352,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 getMenuInflater().inflate(R.menu.formatting_action_mode, menu);
                 menu.findItem(R.id.menu_bold).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 menu.findItem(R.id.menu_italics).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                menu.findItem(R.id.menu_underline).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 menu.findItem(R.id.menu_color).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 if(getWindowManager().getDefaultDisplay().getWidth() >= TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 400, getResources().getDisplayMetrics())) {
                     menu.findItem(R.id.menu_background).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                    menu.findItem(R.id.menu_underline).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     menu.findItem(R.id.menu_clear).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 }
                 return true;
@@ -531,6 +531,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         mColorPickerFragment = (IRCColorPickerFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment).getChildFragmentManager().findFragmentById(R.id.colorPickerFragmet);
         mColorPickerFragment.getView().setVisibility(View.GONE);
 
+        final ImageButton formatBtn = findViewById(R.id.formatBtn);
+        formatBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+        formatBtn.setFocusable(false);
+        formatBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(formattingActionMode != null)
+                    formattingActionMode.finish();
+                else
+                    startFormatActionMode();
+            }
+        });
         messageTxt = findViewById(R.id.messageTxt);
         ActionMode.Callback formatCallback = new ActionMode.Callback() {
             @Override
@@ -578,6 +590,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void onSelectionChanged(int start, int end, List<Effect<?>> list) {
                 if(formattingActionMode != null)
                     formattingActionMode.invalidate();
+                formatBtn.setColorFilter(messageTxt.hasEffect(RichEditText.FOREGROUND) ? messageTxt.getEffectValue(RichEditText.FOREGROUND) : colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+                formatBtn.setBackgroundColor(messageTxt.hasEffect(RichEditText.BACKGROUND) ? messageTxt.getEffectValue(RichEditText.BACKGROUND) : colorScheme.textareaBackgroundColor);
             }
         });
         messageTxt.setKeyboardShortcutsEnabled(false);
@@ -723,18 +737,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             });
         }
-        ImageButton formatBtn = findViewById(R.id.formatBtn);
-        formatBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
-        formatBtn.setFocusable(false);
-        formatBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(formattingActionMode != null)
-                    formattingActionMode.finish();
-                else
-                    startFormatActionMode();
-            }
-        });
         userListView = findViewById(R.id.usersListFragment);
 
         View v = getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
