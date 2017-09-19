@@ -40,9 +40,11 @@
 			android:summary="May result in your IP address being revealed to external site operators"
 			android:title="Embed 3rd party images"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-			android:key="files-wifionly"
+			android:key="files-usemobiledata"
 			android:defaultValue="false"
-			android:title="Download thumbnails only on wifi"/>
+			android:summaryOn="Thumbnails will be downloaded while connected to mobile data"
+			android:summaryOff="Thumbnails will only be downloaded while connected to Wi-Fi"
+			android:title="Download thumbnails over mobile data"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="chat-nocodespan"
 			android:defaultValue="false"

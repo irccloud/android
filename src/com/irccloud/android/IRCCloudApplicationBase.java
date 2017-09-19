@@ -113,6 +113,13 @@ public class IRCCloudApplicationBase extends Application {
             editor.commit();
         }
 
+        if (prefs.contains("files-wifionly")) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("files-usemobiledata", !prefs.getBoolean("files-wifionly", false));
+            editor.remove("files-wifionly");
+            editor.commit();
+        }
+
         if (prefs.contains("notify_sound")) {
             SharedPreferences.Editor editor = prefs.edit();
             if (!prefs.getBoolean("notify_sound", true))

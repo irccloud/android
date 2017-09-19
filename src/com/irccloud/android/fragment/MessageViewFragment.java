@@ -2728,7 +2728,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     pref_inlineImages = (inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
                 }
 
-                if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("files-wifionly", false) && !conn.isWifi()) {
+                if(!PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("files-usemobiledata", false) && !conn.isWifi()) {
                     pref_disableInlineFiles = true;
                     pref_inlineImages = false;
                 }
