@@ -70,12 +70,13 @@ public class ImageList {
     private HashMap<String, GifDrawable> GIFs;
     private ArrayList<String> failedURLs;
     private HashMap<String, ImageURLInfo> urlInfo;
+    private HashMap<String, ArrayList<OnImageFetchedListener>> downloadListeners;
     private final BlockingQueue<Runnable> mWorkQueue = new LinkedBlockingQueue<>();
     private static final int KEEP_ALIVE_TIME = 10;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
     private final ThreadPoolExecutor mDownloadThreadPool = new ThreadPoolExecutor(
-            4,       // Initial pool size
-            8,       // Max pool size
+            2,       // Initial pool size
+            4,       // Max pool size
             KEEP_ALIVE_TIME,
             KEEP_ALIVE_TIME_UNIT,
             mWorkQueue);
@@ -118,6 +119,7 @@ public class ImageList {
         GIFs = new HashMap<>();
         failedURLs = new ArrayList<>();
         urlInfo = new HashMap<>();
+        downloadListeners = new HashMap<>();
     }
 
     public void clear() {
@@ -259,22 +261,44 @@ public class ImageList {
         return null;
     }
 
+    private void notifyListeners(URL url, Bitmap result) {
+        synchronized (downloadListeners) {
+            if (downloadListeners.containsKey(url.toString())) {
+                for (OnImageFetchedListener listener : downloadListeners.get(url.toString()))
+                    listener.onImageFetched(result);
+                downloadListeners.remove(url.toString());
+            }
+        }
+    }
+
     public void fetchImage(final URL url, final OnImageFetchedListener listener) throws FileNotFoundException {
         if(failedURLs.contains(MD5(url.toString())))
             throw new FileNotFoundException();
+
+        synchronized (downloadListeners) {
+            if (downloadListeners.containsKey(url.toString())) {
+                if(listener != null)
+                    downloadListeners.get(url.toString()).add(listener);
+                return;
+            } else {
+                ArrayList<OnImageFetchedListener> list = new ArrayList<>();
+                if(listener != null)
+                    list.add(listener);
+                downloadListeners.put(url.toString(), list);
+            }
+        }
 
         mDownloadThreadPool.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (cacheFile(url).exists()) {
+                    if (cacheFile(url).exists() && cacheFile(url).length() > 0) {
                         Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
                         if (bitmap != null)
                             images.put(MD5(url.toString()), bitmap);
                         else
                             failedURLs.add(MD5(url.toString()));
-                        if (listener != null)
-                            listener.onImageFetched(bitmap);
+                        notifyListeners(url, bitmap);
                     } else {
                         HttpURLConnection conn;
 
@@ -340,30 +364,33 @@ public class ImageList {
                                 os.close();
 
                                 Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
-                                if (bitmap != null)
+                                if (bitmap != null) {
                                     images.put(MD5(url.toString()), bitmap);
-                                else
+                                } else if(images.containsKey(MD5(url.toString()))) {
+                                    bitmap = images.get(MD5(url.toString()));
+                                } else {
+                                    android.util.Log.e("IRCCloud", "Failed to load bitmap after download");
                                     failedURLs.add(MD5(url.toString()));
-                                if (listener != null)
-                                    listener.onImageFetched(bitmap);
+                                }
+                                notifyListeners(url, bitmap);
                             } else {
+                                android.util.Log.e("IRCCloud", "No input stream");
                                 failedURLs.add(MD5(url.toString()));
-                                if (listener != null)
-                                    listener.onImageFetched(null);
+                                notifyListeners(url, null);
                             }
                         } catch (OutOfMemoryError e) {
+                            e.printStackTrace();
                             failedURLs.add(MD5(url.toString()));
-                            if (listener != null)
-                                listener.onImageFetched(null);
+                            notifyListeners(url, null);
                         } catch (FileNotFoundException e) {
                             failedURLs.add(MD5(url.toString()));
-                            if (listener != null)
-                                listener.onImageFetched(null);
+                            e.printStackTrace();
+                            notifyListeners(url, null);
                         } catch (IOException e) {
+                            e.printStackTrace();
                             failedURLs.add(MD5(url.toString()));
                             printStackTraceToCrashlytics(e);
-                            if (listener != null)
-                                listener.onImageFetched(null);
+                            notifyListeners(url, null);
                         }
 
                         conn.disconnect();
@@ -475,6 +502,7 @@ public class ImageList {
                 url = url.replace("www.", "").replace("leetfil.es/image/", "i.leetfiles.com/").replace("?id=", "");
             } else if (lower.startsWith("xkcd.com/") || lower.startsWith("www.xkcd.com/")) {
                 new XKCDTask(URL, listener).execute(URL);
+                return;
             }
 
             ImageURLInfo info = new ImageURLInfo();

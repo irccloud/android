@@ -2003,6 +2003,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 }
                             }
 
+                            android.util.Log.e("IRCCloud", "URL: " + url + " image: " + ImageList.isImageURL(url) + " failed: " + ImageList.getInstance().isFailedURL(new URL(url)));
+
                             if (!found && ImageList.isImageURL(url) && !ImageList.getInstance().isFailedURL(new URL(url))) {
                                 ImageList.getInstance().fetchImageInfo(url, new ImageList.OnImageInfoListener() {
                                     @Override
