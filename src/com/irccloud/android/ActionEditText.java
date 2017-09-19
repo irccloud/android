@@ -58,15 +58,13 @@ public class ActionEditText extends IRCEditText {
         if(ic == null)
             return null;
 
-        if(Build.VERSION.SDK_INT >= 19 && getEmojiEditTextHelper() != null)
-            ic = getEmojiEditTextHelper().onCreateInputConnection(ic, outAttrs);
-
         outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS;
         outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_NEXT;
         if (IRCCloudApplication.getInstance().getApplicationContext().getResources().getBoolean(R.bool.isTablet) || PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("kb_send", false)) {
             outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NO_ENTER_ACTION;
             outAttrs.inputType = EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT;
         } else {
+            outAttrs.inputType = EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT | EditorInfo.TYPE_TEXT_VARIATION_SHORT_MESSAGE;
             outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_ENTER_ACTION;
         }
         if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("kb_caps", true)) {
@@ -74,6 +72,9 @@ public class ActionEditText extends IRCEditText {
         } else {
             outAttrs.inputType &= ~EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES;
         }
+        if(Build.VERSION.SDK_INT >= 19 && getEmojiEditTextHelper() != null)
+            ic = getEmojiEditTextHelper().onCreateInputConnection(ic, outAttrs);
+
         EditorInfoCompat.setContentMimeTypes(outAttrs, new String[]{"image/*"});
 
         final InputConnectionCompat.OnCommitContentListener callback =
