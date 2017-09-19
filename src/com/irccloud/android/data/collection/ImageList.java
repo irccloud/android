@@ -102,6 +102,7 @@ public class ImageList {
                 "(^https?://(www\\.)?giphy\\.com/gifs/.*)|" +
                 "(^https?://gph\\.is/.*)|" +
                 "(^https?://.*\\.twimg\\.com/media/.*\\.(png|jpe?g|gif|bmp):[a-z]+$)|" +
+                "(^https?://(www\\.)?xkcd\\.com/[0-9]+/?)|" +
                 "(^https?://.*\\.steampowered\\.com/ugc/.*)"
         ) && !url.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)") && !(url.contains("imgur.com") && url.contains(","));
     }
@@ -472,6 +473,8 @@ public class ImageList {
                 url = url.replace("www.", "").replace("leetfiles.com/image/", "i.leetfiles.com/").replace("?id=", "");
             } else if (lower.startsWith("leetfil.es/") || lower.startsWith("www.leetfil.es/")) {
                 url = url.replace("www.", "").replace("leetfil.es/image/", "i.leetfiles.com/").replace("?id=", "");
+            } else if (lower.startsWith("xkcd.com/") || lower.startsWith("www.xkcd.com/")) {
+                new XKCDTask(URL, listener).execute(URL);
             }
 
             ImageURLInfo info = new ImageURLInfo();
@@ -719,6 +722,44 @@ public class ImageList {
                 info.thumbnail = url;
                 putImageInfo(info);
                 listener.onImageInfo(info);
+            } else {
+                listener.onImageInfo(null);
+            }
+        }
+    }
+
+    public class XKCDTask extends AsyncTaskEx<String, Void, JSONObject> {
+        private String original_url = null;
+        private OnImageInfoListener listener = null;
+
+        public XKCDTask(String original_url, OnImageInfoListener listener) {
+            this.listener = listener;
+            this.original_url = original_url;
+        }
+
+        @Override
+        protected JSONObject doInBackground(String... params) {
+            try {
+                return NetworkConnection.getInstance().fetchJSON( params[0] + "/info.0.json");
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject data) {
+            if (data != null) {
+                try {
+                    ImageURLInfo info = new ImageURLInfo();
+                    info.original_url = original_url;
+                    info.thumbnail = data.getString("img");
+                    info.title = data.getString("safe_title");
+                    info.description = data.getString("alt");
+                    putImageInfo(info);
+                    listener.onImageInfo(info);
+                } catch (Exception e) {
+                    listener.onImageInfo(null);
+                }
             } else {
                 listener.onImageInfo(null);
             }
