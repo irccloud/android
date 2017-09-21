@@ -31,11 +31,13 @@ import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.commonsware.cwac.richedit.Effect;
 import com.commonsware.cwac.richedit.RichEditText;
+import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -559,7 +561,10 @@ public class IRCEditText extends RichEditText {
                     }
                     if (typingSpans != null) {
                         for (SpanWrapper w : typingSpans) {
-                            text.setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            if(w.start >= 0 && w.end >= 0 && w.end <= text.length())
+                                text.setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            else
+                                Crashlytics.log(Log.WARN, "IRCCloud", "Invalid span: " + w);
                         }
                     }
                     updateSpans();
