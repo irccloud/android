@@ -293,12 +293,16 @@ public class ImageList {
             public void run() {
                 try {
                     if (cacheFile(url).exists() && cacheFile(url).length() > 0) {
-                        Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
-                        if (bitmap != null)
-                            images.put(MD5(url.toString()), bitmap);
-                        else
-                            failedURLs.add(MD5(url.toString()));
-                        notifyListeners(url, bitmap);
+                        try {
+                            Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
+                            if (bitmap != null)
+                                images.put(MD5(url.toString()), bitmap);
+                            else
+                                failedURLs.add(MD5(url.toString()));
+                            notifyListeners(url, bitmap);
+                        } catch (OutOfMemoryError e) {
+                            notifyListeners(url, null);
+                        }
                     } else {
                         HttpURLConnection conn;
 

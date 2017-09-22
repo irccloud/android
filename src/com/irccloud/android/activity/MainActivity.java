@@ -1723,7 +1723,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 NotificationsList.getInstance().excludeBid(params[0]);
             } catch (Exception e) {
             }
-            excludeBIDTask = null;
+            if(excludeBIDTask == this)
+                excludeBIDTask = null;
             return null;
         }
     }
