@@ -337,7 +337,8 @@ public class IRCEditText extends RichEditText {
         Spannable text = getText();
         if(typingSpans != null) {
             for (SpanWrapper w : typingSpans) {
-                text.setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                if(w.start >= 0 && w.end >= 0 && w.end <= text.length())
+                    text.setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
         StringBuilder out = new StringBuilder();
@@ -563,8 +564,6 @@ public class IRCEditText extends RichEditText {
                         for (SpanWrapper w : typingSpans) {
                             if(w.start >= 0 && w.end >= 0 && w.end <= text.length())
                                 text.setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            else
-                                Crashlytics.log(Log.WARN, "IRCCloud", "Invalid span: " + w);
                         }
                     }
                     updateSpans();

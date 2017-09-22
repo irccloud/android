@@ -582,8 +582,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             }
         };
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            messageTxt.setCustomInsertionActionModeCallback(formatCallback);
         messageTxt.setCustomSelectionActionModeCallback(formatCallback);
         messageTxt.setOnSelectionChangedListener(new RichEditText.OnSelectionChangedListener() {
             @Override

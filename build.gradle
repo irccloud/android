@@ -60,8 +60,8 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 147
-        versionName "4.0"
+        versionCode 148
+        versionName "4.0.1"
         minSdkVersion 14
         targetSdkVersion 26
         applicationId "com.irccloud.android"
@@ -329,7 +329,7 @@ tasks.whenTaskAdded { task ->
 }
 
 ext {
-    supportLibVersion = '26.0.2'
+    supportLibVersion = '26.1.0'
     playServicesVersion = '11.0.2'
     dbflowVersion = "4.0.5"
 }

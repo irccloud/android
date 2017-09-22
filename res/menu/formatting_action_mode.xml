@@ -19,18 +19,22 @@
 
     <item android:id="@+id/menu_bold"
         android:title="Bold"
+        android:alphabeticShortcut="b"
         android:icon="@drawable/ic_format_bold"/>
 
     <item android:id="@+id/menu_italics"
         android:title="Italics"
+        android:alphabeticShortcut="i"
         android:icon="@drawable/ic_format_italics"/>
 
     <item android:id="@+id/menu_underline"
         android:title="Underline"
+        android:alphabeticShortcut="u"
         android:icon="@drawable/ic_format_underline"/>
 
     <item android:id="@+id/menu_color"
         android:title="Text Color"
+        android:alphabeticShortcut="c"
         android:icon="@drawable/ic_format_color"/>
 
     <item android:id="@+id/menu_background"
