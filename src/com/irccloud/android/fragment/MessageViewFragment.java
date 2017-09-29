@@ -1034,8 +1034,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 if (b != null) {
                                     float ratio = (float) b.getHeight() / (float) b.getWidth();
                                     ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
-                                    lp.width = width;
-                                    lp.height = (int) (width * ratio);
+                                    if(b.getWidth() >= width) {
+                                        lp.width = width;
+                                        lp.height = (int) (width * ratio);
+                                    } else {
+                                        lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, b.getWidth(), getResources().getDisplayMetrics());
+                                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, b.getHeight(), getResources().getDisplayMetrics());
+                                    }
                                     holder.thumbnail.setLayoutParams(lp);
                                     holder.thumbnail.setImageBitmap(b);
                                     holder.thumbnail.setVisibility(View.VISIBLE);
@@ -1043,8 +1048,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 } else if (d != null) {
                                     float ratio = (float) d.getCurrentFrame().getHeight() / (float) d.getCurrentFrame().getWidth();
                                     ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
-                                    lp.width = width;
-                                    lp.height = (int) (width * ratio);
+                                    if(d.getCurrentFrame().getWidth() >= width) {
+                                        lp.width = width;
+                                        lp.height = (int) (width * ratio);
+                                    } else {
+                                        lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, d.getCurrentFrame().getWidth(), getResources().getDisplayMetrics());
+                                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, d.getCurrentFrame().getHeight(), getResources().getDisplayMetrics());
+                                    }
                                     holder.thumbnail.setLayoutParams(lp);
                                     holder.thumbnail.setImageDrawable(d);
                                     holder.thumbnail.setVisibility(View.VISIBLE);
