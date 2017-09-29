@@ -149,6 +149,7 @@ public class PastebinEditorActivity extends BaseActivity {
                     }
                     messages_count.setText("Text will be sent as " + count + " message" + (count == 1 ? "" : "s"));
                 }
+                invalidateOptionsMenu();
             }
         });
         paste.setText(pastebin.getBody());
@@ -271,6 +272,13 @@ public class PastebinEditorActivity extends BaseActivity {
         }
         setMenuColorFilter(menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_save).setEnabled(paste.length() > 0);
+        menu.findItem(R.id.action_send).setEnabled(paste.length() > 0);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
