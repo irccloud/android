@@ -1034,7 +1034,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 if (b != null) {
                                     float ratio = (float) b.getHeight() / (float) b.getWidth();
                                     ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
-                                    if(b.getWidth() >= width) {
+                                    if(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, b.getWidth(), getResources().getDisplayMetrics()) >= width) {
                                         lp.width = width;
                                         lp.height = (int) (width * ratio);
                                     } else {
@@ -1048,7 +1048,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 } else if (d != null) {
                                     float ratio = (float) d.getCurrentFrame().getHeight() / (float) d.getCurrentFrame().getWidth();
                                     ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
-                                    if(d.getCurrentFrame().getWidth() >= width) {
+                                    if(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, d.getCurrentFrame().getWidth(), getResources().getDisplayMetrics()) >= width) {
                                         lp.width = width;
                                         lp.height = (int) (width * ratio);
                                     } else {
