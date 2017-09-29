@@ -43,8 +43,10 @@ public class SonyExtensionReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        Log.d(SonyExtensionService.LOG_TAG, "onReceive: " + intent.getAction());
         intent.setClass(context, SonyExtensionService.class);
-        context.startService(intent);
+        try {
+            context.startService(intent);
+        } catch (IllegalStateException e) {
+        }
     }
 }

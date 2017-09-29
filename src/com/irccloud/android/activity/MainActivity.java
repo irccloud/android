@@ -1372,7 +1372,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
+        try {
+            super.onSaveInstanceState(state);
+        } catch (IllegalStateException e) {
+            //Support library bug
+        }
         if (server != null)
             state.putInt("cid", server.getCid());
         if (buffer != null) {
