@@ -2087,6 +2087,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     backStack.add(0, buffer.getBid());
             }
             ImageList.getInstance().clearFailures();
+            ImageList.getInstance().clear();
+            ImageList.getInstance().purge();
         }
         excludeBIDTask = new ExcludeBIDTask();
         excludeBIDTask.execute(-1);

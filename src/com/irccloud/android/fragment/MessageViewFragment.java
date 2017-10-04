@@ -1029,7 +1029,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     if (e.entities.has("id"))
                                         b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
                                     else
-                                        b = ImageList.getInstance().getImage(new URL(e.entities.get("thumbnail").asText()));
+                                        b = ImageList.getInstance().getImage(new URL(e.entities.get("thumbnail").asText()), width);
                                 }
                                 if (b != null) {
                                     float ratio = (float) b.getHeight() / (float) b.getWidth();
@@ -1075,7 +1075,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                             }
                                         });
                                     } else {
-                                        ImageList.getInstance().fetchImage(new URL(e.entities.get("thumbnail").asText()), new ImageList.OnImageFetchedListener() {
+                                        ImageList.getInstance().fetchImage(new URL(e.entities.get("thumbnail").asText()), width, new ImageList.OnImageFetchedListener() {
                                             @Override
                                             public void onImageFetched(Bitmap image) {
                                                 refreshSoon();
@@ -1093,6 +1093,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         } catch (MalformedURLException e1) {
                             holder.thumbnail.setVisibility(View.GONE);
                             holder.progress.setVisibility(View.GONE);
+                        } catch (IOException e1) {
+                            refreshSoon();
                         } catch (OutOfMemoryError e1) {
                             String ext = "???";
 
@@ -2039,7 +2041,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                             insertEntity(adapter, event, properties, !ready);
                                             try {
                                                 URL u = new URL(info.thumbnail);
-                                                ImageList.getInstance().fetchImage(u, null);
+                                                int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
+                                                if(getActivity().getWindowManager().getDefaultDisplay().getHeight() < width)
+                                                    width = getActivity().getWindowManager().getDefaultDisplay().getHeight();
+                                                width /= 2;
+                                                ImageList.getInstance().fetchImage(u, width, null);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }

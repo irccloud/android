@@ -44,6 +44,7 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.irccloud.android.data.IRCCloudDatabase;
+import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
@@ -373,6 +374,7 @@ public class IRCCloudApplicationBase extends Application {
                     eventsList.pruneEvents(b.getBid());
             }
         }
+        ImageList.getInstance().clear();
     }
 
     @Override

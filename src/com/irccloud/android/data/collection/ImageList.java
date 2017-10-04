@@ -227,7 +227,11 @@ public class ImageList {
     }
 
 
-    public Bitmap getImage(URL url) throws OutOfMemoryError, FileNotFoundException {
+    public Bitmap getImage(URL url) throws OutOfMemoryError, FileNotFoundException, IOException {
+        return getImage(url, 0);
+    }
+
+    public Bitmap getImage(URL url, int width) throws OutOfMemoryError, FileNotFoundException, IOException {
         if(failedURLs.contains(MD5(url.toString())))
             throw new FileNotFoundException();
 
@@ -236,7 +240,10 @@ public class ImageList {
             return bitmap;
 
         if(cacheFile(url).exists()) {
-            bitmap = BitmapFactory.decodeFile(cacheFile(url).getAbsolutePath());
+            if(width > 0)
+                bitmap = loadScaledBitmap(cacheFile(url), width);
+            else
+                bitmap = BitmapFactory.decodeFile(cacheFile(url).getAbsolutePath());
             if (bitmap != null)
                 images.put(MD5(url.toString()), bitmap);
         }
@@ -271,7 +278,33 @@ public class ImageList {
         }
     }
 
-    public void fetchImage(final URL url, final OnImageFetchedListener listener) throws FileNotFoundException {
+    public static Bitmap loadScaledBitmap(File path, int width) throws FileNotFoundException, IOException, OutOfMemoryError {
+        FileInputStream is = new FileInputStream(path);
+        BitmapFactory.Options dbo = new BitmapFactory.Options();
+        dbo.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(is, null, dbo);
+        is.close();
+
+        Bitmap b;
+        is = new FileInputStream(path);
+        if (dbo.outWidth > width) {
+            float ratio = ((float) dbo.outWidth) / ((float) width);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = (int) ratio;
+            b = BitmapFactory.decodeStream(is, null, options);
+        } else {
+            b = BitmapFactory.decodeStream(is);
+        }
+        is.close();
+
+        return b;
+    }
+
+    public void fetchImage(URL url, OnImageFetchedListener listener) throws FileNotFoundException {
+        fetchImage(url, 0, listener);
+    }
+
+    public void fetchImage(final URL url, final int width, final OnImageFetchedListener listener) throws FileNotFoundException {
         if(failedURLs.contains(MD5(url.toString())))
             throw new FileNotFoundException();
 
@@ -294,7 +327,11 @@ public class ImageList {
                 try {
                     if (cacheFile(url).exists() && cacheFile(url).length() > 0) {
                         try {
-                            Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
+                            Bitmap bitmap;
+                            if(width > 0)
+                                bitmap = loadScaledBitmap(cacheFile(url), width);
+                            else
+                                bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
                             if (bitmap != null)
                                 images.put(MD5(url.toString()), bitmap);
                             else
@@ -367,7 +404,11 @@ public class ImageList {
                                 is.close();
                                 os.close();
 
-                                Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
+                                Bitmap bitmap;
+                                if(width > 0)
+                                    bitmap = loadScaledBitmap(cacheFile(url), width);
+                                else
+                                    bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
                                 if (bitmap != null) {
                                     images.put(MD5(url.toString()), bitmap);
                                 } else if(images.containsKey(MD5(url.toString()))) {
