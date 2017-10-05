@@ -333,14 +333,18 @@ public class IRCEditText extends RichEditText {
         }
     }
 
-    public String toIRC() {
-        Spannable text = getText();
+    private void applyTypingSpans() {
         if(typingSpans != null) {
+            Spannable text = getText();
             for (SpanWrapper w : typingSpans) {
-                if(w.start >= 0 && w.end >= 0 && w.end <= text.length())
+                if(w.start >= 0 && w.end >= w.start && w.end <= text.length())
                     text.setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
+    }
+
+    public String toIRC() {
+        Spannable text = getText();
         StringBuilder out = new StringBuilder();
 
         int next;
@@ -560,12 +564,7 @@ public class IRCEditText extends RichEditText {
                             text.removeSpan(style);
                         }
                     }
-                    if (typingSpans != null) {
-                        for (SpanWrapper w : typingSpans) {
-                            if(w.start >= 0 && w.end >= 0 && w.end <= text.length())
-                                text.setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        }
-                    }
+                    applyTypingSpans();
                     updateSpans();
                     for (CharacterStyle style : text.getSpans(start, end, CharacterStyle.class)) {
                         if (text.getSpanFlags(style) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
@@ -655,10 +654,7 @@ public class IRCEditText extends RichEditText {
     private void splitInactiveSpans(Spannable text, int start, int end) {
         if(typingSpans != null) {
             updateSpans();
-
-            for (SpanWrapper w : typingSpans) {
-                text.setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
+            applyTypingSpans();
 
             for (CharacterStyle style : text.getSpans(start, end, CharacterStyle.class)) {
                 if (text.getSpanFlags(style) == Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) {
@@ -679,11 +675,7 @@ public class IRCEditText extends RichEditText {
 
         splitInactiveSpans(getText(), getSelectionStart(), getSelectionEnd());
         super.onSelectionChanged(getSelectionStart(), getSelectionEnd());
-        if(typingSpans != null) {
-            for (SpanWrapper w : typingSpans) {
-                getText().setSpan(w.span, w.start, w.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-        }
+        applyTypingSpans();
     }
 
     public void toggleTypingEffect(Effect effect) {
