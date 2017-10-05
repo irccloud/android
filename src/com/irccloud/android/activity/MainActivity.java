@@ -79,6 +79,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -4748,7 +4750,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private void showUserPopup(User user, Spanned message, final JsonNode entities) {
         ArrayList<String> itemList = new ArrayList<String>();
         final String[] items;
-        final Spanned text_to_copy = message;
+        SpannableStringBuilder sb = new SpannableStringBuilder(message);
+        for(int i = 0; i < sb.length(); i++) {
+            if(sb.charAt(i) == '\u00a0') {
+                sb.replace(i, i + 1, " ");
+            }
+        }
+        final SpannableString text_to_copy = SpannableString.valueOf(sb);
 
         selected_user = user;
 
