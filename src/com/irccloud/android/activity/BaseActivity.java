@@ -175,7 +175,11 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
-        super.onStop();
+        try {
+            super.onStop();
+        } catch (IllegalStateException e) {
+            //Android Support Library bug
+        }
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("background_sync", true)) {
             BackgroundTaskService.scheduleBacklogSync(this);
         }

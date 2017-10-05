@@ -307,7 +307,11 @@ public class IRCEditText extends RichEditText {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         selectionChangedByUser = true;
-        return super.onTouchEvent(event);
+        try {
+            return super.onTouchEvent(event);
+        } catch (NullPointerException e) {
+            //Android 6.0 bug
+        }
     }
 
     @Override
