@@ -1483,6 +1483,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private class SendTask extends AsyncTaskEx<Void, Void, Void> {
         boolean forceText = false;
         Event e = null;
+        boolean bold, underline, italic;
+        int color_fg = -1, color_bg = -1;
 
         public SendTask() {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
@@ -1492,6 +1494,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         protected void onPreExecute() {
             if (conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0 && buffer != null && server != null) {
+                if(!PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getBoolean("reset-after-send", true)) {
+                    bold = messageTxt.hasEffect(RichEditText.BOLD);
+                    underline = messageTxt.hasEffect(RichEditText.UNDERLINE);
+                    italic = messageTxt.hasEffect(RichEditText.ITALIC);
+                    color_bg = messageTxt.getEffectValue(RichEditText.BACKGROUND);
+                    color_fg = messageTxt.getEffectValue(RichEditText.FOREGROUND);
+                }
                 sendBtn.setEnabled(false);
                 messageTxt.clearComposingText();
 
@@ -1644,6 +1653,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             if(formattingActionMode != null)
                 formattingActionMode.finish();
+            if(!PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getBoolean("reset-after-send", true)) {
+                if(bold)
+                    messageTxt.toggleTypingEffect(RichEditText.BOLD);
+                if(underline)
+                    messageTxt.toggleTypingEffect(RichEditText.UNDERLINE);
+                if(italic)
+                    messageTxt.toggleTypingEffect(RichEditText.ITALIC);
+                if(color_bg != -1)
+                    messageTxt.applyBackgroundColor(color_bg);
+                if(color_fg != -1) {
+                    messageTxt.applyForegroundColor(color_fg);
+                }
+            }
         }
     }
 

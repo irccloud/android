@@ -311,6 +311,7 @@ public class IRCEditText extends RichEditText {
             return super.onTouchEvent(event);
         } catch (NullPointerException e) {
             //Android 6.0 bug
+            return false;
         }
     }
 

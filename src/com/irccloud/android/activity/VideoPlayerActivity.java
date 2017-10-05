@@ -337,7 +337,10 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                                 } else {
                                     DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                                     if (d != null) {
-                                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
+                                        String uri = getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http");
+                                        if(Build.VERSION.SDK_INT < 16 && uri.startsWith("https://")) //Android 4.1 and below don't support SNI in DownloadManager
+                                            uri = "http://" + uri.substring(8);
+                                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(uri));
                                         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                                         r.allowScanningByMediaScanner();
                                         d.enqueue(r);

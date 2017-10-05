@@ -57,6 +57,12 @@
             android:key="nick-colors"
             android:defaultValue="false"
             android:title="Colourise nicknames"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="reset-after-send"
+			android:defaultValue="true"
+			android:summaryOn="Colors and formatting will be reset after sending a message"
+			android:summaryOff="Colors and formatting will not be reset after sending a message"
+			android:title="Reset colors after sending"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -606,7 +606,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 if (d != null) {
                     String uri = getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http");
-                    if(uri.startsWith("https://"))
+                    if(Build.VERSION.SDK_INT < 16 && uri.startsWith("https://")) //Android 4.1 and below don't support SNI in DownloadManager
                         uri = "http://" + uri.substring(8);
                     DownloadManager.Request r = new DownloadManager.Request(Uri.parse(uri));
                     r.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, getIntent().getData().getLastPathSegment());
