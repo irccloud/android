@@ -4239,7 +4239,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             final IRCEditText input = view.findViewById(R.id.textInput);
             input.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text))), false, null));
             prompt.setVisibility(View.GONE);
-            builder.setTitle("Topic for " + c.name);
+            if(server.isupport != null && server.isupport.has("TOPICLEN"))
+                builder.setTitle("Topic for " + c.name + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
+            else
+                builder.setTitle("Topic for " + c.name);
             builder.setView(view);
             builder.setPositiveButton("Set Topic", new DialogInterface.OnClickListener() {
                 @Override
@@ -4254,7 +4257,26 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.dismiss();
                 }
             });
-            AlertDialog dialog = builder.create();
+            final AlertDialog dialog = builder.create();
+            input.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if(server.isupport != null && server.isupport.has("TOPICLEN"))
+                        dialog.setTitle("Topic for " + c.name + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
+                    else
+                        dialog.setTitle("Topic for " + c.name);
+                }
+            });
             dialog.setOwnerActivity(this);
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
             dialog.show();
