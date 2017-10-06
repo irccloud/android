@@ -4772,11 +4772,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private void showUserPopup(User user, Spanned message, final JsonNode entities) {
         ArrayList<String> itemList = new ArrayList<String>();
         final String[] items;
-        SpannableStringBuilder sb = new SpannableStringBuilder(message);
-        for(int i = 0; i < sb.length(); i++) {
-            if(sb.charAt(i) == '\u00a0') {
-                sb.replace(i, i + 1, " ");
+        SpannableStringBuilder sb;
+        if(message != null && message.length() > 0) {
+            sb = new SpannableStringBuilder(message);
+            for (int i = 0; i < sb.length(); i++) {
+                if (sb.charAt(i) == '\u00a0') {
+                    sb.replace(i, i + 1, " ");
+                }
             }
+        } else {
+            sb = new SpannableStringBuilder();
         }
         final SpannableString text_to_copy = SpannableString.valueOf(sb);
 
