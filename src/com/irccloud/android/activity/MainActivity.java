@@ -4237,6 +4237,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             View view = getDialogTextPrompt();
             TextView prompt = view.findViewById(R.id.prompt);
             final IRCEditText input = view.findViewById(R.id.textInput);
+            input.setMaxLines(getResources().getInteger(R.integer.max_input_lines));
+            input.setHorizontallyScrolling(false);
             input.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text))), false, null));
             prompt.setVisibility(View.GONE);
             if(server.isupport != null && server.isupport.has("TOPICLEN"))
