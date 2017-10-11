@@ -131,8 +131,8 @@
     <orderEntry type="library" name="support-media-compat-26.1.0" level="project" />
     <orderEntry type="library" name="play-services-basement-11.0.2" level="project" />
     <orderEntry type="library" name="play-services-auth-11.0.2" level="project" />
-    <orderEntry type="library" name="baseLibrary-3.0.0-beta6" level="project" />
     <orderEntry type="library" name="recyclerview-v7-26.1.0" level="project" />
+    <orderEntry type="library" name="baseLibrary-3.0.0-beta7" level="project" />
     <orderEntry type="library" name="support-vector-drawable-26.1.0" level="project" />
     <orderEntry type="library" name="support-core-utils-26.1.0" level="project" />
     <orderEntry type="library" name="richedit-0.5.2" level="project" />
