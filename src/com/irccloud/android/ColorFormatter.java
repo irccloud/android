@@ -2187,7 +2187,7 @@ public class ColorFormatter {
 
     private static Typeface sourceSansPro;
     private static Typeface Hack;
-    private static class TypefaceSpan extends CharacterStyle {
+    private static class TypefaceSpan extends MetricAffectingSpan {
         private Typeface typeFace;
 
         public TypefaceSpan(Typeface typeFace) {
@@ -2214,6 +2214,11 @@ public class ColorFormatter {
                 }
                 paint.setTypeface(typeFace);
             }
+        }
+
+        @Override
+        public void updateMeasureState(TextPaint paint) {
+            updateDrawState(paint);
         }
     }
 
