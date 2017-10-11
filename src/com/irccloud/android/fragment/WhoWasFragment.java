@@ -93,7 +93,11 @@ public class WhoWasFragment extends DialogFragment {
                 row.setLastconnected(node.get("last_seen").asText());
             else
                 row.setLastconnected("");
-            row.setConnectedvia(node.get("ircserver").asText());
+            if(node.has("ircserver")) {
+                row.setConnectedvia(node.get("ircserver").asText());
+            } else {
+                row.setConnectedvia("");
+            }
             if(node.has("connecting_from")) {
                 row.setInfo(node.get("connecting_from").asText());
             } else {
