@@ -149,6 +149,8 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            if(findViewById(android.R.id.list).getVisibility() != View.VISIBLE)
+                findViewById(R.id.progress).setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -181,6 +183,8 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            if(findViewById(android.R.id.list).getVisibility() != View.VISIBLE)
+                findViewById(R.id.progress).setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -229,9 +233,9 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                 adapter.addSection("Available", availableAdapter);
 
             if(adapter.getCount() > 0) {
-                findViewById(R.id.progress).setVisibility(View.GONE);
                 findViewById(android.R.id.list).setVisibility(View.VISIBLE);
             }
+            findViewById(R.id.progress).setVisibility(View.GONE);
             ((ListView)findViewById(android.R.id.list)).setAdapter(adapter);
         }
     }

@@ -4509,11 +4509,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         builder.setTitle("Delete History");
 
                     if (b.isConsole())
-                        builder.setMessage("Are you sure you want to remove this connection?");
+                        builder.setMessage("Are you sure you want to remove this connection?  Make sure you download any logs you want to keep before deleting.");
                     else if (b.isChannel())
-                        builder.setMessage("Are you sure you want to clear your history in " + b.getName() + "?");
+                        builder.setMessage("Are you sure you want to clear your history in " + b.getName() + "?  Make sure you download any logs you want to keep before deleting.");
                     else
-                        builder.setMessage("Are you sure you want to clear your history with " + b.getName() + "?");
+                        builder.setMessage("Are you sure you want to clear your history with " + b.getName() + "?  Make sure you download any logs you want to keep before deleting.");
 
                     builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 
@@ -4531,6 +4531,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             } else {
                                 NetworkConnection.getInstance().deleteBuffer(b.getCid(), b.getBid(), null);
                             }
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNeutralButton("Download Logs", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent i = new Intent(MainActivity.this, LogExportsActivity.class);
+                            i.putExtra("cid", b.getCid());
+                            i.putExtra("bid", b.getBid());
+                            startActivity(i);
                             dialog.dismiss();
                         }
                     });
