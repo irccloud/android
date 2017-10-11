@@ -497,6 +497,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             @Override
             public void onDestroyActionMode(ActionMode actionMode) {
                 formattingActionMode = null;
+                if(mColorPickerFragment != null) {
+                    if (Build.VERSION.SDK_INT >= 16) {
+                        mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                mColorPickerFragment.getView().setVisibility(View.GONE);
+                            }
+                        });
+                    } else {
+                        mColorPickerFragment.getView().setVisibility(View.GONE);
+                    }
+                }
             }
         });
     }
