@@ -22,7 +22,7 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-beta7'
+        classpath 'com.android.tools.build:gradle:3.0.0'
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -54,13 +54,13 @@ def getRevision = { ->
 }
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     buildToolsVersion '26.0.2'
     testBuildType 'debugTest'
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 154
+        versionCode 155
         versionName "4.2"
         minSdkVersion 14
         targetSdkVersion 26
@@ -329,7 +329,7 @@ tasks.whenTaskAdded { task ->
 }
 
 ext {
-    supportLibVersion = '26.1.0'
+    supportLibVersion = '27.0.0'
     playServicesVersion = '11.0.2'
     dbflowVersion = "4.0.5"
 }
@@ -356,7 +356,7 @@ dependencies {
     compile 'com.commonsware.cwac:richedit:0.5.2'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
     compile project(':android-websockets')
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.6'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
     annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:$dbflowVersion"
     compile "com.github.Raizlabs.DBFlow:dbflow-core:$dbflowVersion"
     compile "com.github.Raizlabs.DBFlow:dbflow:$dbflowVersion"
