@@ -200,12 +200,15 @@
         </activity>
         <activity
             android:name=".activity.EditConnectionActivity"
+            android:exported="false"
             android:windowSoftInputMode="adjustResize"></activity>
-        <activity android:name=".activity.ServerReorderActivity"></activity>
+        <activity android:name=".activity.ServerReorderActivity"
+            android:exported="false"></activity>
         <activity
             android:name=".activity.ImageViewerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_imageviewer"
+            android:exported="false"
             android:theme="@style/ImageViewerTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -228,6 +231,7 @@
             android:name=".activity.VideoPlayerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_video_player"
+            android:exported="false"
             android:theme="@style/ImageViewerTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -300,14 +304,17 @@
         <activity
             android:name=".activity.UploadsActivity"
             android:label="@string/title_activity_uploads"
+            android:exported="false"
             android:theme="@style/dawnDialogWhenLarge"></activity>
         <activity
             android:name=".activity.PastebinsActivity"
             android:label="@string/title_activity_pastebins"
+            android:exported="false"
             android:theme="@style/dawnDialogWhenLarge"></activity>
         <activity
             android:name=".activity.LogExportsActivity"
             android:label="@string/title_activity_exports"
+            android:exported="false"
             android:theme="@style/dawnDialogWhenLarge">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -423,6 +430,7 @@
         <activity
             android:name=".activity.ImgurAuthActivity"
             android:label="@string/title_activity_imgur_auth"
+            android:exported="false"
             android:theme="@style/ImgurAuthTheme"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -433,6 +441,7 @@
         </activity>
         <activity
             android:name=".activity.SAMLAuthActivity"
+            android:exported="false"
             android:theme="@style/dawn"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -443,13 +452,9 @@
         </activity>
         <activity
             android:name=".activity.PastebinEditorActivity"
+            android:exported="false"
             android:theme="@style/dawnDialogWhenLarge"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
 
         <service
@@ -491,6 +496,7 @@
             android:launchMode="singleInstance"
             android:taskAffinity=""
             android:theme="@style/dawnDialog"
+            android:exported="false"
             android:windowSoftInputMode="stateVisible|adjustResize"></activity>
 
         <meta-data
