@@ -63,7 +63,7 @@ android {
         versionCode 156
         versionName "4.3"
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 27
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
