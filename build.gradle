@@ -60,8 +60,8 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 155
-        versionName "4.2"
+        versionCode 156
+        versionName "4.3"
         minSdkVersion 14
         targetSdkVersion 26
         applicationId "com.irccloud.android"
@@ -343,7 +343,7 @@ dependencies {
     compile "com.android.support:design:$supportLibVersion"
     compile "com.android.support:recyclerview-v7:$supportLibVersion"
     compile "com.android.support:customtabs:$supportLibVersion"
-    compile "com.android.support:support-emoji-bundled:$supportLibVersion"
+    compile "com.android.support:support-emoji:$supportLibVersion"
     compile "com.google.android.gms:play-services-base:$playServicesVersion"
     compile "com.google.android.gms:play-services-auth:$playServicesVersion"
     compile "com.google.android.gms:play-services-identity:$playServicesVersion"

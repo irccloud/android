@@ -35,17 +35,14 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.text.emoji.EmojiCompat;
 import android.support.text.emoji.FontRequestEmojiCompatConfig;
-import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.provider.FontRequest;
-import android.support.v4.provider.FontsContractCompat;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.ImageList;
-import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -83,8 +80,7 @@ public class IRCCloudApplicationBase extends Application {
         FlowManager.init(new FlowConfig.Builder(this).build());
 
         if(Build.VERSION.SDK_INT >= 19)
-            EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true)));
-            /*EmojiCompat.init(new FontRequestEmojiCompatConfig(getApplicationContext(), new FontRequest(
+            EmojiCompat.init(new FontRequestEmojiCompatConfig(getApplicationContext(), new FontRequest(
                     "com.google.android.gms.fonts",
                     "com.google.android.gms",
                     "Noto Color Emoji Compat",
@@ -93,11 +89,18 @@ public class IRCCloudApplicationBase extends Application {
                     .registerInitCallback(new EmojiCompat.InitCallback() {
                         @Override
                         public void onInitialized() {
+                            Log.i("IRCCloud", "EmojiCompat initialized");
                             super.onInitialized();
                             EventsList.getInstance().clearCaches();
                             conn.notifyHandlers(NetworkConnection.EVENT_FONT_DOWNLOADED, null);
                         }
-                    }));*/
+                        @Override
+                        public void onFailed(@Nullable Throwable throwable) {
+                            Log.e("IRCCloud", "EmojiCompat initialization failed: ", throwable);
+                            Crashlytics.logException(throwable);
+                        }
+                    }));
+        //EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true)));
         NetworkConnection.getInstance().registerForConnectivity();
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
