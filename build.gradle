@@ -343,7 +343,7 @@ dependencies {
     compile "com.android.support:design:$supportLibVersion"
     compile "com.android.support:recyclerview-v7:$supportLibVersion"
     compile "com.android.support:customtabs:$supportLibVersion"
-    compile "com.android.support:support-emoji:$supportLibVersion"
+    compile "com.android.support:support-emoji-bundled:$supportLibVersion"
     compile "com.google.android.gms:play-services-base:$playServicesVersion"
     compile "com.google.android.gms:play-services-auth:$playServicesVersion"
     compile "com.google.android.gms:play-services-identity:$playServicesVersion"
