@@ -38,6 +38,7 @@ import android.support.text.emoji.FontRequestEmojiCompatConfig;
 import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.provider.FontRequest;
+import android.support.v4.provider.FontsContractCompat;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -81,7 +82,7 @@ public class IRCCloudApplicationBase extends Application {
         FlowManager.init(new FlowConfig.Builder(this).build());
 
         if(Build.VERSION.SDK_INT >= 19)
-            /*EmojiCompat.init(new FontRequestEmojiCompatConfig(getApplicationContext(), new FontRequest(
+            EmojiCompat.init(new FontRequestEmojiCompatConfig(getApplicationContext(), new FontRequest(
                     "com.google.android.gms.fonts",
                     "com.google.android.gms",
                     "Noto Color Emoji Compat",
@@ -100,8 +101,8 @@ public class IRCCloudApplicationBase extends Application {
                             Log.e("IRCCloud", "EmojiCompat initialization failed: ", throwable);
                             Crashlytics.logException(throwable);
                         }
-                    }));*/
-        EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true)));
+                    }));
+        //EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true)));
         NetworkConnection.getInstance().registerForConnectivity();
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
@@ -287,7 +288,7 @@ public class IRCCloudApplicationBase extends Application {
         } catch (Exception e) {
         }*/
 
-        /*FontRequest request = new FontRequest(
+        FontRequest request = new FontRequest(
                 "com.google.android.gms.fonts",
                 "com.google.android.gms",
                 "Dekko",
@@ -300,7 +301,7 @@ public class IRCCloudApplicationBase extends Application {
                 EventsList.getInstance().clearCaches();
                 NetworkConnection.getInstance().notifyHandlers(NetworkConnection.EVENT_FONT_DOWNLOADED, null);
             }
-        }, getFontsHandler());*/
+        }, getFontsHandler());
 
 
         Crashlytics.log(Log.INFO, "IRCCloud", "App Initialized");
