@@ -2630,6 +2630,7 @@ public class NetworkConnection {
                         set_by, object.getString("channel_type"),
                         object.getLong("timestamp"));
                 mChannels.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
+                mChannels.updateURL(object.bid(), object.getString("url"));
                 mUsers.deleteUsersForBuffer(object.bid());
                 JsonNode users = object.getJsonNode("members");
                 Iterator<JsonNode> iterator = users.elements();
