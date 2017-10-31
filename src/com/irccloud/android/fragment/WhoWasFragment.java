@@ -93,18 +93,18 @@ public class WhoWasFragment extends DialogFragment {
                 row.setLastconnected(node.get("last_seen").asText());
             else
                 row.setLastconnected("");
-            if(node.has("ircserver")) {
+            if(node.has("ircserver") && node.get("ircserver") != null) {
                 row.setConnectedvia(node.get("ircserver").asText());
             } else {
                 row.setConnectedvia("");
             }
-            if(node.has("connecting_from")) {
+            if(node.has("connecting_from") && node.get("connecting_from") != null) {
                 row.setInfo(node.get("connecting_from").asText());
             } else {
                 row.infoHeading.setVisibility(View.GONE);
                 row.info.setVisibility(View.GONE);
             }
-            if(node.has("actual_host")) {
+            if(node.has("actual_host") && node.get("actual_host") != null) {
                 row.setActualhost(node.get("actual_host").asText());
             } else {
                 row.actualhostHeading.setVisibility(View.GONE);
