@@ -35,7 +35,6 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.text.emoji.EmojiCompat;
 import android.support.text.emoji.FontRequestEmojiCompatConfig;
-import android.support.text.emoji.bundled.BundledEmojiCompatConfig;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.provider.FontRequest;
 import android.support.v4.provider.FontsContractCompat;
