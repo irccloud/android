@@ -78,6 +78,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -1081,6 +1082,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 ((TextView) v.findViewById(R.id.topic)).setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text))), true, server));
             } else {
                 ((TextView) v.findViewById(R.id.topic)).setText("No topic set.");
+            }
+            if (c.url != null && c.url.length() > 0) {
+                v.findViewById(R.id.url_heading).setVisibility(View.VISIBLE);
+                v.findViewById(R.id.channel_url_card).setVisibility(View.VISIBLE);
+                ((TextView) v.findViewById(R.id.channel_url)).setText(Html.fromHtml("<a href='" + TextUtils.htmlEncode(c.url) + "'>" + TextUtils.htmlEncode(c.url) + "</a>"));
             }
             if (c.mode != null && c.mode.length() > 0) {
                 v.findViewById(R.id.mode).setVisibility(View.VISIBLE);
