@@ -5548,14 +5548,29 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (orientation > 1) {
                 Matrix matrix = new Matrix();
                 switch (orientation) {
-                    case ExifInterface.ORIENTATION_ROTATE_90:
-                        matrix.postRotate(90);
+                    case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                        matrix.setScale(-1, 1);
                         break;
                     case ExifInterface.ORIENTATION_ROTATE_180:
-                        matrix.postRotate(180);
+                        matrix.setRotate(180);
+                        break;
+                    case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                        matrix.setRotate(180);
+                        matrix.postScale(-1, 1);
+                        break;
+                    case ExifInterface.ORIENTATION_TRANSPOSE:
+                        matrix.setRotate(90);
+                        matrix.postScale(-1, 1);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        matrix.setRotate(90);
+                        break;
+                    case ExifInterface.ORIENTATION_TRANSVERSE:
+                        matrix.setRotate(-90);
+                        matrix.postScale(-1, 1);
                         break;
                     case ExifInterface.ORIENTATION_ROTATE_270:
-                        matrix.postRotate(270);
+                        matrix.setRotate(-90);
                         break;
                 }
                 try {

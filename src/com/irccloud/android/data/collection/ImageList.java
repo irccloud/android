@@ -19,6 +19,8 @@ package com.irccloud.android.data.collection;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -244,6 +246,44 @@ public class ImageList {
                 bitmap = loadScaledBitmap(cacheFile(url), width);
             else
                 bitmap = BitmapFactory.decodeFile(cacheFile(url).getAbsolutePath());
+
+            ExifInterface exif = new ExifInterface(cacheFile(url).getPath());
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+            if(orientation > 1) {
+                Matrix matrix = new Matrix();
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                        matrix.setScale(-1, 1);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        matrix.setRotate(180);
+                        break;
+                    case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                        matrix.setRotate(180);
+                        matrix.postScale(-1, 1);
+                        break;
+                    case ExifInterface.ORIENTATION_TRANSPOSE:
+                        matrix.setRotate(90);
+                        matrix.postScale(-1, 1);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        matrix.setRotate(90);
+                        break;
+                    case ExifInterface.ORIENTATION_TRANSVERSE:
+                        matrix.setRotate(-90);
+                        matrix.postScale(-1, 1);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        matrix.setRotate(-90);
+                        break;
+                }
+                try {
+                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                } catch (OutOfMemoryError e) {
+                    Log.e("IRCCloud", "Out of memory rotating the photo");
+                }
+            }
+
             if (bitmap != null)
                 images.put(MD5(url.toString()), bitmap);
         }
@@ -327,11 +367,7 @@ public class ImageList {
                 try {
                     if (cacheFile(url).exists() && cacheFile(url).length() > 0) {
                         try {
-                            Bitmap bitmap;
-                            if(width > 0)
-                                bitmap = loadScaledBitmap(cacheFile(url), width);
-                            else
-                                bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
+                            Bitmap bitmap = getImage(url, width);
                             if (bitmap != null)
                                 images.put(MD5(url.toString()), bitmap);
                             else
@@ -404,16 +440,8 @@ public class ImageList {
                                 is.close();
                                 os.close();
 
-                                Bitmap bitmap;
-                                if(width > 0)
-                                    bitmap = loadScaledBitmap(cacheFile(url), width);
-                                else
-                                    bitmap = BitmapFactory.decodeStream(new FileInputStream(cacheFile(url)));
-                                if (bitmap != null) {
-                                    images.put(MD5(url.toString()), bitmap);
-                                } else if(images.containsKey(MD5(url.toString()))) {
-                                    bitmap = images.get(MD5(url.toString()));
-                                } else {
+                                Bitmap bitmap = getImage(url, width);
+                                if(bitmap == null) {
                                     android.util.Log.e("IRCCloud", "Failed to load bitmap after download");
                                     failedURLs.add(MD5(url.toString()));
                                 }
