@@ -19,7 +19,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:robobunny="http://robobunny.com">
 
-	<PreferenceCategory android:title="Chat &amp; Embeds">
+	<PreferenceCategory android:title="Chat &amp; Embeds" android:key="embeds">
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="hideJoinPart"
             android:defaultValue="true"
