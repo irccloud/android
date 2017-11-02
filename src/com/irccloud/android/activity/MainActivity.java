@@ -47,7 +47,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.media.ExifInterface;
+import android.support.media.ExifInterface;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -5440,20 +5440,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
-    private int getOrientation(Context context, Uri photoUri) {
-        int orientation = -1;
-        Cursor cursor = context.getContentResolver().query(photoUri,
-                new String[]{MediaStore.Images.ImageColumns.ORIENTATION}, null, null, null);
-
-        if (cursor != null) {
-            cursor.moveToFirst();
-            orientation = cursor.getInt(0);
-            cursor.close();
-        }
-
-        return orientation;
-    }
-
     private Bitmap loadThumbnail(Context context, Uri photoUri) throws IOException {
         InputStream is = context.getContentResolver().openInputStream(photoUri);
         BitmapFactory.Options dbo = new BitmapFactory.Options();
@@ -5461,16 +5447,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         BitmapFactory.decodeStream(is, null, dbo);
         is.close();
 
+        is = context.getContentResolver().openInputStream(photoUri);
         int rotatedWidth, rotatedHeight;
-        int orientation = getOrientation(context, photoUri);
+        ExifInterface exif = new ExifInterface(is);
+        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+        is.close();
 
-        if (orientation == 90 || orientation == 270) {
+        if (orientation == ExifInterface.ORIENTATION_ROTATE_90 || orientation == ExifInterface.ORIENTATION_ROTATE_270 || orientation == ExifInterface.ORIENTATION_TRANSVERSE) {
             rotatedWidth = dbo.outHeight;
             rotatedHeight = dbo.outWidth;
         } else {
             rotatedWidth = dbo.outWidth;
             rotatedHeight = dbo.outHeight;
         }
+
+        is.close();
 
         Bitmap srcBitmap;
         is = context.getContentResolver().openInputStream(photoUri);
@@ -5488,16 +5479,39 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         is.close();
 
-    /*
-     * if the orientation is not 0 (or -1, which means we don't know), we
-     * have to do a rotation.
-     */
-        if (orientation > 0) {
+        if(orientation > 1) {
             Matrix matrix = new Matrix();
-            matrix.postRotate(orientation);
-
-            srcBitmap = Bitmap.createBitmap(srcBitmap, 0, 0, srcBitmap.getWidth(),
-                    srcBitmap.getHeight(), matrix, true);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                    matrix.setScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    matrix.setRotate(180);
+                    break;
+                case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                    matrix.setRotate(180);
+                    matrix.postScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_TRANSPOSE:
+                    matrix.setRotate(90);
+                    matrix.postScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    matrix.setRotate(90);
+                    break;
+                case ExifInterface.ORIENTATION_TRANSVERSE:
+                    matrix.setRotate(-90);
+                    matrix.postScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    matrix.setRotate(-90);
+                    break;
+            }
+            try {
+                srcBitmap = Bitmap.createBitmap(srcBitmap, 0, 0, srcBitmap.getWidth(), srcBitmap.getHeight(), matrix, true);
+            } catch (OutOfMemoryError e) {
+                Log.e("IRCCloud", "Out of memory rotating the photo");
+            }
         }
 
         return srcBitmap;
@@ -5528,21 +5542,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             o.inSampleSize = scale;
             Bitmap bmp = BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
 
-            //ExifInterface can only work on local files, so make a temporary copy on the SD card
-            out = Uri.fromFile(File.createTempFile("irccloudcapture-original", ".jpg", getCacheDir()));
             InputStream is = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in);
-            OutputStream os = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out);
-            byte[] buffer = new byte[8192];
-            int len;
-            while ((len = is.read(buffer)) != -1) {
-                os.write(buffer, 0, len);
-            }
-            is.close();
-            os.close();
-
-            ExifInterface exif = new ExifInterface(out.getPath());
+            ExifInterface exif = new ExifInterface(is);
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-            new File(out.getPath()).delete();
+            is.close();
 
             out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", getCacheDir()));
             if (orientation > 1) {
