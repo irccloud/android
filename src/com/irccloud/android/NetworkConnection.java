@@ -260,7 +260,7 @@ public class NetworkConnection {
     TrustManager tms[];
     X509ExtendedKeyManager kms[];
 
-    private SSLSocketFactory IRCCloudSocketFactory = new SSLSocketFactory() {
+    public SSLSocketFactory IRCCloudSocketFactory = new SSLSocketFactory() {
         final String CIPHERS[] = {
                 "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
                 "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",

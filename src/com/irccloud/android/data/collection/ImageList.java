@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.os.Build;
 import android.support.media.ExifInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -28,6 +29,7 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
+import com.datatheorem.android.trustkit.TrustKit;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorFormatter;
@@ -401,7 +403,12 @@ public class ImageList {
 
                         try {
                             if (url.getProtocol().toLowerCase().equals("https")) {
-                                conn = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+                                HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
+                                    https.setSSLSocketFactory(NetworkConnection.getInstance().IRCCloudSocketFactory);
+                                else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+                                    https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(NetworkConnection.IRCCLOUD_HOST));
+                                conn = https;
                             } else {
                                 conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
                             }

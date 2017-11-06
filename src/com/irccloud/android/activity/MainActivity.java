@@ -133,6 +133,7 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
 import com.damnhandy.uri.template.UriTemplate;
+import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -214,6 +215,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.UUID;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_FILE;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_THUMBNAIL;
@@ -5963,7 +5966,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     public static class FileUploadTask extends AsyncTaskEx<Void, Float, String> {
-        private HttpURLConnection http = null;
+        private HttpsURLConnection http = null;
         private Uri mFileUri;  // local Uri to upload
         private int total = 0;
         private TextView fileSize;
@@ -6328,7 +6331,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             try {
                 String boundary = UUID.randomUUID().toString();
-                http = (HttpURLConnection) new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/upload").openConnection();
+                http = (HttpsURLConnection) new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/upload").openConnection();
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
+                    http.setSSLSocketFactory(NetworkConnection.getInstance().IRCCloudSocketFactory);
+                else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+                    http.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(NetworkConnection.IRCCLOUD_HOST));
                 http.setReadTimeout(60000);
                 http.setConnectTimeout(60000);
                 http.setDoOutput(true);
