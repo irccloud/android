@@ -407,7 +407,7 @@ public class ImageList {
                                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
                                     https.setSSLSocketFactory(NetworkConnection.getInstance().IRCCloudSocketFactory);
                                 else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                                    https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(NetworkConnection.IRCCLOUD_HOST));
+                                    https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
                                 conn = https;
                             } else {
                                 conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));

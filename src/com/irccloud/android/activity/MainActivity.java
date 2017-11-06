@@ -6055,7 +6055,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(activity.getPackageName() + ".cancel_upload");
-            IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(cancelListener, intentFilter);
+            IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(cancelListener, intentFilter, BuildConfig.APPLICATION_ID + ".permission.BROADCAST", null);
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel c = new NotificationChannel("upload_progress", "Upload Progress", NotificationManagerCompat.IMPORTANCE_LOW);

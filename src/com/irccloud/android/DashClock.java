@@ -55,7 +55,7 @@ public class DashClock extends DashClockExtension {
             }
         IntentFilter intentFilter = new IntentFilter(REFRESH_INTENT);
         receiver = new RefreshReceiver();
-        registerReceiver(receiver, intentFilter);
+        registerReceiver(receiver, intentFilter, BuildConfig.APPLICATION_ID + ".permission.BROADCAST", null);
     }
 
     @Override
