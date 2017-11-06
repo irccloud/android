@@ -2192,7 +2192,7 @@ public class ColorFormatter {
             });
             Linkify.addLinks(output, Pattern.compile("spotify:([a-zA-Z0-9:]+)"), null, noOverlapFilter, new TransformFilter() {
                 public final String transformUrl(final Matcher match, String url) {
-                    return "http://open.spotify.com/" + url.substring(8).replace(":", "/");
+                    return "https://open.spotify.com/" + url.substring(8).replace(":", "/");
                 }
             });
 
@@ -2488,7 +2488,7 @@ public class ColorFormatter {
                         if (count < 3 && !rgb) {
                             try {
                                 int col = Integer.parseInt(builder.substring(pos, pos + count));
-                                if (col > 98) {
+                                if (col > COLOR_MAP.length) {
                                     count--;
                                     col /= 10;
                                 }
@@ -2517,7 +2517,7 @@ public class ColorFormatter {
                             if (count < 3 && !rgb) {
                                 try {
                                     int col = Integer.parseInt(builder.substring(pos, pos + count));
-                                    if (col > 98) {
+                                    if (col > COLOR_MAP.length) {
                                         count--;
                                         col /= 10;
                                     }
