@@ -2746,8 +2746,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     pref_inlineImages = (inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
                 }
 
-                boolean isLowRamDevice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && getActivity() != null && ((ActivityManager)(getActivity().getSystemService(Context.ACTIVITY_SERVICE))).isLowRamDevice();
-                if(isLowRamDevice || (!PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("files-usemobiledata", false) && !conn.isWifi())) {
+                //boolean isLowRamDevice = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && getActivity() != null && ((ActivityManager)(getActivity().getSystemService(Context.ACTIVITY_SERVICE))).isLowRamDevice();
+                if(/*isLowRamDevice || */(!PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("files-usemobiledata", false) && !conn.isWifi())) {
                     pref_disableInlineFiles = true;
                     pref_inlineImages = false;
                 }

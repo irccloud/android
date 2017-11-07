@@ -210,10 +210,10 @@ public class BufferOptionsFragment extends DialogFragment {
         } catch (JSONException e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && getActivity() != null && ((ActivityManager)(getActivity().getSystemService(Context.ACTIVITY_SERVICE))).isLowRamDevice()) {
+        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && getActivity() != null && ((ActivityManager)(getActivity().getSystemService(Context.ACTIVITY_SERVICE))).isLowRamDevice()) {
             inlineFiles.setVisibility(View.GONE);
             inlineImages.setVisibility(View.GONE);
-        }
+        }*/
     }
 
     @Override

@@ -510,14 +510,14 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     findPreference("time-left").setEnabled(true);
                 }
             }
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && ((ActivityManager)getSystemService(Context.ACTIVITY_SERVICE)).isLowRamDevice()) {
+            /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && ((ActivityManager)getSystemService(Context.ACTIVITY_SERVICE)).isLowRamDevice()) {
                 if(findPreference("files-disableinline") != null)
                     ((PreferenceCategory) findPreference("embeds")).removePreference(findPreference("files-disableinline"));
                 if(findPreference("inlineimages") != null)
                     ((PreferenceCategory) findPreference("embeds")).removePreference(findPreference("inlineimages"));
                 if(findPreference("files-usemobiledata") != null)
                     ((PreferenceCategory) findPreference("embeds")).removePreference(findPreference("files-usemobiledata"));
-            }
+            }*/
         } else {
             Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
             finish();
