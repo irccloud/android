@@ -60,7 +60,7 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 160
+        versionCode 161
         versionName "4.4"
         minSdkVersion 14
         targetSdkVersion 27
@@ -329,7 +329,7 @@ tasks.whenTaskAdded { task ->
 }
 
 ext {
-    supportLibVersion = '27.0.0'
+    supportLibVersion = '27.0.1'
     playServicesVersion = '11.0.2'
     dbflowVersion = "4.0.5"
 }
