@@ -17,6 +17,7 @@
 package com.irccloud.android.activity;
 
 import android.app.ActivityManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -27,6 +28,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
@@ -116,8 +118,12 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
             }
             if(getIntent() != null && getIntent().hasExtra(Intent.EXTRA_STREAM)) {
                 mUri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-                if(mUri != null)
+                if(mUri.getPath().startsWith(getCacheDir().getParent()) && !mUri.getPath().startsWith(getCacheDir().getAbsolutePath())) {
+                    Toast.makeText(this, "Unable to upload file: invalid file path", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
                     mUri = MainActivity.makeTempCopy(mUri, this);
+                }
             } else {
                 mUri = null;
             }

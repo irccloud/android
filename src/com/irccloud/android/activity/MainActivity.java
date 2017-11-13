@@ -1851,19 +1851,44 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } else {
             if (intent.hasExtra(Intent.EXTRA_STREAM) && intent.getParcelableExtra(Intent.EXTRA_STREAM) != null) {
                 Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                String type = getContentResolver().getType(uri);
-                uri = makeTempCopy(uri, this);
-
-                if (type != null && type.startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
-                    new ImgurRefreshTask(uri).execute((Void) null);
+                if(uri.getPath().startsWith(getCacheDir().getParent()) && !uri.getPath().startsWith(getCacheDir().getAbsolutePath())) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle("Upload Failed");
+                            builder.setMessage("Unable to upload file: invalid file path.");
+                            builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    try {
+                                        dialog.dismiss();
+                                    } catch (IllegalArgumentException e) {
+                                    }
+                                }
+                            });
+                            if(!isFinishing()) {
+                                AlertDialog dialog = builder.create();
+                                dialog.setOwnerActivity(MainActivity.this);
+                                dialog.show();
+                            }
+                        }
+                    });
                 } else {
-                    fileUploadTask = new FileUploadTask(uri, this);
-                    if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                    String type = getContentResolver().getType(uri);
+                    uri = makeTempCopy(uri, this);
+
+                    if (type != null && type.startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
+                        new ImgurRefreshTask(uri).execute((Void) null);
                     } else {
-                        fileUploadTask.execute((Void) null);
+                        fileUploadTask = new FileUploadTask(uri, this);
+                        if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                        } else {
+                            fileUploadTask.execute((Void) null);
+                        }
                     }
                 }
             }
@@ -3671,6 +3696,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(original_filename == null || original_filename.length() == 0)
             original_filename = "file";
 
+        original_filename = original_filename.replace("/", "_");
+
         return makeTempCopy(fileUri, context, original_filename);
     }
 
@@ -3704,6 +3731,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (!original_filename.contains("."))
             original_filename += "." + type.substring(type.indexOf("/") + 1);
+
+        original_filename = original_filename.replace("/", "_");
 
         try {
             Uri out = Uri.fromFile(new File(context.getCacheDir(), original_filename));
@@ -6027,6 +6056,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             if(original_filename == null || original_filename.length() == 0)
                 original_filename = "file";
+
+            original_filename = original_filename.replace("/", "_");
 
             if (type == null) {
                 String lower = original_filename.toLowerCase();
