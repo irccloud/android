@@ -370,14 +370,15 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 LogExport e = (LogExport)adapterView.getItemAtPosition(i);
                 if(e.getExists()) {
+                    Uri uri = FileProvider.getUriForFile(LogExportsActivity.this,getPackageName() + ".fileprovider", e.file());
                     Intent intent = new Intent(Intent.ACTION_SEND);
-                    intent.setData(FileProvider.getUriForFile(LogExportsActivity.this,getPackageName() + ".fileprovider", e.file()));
+                    intent.setData(uri);
                     intent.setType("application/zip");
-                    intent.putExtra(Intent.EXTRA_STREAM, intent.getData());
+                    intent.putExtra(Intent.EXTRA_STREAM, uri);
                     intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
                     intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
                     if(Build.VERSION.SDK_INT >= 16)
-                        intent.setClipData(ClipData.newRawUri(e.file_name, intent.getData()));
+                        intent.setClipData(ClipData.newRawUri(e.file_name, uri));
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(Intent.createChooser(intent, "Open Log Archive"));
                 } else {
