@@ -1631,7 +1631,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (e != null && e.msg != null) {
                 e.msg = TextUtils.htmlEncode(e.msg);
                 EventsList.getInstance().addEvent(e);
-                conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
+                if(conn != null)
+                    conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
                 RecentConversationsList.getInstance().updateConversation(e.cid, e.bid, System.currentTimeMillis());
             }
             if (BuildConfig.DEBUG) {
@@ -2261,7 +2262,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         connFragment.default_port = 6697;
                     if (uri.getPath() != null && uri.getPath().length() > 1)
                         connFragment.default_channels = uri.getPath().substring(1).replace(",", " ");
-                    connFragment.show(getSupportFragmentManager(), "addnetwork");
+                    if(!isFinishing())
+                        connFragment.show(getSupportFragmentManager(), "addnetwork");
                 }
                 return true;
             }
