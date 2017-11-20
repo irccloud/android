@@ -1950,16 +1950,16 @@ public class ColorFormatter {
             sb.setLength(0);
             sb.append("(?:");
             for (String key : emojiMap.keySet()) {
-                if (sb.length() > 2)
+                if (sb.length() > 3)
                     sb.append("|");
                 sb.append(emojiMap.get(key));
             }
             for (String value : conversionMap.values()) {
-                if (sb.length() > 2)
+                if (sb.length() > 3)
                     sb.append("|");
                 sb.append(value);
             }
-            sb.append("|\u200d|\ufe0f)+");
+            sb.append("|\u200d|\ufe0f)");
 
             IS_EMOJI = Pattern.compile(sb.toString().replace(":)|","").replace("*", "\\*"));
 
@@ -2007,7 +2007,7 @@ public class ColorFormatter {
     }
 
     public static boolean is_emoji(String text) {
-        return text != null && text.length() > 0 && IS_EMOJI.matcher(text.trim()).matches();
+        return text != null && text.length() > 0 && IS_EMOJI.matcher(text.trim()).replaceAll("").length() == 0;
     }
 
     public static boolean is_blockquote(String text) {
