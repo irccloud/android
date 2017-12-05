@@ -484,10 +484,10 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     }
 
     @Bindable public String getContentDescription() {
-        if(type.equals(TYPE_CHANNEL))
-            return "Channel " + normalizedName();
+        if(isConversation())
+            return "Conversation with " + getDisplayName();
         else
-            return "Conversation with " + normalizedName();
+            return "Channel " + normalizedName();
     }
 
     @Bindable

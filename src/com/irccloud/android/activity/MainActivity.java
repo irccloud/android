@@ -323,6 +323,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private IRCColorPickerFragment mColorPickerFragment;
     private ActionMode formattingActionMode = null;
     private ActionMode currentActionMode = null;
+    private ActionMode.Callback formattingCallback = null;
 
     @Override
     public void onActionModeStarted(ActionMode mode) {
@@ -562,7 +563,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
         messageTxt = findViewById(R.id.messageTxt);
-        ActionMode.Callback formatCallback = new ActionMode.Callback() {
+        formattingCallback = new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
                 getMenuInflater().inflate(R.menu.format, menu);
@@ -600,7 +601,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             }
         };
-        messageTxt.setCustomSelectionActionModeCallback(formatCallback);
         messageTxt.setOnSelectionChangedListener(new RichEditText.OnSelectionChangedListener() {
             @Override
             public void onSelectionChanged(int start, int end, List<Effect<?>> list) {
@@ -5397,6 +5397,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         update_suggestions(false);
         messageTxt.setEnabled(buffer != null);
+        if(server != null && server.isSlack()) {
+            messageTxt.setCustomSelectionActionModeCallback(null);
+            findViewById(R.id.formatBtn).setVisibility(View.GONE);
+        } else {
+            messageTxt.setCustomSelectionActionModeCallback(formattingCallback);
+            findViewById(R.id.formatBtn).setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
