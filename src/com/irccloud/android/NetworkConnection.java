@@ -2348,7 +2348,7 @@ public class NetworkConnection {
                 Server server = mServers.createServer(object.cid(), object.getString("name"), object.getString("hostname"),
                         object.getInt("port"), object.getString("nick"), object.getString("status"), object.getBoolean("ssl") ? 1 : 0,
                         object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-                        object.getJsonObject("fail_info"), away, object.getJsonNode("ignores"), (object.has("order") && !object.getString("order").equals("undefined")) ? object.getInt("order") : 0, object.getString("server_realname"));
+                        object.getJsonObject("fail_info"), away, object.getJsonNode("ignores"), (object.has("order") && !object.getString("order").equals("undefined")) ? object.getInt("order") : 0, object.getString("server_realname"), object.getString("ircserver"));
 
                 NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"));
                 NotificationsList.getInstance().addNotificationGroup(server.getCid(), server.getName() != null && server.getName().length() > 0 ? server.getName() : server.getHostname());

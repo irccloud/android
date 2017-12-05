@@ -75,6 +75,9 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     private String mode;
 
     @Column
+    private String ircserver;
+
+    @Column
     public ObjectNode isupport = new ObjectMapper().createObjectNode();
 
     @Column
@@ -293,6 +296,14 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
         this.join_commands = join_commands;
     }
 
+    public String getIRCServer() {
+        return ircserver;
+    }
+
+    public void setIRCServer(String ircserver) {
+        this.ircserver = ircserver;
+    }
+
     public void updateUserModes(String modes) {
         if (modes != null && modes.length() > 0) {
             if(isupport != null && isupport.has("OWNER") && isupport.get("OWNER").asText().equals(modes.substring(0,1))) {
@@ -372,10 +383,25 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
 
     @Bindable
     public String getIcon() {
-        if(ssl > 0)
+        if(isSlack())
+            return FontAwesome.SLACK;
+        else if(ssl > 0)
             return FontAwesome.SHIELD;
         else
             return FontAwesome.GLOBE;
+    }
+
+    public Boolean isSlack() {
+        return (hostname != null && hostname.endsWith(".slack.com")) || (ircserver != null && ircserver.endsWith(".slack.com"));
+    }
+
+    public String getSlackBaseURL() {
+        String host = hostname;
+        if(host == null || !host.endsWith(".slack.com"))
+            host = ircserver;
+        if(host != null && host.endsWith(".slack.com"))
+            return "https://" + host;
+        return null;
     }
 
     /*@Override

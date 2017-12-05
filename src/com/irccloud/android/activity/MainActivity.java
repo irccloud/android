@@ -2365,10 +2365,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     subtitle.setText(server.getHostname() + ":" + server.getPort());
                     title.setContentDescription("Network " + server.getName());
                     subtitle.setContentDescription(".");
-                    if (server.getSsl() > 0)
-                        key.setText(FontAwesome.SHIELD);
-                    else
-                        key.setText(FontAwesome.GLOBE);
+                    key.setText(server.getIcon());
                     key.setVisibility(View.VISIBLE);
                 }
 
