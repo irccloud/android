@@ -22,7 +22,7 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:3.0.1'
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -60,8 +60,8 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 161
-        versionName "4.4"
+        versionCode 162
+        versionName "4.5"
         minSdkVersion 14
         targetSdkVersion 27
         applicationId "com.irccloud.android"
@@ -329,8 +329,8 @@ tasks.whenTaskAdded { task ->
 }
 
 ext {
-    supportLibVersion = '27.0.1'
-    playServicesVersion = '11.0.2'
+    supportLibVersion = '27.0.2'
+    playServicesVersion = '11.6.2'
     dbflowVersion = "4.0.5"
 }
 

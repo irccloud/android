@@ -895,9 +895,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
 
             View v = getLayoutInflater().inflate(R.layout.dialog_licenses, null);
             TextView tv = v.findViewById(R.id.licenses);
-            StringBuilder sb = new StringBuilder(getResources().getString(R.string.licenses));
-            sb.append(GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(PreferencesActivity.this));
-            tv.setText(sb.toString());
+            tv.setText(R.string.licenses);
             builder.setView(v);
             builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
                 @Override
