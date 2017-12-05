@@ -42,7 +42,7 @@ import com.irccloud.android.data.collection.ServersList;
 
 public class WhoisFragment extends DialogFragment {
     IRCCloudJSONObject event;
-    TextView extra, name, mask, server, time, timeTitle, channels, channelsTitle, opChannels, opTitle,
+    TextView extra, name, mask, serverTitle, server, time, timeTitle, channels, channelsTitle, opChannels, opTitle,
             operChannels, operTitle, ownerChannels, ownerTitle, adminChannels, adminTitle, halfopChannels, halfopTitle, voicedChannels, voicedTitle, awayTitle, away;
 
     @Override
@@ -57,6 +57,7 @@ public class WhoisFragment extends DialogFragment {
         extra = v.findViewById(R.id.extra);
         name = v.findViewById(R.id.name);
         mask = v.findViewById(R.id.mask);
+        serverTitle = v.findViewById(R.id.serverTitle);
         server = v.findViewById(R.id.server);
         timeTitle = v.findViewById(R.id.timeTitle);
         time = v.findViewById(R.id.time);
@@ -225,10 +226,15 @@ public class WhoisFragment extends DialogFragment {
             mask.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(event.getString("user_username"))) + "@" + ColorFormatter.irc_to_html(TextUtils.htmlEncode(event.getString("user_host")))));
             if (event.has("actual_host"))
                 mask.setText(mask.getText() + "/" + event.getString("actual_host"));
-            String s = event.getString("server_addr");
-            if (event.has("server_extra") && event.getString("server_extra").length() > 0)
-                s += " (" + event.getString("server_extra") + ")";
-            server.setText(s);
+            if(event.has("server_addr") && event.getString("server_addr") != null && event.getString("server_addr").length() > 0) {
+                String s = event.getString("server_addr");
+                if (event.has("server_extra") && event.getString("server_extra").length() > 0)
+                    s += " (" + event.getString("server_extra") + ")";
+                server.setText(s);
+            } else {
+                server.setVisibility(View.GONE);
+                serverTitle.setVisibility(View.GONE);
+            }
             if (event.has("signon_time")) {
                 String timetxt = format_duration((System.currentTimeMillis() / 1000L) - event.getLong("signon_time"));
                 if (event.has("idle_secs") && event.getLong("idle_secs") > 0)
