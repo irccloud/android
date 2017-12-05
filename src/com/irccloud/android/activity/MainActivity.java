@@ -1191,7 +1191,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 suggestionsAdapter.atMention = true;
                 text = text.substring(1);
             } else {
-                suggestionsAdapter.atMention = false;
+                suggestionsAdapter.atMention = server.isSlack();
             }
             text = text.toLowerCase();
             final ArrayList<String> sugs = new ArrayList<String>();
@@ -1391,7 +1391,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (text.lastIndexOf(' ') > 0) {
                 messageTxt.setTextWithEmoji(text.substring(0, text.lastIndexOf(' ') + 1) + nick);
             } else {
-                if (nick.startsWith("#") || text.startsWith(":"))
+                if (nick.startsWith("#") || text.startsWith(":") || server.isSlack())
                     messageTxt.setTextWithEmoji(nick);
                 else
                     messageTxt.setTextWithEmoji(nick + ":");
@@ -2012,7 +2012,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (text.lastIndexOf(' ') > 0) {
                     messageTxt.setTextWithEmoji(text.substring(0, text.lastIndexOf(' ') + 1) + nick + " ");
                 } else {
-                    if (nick.startsWith("#") || text.startsWith(":"))
+                    if (nick.startsWith("#") || text.startsWith(":") || server.isSlack())
                         messageTxt.setTextWithEmoji(nick + " ");
                     else
                         messageTxt.setTextWithEmoji(nick + ": ");
@@ -4368,8 +4368,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             drawerLayout.closeDrawers();
 
         if (messageTxt.getText().length() == 0) {
-            messageTxt.append(from + ": ");
+            if(server.isSlack())
+                messageTxt.append("@" + from + " ");
+            else
+                messageTxt.append(from + ": ");
         } else {
+            if(server.isSlack())
+                from = "@" + from;
             int oldPosition = messageTxt.getSelectionStart();
             if(oldPosition < 0)
                 oldPosition = 0;
