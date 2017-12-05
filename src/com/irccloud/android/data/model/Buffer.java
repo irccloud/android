@@ -20,7 +20,9 @@ import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 import android.os.Build;
 import android.support.text.emoji.EmojiCompat;
+import android.text.TextUtils;
 
+import com.irccloud.android.AlphanumComparator;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.FontAwesome;
 import com.irccloud.android.NetworkConnection;
@@ -34,6 +36,12 @@ import com.raizlabs.android.dbflow.annotation.Unique;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 /*@Table(databaseName = IRCCloudDatabase.NAME,
         uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})*/
@@ -121,11 +129,18 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
 
     private Type type_int;
 
+    private String displayName;
+
+    private boolean serverIsSlack;
+
     public String toString() {
         return "{cid:" + getCid() + ", bid:" + getBid() + ", name: " + getName() + ", type: " + getType() + ", archived: " + getArchived() + "}";
     }
 
     public String normalizedName() {
+        if(isMPDM())
+            return getDisplayName().toLowerCase();
+
         if (getChan_types() == null || getChan_types().length() < 2) {
             Server s = ServersList.getInstance().getServer(getCid());
             if (s != null && s.CHANTYPES != null && s.CHANTYPES.length() > 0)
@@ -186,13 +201,53 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public CharSequence getEmojiCompatName() {
         if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
-            return EmojiCompat.get().process(name);
+            return EmojiCompat.get().process(getDisplayName());
         else
-            return name;
+            return getDisplayName();
     }
 
     public void setName(String name) {
         this.name = name;
+        this.displayName = null;
+        if(this.bid != -1) {
+            BuffersList.getInstance().dirty = true;
+        }
+    }
+
+    public boolean isMPDM() {
+        if(!serverIsSlack)
+            return false;
+
+        return name.matches("#mpdm-(.*)-\\d");
+    }
+
+    @Bindable
+    public String getDisplayName() {
+        if(isMPDM()) {
+            if (displayName == null) {
+                String selfNick = getServer().getNick();
+                ArrayList<String> names = new ArrayList<String>(Arrays.asList(name.split("-")));
+                names.remove(0);
+                names.remove(names.size() - 1);
+                for(int i = 0; i < names.size(); i++) {
+                    String name = names.get(i);
+                    if(name == null || name.length() == 0 || name.equalsIgnoreCase(selfNick)) {
+                        names.remove(i);
+                        i--;
+                    }
+                }
+                Collator collator = Collator.getInstance();
+                collator.setStrength(Collator.SECONDARY);
+                Collections.sort(names, new AlphanumComparator(collator));
+                displayName = TextUtils.join(", ", names);
+            }
+            return displayName;
+        }
+        return name;
+    }
+
+    public void setServerIsSlack(boolean serverIsSlack) {
+        this.serverIsSlack = serverIsSlack;
         if(this.bid != -1) {
             BuffersList.getInstance().dirty = true;
         }
@@ -248,7 +303,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     }
 
     public boolean isConversation() {
-        return type_int == Type.CONVERSATION;
+        return type_int == Type.CONVERSATION || isMPDM();
     }
 
     @Bindable

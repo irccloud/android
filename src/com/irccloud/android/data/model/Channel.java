@@ -20,6 +20,7 @@ import android.databinding.BaseObservable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.IRCCloudDatabase;
+import com.irccloud.android.data.collection.BuffersList;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -116,5 +117,9 @@ public class Channel extends BaseObservable /*extends ObservableBaseModel*/ {
             }
         }
         return null;
+    }
+
+    public Buffer getBuffer() {
+        return BuffersList.getInstance().getBuffer(bid);
     }
 }

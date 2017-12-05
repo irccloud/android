@@ -148,6 +148,8 @@ public class BuffersList {
         b.setTimeout(timeout);
         b.setValid(1);
         b.setCreated(created);
+        if(b.getServer() != null)
+            b.setServerIsSlack(b.getServer().isSlack());
         if(EventsList.getInstance().lastEidForBuffer(bid) <= last_seen_eid) {
             b.setUnread(0);
             b.setHighlights(0);

@@ -391,7 +391,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
             return FontAwesome.GLOBE;
     }
 
-    public Boolean isSlack() {
+    public boolean isSlack() {
         return (hostname != null && hostname.endsWith(".slack.com")) || (ircserver != null && ircserver.endsWith(".slack.com"));
     }
 

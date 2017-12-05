@@ -759,7 +759,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         v.findViewById(R.id.actionTitleArea).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(buffer != null) {
+                if(buffer != null && !buffer.isMPDM()) {
                     Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                     if(c != null)
                         show_topic_popup(c);
@@ -1067,7 +1067,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             Server s = ServersList.getInstance().getServer(c.cid);
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             View v = getLayoutInflater().inflate(R.layout.dialog_topic, null);
-            String heading = "Topic for " + c.name;
+            String heading = "Topic for " + c.getBuffer().getDisplayName();
             if(s != null) {
                 heading += " (" + ((s.getName() != null && s.getName().length() > 0)? s.getName() : s.getHostname()) + ")";
             }
@@ -1089,7 +1089,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(s.isSlack()) {
                 v.findViewById(R.id.url_heading).setVisibility(View.VISIBLE);
                 v.findViewById(R.id.channel_url_card).setVisibility(View.VISIBLE);
-                String url = s.getSlackBaseURL() + "/messages/" + buffer.normalizedName() + "/details";
+                String url = s.getSlackBaseURL() + "/messages/" + c.getBuffer().normalizedName() + "/details";
                 ((TextView) v.findViewById(R.id.channel_url)).setText(Html.fromHtml("<a href='" + TextUtils.htmlEncode(url) + "'>" + TextUtils.htmlEncode(url) + "</a>"));
             } else {
                 if (c.url != null && c.url.length() > 0) {
@@ -2309,12 +2309,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
             } else {
-                if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
-                    title.setText(EmojiCompat.get().process(buffer.getName()));
-                else
-                    title.setText(buffer.getName());
+                title.setText(buffer.getEmojiCompatName());
                 if (progressBar.getVisibility() == View.GONE) {
-                    actionBar.setTitle(buffer.getName());
+                    actionBar.setTitle(buffer.getDisplayName());
                     actionBar.setSubtitle(null);
                 }
             }
@@ -2328,7 +2325,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     title.setContentDescription("Channel " + buffer.normalizedName());
                 }
             } else {
-                if (buffer.isConversation()) {
+                if (buffer.isConversation() && !buffer.isMPDM()) {
                     title.setContentDescription("Conversation with " + title.getText());
                     if (buffer.getAway_msg() != null && buffer.getAway_msg().length() > 0) {
                         subtitle.setVisibility(View.VISIBLE);
@@ -2351,8 +2348,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                     key.setVisibility(View.GONE);
-                } else if (buffer.isChannel()) {
-                    title.setContentDescription("Channel " + buffer.normalizedName() + ". Double-tap to view or edit the topic.");
+                } else if (buffer.isChannel() || buffer.isMPDM()) {
+                    if(buffer.isMPDM())
+                        title.setContentDescription("Conversation with " + title.getText());
+                    else
+                        title.setContentDescription("Channel " + buffer.normalizedName() + ". Double-tap to view or edit the topic.");
                     Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                     if (c != null && c.topic_text.length() > 0) {
                         subtitle.setVisibility(View.VISIBLE);
@@ -4298,9 +4298,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             input.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text))), false, null));
             prompt.setVisibility(View.GONE);
             if(server.isupport != null && server.isupport.has("TOPICLEN"))
-                builder.setTitle("Topic for " + c.name + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
+                builder.setTitle("Topic for " + c.getBuffer().getDisplayName() + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
             else
-                builder.setTitle("Topic for " + c.name);
+                builder.setTitle("Topic for " + c.getBuffer().getDisplayName());
             builder.setView(view);
             builder.setPositiveButton("Set Topic", new DialogInterface.OnClickListener() {
                 @Override
@@ -4330,9 +4330,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 @Override
                 public void afterTextChanged(Editable editable) {
                     if(server.isupport != null && server.isupport.has("TOPICLEN"))
-                        dialog.setTitle("Topic for " + c.name + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
+                        dialog.setTitle("Topic for " + c.getBuffer().getDisplayName() + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
                     else
-                        dialog.setTitle("Topic for " + c.name);
+                        dialog.setTitle("Topic for " + c.getBuffer().getDisplayName());
                 }
             });
             dialog.setOwnerActivity(this);
