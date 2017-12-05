@@ -1086,10 +1086,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 ((TextView) v.findViewById(R.id.topic)).setText("No topic set.");
             }
-            if (c.url != null && c.url.length() > 0) {
+            if(s.isSlack()) {
                 v.findViewById(R.id.url_heading).setVisibility(View.VISIBLE);
                 v.findViewById(R.id.channel_url_card).setVisibility(View.VISIBLE);
-                ((TextView) v.findViewById(R.id.channel_url)).setText(Html.fromHtml("<a href='" + TextUtils.htmlEncode(c.url) + "'>" + TextUtils.htmlEncode(c.url) + "</a>"));
+                String url = s.getSlackBaseURL() + "/messages/" + buffer.normalizedName() + "/details";
+                ((TextView) v.findViewById(R.id.channel_url)).setText(Html.fromHtml("<a href='" + TextUtils.htmlEncode(url) + "'>" + TextUtils.htmlEncode(url) + "</a>"));
+            } else {
+                if (c.url != null && c.url.length() > 0) {
+                    v.findViewById(R.id.url_heading).setVisibility(View.VISIBLE);
+                    v.findViewById(R.id.channel_url_card).setVisibility(View.VISIBLE);
+                    ((TextView) v.findViewById(R.id.channel_url)).setText(Html.fromHtml("<a href='" + TextUtils.htmlEncode(c.url) + "'>" + TextUtils.htmlEncode(c.url) + "</a>"));
+                }
             }
             if (c.mode != null && c.mode.length() > 0) {
                 v.findViewById(R.id.mode).setVisibility(View.VISIBLE);

@@ -133,7 +133,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
             else
                 setChan_types("#");
         }
-        return getName().replaceAll("^[" + getChan_types() + "]+", "");
+        return getName().toLowerCase().replaceAll("^[" + getChan_types() + "]+", "");
     }
 
 
@@ -532,6 +532,6 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
 
     @Bindable
     public int getSpamIconColor() {
-        return 0xFFff6e00;
+        return 0xffff6e00;
     }
 }
