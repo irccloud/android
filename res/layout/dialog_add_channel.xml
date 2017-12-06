@@ -44,6 +44,7 @@
     </LinearLayout>
 
     <android.support.design.widget.TextInputLayout
+        android:hint="Channels to join"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -53,8 +54,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:theme="?editTextTheme"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:hint="Channels to join" >
+        android:layout_marginTop="@dimen/activity_vertical_margin" >
 
         <requestFocus />
     </EditText>

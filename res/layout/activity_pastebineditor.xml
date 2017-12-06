@@ -48,13 +48,13 @@
             android:orientation="vertical" >
 
             <android.support.design.widget.TextInputLayout
+                android:hint="Text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/paste"
-                    android:hint="Text"
                     android:theme="?editTextTheme"
                     android:inputType="textMultiLine"><requestFocus/></EditText>
             </android.support.design.widget.TextInputLayout>
@@ -73,6 +73,7 @@
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/filename_heading"
+                android:hint="Filename (optional)"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -82,7 +83,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:lines="1"
-                    android:hint="Filename (optional)"
                     android:theme="?editTextTheme"
                     android:nextFocusDown="@+id/message"
                     android:inputType="textUri"/>
@@ -91,6 +91,7 @@
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/message_heading"
+                android:hint="Message (optional)"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -100,7 +101,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:lines="0"
-                    android:hint="Message (optional)"
                     android:theme="?editTextTheme"
                     android:nextFocusUp="@id/filename"
                     android:inputType="text" />
