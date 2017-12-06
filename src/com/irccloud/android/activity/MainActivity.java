@@ -1963,14 +1963,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         if (conn.getState() != NetworkConnection.STATE_CONNECTED) {
-            sendBtn.setEnabled(false);
             if(conn.config == null) {
                 photoBtn.setEnabled(false);
             }
         } else {
-            if (messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-                sendBtn.setEnabled(true);
-            }
             photoBtn.setEnabled(true);
         }
 
@@ -2039,7 +2035,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } catch (Exception e) {
             }
         }
-        sendBtn.setEnabled(messageTxt.getText().length() > 0);
 
         if (drawerLayout != null)
             drawerLayout.closeDrawers();
@@ -2077,6 +2072,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
             new GcmTask().execute((Void)null);
         }
+        sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
     }
 
     CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
@@ -3285,6 +3281,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             refreshUpIndicatorTask = new RefreshUpIndicatorTask();
                             refreshUpIndicatorTask.execute((Void) null);
                             photoBtn.setEnabled(true);
+                            sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
                         }
                     });
                     //TODO: prune and pop the back stack if the current BID has disappeared
@@ -5409,6 +5406,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             messageTxt.setCustomSelectionActionModeCallback(formattingCallback);
             findViewById(R.id.formatBtn).setVisibility(View.VISIBLE);
         }
+        sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
     }
 
     @Override
