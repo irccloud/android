@@ -518,7 +518,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public String getIcon() {
         if(isChannel()) {
             Channel c = ChannelsList.getInstance().getChannelForBuffer(bid);
-            if(c != null && (c.hasMode("k") || (serverIsSlack && c.hasMode("s"))))
+            if(c != null && (c.hasMode("k") || (serverIsSlack && !isMPDM() && c.hasMode("s"))))
                 return FontAwesome.LOCK;
         } else if(isSpam()) {
             return FontAwesome.EXCLAMATION_TRIANGLE;

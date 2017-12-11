@@ -2357,7 +2357,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     } else {
                         subtitle.setVisibility(View.GONE);
                     }
-                    if (c != null && (c.hasMode("k") || (server != null && server.isSlack() && c.hasMode("s")))) {
+                    if (c != null && (c.hasMode("k") || (server != null && server.isSlack() && !buffer.isMPDM() && c.hasMode("s")))) {
                         key.setText(FontAwesome.LOCK);
                         key.setVisibility(View.VISIBLE);
                     } else {
