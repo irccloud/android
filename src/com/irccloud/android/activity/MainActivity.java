@@ -1191,7 +1191,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 suggestionsAdapter.atMention = true;
                 text = text.substring(1);
             } else {
-                suggestionsAdapter.atMention = server.isSlack();
+                suggestionsAdapter.atMention = server != null && server.isSlack();
             }
             text = text.toLowerCase();
             final ArrayList<String> sugs = new ArrayList<String>();
