@@ -2201,7 +2201,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         } else if(properties.has("description")) {
             e.msg = properties.get("description").asText();
         }
-        e.html = e.msg = TextUtils.htmlEncode(e.msg);
+        if(e.msg != null)
+            e.html = e.msg = TextUtils.htmlEncode(e.msg);
         adapter.insertBelow(parent.eid, e);
         if(!backlog) {
             runOnUiThread(new Runnable() {
