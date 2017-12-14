@@ -1216,7 +1216,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 if(channels != null) {
                     for (Channel channel : channels) {
-                        if (text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !sugs_set.contains(channel.name)) {
+                        if (text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !sugs_set.contains(channel.name) && !channel.getBuffer().isMPDM()) {
                             sugs_set.add(channel.name);
                             sugs.add(channel.name);
                         }

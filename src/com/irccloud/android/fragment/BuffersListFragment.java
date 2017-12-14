@@ -523,9 +523,10 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             });
         } else {
             Crashlytics.log(Log.WARN, "IRCCloud", "BufferListFragment: Request to set BID but I don't have an adapter yet, refreshing");
-            RefreshTask t = new RefreshTask();
-            t.doInBackground((Void) null);
-            t.onPostExecute(null);
+            refreshTask = new RefreshTask();
+            refreshTask.doInBackground((Void) null);
+            if(!refreshTask.isCancelled())
+                refreshTask.onPostExecute(null);
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Done");
         }
     }
@@ -832,7 +833,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                                 if (refreshTask != null)
                                     refreshTask.cancel(true);
                                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Refreshing buffers list");
-                                RefreshTask refreshTask = new RefreshTask();
+                                refreshTask = new RefreshTask();
                                 refreshTask.doInBackground((Void) null);
                                 if(!refreshTask.isCancelled())
                                     refreshTask.onPostExecute(null);
