@@ -1067,7 +1067,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             Server s = ServersList.getInstance().getServer(c.cid);
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             View v = getLayoutInflater().inflate(R.layout.dialog_topic, null);
-            String heading = "Topic for " + c.getBuffer().getDisplayName();
+            String heading = "Topic for ";
+            if(c.getBuffer() != null) {
+                heading += c.getBuffer().getDisplayName();
+            } else {
+                heading += c.name;
+            }
             if(s != null) {
                 heading += " (" + ((s.getName() != null && s.getName().length() > 0)? s.getName() : s.getHostname()) + ")";
             }
@@ -1086,7 +1091,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 ((TextView) v.findViewById(R.id.topic)).setText("No topic set.");
             }
-            if(s.isSlack()) {
+            if(s != null && s.isSlack()) {
                 v.findViewById(R.id.url_heading).setVisibility(View.VISIBLE);
                 v.findViewById(R.id.channel_url_card).setVisibility(View.VISIBLE);
                 String url = s.getSlackBaseURL() + "/messages/" + c.getBuffer().normalizedName() + "/details";
@@ -3281,7 +3286,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             refreshUpIndicatorTask = new RefreshUpIndicatorTask();
                             refreshUpIndicatorTask.execute((Void) null);
                             photoBtn.setEnabled(true);
-                            sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
+                            if(conn != null)
+                                sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
                         }
                     });
                     //TODO: prune and pop the back stack if the current BID has disappeared
@@ -5406,7 +5412,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             messageTxt.setCustomSelectionActionModeCallback(formattingCallback);
             findViewById(R.id.formatBtn).setVisibility(View.VISIBLE);
         }
-        sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
+        if(sendBtn != null && conn != null && messageTxt != null)
+            sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
     }
 
     @Override
