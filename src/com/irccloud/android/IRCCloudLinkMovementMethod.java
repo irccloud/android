@@ -66,32 +66,7 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
                 if (action == MotionEvent.ACTION_UP) {
                     Uri uri = Uri.parse(link[0].getURL());
                     Context context = widget.getContext();
-                    if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 && uri.getScheme().startsWith("http") && CustomTabsHelper.getPackageNameToUse(context) != null) {
-                        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-                        builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
-                        builder.addDefaultShareMenuItem();
-                        builder.addMenuItem("Copy URL", PendingIntent.getBroadcast(context, 0, new Intent(context, ChromeCopyLinkBroadcastReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT));
-                        CustomTabsIntent intent = builder.build();
-                        intent.intent.setData(uri);
-                        if(Build.VERSION.SDK_INT >= 22)
-                            intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
-                        if (Build.VERSION.SDK_INT >= 16 && intent.startAnimationBundle != null) {
-                            context.startActivity(intent.intent, intent.startAnimationBundle);
-                        } else {
-                            context.startActivity(intent.intent);
-                        }
-                    } else {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
-                        if(Build.VERSION.SDK_INT >= 22)
-                            intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
-                        try {
-                            context.startActivity(intent);
-                        } catch (ActivityNotFoundException e) {
-                            Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                    launchURI(uri, context);
                 } else {
                     Selection.setSelection(buffer, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]));
                 }
@@ -101,5 +76,34 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             }
         }
         return false;
+    }
+
+    public static void launchURI(Uri uri, Context context) {
+        if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 && uri.getScheme().startsWith("http") && CustomTabsHelper.getPackageNameToUse(context) != null) {
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+            builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
+            builder.addDefaultShareMenuItem();
+            builder.addMenuItem("Copy URL", PendingIntent.getBroadcast(context, 0, new Intent(context, ChromeCopyLinkBroadcastReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT));
+            CustomTabsIntent intent = builder.build();
+            intent.intent.setData(uri);
+            if(Build.VERSION.SDK_INT >= 22)
+                intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
+            if (Build.VERSION.SDK_INT >= 16 && intent.startAnimationBundle != null) {
+                context.startActivity(intent.intent, intent.startAnimationBundle);
+            } else {
+                context.startActivity(intent.intent);
+            }
+        } else {
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+            if(Build.VERSION.SDK_INT >= 22)
+                intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
+            try {
+                context.startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

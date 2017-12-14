@@ -2297,23 +2297,24 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 }
                                             } else if (e.row_type == ROW_THUMBNAIL) {
                                                 try {
-                                                    Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
+                                                    String uri;
                                                     if(e.entities.has("id"))
-                                                        intent.setData(Uri.parse(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", e.entities.get("id").asText()).expand()));
+                                                        uri = UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", e.entities.get("id").asText()).set("name", e.entities.get("name").asText()).expand();
                                                     else
-                                                        intent.setData(Uri.parse(e.entities.get("url").asText()));
-                                                    startActivity(intent);
+                                                        uri = e.entities.get("url").asText();
+                                                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
+                                                        if (uri.toLowerCase().startsWith("http://"))
+                                                            uri = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + uri.substring(7);
+                                                        else if (uri.toLowerCase().startsWith("https://"))
+                                                            uri = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + uri.substring(8);
+                                                    }
+                                                    IRCCloudLinkMovementMethod.launchURI(Uri.parse(uri), getActivity());
                                                 } catch (Exception ex) {
                                                     ex.printStackTrace();
                                                 }
                                             } else if (e.row_type == ROW_FILE) {
                                                 try {
-                                                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", e.entities.get("id").asText()).expand()));
-                                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                    intent.putExtra(Browser.EXTRA_APPLICATION_ID, getActivity().getPackageName());
-                                                    if (Build.VERSION.SDK_INT >= 22)
-                                                        intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getActivity().getPackageName()));
-                                                    startActivity(intent);
+                                                    IRCCloudLinkMovementMethod.launchURI(Uri.parse(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", e.entities.get("id").asText()).set("name", e.entities.get("name").asText()).expand()), getActivity());
                                                 } catch (ActivityNotFoundException ex) {
                                                     Toast.makeText(getActivity(), "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
                                                 } catch (Exception ex) {
