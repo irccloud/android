@@ -132,6 +132,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     private String displayName;
 
     private boolean serverIsSlack;
+    private int isMPDM = -1;
 
     public String toString() {
         return "{cid:" + getCid() + ", bid:" + getBid() + ", name: " + getName() + ", type: " + getType() + ", archived: " + getArchived() + "}";
@@ -209,16 +210,17 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public void setName(String name) {
         this.name = name;
         this.displayName = null;
+        this.isMPDM = -1;
         if(this.bid != -1) {
             BuffersList.getInstance().dirty = true;
         }
     }
 
     public boolean isMPDM() {
-        if(!serverIsSlack)
-            return false;
-
-        return name.matches("#mpdm-(.*)-\\d");
+        if(isMPDM == -1) {
+            isMPDM = (serverIsSlack && name.matches("#mpdm-(.*)-\\d")) ? 1 : 0;
+        }
+        return isMPDM == 1;
     }
 
     @Bindable

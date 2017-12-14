@@ -115,6 +115,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     private String join_commands;
     public Ignore ignores = new Ignore();
     public int deferred_archives;
+    private int isSlack = -1;
 
     @Override
     public int compareTo(Server another) {
@@ -155,6 +156,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
 
     public void setHostname(String hostname) {
         this.hostname = hostname;
+        isSlack = -1;
     }
 
     public int getPort() {
@@ -302,6 +304,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
 
     public void setIRCServer(String ircserver) {
         this.ircserver = ircserver;
+        isSlack = -1;
     }
 
     public void updateUserModes(String modes) {
@@ -392,7 +395,9 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     }
 
     public boolean isSlack() {
-        return (hostname != null && hostname.endsWith(".slack.com")) || (ircserver != null && ircserver.endsWith(".slack.com"));
+        if(isSlack == -1)
+            isSlack = (hostname != null && hostname.endsWith(".slack.com")) || (ircserver != null && ircserver.endsWith(".slack.com")) ? 1 : 0;
+        return isSlack == 1;
     }
 
     public String getSlackBaseURL() {

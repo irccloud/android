@@ -48,9 +48,9 @@ public class BuffersList {
             c = ChannelsList.getInstance().getChannelForBuffer(b2.getBid());
             if (c == null)
                 joined2 = 0;
-            if ((b1.isConversation() || b1.isMPDM()) && b2.isChannel()) {
+            if ((b1.isConversation() || b1.isMPDM()) && (b2.isChannel() && !b2.isMPDM())) {
                 return 1;
-            } else if (b1.isChannel() && (b2.isConversation() || b2.isMPDM())) {
+            } else if ((b1.isChannel() && !b1.isMPDM()) && (b2.isConversation() || b2.isMPDM())) {
                 return -1;
             } else if (joined1 != joined2) {
                 return joined2 - joined1;
