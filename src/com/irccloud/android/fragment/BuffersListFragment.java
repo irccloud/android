@@ -663,7 +663,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             }
             refreshTask = new RefreshTask();
             refreshTask.doInBackground((Void) null);
-            refreshTask.onPostExecute(null);
+            if(!refreshTask.isCancelled())
+                refreshTask.onPostExecute(null);
             if (savedInstanceState != null && savedInstanceState.containsKey("scrollPosition"))
                 recyclerView.scrollToPosition(savedInstanceState.getInt("scrollPosition"));
         }
@@ -831,9 +832,10 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                                 if (refreshTask != null)
                                     refreshTask.cancel(true);
                                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Refreshing buffers list");
-                                RefreshTask t = new RefreshTask();
-                                t.doInBackground((Void) null);
-                                t.onPostExecute(null);
+                                RefreshTask refreshTask = new RefreshTask();
+                                refreshTask.doInBackground((Void) null);
+                                if(!refreshTask.isCancelled())
+                                    refreshTask.onPostExecute(null);
                                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Done");
                             }
                         });

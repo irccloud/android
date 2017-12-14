@@ -303,7 +303,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     }
 
     public boolean isConversation() {
-        return type_int == Type.CONVERSATION || isMPDM();
+        return type_int == Type.CONVERSATION;
     }
 
     @Bindable
