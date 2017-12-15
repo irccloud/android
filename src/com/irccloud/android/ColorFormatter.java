@@ -2576,7 +2576,7 @@ public class ColorFormatter {
                                         col /= 10;
                                     }
                                     if (col == 99)
-                                        new_fg = "clear";
+                                        new_fg = "";
                                     else
                                         new_fg = COLOR_MAP[col];
                                 } catch (NumberFormatException e) {
@@ -2608,7 +2608,7 @@ public class ColorFormatter {
                                             col /= 10;
                                         }
                                         if (col == 99)
-                                            new_bg = "clear";
+                                            new_bg = "";
                                         else
                                             new_bg = COLOR_MAP[col];
                                     } catch (NumberFormatException e) {
