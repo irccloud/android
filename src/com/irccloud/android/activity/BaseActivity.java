@@ -480,7 +480,10 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             showAlert(o.cid(), o.getString("server") + ": " + o.getString("msg"));
                             break;
                         case "unknown_command":
-                            showAlert(o.cid(), "Unknown command: " + o.getString("command"));
+                            if(o.has("msg") && o.getString("msg").length() > 0)
+                                showAlert(o.cid(), o.getString("msg") + ": " + o.getString("command"));
+                            else
+                                showAlert(o.cid(), "Unknown command: " + o.getString("command"));
                             break;
                         case "help_not_found":
                             showAlert(o.cid(), o.getString("topic") + ": " + o.getString("msg"));
