@@ -1629,6 +1629,32 @@ public class NetworkConnection {
         }
     }
 
+    public int renameChannel(String name, int cid, long bid, IRCResultCallback callback) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("cid", cid);
+            o.put("id", bid);
+            o.put("name", name);
+            return send("rename-channel", o, callback);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
+    public int renameConversation(String name, int cid, long bid, IRCResultCallback callback) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("cid", cid);
+            o.put("id", bid);
+            o.put("name", name);
+            return send("rename-conversation", o, callback);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
     public int deleteBuffer(int cid, long bid, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
@@ -2474,6 +2500,20 @@ public class NetworkConnection {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null)
                     b.setName(object.getString("new_name"));
+                if (!backlog) {
+                    notifyHandlers(EVENT_RENAMECONVERSATION, object.bid());
+                }
+            }
+        });
+        put("rename_channel", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                Buffer b = mBuffers.getBuffer(object.bid());
+                if(b != null)
+                    b.setName(object.getString("new_name"));
+                Channel c = mChannels.getChannelForBuffer(object.bid());
+                if(c != null)
+                    c.name = object.getString("new_name");
                 if (!backlog) {
                     notifyHandlers(EVENT_RENAMECONVERSATION, object.bid());
                 }

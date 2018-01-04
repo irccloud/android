@@ -3538,6 +3538,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         menu.findItem(R.id.menu_ban_list).setVisible(false);
                         menu.findItem(R.id.menu_ban_list).setEnabled(false);
                     }
+                    if (menu.findItem(R.id.menu_rename) != null) {
+                        menu.findItem(R.id.menu_rename).setVisible(true);
+                        menu.findItem(R.id.menu_rename).setEnabled(true);
+                    }
                 } else {
                     if (menu.findItem(R.id.menu_leave) != null) {
                         menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
@@ -3550,6 +3554,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if (menu.findItem(R.id.menu_ban_list) != null) {
                         menu.findItem(R.id.menu_ban_list).setVisible(true);
                         menu.findItem(R.id.menu_ban_list).setEnabled(true);
+                    }
+                    if (menu.findItem(R.id.menu_rename) != null) {
+                        menu.findItem(R.id.menu_rename).setVisible(false);
+                        menu.findItem(R.id.menu_rename).setEnabled(false);
                     }
                     if (menu.findItem(R.id.menu_userlist) != null && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
                         boolean hide = true;
@@ -3575,6 +3583,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     menu.findItem(R.id.menu_archive).setVisible(false);
                     menu.findItem(R.id.menu_archive).setEnabled(false);
                 }
+                if (menu.findItem(R.id.menu_rename) != null) {
+                    menu.findItem(R.id.menu_rename).setVisible(false);
+                    menu.findItem(R.id.menu_rename).setEnabled(false);
+                }
                 if (server != null && server.getStatus() != null && (server.getStatus().equalsIgnoreCase("waiting_to_retry") || server.getStatus().equalsIgnoreCase("queued") || (server.getStatus().contains("connected") && !server.getStatus().startsWith("dis")))) {
                     if (menu.findItem(R.id.menu_disconnect) != null)
                         menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
@@ -3589,6 +3601,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         menu.findItem(R.id.menu_delete).setVisible(true);
                         menu.findItem(R.id.menu_delete).setEnabled(true);
                     }
+                }
+            } else {
+                if (menu.findItem(R.id.menu_rename) != null) {
+                    menu.findItem(R.id.menu_rename).setVisible(true);
+                    menu.findItem(R.id.menu_rename).setEnabled(true);
                 }
             }
         }
@@ -4109,6 +4126,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 else
                     NetworkConnection.getInstance().unarchiveBuffer(buffer.getCid(), buffer.getBid(), null);
                 return true;
+            case R.id.menu_rename:
+                renameBuffer(buffer, null);
+                break;
             case R.id.menu_delete:
                 builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -4288,6 +4308,74 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    void renameBuffer(final Buffer b, String msg) {
+        if(b != null) {
+            if(msg == null) {
+                msg = "Choose a new name for this " + b.getType();
+            } else {
+                switch(msg) {
+                    case "invalid_name":
+                        msg = "You must choose a valid " + (b.isChannel() ? "channel" : "nick") + " name";
+                        break;
+                    case "not_conversation":
+                        msg = "You can only rename private messages";
+                        break;
+                    case "not_channel":
+                        msg = "You can only rename channels";
+                        break;
+                    case "name_exists":
+                        msg = "That name is already taken";
+                        break;
+                    case "channel_joined":
+                        msg = "You can only rename parted channels";
+                        break;
+                }
+                msg = "Error renaming: " + msg + ".  Please choose a new name for this " + b.getType();
+            }
+            View view = getDialogTextPrompt();
+            TextView prompt = view.findViewById(R.id.prompt);
+            final EditText input = view.findViewById(R.id.textInput);
+            input.setText(b.getName());
+            prompt.setText(msg);
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle(b.getServer().getName() + " (" + b.getServer().getHostname() + ":" + (b.getServer().getPort()) + ")");
+            builder.setView(view);
+            builder.setPositiveButton("Rename", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    NetworkConnection.IRCResultCallback c = new NetworkConnection.IRCResultCallback() {
+                        @Override
+                        public void onIRCResult(final IRCCloudJSONObject result) {
+                            if (result.has("success") && !result.getBoolean("success")) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        renameBuffer(b, result.getString("message"));
+                                    }
+                                });
+                            }
+                        }
+                    };
+
+                    if(b.isChannel())
+                        conn.renameChannel(input.getText().toString(), b.getCid(), b.getBid(), c);
+                    else
+                        conn.renameConversation(input.getText().toString(), b.getCid(), b.getBid(), c);
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.setOwnerActivity(MainActivity.this);
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            dialog.show();
+        }
     }
 
     void editTopic(final Channel c) {
@@ -4479,6 +4567,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         itemList.add("Archive");
                     else
                         itemList.add("Unarchive");
+                    itemList.add("Rename");
                     itemList.add("Delete");
                 }
                 if (!b.isChannel()) {
@@ -4522,6 +4611,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     conn.archiveBuffer(b.getCid(), b.getBid(), null);
                 } else if (items[item].equals("Unarchive")) {
                     conn.unarchiveBuffer(b.getCid(), b.getBid(), null);
+                } else if (items[item].equals("Rename")) {
+                    renameBuffer(b, null);
                 } else if (items[item].equals("Connect")) {
                     conn.reconnect(b.getCid(), null);
                 } else if (items[item].equals("Disconnect")) {
