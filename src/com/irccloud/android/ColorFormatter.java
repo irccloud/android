@@ -1835,7 +1835,13 @@ public class ColorFormatter {
         put("secret", "\u3299\uFE0F");
 
         //IRCCloud aliases
+        put("like", get("+1"));
         put("doge", get("dog"));
+        put("aubergine", get("eggplant"));
+        put("gust_of_wind", get("dash"));
+        put("party_popper", get("tada"));
+        put("shock", get("scream"));
+        put("atom", get("atom_symbol"));
         put("<3", get("heart"));
         put("</3", get("broken_heart"));
         put(")", get("smiley"));
@@ -1843,11 +1849,37 @@ public class ColorFormatter {
         put("-)", get("disappointed"));
         put("(", get("cry"));
         put("_(", get("sob"));
+        put("loudly_crying_face", get("sob"));
+        put("sad_tears", get("sob"));
+        put("bawl", get("sob"));
         put(";)", get("wink"));
         put(";p", get("stuck_out_tongue_winking_eye"));
-        put("like", get("+1"));
         put("simple_smile", ":)");
         put("slightly_smiling_face", ":)");
+        put("ufo", get("flying_saucer"));
+        put("throwing_up", get("face_with_open_mouth_vomiting"));
+        put("being_sick", get("face_with_open_mouth_vomiting"));
+        put("sh", get("face_with_finger_covering_closed_lips"));
+        put("oops", get("smiling_face_with_smiling_eyes_and_hand_covering_mouth"));
+        put("female_wizard", get("female_mage"));
+        put("male_wizard", get("male_mage"));
+        put("brontosaurus", get("sauropod"));
+        put("diplodocus", get("sauropod"));
+        put("tyrannosaurus", get("t-rex"));
+        put("steak", get("cut_of_meat"));
+        put("soup_tin", get("canned_food"));
+        put("baseball_cap", get("billed_cap"));
+        put("female_yoga", get("woman_in_lotus_position"));
+        put("male_yoga", get("man_in_lotus_position"));
+        put("female_sauna", get("woman_in_steamy_room"));
+        put("male_sauna", get("man_in_steamy_room"));
+        put("hijab", get("person_with_headscarf"));
+        put("crazy_face", get("grinning_face_with_one_large_and_one_small_eye"));
+        put("diamond", get("gem"));
+        put("ladybird", get("beetle"));
+        put("ladybug", get("beetle"));
+        put("ladybeetle", get("beetle"));
+        put("coccinellid", get("beetle"));
     }};
 
     public static Pattern EMOJI = null;
