@@ -281,7 +281,7 @@ public class Event /*extends ObservableBaseModel*/ {
             cachedAvatarURL = null;
             if (avatar != null && avatar.length() > 0) {
                 if(NetworkConnection.avatar_uri_template != null)
-                    cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_uri_template).set("modifiers","w"+size).expand();
+                    cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_uri_template).set("id", avatar).set("modifiers","w"+size).expand();
             } else if (avatar_url != null && avatar_url.length() > 0 && avatar_url.startsWith("https://")) {
                 cachedAvatarURL = avatar_url;
                 if(cachedAvatarURL.contains("{size}")) {

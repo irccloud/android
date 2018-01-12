@@ -2268,6 +2268,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         e.hostmask = parent.hostmask;
         e.parent_eid = parent.eid;
         e.reqid = parent.reqid;
+        e.avatar = parent.avatar;
+        e.avatar_url = parent.avatar_url;
         e.linkify = true;
 
         if(properties.get("mime_type").asText().startsWith("image/"))
