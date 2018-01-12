@@ -330,8 +330,8 @@ tasks.whenTaskAdded { task ->
 
 ext {
     supportLibVersion = '27.0.2'
-    playServicesVersion = '11.6.2'
-    dbflowVersion = "4.0.5"
+    playServicesVersion = '11.8.0'
+    dbflowVersion = "4.2.4"
 }
 
 dependencies {
