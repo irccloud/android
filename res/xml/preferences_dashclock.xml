@@ -17,7 +17,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="DashClock Extension">
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="dashclock_showmsgs"
             android:defaultValue="false"
             android:summaryOn="Message content will be displayed in DashClock"

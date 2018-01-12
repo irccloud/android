@@ -31,7 +31,7 @@
 		<Preference
 			android:key="notify_ringtone" android:title="Notification ringtone"
 			android:summary="Choose an alert ringtone"/>
-	    <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+	    <SwitchPreference
 			android:key="notify_vibrate"
 			android:defaultValue="true"
 			android:summaryOn="Your device will vibrate\n(if available)"
@@ -42,20 +42,20 @@
 			android:key="notify_led_color"
 			android:defaultValue="1"
 			android:title="LED"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="notify_quickreply"
 			android:defaultValue="true"
 			android:summary="Quickly reply to messages from the notification tray"
 			android:title="Quick Reply"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="notifications_all"
 			android:defaultValue="false"
 			android:title="Notify on all channel messages"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="disableTrackUnread"
 			android:defaultValue="true"
 			android:title="Show unread message indicators"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="enableReadOnSelect"
 			android:defaultValue="false"
 			android:title="Mark as read automatically"/>

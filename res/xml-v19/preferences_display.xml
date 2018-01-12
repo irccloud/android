@@ -24,11 +24,11 @@
             android:title="Theme"
             android:key="theme"
             />
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="monospace"
             android:defaultValue="false"
             android:title="Monospace Font"/>
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="preferSystemEmoji"
             android:defaultValue="true"
             android:title="Prefer Android Emoji Font"/>

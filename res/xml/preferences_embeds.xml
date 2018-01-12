@@ -20,42 +20,42 @@
     xmlns:robobunny="http://robobunny.com">
 
 	<PreferenceCategory android:title="Chat &amp; Embeds" android:key="embeds">
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="hideJoinPart"
             android:defaultValue="true"
             android:title="Show nick changes, joins, parts"/>
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="expandJoinPart"
             android:defaultValue="true"
             android:dependency="hideJoinPart"
             android:title="Collapse nick changes, joins, parts"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="files-disableinline"
 			android:defaultValue="true"
 			android:summary="Not including 3rd party images"
 			android:title="Embed uploaded files"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="inlineimages"
 			android:defaultValue="false"
 			android:summary="May result in your IP address being revealed to external site operators"
 			android:title="Embed 3rd party images"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="files-usemobiledata"
 			android:defaultValue="false"
 			android:summaryOn="Thumbnails will be downloaded while connected to mobile data"
 			android:summaryOff="Thumbnails will only be downloaded while connected to Wi-Fi"
 			android:title="Download thumbnails over mobile data"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="chat-nocodespan"
 			android:defaultValue="false"
 			android:title="Format inline code"
 			android:summary="`print('hello world')`"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="chat-nocodeblock"
 			android:defaultValue="false"
 			android:title="Format code blocks"
 			android:summary="```multiline text snippet```"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="chat-noquote"
 			android:defaultValue="false"
 			android:title="Format quoted text"

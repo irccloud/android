@@ -24,7 +24,7 @@
             android:title="Theme"
             android:key="theme"
             />
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="monospace"
             android:defaultValue="false"
             android:title="Monospace Font"/>

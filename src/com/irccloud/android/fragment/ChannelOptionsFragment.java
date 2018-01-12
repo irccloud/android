@@ -17,26 +17,20 @@
 package com.irccloud.android.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
-import com.cgollner.unclouded.preferences.SwitchPreferenceCompat;
 import com.crashlytics.android.Crashlytics;
-import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.activity.PreferencesActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;

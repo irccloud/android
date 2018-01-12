@@ -19,49 +19,49 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<PreferenceCategory android:title="Device" android:key="device">
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="screenlock"
 			android:defaultValue="false"
 		    android:summaryOn="Your display will remain on while IRCCloud is visible"
 		    android:summaryOff="Your display will turn off as normal"
 			android:title="Prevent display sleep"/>
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="kb_caps"
             android:defaultValue="true"
             android:summaryOn="Messages will automatically start with a capital letter"
             android:summaryOff="Messages will not automatically start with a capital letter"
             android:title="Auto-capitalize messages"/>
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="imageviewer"
             android:defaultValue="true"
             android:summaryOn="Image URLs will open in IRCCloud"
             android:summaryOff="Image URLs will open in your browser"
             android:title="Image viewer"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="videoviewer"
 			android:defaultValue="true"
 			android:summaryOn="Video URLs will open in IRCCloud"
 			android:summaryOff="Video URLs will open in your browser"
 			android:title="Video player" />
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="browser"
 			android:defaultValue="false"
 			android:summaryOff="URLs will open in IRCCloud"
 			android:summaryOn="URLs will open in your browser"
 			android:title="Open URLs in browser" />
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="pastebin-disableprompt"
 			android:defaultValue="true"
 			android:summaryOn="Prompt before sending multi-line messages"
 			android:summaryOff="Always send multi-line messages as text"
 			android:title="Ask to send text snippets"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="enableAutoSuggest"
 			android:defaultValue="true"
 			android:summaryOn="Nicknames will be suggested automatically as you type"
 			android:summaryOff="Nicknames will not be suggested automatically as you type"
 			android:title="Suggest nicknames as you type"/>
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="tabletMode"
             android:defaultValue="true"
             android:summaryOn="Channels list will be displayed as a sidebar"

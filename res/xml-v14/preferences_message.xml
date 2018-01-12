@@ -20,57 +20,57 @@
     xmlns:robobunny="http://robobunny.com">
 
 	<PreferenceCategory android:title="Message Layout">
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="time-24hr"
 			android:defaultValue="false"
 			android:title="24-hour clock"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="time-seconds"
 			android:defaultValue="false"
 			android:title="Show seconds"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="chat-oneline"
 			android:defaultValue="true"
 			android:title="Nicknames on a separate line"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="ascii-compact"
 			android:defaultValue="false"
 			android:title="Compact spacing"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="chat-norealname"
 			android:defaultValue="true"
 			android:dependency="chat-oneline"
 			android:title="Show real names"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="time-left"
 			android:defaultValue="true"
 			android:title="Right hand side timestamps"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="avatars-off"
 			android:defaultValue="true"
 			android:title="User icons"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="avatar-images"
 			android:defaultValue="true"
 			android:dependency="avatars-off"
 			android:title="Avatar Images"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="mode-showsymbol"
 			android:defaultValue="false"
 			android:summary="\@, +, etc." android:title="Show usermode symbols"/>
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="emoji-disableconvert"
             android:defaultValue="true"
             android:title="Convert :emocodes: to emoji"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="emoji-nobig"
 			android:defaultValue="true"
 			android:title="Enlarge emoji-only messages"/>
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="nick-colors"
             android:defaultValue="false"
             android:title="Colourise nicknames"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="reset-after-send"
 			android:defaultValue="true"
 			android:summaryOn="Colors and formatting will be reset after sending a message"

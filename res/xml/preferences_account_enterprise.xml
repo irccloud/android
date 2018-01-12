@@ -25,7 +25,7 @@
 		<com.irccloud.android.AppCompatEditTextPreference
 			android:key="highlights"
 			android:title="Highlight words"/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+		<SwitchPreference
 			android:key="autoaway"
 			android:defaultValue="true"
 			android:summary="Set your away status when you leave the app" android:title="Auto-away"/>

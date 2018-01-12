@@ -17,13 +17,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="Debugging">
-        <!--<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <!--<SwitchPreference
             android:key="background_sync"
             android:defaultValue="true"
             android:summaryOn="Messages will periodically be downloaded while the app is in the background"
             android:summaryOff="Messages will not be downloaded in the background"
             android:title="Background Sync" />
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <SwitchPreference
             android:key="enable_cache"
             android:defaultValue="true"
             android:summaryOn="Backlog will be cached for offline viewing"

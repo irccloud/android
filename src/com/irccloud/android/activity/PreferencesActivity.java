@@ -36,12 +36,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
@@ -66,7 +66,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cgollner.unclouded.preferences.SwitchPreferenceCompat;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
@@ -500,8 +499,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             if(findPreference("theme") != null)
                 findPreference("theme").setSummary(ColorScheme.getUserTheme());
             if(findPreference("chat-oneline") != null) {
-                if(((SwitchPreferenceCompat) findPreference("chat-oneline")).isChecked()) {
-                    if(((SwitchPreferenceCompat) findPreference("avatars-off")).isChecked()) {
+                if(((SwitchPreference) findPreference("chat-oneline")).isChecked()) {
+                    if(((SwitchPreference) findPreference("avatars-off")).isChecked()) {
                         findPreference("time-left").setEnabled(false);
                     } else {
                         findPreference("time-left").setEnabled(true);
@@ -544,21 +543,21 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                             }
                             ((AppCompatEditTextPreference) findPreference("highlights")).setText(userInfo.highlights);
                             findPreference("highlights").setSummary(userInfo.highlights);
-                            ((CheckBoxPreference) findPreference("autoaway")).setChecked(userInfo.auto_away);
+                            ((SwitchPreference) findPreference("autoaway")).setChecked(userInfo.auto_away);
                             if (prefs != null) {
                                 try {
-                                    ((SwitchPreferenceCompat) findPreference("time-24hr")).setChecked(prefs.has("time-24hr") && prefs.get("time-24hr").getClass().equals(Boolean.class) && prefs.getBoolean("time-24hr"));
-                                    ((SwitchPreferenceCompat) findPreference("time-seconds")).setChecked(prefs.has("time-seconds") && prefs.get("time-seconds").getClass().equals(Boolean.class) && prefs.getBoolean("time-seconds"));
-                                    ((SwitchPreferenceCompat) findPreference("mode-showsymbol")).setChecked(prefs.has("mode-showsymbol") && prefs.get("mode-showsymbol").getClass().equals(Boolean.class) && prefs.getBoolean("mode-showsymbol"));
-                                    ((SwitchPreferenceCompat) findPreference("pastebin-disableprompt")).setChecked(!(prefs.has("pastebin-disableprompt") && prefs.get("pastebin-disableprompt").getClass().equals(Boolean.class) && prefs.getBoolean("pastebin-disableprompt")));
+                                    ((SwitchPreference) findPreference("time-24hr")).setChecked(prefs.has("time-24hr") && prefs.get("time-24hr").getClass().equals(Boolean.class) && prefs.getBoolean("time-24hr"));
+                                    ((SwitchPreference) findPreference("time-seconds")).setChecked(prefs.has("time-seconds") && prefs.get("time-seconds").getClass().equals(Boolean.class) && prefs.getBoolean("time-seconds"));
+                                    ((SwitchPreference) findPreference("mode-showsymbol")).setChecked(prefs.has("mode-showsymbol") && prefs.get("mode-showsymbol").getClass().equals(Boolean.class) && prefs.getBoolean("mode-showsymbol"));
+                                    ((SwitchPreference) findPreference("pastebin-disableprompt")).setChecked(!(prefs.has("pastebin-disableprompt") && prefs.get("pastebin-disableprompt").getClass().equals(Boolean.class) && prefs.getBoolean("pastebin-disableprompt")));
                                     if (findPreference("emoji-disableconvert") != null) {
-                                        ((SwitchPreferenceCompat) findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert") && prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-disableconvert")));
-                                        ((SwitchPreferenceCompat) findPreference("emoji-nobig")).setChecked(!(prefs.has("emoji-nobig") && prefs.get("emoji-nobig").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-nobig")));
+                                        ((SwitchPreference) findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert") && prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-disableconvert")));
+                                        ((SwitchPreference) findPreference("emoji-nobig")).setChecked(!(prefs.has("emoji-nobig") && prefs.get("emoji-nobig").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-nobig")));
                                     }
-                                    ((SwitchPreferenceCompat) findPreference("hideJoinPart")).setChecked(!(prefs.has("hideJoinPart") && prefs.get("hideJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("hideJoinPart")));
-                                    ((SwitchPreferenceCompat) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
-                                    ((SwitchPreferenceCompat) findPreference("files-disableinline")).setChecked(!(prefs.has("files-disableinline") && prefs.get("files-disableinline").getClass().equals(Boolean.class) && prefs.getBoolean("files-disableinline")));
-                                    ((SwitchPreferenceCompat) findPreference("inlineimages")).setChecked((prefs.has("inlineimages") && prefs.get("inlineimages").getClass().equals(Boolean.class) && prefs.getBoolean("inlineimages")));
+                                    ((SwitchPreference) findPreference("hideJoinPart")).setChecked(!(prefs.has("hideJoinPart") && prefs.get("hideJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("hideJoinPart")));
+                                    ((SwitchPreference) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
+                                    ((SwitchPreference) findPreference("files-disableinline")).setChecked(!(prefs.has("files-disableinline") && prefs.get("files-disableinline").getClass().equals(Boolean.class) && prefs.getBoolean("files-disableinline")));
+                                    ((SwitchPreference) findPreference("inlineimages")).setChecked((prefs.has("inlineimages") && prefs.get("inlineimages").getClass().equals(Boolean.class) && prefs.getBoolean("inlineimages")));
                                 } catch (JSONException e) {
                                     NetworkConnection.printStackTraceToCrashlytics(e);
                                 }
@@ -627,8 +626,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 @Override
                 public void run() {
                     if(findPreference("chat-oneline") != null) {
-                        if(((SwitchPreferenceCompat) findPreference("chat-oneline")).isChecked()) {
-                            if(((SwitchPreferenceCompat) findPreference("avatars-off")).isChecked()) {
+                        if(((SwitchPreference) findPreference("chat-oneline")).isChecked()) {
+                            if(((SwitchPreference) findPreference("avatars-off")).isChecked()) {
                                 findPreference("time-left").setEnabled(false);
                             } else {
                                 findPreference("time-left").setEnabled(true);
@@ -674,7 +673,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                                     savePreferencesTask.cancel(true);
                                 savePreferencesTask = new SavePreferencesTask();
                                 savePreferencesTask.execute((Void) null);
-                                ((SwitchPreferenceCompat) findPreference("inlineimages")).setChecked(true);
+                                ((SwitchPreference) findPreference("inlineimages")).setChecked(true);
                             } catch (Exception e) {
                                 Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: " + preference.getKey());
                                 Crashlytics.logException(e);

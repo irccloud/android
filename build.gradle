@@ -352,7 +352,6 @@ dependencies {
     compile "com.google.android.gms:play-services-gcm:$playServicesVersion"
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
     compile 'com.vandalsoftware.android:dslv:+'
-    compile 'com.infstory:switch-preference-compat:1.0.+'
     compile 'com.damnhandy:handy-uri-templates:2.0.2'
     compile 'com.commonsware.cwac:richedit:0.5.2'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
