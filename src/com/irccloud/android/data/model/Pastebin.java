@@ -178,7 +178,7 @@ public class Pastebin extends BaseObservable implements Serializable {
         setLines(o.getInt("lines"));
         setOwn_paste(o.getBoolean("own_paste"));
         setDate(new Date(o.getLong("date") * 1000L));
-        setUrl(UriTemplate.fromTemplate(ColorFormatter.pastebin_uri_template).set("id", id).set("name", name).expand());
+        setUrl(UriTemplate.fromTemplate(NetworkConnection.pastebin_uri_template).set("id", id).set("name", name).expand());
     }
 
     @Bindable
@@ -291,7 +291,7 @@ public class Pastebin extends BaseObservable implements Serializable {
 
     public static Pastebin fetch(String pasteID) throws IOException {
         try {
-            JSONObject o = NetworkConnection.getInstance().fetchJSON(UriTemplate.fromTemplate(ColorFormatter.pastebin_uri_template).set("id", pasteID).set("type", "json").expand());
+            JSONObject o = NetworkConnection.getInstance().fetchJSON(UriTemplate.fromTemplate(NetworkConnection.pastebin_uri_template).set("id", pasteID).set("type", "json").expand());
             if(o != null) {
                 return new Pastebin(o);
             }

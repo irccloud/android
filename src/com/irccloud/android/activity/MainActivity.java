@@ -4839,7 +4839,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (event.row_type == ROW_FILE || event.row_type == ROW_THUMBNAIL) {
             if(event.entities.has("id"))
-                showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)), event.entities);
+                showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)), event.entities);
             else
                 showUserPopup(user, ColorFormatter.html_to_spanned(event.entities.get("url").asText(), true, ServersList.getInstance().getServer(event.cid)), event.entities);
         } else if (event.html != null) {

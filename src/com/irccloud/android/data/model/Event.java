@@ -18,7 +18,9 @@ package com.irccloud.android.data.model;
 
 import android.text.Spanned;
 
+import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -148,6 +150,12 @@ public class Event /*extends ObservableBaseModel*/ {
     @Column
     public JsonNode entities;
 
+    @Column
+    public String avatar;
+
+    @Column
+    public String avatar_url;
+
     public String timestamp;
     public String html;
     public Spanned formatted;
@@ -263,5 +271,33 @@ public class Event /*extends ObservableBaseModel*/ {
                 type.equals("channel_invite") ||
                 type.equals("callerid") ||
                 type.equals("wallops"));
+    }
+
+    private String cachedAvatarURL;
+    private int cachedAvatarSize;
+
+    public String getAvatarURL(int size) {
+        if(size != cachedAvatarSize) {
+            cachedAvatarURL = null;
+            if (avatar != null && avatar.length() > 0) {
+                if(NetworkConnection.avatar_uri_template != null)
+                    cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_uri_template).set("modifiers","w"+size).expand();
+            } else if (avatar_url != null && avatar_url.length() > 0 && avatar_url.startsWith("https://")) {
+                cachedAvatarURL = avatar_url;
+                if(cachedAvatarURL.contains("{size}")) {
+                    cachedAvatarURL = UriTemplate.fromTemplate(cachedAvatarURL).set("size", "72").expand();
+                }
+            } else if (!BuildConfig.ENTERPRISE && NetworkConnection.avatar_redirect_uri_template != null) {
+                String ident = hostmask.substring(0, hostmask.indexOf("@"));
+                if(ident.startsWith("uid") || ident.startsWith("sid")) {
+                    ident = ident.substring(3);
+                    if(Integer.valueOf(ident) > 0)
+                        cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_redirect_uri_template).set("id", ident).set("modifiers","w"+size).expand();
+                }
+            }
+        }
+        if(cachedAvatarURL != null)
+            cachedAvatarSize = size;
+        return cachedAvatarURL;
     }
 }

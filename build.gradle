@@ -60,8 +60,8 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        versionCode 169
-        versionName "4.6"
+        versionCode 170
+        versionName "4.7"
         minSdkVersion 14
         targetSdkVersion 27
         applicationId "com.irccloud.android"
@@ -356,6 +356,7 @@ dependencies {
     compile 'com.damnhandy:handy-uri-templates:2.0.2'
     compile 'com.commonsware.cwac:richedit:0.5.2'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
+    compile 'com.makeramen:roundedimageview:2.3.0'
     compile project(':android-websockets')
     compile 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
     annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:$dbflowVersion"

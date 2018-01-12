@@ -37,6 +37,7 @@ import android.webkit.CookieSyncManager;
 
 import com.codebutler.android_websockets.WebSocketClient;
 import com.crashlytics.android.Crashlytics;
+import com.damnhandy.uri.template.UriTemplate;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -155,6 +156,10 @@ public class NetworkConnection {
     long firstEid = -1;
     public JSONObject config = null;
     public boolean notifier;
+    public static String file_uri_template;
+    public static String pastebin_uri_template;
+    public static String avatar_uri_template;
+    public static String avatar_redirect_uri_template;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -883,8 +888,27 @@ public class NetworkConnection {
                 SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
                 prefs.putString("config", config.toString());
                 prefs.commit();
-                ColorFormatter.file_uri_template = config.getString("file_uri_template");
-                ColorFormatter.pastebin_uri_template = config.getString("pastebin_uri_template");
+
+                if(config.has("file_uri_template"))
+                    file_uri_template = config.getString("file_uri_template");
+                else
+                    file_uri_template = null;
+
+                if(config.has("pastebin_uri_template"))
+                    pastebin_uri_template = config.getString("pastebin_uri_template");
+                else
+                    pastebin_uri_template = null;
+
+                if(config.has("avatar_uri_template"))
+                    avatar_uri_template = config.getString("avatar_uri_template");
+                else
+                    avatar_uri_template = null;
+
+                if(config.has("avatar_redirect_uri_template"))
+                    avatar_redirect_uri_template = config.getString("avatar_redirect_uri_template");
+                else
+                    avatar_redirect_uri_template = null;
+
                 if(BuildConfig.ENTERPRISE && !(config.get("enterprise") instanceof JSONObject)) {
                     globalMsg = "Some features, such as push notifications, may not work as expected.  Please download the standard IRCCloud app from the <a href=\"" + config.getString("android_app") + "\">Play Store</a>";
                     notifyHandlers(EVENT_GLOBALMSG, null);

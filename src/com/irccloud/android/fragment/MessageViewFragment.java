@@ -24,10 +24,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Shader;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Network;
 import android.net.Uri;
@@ -220,6 +224,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_disableCodeBlock = false;
     private boolean pref_disableQuote = false;
     private boolean pref_inlineImages = false;
+    private boolean pref_avatarImages = true;
 
     private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
@@ -849,18 +854,55 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                     Spanned formatted = e.formatted;
                     if(formatted != null && !pref_avatarsOff && e.parent_eid == 0 && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
-                        Bitmap b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize+4, getResources().getDisplayMetrics()), e.self);
+                        int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize+4, getResources().getDisplayMetrics());
+                        Bitmap b = null;
+                        URL avatarURL = null;
+                        try {
+                            if(pref_avatarImages && e.getAvatarURL(width) != null)
+                                avatarURL = new URL(e.getAvatarURL(width));
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                        if(avatarURL != null) {
+                            try {
+                                b = ImageList.getInstance().getImage(avatarURL);
+                                if(b.getWidth() != width)
+                                    b = Bitmap.createScaledBitmap(b, width, width, false);
+                                if(b == null)
+                                    ImageList.getInstance().fetchImage(avatarURL, new ImageList.OnImageFetchedListener() {
+                                        @Override
+                                        public void onImageFetched(Bitmap image) {
+                                            refreshSoon();
+                                        }
+                                    });
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                        if(b == null) {
+                            b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, width, e.self);
+                        }
                         if(b != null) {
                             SpannableStringBuilder s = new SpannableStringBuilder(formatted);
                             s.insert(0, "  ");
                             s.setSpan(new ImageSpan(getActivity(), b) {
                                 @Override
-                                public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
-                                    Drawable b = getDrawable();
+                                public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint p) {
+                                    Bitmap bitmap = ((BitmapDrawable)getDrawable()).getBitmap();
+                                    BitmapShader shader;
+                                    shader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+
+                                    Paint paint = new Paint();
+                                    paint.setAntiAlias(true);
+                                    paint.setShader(shader);
+
+                                    RectF rect = new RectF(0.0f, 0.0f, bitmap.getWidth(), bitmap.getHeight());
+
                                     canvas.save();
 
-                                    canvas.translate(x, y - b.getIntrinsicHeight() + paint.getFontMetricsInt().descent);
-                                    b.draw(canvas);
+                                    canvas.translate(x, y - bitmap.getHeight() + paint.getFontMetricsInt().descent);
+                                    int radius = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 2, getResources().getDisplayMetrics());
+                                    canvas.drawRoundRect(rect, radius, radius, paint);
                                     canvas.restore();
                                 }
                             }, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -925,14 +967,36 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics());
                         Bitmap b = null;
                         if (e.group_eid < 1 && e.from != null && e.from.length() > 0 && (pref_chatOneLine || e.header)) {
-                            Avatar a = mAvatarsList.getAvatar(e.cid, e.from);
-                            b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width, e.self);
+                            URL avatarURL = null;
+                            try {
+                                if(pref_avatarImages && e.getAvatarURL(lp.width) != null)
+                                    avatarURL = new URL(e.getAvatarURL(lp.width));
+                            } catch (Exception e1) {
+                                e1.printStackTrace();
+                            }
+                            if(avatarURL != null) {
+                                try {
+                                    b = ImageList.getInstance().getImage(avatarURL);
+                                    if(b == null)
+                                        ImageList.getInstance().fetchImage(avatarURL, new ImageList.OnImageFetchedListener() {
+                                            @Override
+                                            public void onImageFetched(Bitmap image) {
+                                                refreshSoon();
+                                            }
+                                        });
+                                } catch (IOException e1) {
+                                }
+                            }
+                            if(b == null) {
+                                Avatar a = mAvatarsList.getAvatar(e.cid, e.from);
+                                b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width, e.self);
+                                holder.avatar.setTag(a);
+                            }
                             holder.avatar.setVisibility(View.VISIBLE);
-                            holder.avatar.setTag(a);
                         }
                         holder.avatar.setImageBitmap(b);
                         if(b != null)
-                            lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16 * ((!e.header || b == null || e.group_eid > 0)?1:2), getResources().getDisplayMetrics());
+                            lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16 * ((!e.header || e.group_eid > 0)?1:2), getResources().getDisplayMetrics());
                         else
                             lp.height = 0;
                     }
@@ -1370,7 +1434,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
         @Override
-        public void onScroll(final AbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount, final int totalItemCount) {
             if (!ready || buffer == null || adapter == null || visibleItemCount < 0) {
                 hide_avatar();
                 return;
@@ -1475,10 +1539,41 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 }
 
                                 if(e != null) {
-                                    Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics()), e.self);
-                                    if(vh.avatar != null && bitmap != null) {
+                                    int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics());
+                                    Avatar a = null;
+                                    Bitmap b = null;
+                                    URL avatarURL = null;
+                                    try {
+                                        if(pref_avatarImages && e.getAvatarURL(width) != null)
+                                            avatarURL = new URL(e.getAvatarURL(width));
+                                    } catch (Exception e1) {
+                                        e1.printStackTrace();
+                                    }
+                                    if(avatarURL != null) {
+                                        try {
+                                            b = ImageList.getInstance().getImage(avatarURL);
+                                            if(b == null)
+                                                ImageList.getInstance().fetchImage(avatarURL, new ImageList.OnImageFetchedListener() {
+                                                    @Override
+                                                    public void onImageFetched(Bitmap image) {
+                                                        try {
+                                                            ListView v = getListView();
+                                                            mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
+                                                        } catch (Exception e) {
+                                                        }
+                                                    }
+                                                });
+                                        } catch (IOException e1) {
+                                            e1.printStackTrace();
+                                        }
+                                    }
+                                    if(b == null) {
+                                        a = mAvatarsList.getAvatar(e.cid, e.from);
+                                        b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, width, e.self);
+                                    }
+                                    if(vh.avatar != null && b != null) {
                                         int topMargin, leftMargin;
-                                        int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+                                        int height = b.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
                                         if (v.getHeight() + v.getTop() < (height + offset)) {
                                             topMargin = v.getTop() + v.getHeight() - height;
                                         } else {
@@ -1486,9 +1581,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         }
                                         leftMargin = vh.avatar.getLeft();
                                         avatarContainer.offset(leftMargin, topMargin);
+                                        avatar.setImageBitmap(b);
                                         if (top_vh.avatar == null || (avatar.getTag() != top_vh.avatar || top_vh.avatar.getVisibility() != View.INVISIBLE)) {
                                             avatar.setTag(top_vh.avatar);
-                                            avatar.setImageBitmap(bitmap);
                                             avatarContainer.setVisibility(View.VISIBLE);
                                             if(top_vh.avatar != null)
                                                 top_vh.avatar.setVisibility(View.INVISIBLE);
@@ -2299,7 +2394,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 try {
                                                     String uri;
                                                     if(e.entities.has("id"))
-                                                        uri = UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", e.entities.get("id").asText()).set("name", e.entities.get("name").asText()).expand();
+                                                        uri = UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", e.entities.get("id").asText()).set("name", e.entities.get("name").asText()).expand();
                                                     else
                                                         uri = e.entities.get("url").asText();
                                                     if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
@@ -2314,7 +2409,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 }
                                             } else if (e.row_type == ROW_FILE) {
                                                 try {
-                                                    IRCCloudLinkMovementMethod.launchURI(Uri.parse(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", e.entities.get("id").asText()).set("name", e.entities.get("name").asText()).expand()), getActivity());
+                                                    IRCCloudLinkMovementMethod.launchURI(Uri.parse(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", e.entities.get("id").asText()).set("name", e.entities.get("name").asText()).expand()), getActivity());
                                                 } catch (ActivityNotFoundException ex) {
                                                     Toast.makeText(getActivity(), "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
                                                 } catch (Exception ex) {
@@ -2688,6 +2783,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_disableCodeBlock = false;
         pref_disableQuote = false;
         pref_inlineImages = false;
+        pref_avatarImages = true;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -2697,6 +2793,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_timeLeft = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("time-left", true);
                 pref_nickColors = (prefs.has("nick-colors") && prefs.get("nick-colors") instanceof Boolean && prefs.getBoolean("nick-colors"));
                 pref_avatarsOff = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("avatars-off", true);
+                pref_avatarImages = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("avatar-images", true);
                 pref_chatOneLine = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-oneline", true);
                 pref_norealname = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-norealname", true);
                 pref_disableLargeEmoji = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("emoji-nobig", true);

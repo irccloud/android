@@ -152,7 +152,7 @@ public class UploadsActivity extends BaseActivity {
 
             if(f.image == null && f.mime_type.startsWith("image/")) {
                 try {
-                    if(ColorFormatter.file_uri_template != null) {
+                    if(NetworkConnection.file_uri_template != null) {
                         f.url = template.set("id", f.id).set("name", f.name).expand();
                         f.image = ImageList.getInstance().getImage(f.id, 320);
                         if(f.image == null)
@@ -187,7 +187,7 @@ public class UploadsActivity extends BaseActivity {
                     }
                 });
             } else {
-                if (ColorFormatter.file_uri_template != null) {
+                if (NetworkConnection.file_uri_template != null) {
                     f.url = template.set("id", f.id).set("name", f.name).expand();
                 }
             }
@@ -442,8 +442,8 @@ public class UploadsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if(ColorFormatter.file_uri_template != null)
-            template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
+        if(NetworkConnection.file_uri_template != null)
+            template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
         super.onCreate(savedInstanceState);
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
         onMultiWindowModeChanged(isMultiWindow());
@@ -623,8 +623,8 @@ public class UploadsActivity extends BaseActivity {
 
     @Override
     public void onResume() {
-        if(ColorFormatter.file_uri_template != null)
-            template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
+        if(NetworkConnection.file_uri_template != null)
+            template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
         super.onResume();
 
         if(cid == -1) {

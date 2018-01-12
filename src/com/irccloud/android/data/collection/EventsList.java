@@ -1065,6 +1065,8 @@ public class EventsList {
             e.to_buffer = event.getBoolean("to_buffer");
             e.ops = event.getJsonNode("ops");
             e.entities = event.getJsonNode("entities");
+            e.avatar = event.getString("avatar");
+            e.avatar_url = event.getString("avatar_url");
 
             if (event.has("reqid"))
                 e.reqid = event.getInt("reqid");

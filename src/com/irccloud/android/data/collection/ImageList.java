@@ -173,8 +173,8 @@ public class ImageList {
 
     public boolean isFailedURL(String fileID, int width) {
         try {
-            if(ColorFormatter.file_uri_template != null)
-                return isFailedURL(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()));
+            if(NetworkConnection.file_uri_template != null)
+                return isFailedURL(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).expand()));
         } catch (Exception e) {
         }
         return false;
@@ -213,8 +213,8 @@ public class ImageList {
 
     public GifDrawable getGIF(String fileID) throws OutOfMemoryError, FileNotFoundException {
         try {
-            if(ColorFormatter.file_uri_template != null)
-                return getGIF(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()));
+            if(NetworkConnection.file_uri_template != null)
+                return getGIF(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).expand()));
         } catch (Exception e) {
         }
         return null;
@@ -222,8 +222,8 @@ public class ImageList {
 
     public GifDrawable getGIF(String fileID, int width) throws OutOfMemoryError, FileNotFoundException {
         try {
-            if(ColorFormatter.file_uri_template != null)
-                return getGIF(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
+            if(NetworkConnection.file_uri_template != null)
+                return getGIF(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
         } catch (Exception e) {
         }
         return null;
@@ -293,8 +293,8 @@ public class ImageList {
 
     public Bitmap getImage(String fileID) throws OutOfMemoryError, FileNotFoundException {
         try {
-            if(ColorFormatter.file_uri_template != null)
-                return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()));
+            if(NetworkConnection.file_uri_template != null)
+                return getImage(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).expand()));
         } catch (Exception e) {
         }
         return null;
@@ -302,8 +302,8 @@ public class ImageList {
 
     public Bitmap getImage(String fileID, int width) throws OutOfMemoryError, FileNotFoundException {
         try {
-            if(ColorFormatter.file_uri_template != null)
-                return getImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
+            if(NetworkConnection.file_uri_template != null)
+                return getImage(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
         } catch (Exception e) {
         }
         return null;
@@ -483,8 +483,8 @@ public class ImageList {
 
     public void fetchImage(String fileID, final OnImageFetchedListener listener) {
         try {
-            if(ColorFormatter.file_uri_template != null)
-                fetchImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).expand()), listener);
+            if(NetworkConnection.file_uri_template != null)
+                fetchImage(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).expand()), listener);
         } catch (Exception e) {
             if (listener != null)
                 listener.onImageFetched(null);
@@ -493,8 +493,8 @@ public class ImageList {
 
     public void fetchImage(String fileID, int width, final OnImageFetchedListener listener) {
         try {
-            if(ColorFormatter.file_uri_template != null)
-                fetchImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()), listener);
+            if(NetworkConnection.file_uri_template != null)
+                fetchImage(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()), listener);
         } catch (Exception e) {
             if (listener != null)
                 listener.onImageFetched(null);

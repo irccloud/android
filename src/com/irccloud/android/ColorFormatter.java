@@ -56,9 +56,6 @@ import java.util.regex.Pattern;
 import io.fabric.sdk.android.services.common.Crash;
 
 public class ColorFormatter {
-    public static String file_uri_template = null;
-    public static String pastebin_uri_template = null;
-
     //From: https://github.com/android/platform_frameworks_base/blob/master/core/java/android/util/Patterns.java
     public static final String TOP_LEVEL_DOMAIN_STR_FOR_WEB_URL =
             "(?:"
@@ -2223,8 +2220,8 @@ public class ColorFormatter {
 
                         boolean isImageEnt = false;
                         if (entities != null && entities.has("files")) {
-                            if (file_uri_template != null) {
-                                UriTemplate template = UriTemplate.fromTemplate(file_uri_template);
+                            if (NetworkConnection.file_uri_template != null) {
+                                UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
                                 for (JsonNode file : entities.get("files")) {
                                     String file_url = template.set("id", file.get("id").asText()).expand();
                                     String u = file_url.toLowerCase();
@@ -2252,8 +2249,8 @@ public class ColorFormatter {
 
                         boolean isVideoEnt = false;
                         if (entities != null && entities.has("files")) {
-                            if (file_uri_template != null) {
-                                UriTemplate template = UriTemplate.fromTemplate(file_uri_template);
+                            if (NetworkConnection.file_uri_template != null) {
+                                UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
                                 for (JsonNode file : entities.get("files")) {
                                     String file_url = template.set("id", file.get("id").asText()).expand();
                                     String u = file_url.toLowerCase();
@@ -2282,8 +2279,8 @@ public class ColorFormatter {
                     }
 
                     if (entities != null && entities.has("pastes")) {
-                        if (pastebin_uri_template != null) {
-                            UriTemplate template = UriTemplate.fromTemplate(pastebin_uri_template);
+                        if (NetworkConnection.pastebin_uri_template != null) {
+                            UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.pastebin_uri_template);
                             for (JsonNode paste : entities.get("pastes")) {
                                 String paste_url = template.set("id", paste.get("id").asText()).expand();
                                 if (url.startsWith(paste_url)) {

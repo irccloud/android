@@ -24,14 +24,15 @@
             android:orientation="horizontal"
             >
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:id="@+id/avatar"
         android:layout_gravity="right|top"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="12dp"
         android:contentDescription="user icon"
+        app:riv_corner_radius="4dp"
         android:visibility="gone"/>
 
     <LinearLayout

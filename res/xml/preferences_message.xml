@@ -50,6 +50,11 @@
 			android:defaultValue="true"
 			android:title="User icons"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="avatar-images"
+			android:defaultValue="true"
+			android:dependency="avatars-off"
+			android:title="Avatar Images"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="mode-showsymbol"
 			android:defaultValue="false"
 			android:summary="\@, +, etc." android:title="Show usermode symbols"/>
