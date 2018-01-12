@@ -1877,6 +1877,9 @@ public class ColorFormatter {
         put("ladybug", get("beetle"));
         put("ladybeetle", get("beetle"));
         put("coccinellid", get("beetle"));
+        put("cursing", get("serious_face_with_symbols_covering_mouth"));
+        put("swearing", get("serious_face_with_symbols_covering_mouth"));
+        put("fuck", get("serious_face_with_symbols_covering_mouth"));
     }};
 
     public static Pattern EMOJI = null;
