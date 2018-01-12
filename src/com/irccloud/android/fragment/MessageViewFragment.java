@@ -1564,7 +1564,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                     }
                                                 });
                                         } catch (IOException e1) {
-                                            e1.printStackTrace();
                                         }
                                     }
                                     if(b == null) {
