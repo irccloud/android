@@ -285,7 +285,7 @@ public class Event /*extends ObservableBaseModel*/ {
             } else if (avatar_url != null && avatar_url.length() > 0 && avatar_url.startsWith("https://")) {
                 cachedAvatarURL = avatar_url;
                 if(cachedAvatarURL.contains("{size}")) {
-                    cachedAvatarURL = UriTemplate.fromTemplate(cachedAvatarURL).set("size", "72").expand();
+                    cachedAvatarURL = UriTemplate.fromTemplate(cachedAvatarURL).set("size", size == 512 ? "512" : "72").expand();
                 }
             } else if (!BuildConfig.ENTERPRISE && NetworkConnection.avatar_redirect_uri_template != null) {
                 String ident = hostmask.substring(0, hostmask.indexOf("@"));

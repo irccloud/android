@@ -64,6 +64,9 @@ public class Notification extends BaseModel {
     public String message_type;
 
     @Column
+    public String avatar_url;
+
+    @Column
     public boolean shown = false;
 
     public String toString() {

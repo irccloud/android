@@ -539,6 +539,25 @@ public class NetworkConnection {
 
         try {
             config = new JSONObject(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("config", "{}"));
+            if(config.has("file_uri_template"))
+                file_uri_template = config.getString("file_uri_template");
+            else
+                file_uri_template = null;
+
+            if(config.has("pastebin_uri_template"))
+                pastebin_uri_template = config.getString("pastebin_uri_template");
+            else
+                pastebin_uri_template = null;
+
+            if(config.has("avatar_uri_template"))
+                avatar_uri_template = config.getString("avatar_uri_template");
+            else
+                avatar_uri_template = null;
+
+            if(config.has("avatar_redirect_uri_template"))
+                avatar_redirect_uri_template = config.getString("avatar_redirect_uri_template");
+            else
+                avatar_redirect_uri_template = null;
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             config = new JSONObject();
@@ -2578,7 +2597,7 @@ public class NetworkConnection {
                                     if (from == null)
                                         from = (event.from != null) ? event.from : event.server;
 
-                                    NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type, server_name);
+                                    NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type, server_name, event.getAvatarURL(512));
                                     switch (b.getType()) {
                                         case "conversation":
                                             if (event.type.equals("buffer_me_msg"))

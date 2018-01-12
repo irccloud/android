@@ -61,7 +61,7 @@ public class RemoteInputService extends IntentService {
 
                     if (success) {
                         if(reply.startsWith("/accept ")) {
-                            NotificationsList.getInstance().addNotification(intent.getIntExtra("cid", -1), 0, intent.getLongExtra("eid", System.currentTimeMillis() * 1000), intent.getStringExtra("to"), "was added to your accept list", intent.getStringExtra("chan"), intent.getStringExtra("buffer_type"), "callerid_success", intent.getStringExtra("network"));
+                            NotificationsList.getInstance().addNotification(intent.getIntExtra("cid", -1), 0, intent.getLongExtra("eid", System.currentTimeMillis() * 1000), intent.getStringExtra("to"), "was added to your accept list", intent.getStringExtra("chan"), intent.getStringExtra("buffer_type"), "callerid_success", intent.getStringExtra("network"), null);
                         } else {
                             String type = "buffer_msg";
                             if(reply.startsWith("/me ")) {
@@ -72,7 +72,7 @@ public class RemoteInputService extends IntentService {
                                 reply = "slapped";
                             }
                             if(intent.getIntExtra("bid", -1) != -1)
-                                NotificationsList.getInstance().addNotification(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis() * 1000, null, reply, intent.getStringExtra("chan"), intent.getStringExtra("buffer_type"), type, intent.getStringExtra("network"));
+                                NotificationsList.getInstance().addNotification(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis() * 1000, null, reply, intent.getStringExtra("chan"), intent.getStringExtra("buffer_type"), type, intent.getStringExtra("network"), null);
                         }
                         NotificationsList.getInstance().showNotificationsNow();
                         RecentConversationsList.getInstance().updateConversation(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis());

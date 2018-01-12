@@ -72,6 +72,7 @@ import com.sonyericsson.extras.liveware.extension.util.notification.Notification
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -198,7 +199,7 @@ public class NotificationsList {
         updateTeslaUnreadCount();
     }
 
-    public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type, String network) {
+    public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type, String network, String avatar_url) {
         long last_eid = getLastSeenEid(bid);
         if (eid <= last_eid) {
             Crashlytics.log("Refusing to add notification for seen eid: " + eid);
@@ -215,6 +216,7 @@ public class NotificationsList {
         n.buffer_type = buffer_type;
         n.message_type = message_type;
         n.network = network;
+        n.avatar_url = avatar_url;
 
         synchronized (dbLock) {
             n.save();
@@ -768,7 +770,35 @@ public class NotificationsList {
 
                         try {
                             Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.message_type);
-                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.cid, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400, false, false)));
+                            Bitmap avatar = null;
+                            Bitmap large_avatar = null;
+                            boolean downloading = false;
+
+                            if(last.avatar_url != null && last.avatar_url.length() > 0) {
+                                try {
+                                    URL url = new URL(last.avatar_url);
+                                    avatar = large_avatar = ImageList.getInstance().getImage(url);
+                                    if(avatar == null) {
+                                        downloading = true;
+                                        last.shown = false;
+                                        ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
+                                            @Override
+                                            public void onImageFetched(Bitmap image) {
+                                                showMessageNotifications(null);
+                                            }
+                                        });
+                                    }
+                                } catch (Exception e1) {
+                                }
+                            }
+
+                            if(!downloading) {
+                                if (avatar == null) {
+                                    avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                                    large_avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 512, false, false);
+                                }
+                                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.cid, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, avatar, large_avatar));
+                            }
                         } catch (Exception e) {
                             Crashlytics.logException(e);
                         }
@@ -892,7 +922,35 @@ public class NotificationsList {
 
                 try {
                     Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.message_type);
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.cid, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400, false, false)));
+                    Bitmap avatar = null;
+                    Bitmap large_avatar = null;
+                    boolean downloading = false;
+
+                    if(last.avatar_url != null && last.avatar_url.length() > 0) {
+                        try {
+                            URL url = new URL(last.avatar_url);
+                            avatar = large_avatar = ImageList.getInstance().getImage(url);
+                            if(avatar == null) {
+                                downloading = true;
+                                last.shown = false;
+                                ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
+                                    @Override
+                                    public void onImageFetched(Bitmap image) {
+                                        showMessageNotifications(null);
+                                    }
+                                });
+                            }
+                        } catch (Exception e1) {
+                        }
+                    }
+
+                    if(!downloading) {
+                        if (avatar == null) {
+                            avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                            large_avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 512, false, false);
+                        }
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.cid, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, avatar, large_avatar));
+                    }
                 } catch (Exception e) {
                     Crashlytics.logException(e);
                 }

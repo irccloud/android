@@ -30,6 +30,7 @@ import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
+import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.Server;
 
 import java.io.IOException;
@@ -120,9 +121,16 @@ public class GCMService extends GcmListenerService {
                 if(s != null)
                     s.setNick(data.getString("server_nick"));
 
+                Event e = new Event();
+                e.hostmask = data.getString("hostmask");
+                if (data.containsKey("avatar"))
+                    e.avatar = data.getString("avatar");
+                if (data.containsKey("avatar_url"))
+                    e.avatar_url = data.getString("avatar_url");
+
                 NotificationsList.getInstance().addNotificationGroup(cid, server_name);
                 NotificationsList.getInstance().updateServerNick(cid, data.getString("server_nick"));
-                NotificationsList.getInstance().addNotification(cid, bid, eid, (from == null)?data.getString("server_hostname"):from, msg, chan, buffer_type, type, server_name);
+                NotificationsList.getInstance().addNotification(cid, bid, eid, (from == null)?data.getString("server_hostname"):from, msg, chan, buffer_type, type, server_name, e.getAvatarURL(512));
 
                 if (from == null || from.length() == 0)
                     NotificationsList.getInstance().showNotifications(server_name + ": " + msg);
