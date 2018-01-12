@@ -1556,11 +1556,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 ImageList.getInstance().fetchImage(avatarURL, new ImageList.OnImageFetchedListener() {
                                                     @Override
                                                     public void onImageFetched(Bitmap image) {
-                                                        try {
-                                                            ListView v = getListView();
-                                                            mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
-                                                        } catch (Exception e) {
-                                                        }
+                                                        runOnUiThread(new Runnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                try {
+                                                                    ListView v = getListView();
+                                                                    mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
+                                                                } catch (Exception e) {
+                                                                }
+                                                            }
+                                                        });
                                                     }
                                                 });
                                         } catch (IOException e1) {
