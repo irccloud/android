@@ -866,7 +866,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if(avatarURL != null) {
                             try {
                                 b = ImageList.getInstance().getImage(avatarURL);
-                                if(b.getWidth() != width)
+                                if(b != null && b.getWidth() != width)
                                     b = Bitmap.createScaledBitmap(b, width, width, false);
                                 if(b == null)
                                     ImageList.getInstance().fetchImage(avatarURL, new ImageList.OnImageFetchedListener() {
