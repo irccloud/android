@@ -2660,7 +2660,7 @@ public class NetworkConnection {
                     mRecentConversations.updateConversation(event.cid, event.bid, event.eid / 1000);
                 }
 
-                if(b != null && b.isConversation() && b.getName().equalsIgnoreCase(event.from)) {
+                if(b != null && b.isConversation() && b.getName().equalsIgnoreCase(event.from) && event.isMessage()) {
                     String avatar = event.getAvatarURL(512);
                     mRecentConversations.updateAvatar(event.cid, event.bid, avatar);
                     try {

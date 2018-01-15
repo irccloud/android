@@ -277,7 +277,7 @@ public class Event /*extends ObservableBaseModel*/ {
     private int cachedAvatarSize;
 
     public String getAvatarURL(int size) {
-        if(size != cachedAvatarSize) {
+        if(isMessage() && size != cachedAvatarSize) {
             cachedAvatarURL = null;
             if (avatar != null && avatar.length() > 0) {
                 if(NetworkConnection.avatar_uri_template != null)
