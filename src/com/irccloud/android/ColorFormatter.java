@@ -2301,6 +2301,27 @@ public class ColorFormatter {
             Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:", noOverlapFilter, null);
             Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\",\\s]+"), null, noOverlapFilter, new TransformFilter() {
                 public final String transformUrl(final Matcher match, String url) {
+                    char last = url.charAt(url.length() - 1);
+                    if (isPunctuation(last)) {
+                        url = url.substring(0, url.length() - 1);
+                        last = url.charAt(url.length() - 1);
+                    }
+
+                    if (quotes.containsKey(String.valueOf(last))) {
+                        char open = quotes.get(String.valueOf(last)).charAt(0);
+                        int countOpen = 0, countClose = 0;
+                        for (int i = 0; i < url.length(); i++) {
+                            char c = url.charAt(i);
+                            if (c == open)
+                                countOpen++;
+                            else if (c == last)
+                                countClose++;
+                        }
+                        if (countOpen != countClose) {
+                            url = url.substring(0, url.length() - 1);
+                        }
+                    }
+
                     return url.replace("#", "%23");
                 }
             });
@@ -2436,7 +2457,7 @@ public class ColorFormatter {
     }
 
     private static boolean isPunctuation(char c) {
-        return (c == '.' || c == '!' || c == '?' || c == ',');
+        return (c == '.' || c == '!' || c == '?' || c == ',' || c == ':' || c == ';');
     }
 
     public static class URLSpanNoUnderline extends URLSpan {
