@@ -122,6 +122,9 @@ public class GCMService extends GcmListenerService {
                     s.setNick(data.getString("server_nick"));
 
                 Event e = new Event();
+                e.from = from;
+                e.msg = msg;
+                e.type = type;
                 e.hostmask = data.getString("hostmask");
                 if (data.containsKey("avatar"))
                     e.avatar = data.getString("avatar");
