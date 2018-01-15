@@ -2656,8 +2656,23 @@ public class NetworkConnection {
                     mEvents.clearPendingEvents(event.bid);
                 }
 
-                if(event.self)
-                    mRecentConversations.updateConversation(event.cid, event.bid, event.eid/1000);
+                if(event.self) {
+                    mRecentConversations.updateConversation(event.cid, event.bid, event.eid / 1000);
+                }
+
+                if(b != null && b.isConversation() && b.getName().equalsIgnoreCase(event.from)) {
+                    String avatar = event.getAvatarURL(512);
+                    mRecentConversations.updateAvatar(event.cid, event.bid, avatar);
+                    try {
+                        if(avatar != null && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", true)) {
+                            URL url = new URL(event.getAvatarURL(512));
+                            if (!ImageList.getInstance().cacheFile(url).exists()) {
+                                ImageList.getInstance().fetchImage(url, null);
+                            }
+                        }
+                    } catch (Exception e) {
+                    }
+                }
 
                 if (!backlog) {
                     notifyHandlers(EVENT_BUFFERMSG, event);

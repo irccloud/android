@@ -49,6 +49,9 @@ public class RecentConversation extends BaseModel {
     @Column
     public long timestamp;
 
+    @Column
+    public String avatar_url;
+
     public String toString() {
         return "{cid: " + cid + ", bid: " + bid + ", name: " + name + ", type: " + type + "}";
     }

@@ -75,6 +75,16 @@ public class RecentConversationsList {
         }
     }
 
+    public void updateAvatar(int cid, int bid, String avatar_url) {
+        RecentConversation c = getConversation(cid, bid);
+        if(c != null) {
+            c.avatar_url = avatar_url;
+            synchronized (dbLock) {
+                c.save();
+            }
+        }
+    }
+
     public void prune() {
         List<RecentConversation> conversations = getConversations();
         for(RecentConversation c : conversations) {

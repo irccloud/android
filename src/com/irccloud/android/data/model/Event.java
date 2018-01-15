@@ -288,11 +288,13 @@ public class Event /*extends ObservableBaseModel*/ {
                     cachedAvatarURL = UriTemplate.fromTemplate(cachedAvatarURL).set("size", size == 512 ? "512" : "72").expand();
                 }
             } else if (!BuildConfig.ENTERPRISE && NetworkConnection.avatar_redirect_uri_template != null) {
-                String ident = hostmask.substring(0, hostmask.indexOf("@"));
-                if(ident.startsWith("uid") || ident.startsWith("sid")) {
-                    ident = ident.substring(3);
-                    if(Integer.valueOf(ident) > 0)
-                        cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_redirect_uri_template).set("id", ident).set("modifiers","w"+size).expand();
+                if(hostmask != null && hostmask.length() > 0 && hostmask.contains("@")) {
+                    String ident = hostmask.substring(0, hostmask.indexOf("@"));
+                    if (ident.startsWith("uid") || ident.startsWith("sid")) {
+                        ident = ident.substring(3);
+                        if (Integer.valueOf(ident) > 0)
+                            cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_redirect_uri_template).set("id", ident).set("modifiers", "w" + size).expand();
+                    }
                 }
             }
         }
