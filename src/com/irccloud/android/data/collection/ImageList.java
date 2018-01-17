@@ -342,10 +342,10 @@ public class ImageList {
     }
 
     public void fetchImage(URL url, OnImageFetchedListener listener) throws FileNotFoundException {
-        fetchImage(url, 0, listener);
+        fetchImage(url, 0, listener, 0);
     }
 
-    public void fetchImage(final URL url, final int width, final OnImageFetchedListener listener) throws FileNotFoundException {
+    public void fetchImage(final URL url, final int width, final OnImageFetchedListener listener, final long maxCacheAge) throws FileNotFoundException {
         if(failedURLs.contains(MD5(url.toString())))
             throw new FileNotFoundException();
 
@@ -367,113 +367,186 @@ public class ImageList {
             public void run() {
                 try {
                     if (cacheFile(url).exists() && cacheFile(url).length() > 0) {
-                        try {
-                            Bitmap bitmap = getImage(url, width);
-                            if (bitmap != null)
-                                images.put(MD5(url.toString()), bitmap);
-                            else
-                                failedURLs.add(MD5(url.toString()));
-                            notifyListeners(url, bitmap);
-                        } catch (OutOfMemoryError e) {
-                            notifyListeners(url, null);
-                        }
-                    } else {
-                        HttpURLConnection conn;
-
-                        Proxy proxy = null;
-                        int port = -1;
-
-                        String host = System.getProperty("http.proxyHost", null);
-                        try {
-                            port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
-                        } catch (NumberFormatException e) {
-                            port = -1;
-                        }
-
-                        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-                            InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
-                            proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
-                        }
-
-                        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url + " via proxy: " + host);
-                        } else {
-                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url);
-                        }
-
-                        try {
-                            if (url.getProtocol().toLowerCase().equals("https")) {
-                                HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-                                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
-                                    https.setSSLSocketFactory(NetworkConnection.getInstance().IRCCloudSocketFactory);
-                                else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                                    https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
-                                conn = https;
-                            } else {
-                                conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-                            }
-                        } catch (IOException e) {
-                            printStackTraceToCrashlytics(e);
-                            return;
-                        }
-
-                        conn.setConnectTimeout(30000);
-                        conn.setReadTimeout(30000);
-                        conn.setUseCaches(true);
-                        conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
-
-                        try {
-                            ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
-                            NetworkInfo ni = cm.getActiveNetworkInfo();
-                            if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
-                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via WiFi");
-                            } else {
-                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via mobile");
-                            }
-                        } catch (Exception e) {
-                            printStackTraceToCrashlytics(e);
-                        }
-
-                        try {
-                            if (conn.getInputStream() != null) {
-                                InputStream is = conn.getInputStream();
-                                OutputStream os = new FileOutputStream(cacheFile(url));
-                                byte[] buffer = new byte[8192];
-                                int len;
-                                while ((len = is.read(buffer)) != -1) {
-                                    os.write(buffer, 0, len);
-                                }
-                                is.close();
-                                os.close();
-
+                        if(maxCacheAge == 0) {
+                            try {
                                 Bitmap bitmap = getImage(url, width);
-                                if(bitmap == null) {
-                                    android.util.Log.e("IRCCloud", "Failed to load bitmap after download");
+                                if (bitmap != null)
+                                    images.put(MD5(url.toString()), bitmap);
+                                else
                                     failedURLs.add(MD5(url.toString()));
-                                }
                                 notifyListeners(url, bitmap);
-                            } else {
-                                android.util.Log.e("IRCCloud", "No input stream");
-                                failedURLs.add(MD5(url.toString()));
+                            } catch (OutOfMemoryError e) {
                                 notifyListeners(url, null);
                             }
-                        } catch (OutOfMemoryError e) {
-                            e.printStackTrace();
+                        } else if(System.currentTimeMillis() - cacheFile(url).lastModified() > maxCacheAge) {
+                            HttpURLConnection conn;
+
+                            Proxy proxy = null;
+                            int port = -1;
+
+                            String host = System.getProperty("http.proxyHost", null);
+                            try {
+                                port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+                            } catch (NumberFormatException e) {
+                                port = -1;
+                            }
+
+                            if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+                                InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
+                                proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
+                            }
+
+                            if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url + " via proxy: " + host);
+                            } else {
+                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url);
+                            }
+
+                            try {
+                                if (url.getProtocol().toLowerCase().equals("https")) {
+                                    HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+                                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
+                                        https.setSSLSocketFactory(NetworkConnection.getInstance().IRCCloudSocketFactory);
+                                    else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+                                        https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
+                                    conn = https;
+                                } else {
+                                    conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+                                }
+                            } catch (IOException e) {
+                                printStackTraceToCrashlytics(e);
+                                return;
+                            }
+
+                            conn.setConnectTimeout(30000);
+                            conn.setReadTimeout(30000);
+                            conn.setUseCaches(true);
+                            conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
+                            conn.setRequestMethod("HEAD");
+
+                            try {
+                                ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+                                NetworkInfo ni = cm.getActiveNetworkInfo();
+                                if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
+                                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via WiFi");
+                                } else {
+                                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via mobile");
+                                }
+                            } catch (Exception e) {
+                                printStackTraceToCrashlytics(e);
+                            }
+
+                            try {
+                                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK && conn.getHeaderField("Last-Modified") != null && conn.getHeaderFieldDate("Last-Modified", 0) <= cacheFile(url).lastModified()) {
+                                    android.util.Log.d("IRCCLoud", "Last-Modified was in the past, touching cache file");
+                                    cacheFile(url).setLastModified(System.currentTimeMillis());
+                                    conn.disconnect();
+                                    return;
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            conn.disconnect();
+                        } else {
+                            return;
+                        }
+                    }
+                    HttpURLConnection conn;
+
+                    Proxy proxy = null;
+                    int port = -1;
+
+                    String host = System.getProperty("http.proxyHost", null);
+                    try {
+                        port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+                    } catch (NumberFormatException e) {
+                        port = -1;
+                    }
+
+                    if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+                        InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
+                        proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
+                    }
+
+                    if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+                        Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url + " via proxy: " + host);
+                    } else {
+                        Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url);
+                    }
+
+                    try {
+                        if (url.getProtocol().toLowerCase().equals("https")) {
+                            HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
+                                https.setSSLSocketFactory(NetworkConnection.getInstance().IRCCloudSocketFactory);
+                            else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+                                https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
+                            conn = https;
+                        } else {
+                            conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+                        }
+                    } catch (IOException e) {
+                        printStackTraceToCrashlytics(e);
+                        return;
+                    }
+
+                    conn.setConnectTimeout(30000);
+                    conn.setReadTimeout(30000);
+                    conn.setUseCaches(true);
+                    conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
+
+                    try {
+                        ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+                        NetworkInfo ni = cm.getActiveNetworkInfo();
+                        if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
+                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via WiFi");
+                        } else {
+                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via mobile");
+                        }
+                    } catch (Exception e) {
+                        printStackTraceToCrashlytics(e);
+                    }
+
+                    try {
+                        if (conn.getInputStream() != null) {
+                            InputStream is = conn.getInputStream();
+                            OutputStream os = new FileOutputStream(cacheFile(url));
+                            byte[] buffer = new byte[8192];
+                            int len;
+                            while ((len = is.read(buffer)) != -1) {
+                                os.write(buffer, 0, len);
+                            }
+                            is.close();
+                            os.close();
+                            cacheFile(url).setLastModified(System.currentTimeMillis());
+
+                            Bitmap bitmap = getImage(url, width);
+                            if(bitmap == null) {
+                                android.util.Log.e("IRCCloud", "Failed to load bitmap after download");
+                                failedURLs.add(MD5(url.toString()));
+                            }
+                            notifyListeners(url, bitmap);
+                        } else {
+                            android.util.Log.e("IRCCloud", "No input stream");
                             failedURLs.add(MD5(url.toString()));
-                            notifyListeners(url, null);
-                        } catch (FileNotFoundException e) {
-                            failedURLs.add(MD5(url.toString()));
-                            e.printStackTrace();
-                            notifyListeners(url, null);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            failedURLs.add(MD5(url.toString()));
-                            printStackTraceToCrashlytics(e);
                             notifyListeners(url, null);
                         }
-
-                        conn.disconnect();
+                    } catch (OutOfMemoryError e) {
+                        e.printStackTrace();
+                        failedURLs.add(MD5(url.toString()));
+                        notifyListeners(url, null);
+                    } catch (FileNotFoundException e) {
+                        failedURLs.add(MD5(url.toString()));
+                        e.printStackTrace();
+                        notifyListeners(url, null);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        failedURLs.add(MD5(url.toString()));
+                        printStackTraceToCrashlytics(e);
+                        notifyListeners(url, null);
                     }
+
+                    conn.disconnect();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

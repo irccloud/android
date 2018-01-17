@@ -868,13 +868,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 b = ImageList.getInstance().getImage(avatarURL);
                                 if(b != null && b.getWidth() != width)
                                     b = Bitmap.createScaledBitmap(b, width, width, false);
-                                if(b == null)
-                                    ImageList.getInstance().fetchImage(avatarURL, new ImageList.OnImageFetchedListener() {
-                                        @Override
-                                        public void onImageFetched(Bitmap image) {
-                                            refreshSoon();
-                                        }
-                                    });
+                                ImageList.getInstance().fetchImage(avatarURL, 0, new ImageList.OnImageFetchedListener() {
+                                    @Override
+                                    public void onImageFetched(Bitmap image) {
+                                        refreshSoon();
+                                    }
+                                }, 600000);
                             } catch (IOException e1) {
                                 e1.printStackTrace();
                             }
@@ -977,14 +976,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if(avatarURL != null) {
                                 try {
                                     b = ImageList.getInstance().getImage(avatarURL);
-                                    if(b == null)
-                                        ImageList.getInstance().fetchImage(avatarURL, new ImageList.OnImageFetchedListener() {
-                                            @Override
-                                            public void onImageFetched(Bitmap image) {
-                                                refreshSoon();
-                                            }
-                                        });
+                                    ImageList.getInstance().fetchImage(avatarURL, 0, new ImageList.OnImageFetchedListener() {
+                                        @Override
+                                        public void onImageFetched(Bitmap image) {
+                                            refreshSoon();
+                                        }
+                                    }, 600000);
                                 } catch (IOException e1) {
+                                    e1.printStackTrace();
                                 }
                             }
                             if(b == null) {
@@ -1145,7 +1144,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                             public void onImageFetched(Bitmap image) {
                                                 refreshSoon();
                                             }
-                                        });
+                                        }, 0);
                                     }
                                     holder.thumbnail.setVisibility(View.GONE);
                                     holder.progress.setVisibility(View.VISIBLE);
@@ -2164,7 +2163,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 if(getActivity().getWindowManager().getDefaultDisplay().getHeight() < width)
                                                     width = getActivity().getWindowManager().getDefaultDisplay().getHeight();
                                                 width /= 2;
-                                                ImageList.getInstance().fetchImage(u, width, null);
+                                                ImageList.getInstance().fetchImage(u, width, null, 0);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
