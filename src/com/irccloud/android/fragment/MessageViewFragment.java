@@ -875,7 +875,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     }
                                 }, 600000);
                             } catch (IOException e1) {
-                                e1.printStackTrace();
                             }
                         }
                         if(b == null) {
@@ -983,7 +982,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         }
                                     }, 600000);
                                 } catch (IOException e1) {
-                                    e1.printStackTrace();
                                 }
                             }
                             if(b == null) {

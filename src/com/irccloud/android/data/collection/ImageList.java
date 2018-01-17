@@ -378,76 +378,7 @@ public class ImageList {
                             } catch (OutOfMemoryError e) {
                                 notifyListeners(url, null);
                             }
-                        } else if(System.currentTimeMillis() - cacheFile(url).lastModified() > maxCacheAge) {
-                            HttpURLConnection conn;
-
-                            Proxy proxy = null;
-                            int port = -1;
-
-                            String host = System.getProperty("http.proxyHost", null);
-                            try {
-                                port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
-                            } catch (NumberFormatException e) {
-                                port = -1;
-                            }
-
-                            if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-                                InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
-                                proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
-                            }
-
-                            if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url + " via proxy: " + host);
-                            } else {
-                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url);
-                            }
-
-                            try {
-                                if (url.getProtocol().toLowerCase().equals("https")) {
-                                    HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-                                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
-                                        https.setSSLSocketFactory(NetworkConnection.getInstance().IRCCloudSocketFactory);
-                                    else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                                        https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
-                                    conn = https;
-                                } else {
-                                    conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-                                }
-                            } catch (IOException e) {
-                                printStackTraceToCrashlytics(e);
-                                return;
-                            }
-
-                            conn.setConnectTimeout(30000);
-                            conn.setReadTimeout(30000);
-                            conn.setUseCaches(true);
-                            conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
-                            conn.setRequestMethod("HEAD");
-
-                            try {
-                                ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
-                                NetworkInfo ni = cm.getActiveNetworkInfo();
-                                if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
-                                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via WiFi");
-                                } else {
-                                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via mobile");
-                                }
-                            } catch (Exception e) {
-                                printStackTraceToCrashlytics(e);
-                            }
-
-                            try {
-                                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK && conn.getHeaderField("Last-Modified") != null && conn.getHeaderFieldDate("Last-Modified", 0) <= cacheFile(url).lastModified()) {
-                                    android.util.Log.d("IRCCLoud", "Last-Modified was in the past, touching cache file");
-                                    cacheFile(url).setLastModified(System.currentTimeMillis());
-                                    conn.disconnect();
-                                    return;
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            conn.disconnect();
-                        } else {
+                        } else if(System.currentTimeMillis() - cacheFile(url).lastModified() < maxCacheAge) {
                             return;
                         }
                     }
@@ -494,6 +425,7 @@ public class ImageList {
                     conn.setReadTimeout(30000);
                     conn.setUseCaches(true);
                     conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
+                    conn.setIfModifiedSince(cacheFile(url).lastModified());
 
                     try {
                         ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -508,7 +440,7 @@ public class ImageList {
                     }
 
                     try {
-                        if (conn.getInputStream() != null) {
+                        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK && conn.getInputStream() != null) {
                             InputStream is = conn.getInputStream();
                             OutputStream os = new FileOutputStream(cacheFile(url));
                             byte[] buffer = new byte[8192];
@@ -521,11 +453,21 @@ public class ImageList {
                             cacheFile(url).setLastModified(System.currentTimeMillis());
 
                             Bitmap bitmap = getImage(url, width);
-                            if(bitmap == null) {
+                            if (bitmap == null) {
                                 android.util.Log.e("IRCCloud", "Failed to load bitmap after download");
                                 failedURLs.add(MD5(url.toString()));
                             }
                             notifyListeners(url, bitmap);
+                        } else if(conn.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
+                            cacheFile(url).setLastModified(System.currentTimeMillis());
+                            if(maxCacheAge == 0) {
+                                Bitmap bitmap = getImage(url, width);
+                                if (bitmap == null) {
+                                    android.util.Log.e("IRCCloud", "Failed to load bitmap after download");
+                                    failedURLs.add(MD5(url.toString()));
+                                }
+                                notifyListeners(url, bitmap);
+                            }
                         } else {
                             android.util.Log.e("IRCCloud", "No input stream");
                             failedURLs.add(MD5(url.toString()));
