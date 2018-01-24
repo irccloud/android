@@ -3176,7 +3176,7 @@ public class NetworkConnection {
                 conn.setRequestProperty(key, headers.get(key));
             }
         }
-        if (sk != null && (url.getHost().equals(IRCCLOUD_HOST) || (!BuildConfig.ENTERPRISE && url.getHost().endsWith(".irccloud.com"))))
+        if (sk != null && url.getProtocol().equals("https") && url.getUserInfo() == null && (url.getHost().equals(IRCCLOUD_HOST) || (!BuildConfig.ENTERPRISE && url.getHost().endsWith(".irccloud.com"))))
             conn.setRequestProperty("Cookie", "session=" + sk);
         if (token != null)
             conn.setRequestProperty("x-auth-formtoken", token);
