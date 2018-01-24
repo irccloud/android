@@ -2796,7 +2796,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_timeLeft = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("time-left", true);
                 pref_nickColors = (prefs.has("nick-colors") && prefs.get("nick-colors") instanceof Boolean && prefs.getBoolean("nick-colors"));
                 pref_avatarsOff = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("avatars-off", true);
-                pref_avatarImages = false;//PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("avatar-images", true);
+                pref_avatarImages = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("avatar-images", true);
                 pref_chatOneLine = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-oneline", true);
                 pref_norealname = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-norealname", true);
                 pref_disableLargeEmoji = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("emoji-nobig", true);

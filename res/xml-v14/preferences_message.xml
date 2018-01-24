@@ -49,11 +49,11 @@
 			android:key="avatars-off"
 			android:defaultValue="true"
 			android:title="User icons"/>
-		<!--<SwitchPreference
+		<SwitchPreference
 			android:key="avatar-images"
 			android:defaultValue="false"
 			android:dependency="avatars-off"
-			android:title="Avatars"/>-->
+			android:title="Avatars"/>
 		<SwitchPreference
 			android:key="mode-showsymbol"
 			android:defaultValue="false"
