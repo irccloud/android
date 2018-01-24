@@ -224,7 +224,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_disableCodeBlock = false;
     private boolean pref_disableQuote = false;
     private boolean pref_inlineImages = false;
-    private boolean pref_avatarImages = true;
+    private boolean pref_avatarImages = false;
 
     private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
@@ -2786,7 +2786,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_disableCodeBlock = false;
         pref_disableQuote = false;
         pref_inlineImages = false;
-        pref_avatarImages = true;
+        pref_avatarImages = false;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -2796,7 +2796,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_timeLeft = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("time-left", true);
                 pref_nickColors = (prefs.has("nick-colors") && prefs.get("nick-colors") instanceof Boolean && prefs.getBoolean("nick-colors"));
                 pref_avatarsOff = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("avatars-off", true);
-                pref_avatarImages = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("avatar-images", true);
+                pref_avatarImages = false;//PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("avatar-images", true);
                 pref_chatOneLine = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-oneline", true);
                 pref_norealname = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-norealname", true);
                 pref_disableLargeEmoji = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("emoji-nobig", true);
