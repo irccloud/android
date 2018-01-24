@@ -17,6 +17,7 @@
 package com.irccloud.android;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -121,19 +122,25 @@ public class GCMService extends GcmListenerService {
                 if(s != null)
                     s.setNick(data.getString("server_nick"));
 
-                Event e = new Event();
-                e.from = from;
-                e.msg = msg;
-                e.type = type;
-                e.hostmask = data.getString("hostmask");
-                if (data.containsKey("avatar"))
-                    e.avatar = data.getString("avatar");
-                if (data.containsKey("avatar_url"))
-                    e.avatar_url = data.getString("avatar_url");
+                String avatar_url = null;
+
+                if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
+                    Event e = new Event();
+                    e.from = from;
+                    e.msg = msg;
+                    e.type = type;
+                    e.hostmask = data.getString("hostmask");
+                    if (data.containsKey("avatar"))
+                        e.avatar = data.getString("avatar");
+                    if (data.containsKey("avatar_url"))
+                        e.avatar_url = data.getString("avatar_url");
+
+                    avatar_url = e.getAvatarURL(512);
+                }
 
                 NotificationsList.getInstance().addNotificationGroup(cid, server_name);
                 NotificationsList.getInstance().updateServerNick(cid, data.getString("server_nick"));
-                NotificationsList.getInstance().addNotification(cid, bid, eid, (from == null)?data.getString("server_hostname"):from, msg, chan, buffer_type, type, server_name, e.getAvatarURL(512));
+                NotificationsList.getInstance().addNotification(cid, bid, eid, (from == null)?data.getString("server_hostname"):from, msg, chan, buffer_type, type, server_name, avatar_url);
 
                 if (from == null || from.length() == 0)
                     NotificationsList.getInstance().showNotifications(server_name + ": " + msg);

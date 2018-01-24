@@ -62,7 +62,7 @@ public class ConversationChooserTargetService extends ChooserTargetService {
             Icon avatar = null;
             if(b.isConversation()) {
                 try {
-                    if (c.avatar_url != null && c.avatar_url.length() > 0 && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", true)) {
+                    if (c.avatar_url != null && c.avatar_url.length() > 0 && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
                         Bitmap bitmap = ImageList.getInstance().getImage(new URL(c.avatar_url));
                         if (bitmap != null)
                             avatar = Icon.createWithBitmap(bitmap);

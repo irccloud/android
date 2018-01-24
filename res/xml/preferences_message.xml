@@ -51,7 +51,7 @@
 			android:title="User icons"/>
 		<!--<SwitchPreference
 			android:key="avatar-images"
-			android:defaultValue="true"
+			android:defaultValue="false"
 			android:dependency="avatars-off"
 			android:title="Avatars"/>-->
 		<SwitchPreference
