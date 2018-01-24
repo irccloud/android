@@ -70,32 +70,48 @@ import java.net.URL;
 public class PastebinViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
     private class FetchPastebinTask extends AsyncTaskEx<Void, Void, String> {
         @Override
-        protected String doInBackground(Void... params) {
+        protected void onPreExecute() {
             try {
-                Thread.sleep(1000);
-                return NetworkConnection.getInstance().fetch(new URL(url), null, NetworkConnection.getInstance().session, null, null);
+                if (!url.startsWith("https://" + NetworkConnection.IRCCLOUD_HOST + "/pastebin/") && !url.startsWith("https://www.irccloud.com/pastebin/")) {
+                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unsupported URL", Toast.LENGTH_SHORT).show();
+                    cancel(true);
+                    finish();
+                }
             } catch (Exception e) {
+            }
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            if(!isCancelled()) {
+                try {
+                    Thread.sleep(1000);
+                    return NetworkConnection.getInstance().fetch(new URL(url), null, null, null, null);
+                } catch (Exception e) {
+                }
             }
             return null;
         }
 
         @Override
         protected void onPostExecute(String html) {
-            if (html != null) {
-                PastebinViewerActivity.this.html = html;
-                mWebView.loadDataWithBaseURL(url, html, "text/html", "UTF-8", null);
+            if(!isCancelled()) {
+                if (html != null) {
+                    PastebinViewerActivity.this.html = html;
+                    mWebView.loadDataWithBaseURL(url, html, "text/html", "UTF-8", null);
 
-                try {
-                    if (Build.VERSION.SDK_INT >= 16) {
-                        NfcAdapter nfc = NfcAdapter.getDefaultAdapter(PastebinViewerActivity.this);
-                        if (nfc != null) {
-                            nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(url)), PastebinViewerActivity.this);
+                    try {
+                        if (Build.VERSION.SDK_INT >= 16) {
+                            NfcAdapter nfc = NfcAdapter.getDefaultAdapter(PastebinViewerActivity.this);
+                            if (nfc != null) {
+                                nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(url)), PastebinViewerActivity.this);
+                            }
                         }
+                    } catch (Exception e) {
                     }
-                } catch (Exception e) {
+                } else {
+                    fail();
                 }
-            } else {
-                fail();
             }
         }
     }
