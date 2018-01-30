@@ -842,7 +842,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     } catch (Exception e1) {
 
                     }
-                    if (e.color == colorScheme.timestampColor || e.pending)
+                    if (e.color == colorScheme.timestampColor || e.color == colorScheme.collapsedRowTextColor || e.pending)
                         holder.message.setLinkTextColor(colorScheme.lightLinkColor);
                     else
                         holder.message.setLinkTextColor(colorScheme.linkColor);
@@ -2102,7 +2102,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 else
                                     event.html = "The server " + event.msg;
                             } else {
-                                event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> " + event.msg;
+                                event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false, Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2)) + "</b> " + event.msg;
                             }
                             break;
                     }

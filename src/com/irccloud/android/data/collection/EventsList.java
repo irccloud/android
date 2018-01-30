@@ -1013,6 +1013,7 @@ public class EventsList {
                 if(event != null) {
                     e.msg = sb.append("renamed the channel: ").append(event.getString("old_name")).append(" → <b>").append(event.getString("new_name")).append("</b>").toString();
                 }
+                e.color = colorScheme.collapsedRowTextColor;
             }
         });
 
