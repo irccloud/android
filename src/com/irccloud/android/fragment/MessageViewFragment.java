@@ -550,9 +550,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         currentGroupPosition++;
                 }
 
+                String avatar = e.getAvatarURL(72);
                 if (insert_pos > 0) {
                     Event prev = data.get(insert_pos - ((e.row_type == ROW_LASTSEENEID)?2:1));
-                    e.header = (e.isMessage() && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from) || !prev.type.equals(e.type));
+                    String prevAvatar = prev.getAvatarURL(72);
+                    e.header = (e.isMessage() && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from) || !prev.type.equals(e.type) || (avatar == null && prevAvatar != null) || (avatar != null && prevAvatar == null) || (avatar != null && prevAvatar != null && !avatar.equals(prevAvatar)));
                 }
 
                 if (insert_pos < (data.size() - 1)) {
@@ -561,7 +563,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         next.header = (next.isMessage() && next.from != null && next.from.length() > 0 && next.group_eid < 1);
                     }
                     if (next.from != null && next.from.equals(e.from) && next.type.equals(e.type)) {
-                        next.header = false;
+                        String nextAvatar = next.getAvatarURL(72);
+                        next.header = false;//!avatar.equals(nextAvatar);
                     }
                 }
             }
