@@ -647,7 +647,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if (e.msg != null && e.msg.length() > 0)
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                             if (e.from != null && e.from.length() > 0) {
-                                e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>");
+                                e.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
                             }
                             if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
                                 e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
@@ -1907,7 +1907,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
 
                     if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
-                        event.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>");
+                        event.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
                     }
 
                     if (event.formatted_realname == null && event.from_realname != null && event.from_realname.length() > 0) {

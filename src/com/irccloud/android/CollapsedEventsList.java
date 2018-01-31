@@ -601,7 +601,7 @@ public class CollapsedEventsList {
             } else {
                 output.append("•");
             }
-            output.append("\u000f ");
+            output.append("\u000f\u202f");
         }
 
         if (color != null)
