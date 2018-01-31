@@ -459,7 +459,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
                     try {
                         UserListEntry e = (UserListEntry) adapter.getItem(pos);
                         if (e.type == TYPE_USER)
-                            mListener.onUserDoubleClicked(e.text);
+                            mListener.onUserDoubleClicked(UsersList.getInstance().getUser(bid,e.text).nick);
                     } catch (Exception e) {
 
                     }

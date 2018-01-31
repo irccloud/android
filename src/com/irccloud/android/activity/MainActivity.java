@@ -4449,7 +4449,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (event == null)
             return;
 
-        String from = event.from;
+        String from = event.from_nick;
         if (from == null || from.length() == 0)
             from = event.nick;
 
@@ -4837,7 +4837,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (user == null && from != null && event.hostmask != null) {
             user = new User();
-            user.nick = from;
+            user.nick = event.from_nick;
+            user.display_name = from;
             user.hostmask = event.hostmask;
             user.mode = "";
             user.joined = 0;
