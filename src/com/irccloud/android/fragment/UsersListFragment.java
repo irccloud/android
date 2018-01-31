@@ -165,7 +165,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0 ? symbol + String.valueOf(users.size()) : null, bg_color, heading_color, false, false));
             for (int i = 0; i < users.size(); i++) {
                 User user = users.get(i);
-                entries.add(adapter.buildItem(TYPE_USER, user.nick, null, bg_color, heading_color, user.away > 0, bg_color != colorScheme.row_members_bg_drawable && i == users.size() - 1));
+                entries.add(adapter.buildItem(TYPE_USER, user.getDisplayName(), null, bg_color, heading_color, user.away > 0, bg_color != colorScheme.row_members_bg_drawable && i == users.size() - 1));
             }
         }
     }
@@ -216,6 +216,8 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
         String operGroupMode = "Y";
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
+            if(user.nick.equals(s.getNick()))
+                s.setFrom(user.getDisplayName());
             String mode = user.mode.toLowerCase();
             if (mode.contains(s != null ? s.MODE_OPER.toLowerCase() : "y") && (PREFIX.has(s != null ? s.MODE_OPER : "Y") || PREFIX.has(s != null ? s.MODE_OPER.toLowerCase() : "y"))) {
                 opers.add(user);
@@ -520,6 +522,9 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             case NetworkConnection.EVENT_KICK:
             case NetworkConnection.EVENT_NICKCHANGE:
                 if (what == NetworkConnection.EVENT_NICKCHANGE && ((IRCCloudJSONObject) obj).bid() != bid)
+                    break;
+            case NetworkConnection.EVENT_DISPLAYNAMECHANGE:
+                if (what == NetworkConnection.EVENT_DISPLAYNAMECHANGE && ((IRCCloudJSONObject) obj).cid() != cid)
                     break;
             case NetworkConnection.EVENT_CHANNELINIT:
             case NetworkConnection.EVENT_USERINFO:

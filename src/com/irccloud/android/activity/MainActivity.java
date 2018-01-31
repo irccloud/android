@@ -1267,13 +1267,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 if (users != null) {
                     for (User user : users) {
-                        String nick = user.nick_lowercase;
+                        String nick = user.nick.toLowerCase();
                         if (text.matches("^[a-zA-Z0-9]+.*"))
                             nick = nick.replaceFirst("^[^a-zA-Z0-9]+", "");
 
-                        if (nick.startsWith(text) && !sugs_set.contains(user.nick)) {
+                        if ((nick.startsWith(text) || (user.display_name != null && user.display_name.toLowerCase().startsWith(text))) && !sugs_set.contains(user.nick)) {
                             sugs_set.add(user.nick);
-                            sugs.add(user.nick);
+                            if(user.display_name != null && user.display_name.length() > 0)
+                                sugs.add(user.display_name + "\u00a0(" +user.nick + ")");
+                            else
+                                sugs.add(user.nick);
                         }
                     }
                 }
@@ -1389,6 +1392,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             suggestions.smoothScrollToPosition(suggestionsAdapter.activePos);
 
             String nick = suggestionsAdapter.getItem(suggestionsAdapter.activePos);
+            if(nick != null && nick.contains("\u00a0")) {
+                nick = nick.substring(nick.indexOf("\u00a0") + 2, nick.length() - 1);
+            }
             String text = messageTxt.getText().toString();
             if(suggestionsAdapter.atMention)
                 nick = "@" + nick;
@@ -1576,9 +1582,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (e.eid < EventsList.getInstance().lastEidForBuffer(buffer.getBid()))
                     e.eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid()) + 1000;
                 e.self = true;
-                e.from = server.getNick();
+                e.from = server.getFrom();
                 e.nick = server.getNick();
                 e.from_realname = server.getServerRealname();
+                e.avatar = server.getAvatar();
+                e.avatar_url = server.getAvatarURL();
+                e.hostmask = "uid" + conn.getUserInfo().id + "@";
                 e.chan = buffer.getName();
                 if (u != null)
                     e.from_mode = u.mode;
@@ -2006,6 +2015,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String nick = suggestionsAdapter.getItem(position);
+                if(nick != null && nick.contains("\u00a0")) {
+                    nick = nick.substring(nick.indexOf("\u00a0") + 2, nick.length() - 1);
+                }
                 String text = messageTxt.getText().toString();
                 if(suggestionsAdapter.atMention)
                     nick = "@" + nick;
@@ -5003,9 +5015,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (selected_user != null)
             if (selected_user.hostmask != null && selected_user.hostmask.length() > 0)
-                builder.setTitle(selected_user.nick + "\n(" + ColorFormatter.strip(selected_user.hostmask) + ")");
+                builder.setTitle(selected_user.getDisplayName() + "\n(" + ColorFormatter.strip(selected_user.hostmask) + ")");
             else
-                builder.setTitle(selected_user.nick);
+                builder.setTitle(selected_user.getDisplayName());
         else
             builder.setTitle("Message");
 

@@ -1040,7 +1040,11 @@ public class EventsList {
             if(e.msg != null)
                 e.msg = Normalizer.normalize(e.msg, Normalizer.Form.NFC);
             e.hostmask = event.getString("hostmask");
-            e.from = event.getString("from");
+            if(event.has("from") && event.has("display_name"))
+                e.from = event.getString("display_name");
+            else
+                e.from = event.getString("from");
+            e.from_nick = event.getString("from");
             e.from_mode = event.getString("from_mode");
             e.from_realname = event.getString("from_realname");
             if(e.from_realname != null && e.from_realname.length() > 0 && e.from_realname.equals(e.from))
@@ -1068,6 +1072,12 @@ public class EventsList {
             e.entities = event.getJsonNode("entities");
             e.avatar = event.getString("avatar");
             e.avatar_url = event.getString("avatar_url");
+
+            if((e.type.equals("buffer_msg") || e.type.equals("buffer_me_msg")) && (e.from == null || e.from.length() == 0))
+                e.from = e.from_nick = e.server;
+
+            if((e.from == null || e.from.length() == 0) && e.nick != null && e.nick.length() > 0 && event.has("display_name"))
+                e.nick = event.getString("display_name");
 
             if (event.has("reqid"))
                 e.reqid = event.getInt("reqid");

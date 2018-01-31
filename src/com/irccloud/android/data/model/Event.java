@@ -70,6 +70,9 @@ public class Event /*extends ObservableBaseModel*/ {
     public String from;
 
     @Column
+    public String from_nick;
+
+    @Column
     public String from_mode;
 
     @Column

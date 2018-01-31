@@ -65,10 +65,20 @@ public class User /*extends BaseModel*/ {
     public String ircserver;
 
     @Column
+    public String display_name;
+
+    @Column
     public int joined;
 
     @Column
     public long last_mention = -1;
+
+    public String getDisplayName() {
+        if(display_name != null && display_name.length() > 0)
+            return display_name;
+        else
+            return nick;
+    }
 
     public String toString() {
         return "{cid: " + cid + ", bid: " + bid + ", nick: " + nick + ", hostmask: " + hostmask + "}";

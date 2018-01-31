@@ -91,34 +91,37 @@ public class UsersList {
         }*/
     }
 
-    public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, String ircserver, int away) {
-        return createUser(cid, bid, nick, hostmask, mode, ircserver, away, true);
+    public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, String ircserver, int away, String display_name) {
+        return createUser(cid, bid, nick, hostmask, mode, ircserver, away, display_name, true);
     }
 
-    public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, String ircserver, int away, boolean find_old) {
+    public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, String ircserver, int away, String display_name, boolean find_old) {
         User u = null;
         if (find_old)
             u = getUser(bid, nick);
 
         if (u == null) {
             u = new User();
-
-            TreeMap<String, User> usersList = users.get(bid);
-            if (users.get(bid) == null) {
-                usersList = new TreeMap<>(comparator);
-                users.put(bid, usersList);
-            }
-            usersList.put(nick.toLowerCase(), u);
         }
         u.cid = cid;
         u.bid = bid;
         u.nick = nick;
-        u.nick_lowercase = nick.toLowerCase();
+        u.display_name = display_name;
+        if(u.display_name != null && u.display_name.length() > 0)
+            u.nick_lowercase = display_name.toLowerCase();
+        else
+            u.nick_lowercase = nick.toLowerCase();
         u.hostmask = hostmask;
         u.mode = mode;
         u.ircserver = ircserver;
         u.away = away;
         u.joined = 1;
+        TreeMap<String, User> usersList = users.get(bid);
+        if (users.get(bid) == null) {
+            usersList = new TreeMap<>(comparator);
+            users.put(bid, usersList);
+        }
+        usersList.put(u.nick_lowercase, u);
         return u;
     }
 
@@ -145,6 +148,20 @@ public class UsersList {
             u.old_nick = old_nick;
             users.get(bid).remove(old_nick.toLowerCase());
             users.get(bid).put(new_nick.toLowerCase(), u);
+        }
+    }
+
+    public synchronized void updateDisplayName(int cid, String nick, String display_name) {
+        for(TreeMap<String,User> users : users.values()) {
+            for(User u : users.values()) {
+                if(u.cid == cid && u.nick.equals(nick)) {
+                    users.remove(u.nick_lowercase);
+                    u.display_name = display_name;
+                    u.nick_lowercase = display_name.toLowerCase();
+                    users.put(u.nick_lowercase, u);
+                    break;
+                }
+            }
         }
     }
 

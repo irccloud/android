@@ -51,6 +51,15 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     private String nick;
 
     @Column
+    private String from;
+
+    @Column
+    private String avatar;
+
+    @Column
+    private String avatar_url;
+
+    @Column
     private String status;
 
     @Column
@@ -173,6 +182,30 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
 
     public void setNick(String nick) {
         this.nick = nick;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getAvatarURL() {
+        return avatar_url;
+    }
+
+    public void setAvatarURL(String avatar_url) {
+        this.avatar_url = avatar_url;
     }
 
     public String getStatus() {
