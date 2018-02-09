@@ -303,6 +303,15 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             findPreference("change_password").setOnPreferenceClickListener(changePasswordClick);
         if(findPreference("delete_account") != null)
             findPreference("delete_account").setOnPreferenceClickListener(deleteAccountPasswordClick);
+        if(findPreference("public_avatar") != null)
+            findPreference("public_avatar").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent i = new Intent(PreferencesActivity.this, AvatarsActivity.class);
+                    startActivity(i);
+                    return false;
+                }
+            });
         findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
         findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);

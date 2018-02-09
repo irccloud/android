@@ -312,6 +312,12 @@
             android:exported="false"
             android:theme="@style/dawnDialogWhenLarge"></activity>
         <activity
+            android:name=".activity.AvatarsActivity"
+            android:label="@string/title_activity_avatars"
+            android:exported="false"
+            android:theme="@style/dawnDialogWhenLarge">
+        </activity>
+        <activity
             android:name=".activity.LogExportsActivity"
             android:label="@string/title_activity_exports"
             android:exported="false"

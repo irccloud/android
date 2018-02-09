@@ -87,6 +87,12 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     private String ircserver;
 
     @Column
+    private int orgId;
+
+    @Column
+    private int avatars_supported;
+
+    @Column
     public ObjectNode isupport = new ObjectMapper().createObjectNode();
 
     @Column
@@ -338,6 +344,22 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     public void setIRCServer(String ircserver) {
         this.ircserver = ircserver;
         isSlack = -1;
+    }
+
+    public int getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(int orgId) {
+        this.orgId = orgId;
+    }
+
+    public int getAvatars_supported() {
+        return avatars_supported;
+    }
+
+    public void setAvatars_supported(int avatars_supported) {
+        this.avatars_supported = avatars_supported;
     }
 
     public void updateUserModes(String modes) {

@@ -33,6 +33,10 @@
 			android:defaultValue="true"
 			android:summary="Set your away status when you leave the app" android:title="Auto-away"/>
 		<Preference
+			android:title="Public Avatar"
+			android:key="public_avatar"
+			/>
+		<Preference
 			android:title="Change your password"
 			android:key="change_password"
 			/>

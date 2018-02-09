@@ -3956,6 +3956,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             items = Arrays.copyOf(items, items.length + 1);
             items[items.length - 1] = "File Uploads";
         }
+        if(server.getAvatars_supported() == 1) {
+            items = Arrays.copyOf(items, items.length + 1);
+            items[items.length - 1] = "Change Avatar";
+        } else {
+            items = Arrays.copyOf(items, items.length + 1);
+            items[items.length - 1] = "Change Public Avatar";
+        }
 
         final String[] dialogItems = items;
 
@@ -4047,6 +4054,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             i.putExtra("to", buffer.getName());
                             i.putExtra("msg", messageTxt.getText().toString());
                             startActivityForResult(i, REQUEST_UPLOADS);
+                            break;
+                        case "Change Avatar":
+                        case "Change Public Avatar":
+                            i = new Intent(MainActivity.this, AvatarsActivity.class);
+                            if(server.getOrgId() > 0)
+                                i.putExtra("orgId", server.getOrgId());
+                            startActivity(i);
                             break;
                     }
                 }
@@ -5676,10 +5690,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         return srcBitmap;
     }
 
-    private Uri resize(Uri in) {
+    private static Uri resize(Uri in) {
         Uri out = null;
         try {
-            int MAX_IMAGE_SIZE = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("photo_size", "1024"));
+            int MAX_IMAGE_SIZE = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("photo_size", "1024"));
 
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inJustDecodeBounds = true;
@@ -5706,7 +5720,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
             is.close();
 
-            out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", getCacheDir()));
+            out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", IRCCloudApplication.getInstance().getApplicationContext().getCacheDir()));
             if (orientation > 1) {
                 Matrix matrix = new Matrix();
                 switch (orientation) {
@@ -5754,14 +5768,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } catch (OutOfMemoryError e) {
             Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
         }
-        if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && in.toString().contains("irccloudcapture")) {
+        if (!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("keep_photos", false) && in.toString().contains("irccloudcapture")) {
             try {
                 new File(in.getPath()).delete();
             } catch (Exception e) {
             }
         }
         if (out != null) {
-            if(in.toString().contains(getCacheDir().getAbsolutePath())) {
+            if(in.toString().contains(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir().getAbsolutePath())) {
                 Log.i("IRCCloud", "Removing temporary file: " + in);
                 new File(in.getPath()).delete();
             }
@@ -6139,6 +6153,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         public boolean uploadFinished = false;
         public boolean filenameSet = false;
 
+        public boolean avatar = false;
+        public int orgId = -1;
+        private int notification_id = 1337;
+
         private NotificationCompat.Builder notification;
 
         private BroadcastReceiver cancelListener = new BroadcastReceiver() {
@@ -6159,16 +6177,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         };
 
         public FileUploadTask(Uri fileUri, final MainActivity activity) {
-            mBuffer = activity.buffer;
+            if(activity != null) {
+                mBuffer = activity.buffer;
+                notification_id = mBuffer.getBid();
+            }
             mFileUri = fileUri;
-            type = activity.getContentResolver().getType(mFileUri);
+            type = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().getType(mFileUri);
 
             if (Build.VERSION.SDK_INT < 16) {
                 original_filename = fileUri.getLastPathSegment();
             } else {
                 Cursor cursor = null;
                 try {
-                    cursor = activity.getContentResolver().query(fileUri, null, null, null, null, null);
+                    cursor = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().query(fileUri, null, null, null, null, null);
                     if (cursor != null && cursor.moveToFirst()) {
                         original_filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     } else {
@@ -6209,10 +6230,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (!original_filename.contains("."))
                 original_filename += "." + type.substring(type.indexOf("/") + 1);
 
-            setActivity(activity);
+            if(activity != null)
+                setActivity(activity);
 
             IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(activity.getPackageName() + ".cancel_upload");
+            intentFilter.addAction(IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + ".cancel_upload");
             IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(cancelListener, intentFilter, BuildConfig.APPLICATION_ID + ".permission.BROADCAST", null);
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -6229,18 +6251,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     .setLocalOnly(true)
                     .setOngoing(true)
                     .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.ic_background))
-                    .addAction(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP?R.drawable.ic_action_cancel_upload:R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), PendingIntent.FLAG_UPDATE_CURRENT))
                     .setSmallIcon(android.R.drawable.stat_sys_upload);
 
-            Intent i = new Intent();
-            i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
-            i.putExtra("bid", mBuffer.getBid());
-            i.setData(Uri.parse("bid://" + mBuffer.getBid()));
-            notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
+            if(activity != null) {
+                Intent i = new Intent();
+                i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+                i.putExtra("bid", mBuffer.getBid());
+                i.setData(Uri.parse("bid://" + mBuffer.getBid()));
+                notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
+                notification.addAction(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP?R.drawable.ic_action_cancel_upload:R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), PendingIntent.FLAG_UPDATE_CURRENT));
 
-            if(ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-                show_dialog();
 
+                if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                    show_dialog();
+            }
             Crashlytics.log(Log.INFO, "IRCCloud", "Uploading file to IRCCloud: " + original_filename + " " + type);
         }
 
@@ -6367,20 +6391,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         private void finalize_upload() {
-            if (uploadFinished && filenameSet && !isCancelled()) {
+            if (uploadFinished && (filenameSet || avatar) && !isCancelled()) {
                 if (file_id != null && file_id.length() > 0) {
-                    NetworkConnection.getInstance().finalize_upload(file_id, filename, original_filename, new NetworkConnection.IRCResultCallback() {
+                    NetworkConnection.getInstance().finalize_upload(file_id, filename, original_filename, avatar, orgId, new NetworkConnection.IRCResultCallback() {
                         @Override
                         public void onIRCResult(final IRCCloudJSONObject result) {
                             if(result.getBoolean("success")) {
                                 if (result.getJsonObject("file") != null && result.getJsonObject("file").has("url")) {
-                                    if (message == null || message.length() == 0)
-                                        message = "";
-                                    else
-                                        message += " ";
-                                    message += result.getJsonObject("file").get("url").asText();
-                                    NetworkConnection.getInstance().say(mBuffer.getCid(), mBuffer.getName(), message, null);
-                                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
+                                    if(!avatar) {
+                                        if (message == null || message.length() == 0)
+                                            message = "";
+                                        else
+                                            message += " ";
+                                        message += result.getJsonObject("file").get("url").asText();
+                                        NetworkConnection.getInstance().say(mBuffer.getCid(), mBuffer.getName(), message, null);
+                                    }
+                                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(notification_id);
                                     if(activity != null) {
                                         activity.fileUploadTask = null;
                                         activity.runOnUiThread(new Runnable() {
@@ -6392,7 +6418,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     }
                                 }
                             } else {
-                                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
+                                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(notification_id);
                                 if(activity != null) {
                                     activity.fileUploadTask = null;
                                     activity.runOnUiThread(new Runnable() {
@@ -6422,13 +6448,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected String doInBackground(Void... params) {
             InputStream fileIn;
             try {
-                while (activity == null)
-                    Thread.sleep(100);
-                if (type != null && type.startsWith("image/") && !type.equals("image/gif") && !type.equals("image/png") && Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024")) > 0) {
-                    mFileUri = activity.resize(mFileUri);
+                if (type != null && type.startsWith("image/") && !type.equals("image/gif") && !type.equals("image/png") && Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("photo_size", "1024")) > 0) {
+                    mFileUri = MainActivity.resize(mFileUri);
                 }
-                fileIn = activity.getContentResolver().openInputStream(mFileUri);
-                Cursor c = activity.getContentResolver().query(mFileUri, new String[]{OpenableColumns.SIZE}, null, null, null);
+                fileIn = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(mFileUri);
+                Cursor c = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().query(mFileUri, new String[]{OpenableColumns.SIZE}, null, null, null);
                 if (c != null && c.moveToFirst()) {
                     total = c.getInt(0);
                 } else {
@@ -6437,6 +6461,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(c != null)
                     c.close();
             } catch (Exception e) {
+                e.printStackTrace();
                 Crashlytics.log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
                 if(activity != null) {
                     activity.runOnUiThread(new Runnable() {
@@ -6446,8 +6471,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     });
                 } else {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
-                    NotificationsList.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(notification_id);
+                    NotificationsList.getInstance().alert(notification_id, "Upload Failed", "Unable to upload file to IRCCloud.");
                 }
                 return null;
             }
@@ -6461,35 +6486,35 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     });
                 } else {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
-                    NotificationsList.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Sorry, you can’t upload files larger than 15 MB");
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(notification_id);
+                    NotificationsList.getInstance().alert(notification_id, "Upload Failed", "Sorry, you can’t upload files larger than 15 MB");
                 }
                 return null;
             }
 
-            if(activity != null)
+            final String filesize;
+            if (total < 1024) {
+                filesize = total + " B";
+            } else {
+                int exp = (int) (Math.log(total) / Math.log(1024));
+                filesize = String.format("%.1f ", total / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
+            }
+            notification.setContentText(filesize + " • " + type);
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(notification_id, notification.build());
+            if(activity != null) {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        String filesize;
-                        if (total < 1024) {
-                            filesize = total + " B";
-                        } else {
-                            int exp = (int) (Math.log(total) / Math.log(1024));
-                            filesize = String.format("%.1f ", total / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
-                        }
-                        if(fileSize != null)
+                        if (fileSize != null)
                             fileSize.setText(filesize + " • " + type);
-                        notification.setContentText(filesize + " • " + type);
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(mBuffer.getBid(), notification.build());
                     }
                 });
-
+            }
             InputStream responseIn = null;
 
             try {
                 String boundary = UUID.randomUUID().toString();
-                http = (HttpsURLConnection) new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/upload").openConnection();
+                http = (HttpsURLConnection) new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/upload" + (avatar?"-avatar":"")).openConnection();
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
                     http.setSSLSocketFactory(NetworkConnection.getInstance().IRCCloudSocketFactory);
                 else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -6547,7 +6572,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 } else {
                     Log.e("IRCCloud", "Upload cancelled");
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(notification_id);
                 }
             } catch (IOException ex) {
                 NetworkConnection.printStackTraceToCrashlytics(ex);
@@ -6605,7 +6630,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 notification.setProgress(1000, (int) (values[0] * 1000), false);
             else
                 notification.setProgress(0, 0, true);
-            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(mBuffer.getBid(), notification.build());
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(notification_id, notification.build());
 
             if (activity != null) {
                 try {
@@ -6684,32 +6709,32 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             hide_progress();
             if(metadataDialog != null)
                 metadataDialog.cancel();
-            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(notification_id);
         }
 
         private void hide_progress() {
-            if (activity != null && activity.progressBar != null && activity.progressBar.getVisibility() == View.VISIBLE) {
-                if (Build.VERSION.SDK_INT >= 16) {
-                    activity.progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(activity != null && activity.progressBar != null)
-                                activity.progressBar.setVisibility(View.GONE);
-                        }
-                    });
-                } else {
-                    activity.progressBar.setVisibility(View.GONE);
-                }
-            }
             if(activity != null && activity.actionBar != null) {
+                if (activity.progressBar.getVisibility() == View.VISIBLE) {
+                    if (Build.VERSION.SDK_INT >= 16) {
+                        activity.progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(activity != null && activity.progressBar != null)
+                                    activity.progressBar.setVisibility(View.GONE);
+                            }
+                        });
+                    } else {
+                        activity.progressBar.setVisibility(View.GONE);
+                    }
+                }
                 activity.actionBar.setDisplayShowCustomEnabled(true);
                 activity.actionBar.setDisplayShowTitleEnabled(false);
             }
-            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(notification_id);
         }
 
         private void show_alert(String title, String message) {
-            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(notification_id);
             try {
                 if (activity == null)
                     throw new IllegalStateException();
@@ -6737,7 +6762,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 metadataDialog.dismiss();
             } catch (Exception e) {
-                NotificationsList.getInstance().alert(mBuffer.getBid(), title, message);
+                NotificationsList.getInstance().alert(notification_id, title, message);
             }
         }
     }

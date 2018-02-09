@@ -219,6 +219,7 @@ public class NetworkConnection {
     public static final int EVENT_TRACERESPONSE = 53;
     public static final int EVENT_LOGEXPORTFINISHED = 54;
     public static final int EVENT_DISPLAYNAMECHANGE = 55;
+    public static final int EVENT_AVATARCHANGE = 56;
 
     public static final int EVENT_BACKLOG_START = 100;
     public static final int EVENT_BACKLOG_END = 101;
@@ -1936,12 +1937,20 @@ public class NetworkConnection {
         return send("resend-verify-email", o, callback);
     }
 
-    public int finalize_upload(String id, String filename, String original_filename, IRCResultCallback callback) {
+    public int finalize_upload(String id, String filename, String original_filename, boolean avatar, int orgId, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("id", id);
             o.put("filename", filename);
             o.put("original_filename", original_filename);
+            if(avatar) {
+                o.put("type", "avatar");
+                if(orgId == -1) {
+                    o.put("primary", 1);
+                } else {
+                    o.put("org", orgId);
+                }
+            }
             return send("upload-finalise", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
@@ -1998,6 +2007,22 @@ public class NetworkConnection {
                 o.put("bid", bid);
             o.put("timezone", timezone);
             return send("export-log", o, callback);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
+    public int set_avatar(int orgId, String avatar_id, IRCResultCallback callback) {
+        try {
+            JSONObject o = new JSONObject();
+            if(avatar_id != null)
+                o.put("id", avatar_id);
+            else
+                o.put("clear", "1");
+            if(orgId != -1)
+                o.put("org", orgId);
+            return send("set-avatar", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
             return -1;
@@ -2418,7 +2443,8 @@ public class NetworkConnection {
                 Server server = mServers.createServer(object.cid(), object.getString("name"), object.getString("hostname"),
                         object.getInt("port"), object.getString("nick"), object.getString("status"), object.getBoolean("ssl") ? 1 : 0,
                         object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-                        object.getJsonObject("fail_info"), away, object.getJsonNode("ignores"), (object.has("order") && !object.getString("order").equals("undefined")) ? object.getInt("order") : 0, object.getString("server_realname"), object.getString("ircserver"));
+                        object.getJsonObject("fail_info"), away, object.getJsonNode("ignores"), (object.has("order") && !object.getString("order").equals("undefined")) ? object.getInt("order") : 0, object.getString("server_realname"),
+                        object.getString("ircserver"), (object.has("orgid") && !object.getString("orgid").equals("undefined")) ? object.getInt("orgid") : 0, (object.has("avatars_supported") && !object.getString("avatars_supported").equals("undefined")) ? object.getInt("avatars_supported") : 0);
 
                 NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"));
                 NotificationsList.getInstance().addNotificationGroup(server.getCid(), server.getName() != null && server.getName().length() > 0 ? server.getName() : server.getHostname());
@@ -3000,6 +3026,7 @@ public class NetworkConnection {
         put("whowas_response", new BroadcastParser(EVENT_WHOWAS));
         put("trace_response", new BroadcastParser(EVENT_TRACERESPONSE));
         put("export_finished", new BroadcastParser(EVENT_LOGEXPORTFINISHED));
+        put("avatar_change", new BroadcastParser(EVENT_AVATARCHANGE));
         put("who_response", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
@@ -3389,6 +3416,7 @@ public class NetworkConnection {
         public JSONObject prefs;
         public String highlights;
         public boolean uploads_disabled;
+        public String avatar;
 
         public UserInfo(IRCCloudJSONObject object) {
             SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
@@ -3407,6 +3435,10 @@ public class NetworkConnection {
             join_date = object.getLong("join_date");
             auto_away = object.getBoolean("autoaway");
             uploads_disabled = object.has("uploads_disabled") && object.getBoolean("uploads_disabled");
+            if(object.has("avatar") && object.getString("avatar").length() > 0 && !object.getString("avatar").equals("null"))
+                avatar = object.getString("avatar");
+            else
+                avatar = null;
 
             if (object.has("prefs") && object.getString("prefs").length() > 0 && !object.getString("prefs").equals("null")) {
                 try {

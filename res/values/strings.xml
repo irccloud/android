@@ -58,6 +58,7 @@
     <string name="title_activity_imageviewer">Image Viewer</string>
     <string name="title_activity_video_player">Video Player</string>
     <string name="title_activity_exports">Download Logs</string>
+    <string name="title_activity_avatars">Avatars</string>
     <string name="leak_canary_display_activity_label">IRCCloud Leaks</string>
     <string name="licenses">IRCCloud\
 Copyright &#169; 2017 IRCCloud, Ltd.\
