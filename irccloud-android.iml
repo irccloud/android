@@ -143,6 +143,7 @@
     <orderEntry type="library" name="com.android.support:support-annotations:27.0.2@jar" level="project" />
     <orderEntry type="library" name="com.android.support:design-27.0.2" level="project" />
     <orderEntry type="library" name="com.makeramen:roundedimageview-2.3.0" level="project" />
+    <orderEntry type="library" name="com.theartofdev.edmodo:android-image-cropper-2.6.0" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-auth-api-phone-11.8.0" level="project" />
     <orderEntry type="library" name="com.android.support:transition-27.0.2" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-gass-license-11.8.0" level="project" />

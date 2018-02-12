@@ -363,6 +363,7 @@ dependencies {
     compile "com.github.Raizlabs.DBFlow:dbflow:$dbflowVersion"
     compile 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     compile 'com.datatheorem.android.trustkit:trustkit:1.0.0'
+    compile 'com.theartofdev.edmodo:android-image-cropper:2.6.0'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true
     }

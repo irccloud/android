@@ -25,10 +25,7 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
@@ -56,9 +53,9 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Server;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,14 +65,9 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
     private AvatarsAdapter adapter = new AvatarsAdapter();
     private int orgId = -1;
     private UriTemplate template;
-    private Uri imageCaptureURI = null;
     private MainActivity.FileUploadTask fileUploadTask;
 
-    private static final int REQUEST_CAMERA = 1;
-    private static final int REQUEST_PHOTO = 2;
-    private static final int REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO = 3;
-    private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO = 4;
-    private static final int REQUEST_EXTERNAL_MEDIA_IRCCLOUD = 5;
+    private static final int REQUEST_EXTERNAL_MEDIA_IRCCLOUD = 1;
 
     private class AvatarsAdapterEntry {
         public String id;
@@ -84,19 +76,14 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
         public int orgId;
         public Bitmap image;
         public boolean image_failed;
-        public boolean deleting;
     }
 
     private class AvatarsAdapter extends BaseAdapter {
         private class ViewHolder {
-            TextView date;
-            ImageView image;
-            TextView extension;
+            ImageView avatar;
             TextView name;
-            TextView metadata;
             ProgressBar progress;
             ImageButton delete;
-            ProgressBar delete_progress;
         }
         public List<AvatarsAdapterEntry> avatars = new ArrayList<>();
 
@@ -152,17 +139,13 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
 
             if (row == null) {
                 LayoutInflater inflater = getLayoutInflater();
-                row = inflater.inflate(R.layout.row_file, viewGroup, false);
+                row = inflater.inflate(R.layout.row_avatar, viewGroup, false);
 
                 holder = new ViewHolder();
-                holder.date = row.findViewById(R.id.date);
-                holder.image = row.findViewById(R.id.image);
-                holder.extension = row.findViewById(R.id.extension);
+                holder.avatar = row.findViewById(R.id.avatar);
                 holder.name = row.findViewById(R.id.name);
-                holder.metadata = row.findViewById(R.id.metadata);
                 holder.progress = row.findViewById(R.id.progress);
                 holder.delete = row.findViewById(R.id.delete);
-                holder.delete_progress = row.findViewById(R.id.deleteProgress);
 
                 row.setTag(holder);
             } else {
@@ -171,36 +154,23 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
 
             AvatarsAdapterEntry a = avatars.get(i);
             holder.name.setText(a.label);
-            holder.date.setVisibility(View.GONE);
-            holder.metadata.setVisibility(View.GONE);
-            holder.extension.setText("");
             if (!a.image_failed) {
                 if (a.image != null) {
                     holder.progress.setVisibility(View.GONE);
-                    holder.extension.setVisibility(View.GONE);
-                    holder.image.setVisibility(View.VISIBLE);
-                    holder.image.setImageBitmap(a.image);
+                    holder.avatar.setVisibility(View.VISIBLE);
+                    holder.avatar.setImageBitmap(a.image);
                 } else {
-                    holder.extension.setVisibility(View.GONE);
-                    holder.image.setVisibility(View.GONE);
-                    holder.image.setImageBitmap(null);
+                    holder.avatar.setVisibility(View.GONE);
+                    holder.avatar.setImageBitmap(null);
                     holder.progress.setVisibility(View.VISIBLE);
                 }
             } else {
-                holder.extension.setVisibility(View.VISIBLE);
-                holder.image.setVisibility(View.GONE);
+                holder.avatar.setVisibility(View.GONE);
                 holder.progress.setVisibility(View.GONE);
             }
             holder.delete.setOnClickListener(deleteClickListener);
             holder.delete.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
             holder.delete.setTag(i);
-            if(a.deleting) {
-                holder.delete.setVisibility(View.GONE);
-                holder.delete_progress.setVisibility(View.VISIBLE);
-            } else {
-                holder.delete.setVisibility(View.VISIBLE);
-                holder.delete_progress.setVisibility(View.GONE);
-            }
 
             return row;
         }
@@ -358,24 +328,10 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
-            if (imageCaptureURI != null) {
-                fileUploadTask = new MainActivity.FileUploadTask(imageCaptureURI, null);
-                fileUploadTask.avatar = true;
-                fileUploadTask.orgId = orgId;
-                if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(AvatarsActivity.this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                } else {
-                    fileUploadTask.execute((Void) null);
-                }
-            }
-        } else if (requestCode == REQUEST_PHOTO && resultCode == RESULT_OK) {
-            Uri selectedImage = imageReturnedIntent.getData();
-            if (selectedImage != null) {
-                selectedImage = MainActivity.makeTempCopy(selectedImage, this);
-                fileUploadTask = new MainActivity.FileUploadTask(selectedImage, null);
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
+            Uri uri = CropImage.getActivityResult(imageReturnedIntent).getUri();
+            if (uri != null) {
+                fileUploadTask = new MainActivity.FileUploadTask(uri, null);
                 fileUploadTask.avatar = true;
                 fileUploadTask.orgId = orgId;
                 if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -391,37 +347,8 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        Intent i;
-
         if(grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
             switch (requestCode) {
-                case REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO:
-                    try {
-                        File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
-                        imageDir.mkdirs();
-                        new File(imageDir, ".nomedia").createNewFile();
-                        File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
-                        imageCaptureURI = Uri.fromFile(tempFile);
-                        i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                        else
-                            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(AvatarsActivity.this,getPackageName() + ".fileprovider",tempFile));
-                        i.putExtra("crop", "true");
-                        i.putExtra("aspectX", 1);
-                        i.putExtra("aspectY", 1);
-                        startActivityForResult(i, REQUEST_CAMERA);
-                    } catch (IOException e) {
-                    }
-                    break;
-                case REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO:
-                    i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    i.setType("image/*");
-                    i.putExtra("crop", "true");
-                    i.putExtra("aspectX", 1);
-                    i.putExtra("aspectY", 1);
-                    startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
-                    break;
                 case REQUEST_EXTERNAL_MEDIA_IRCCLOUD:
                     if(fileUploadTask != null) {
                         fileUploadTask.execute((Void) null);
@@ -451,67 +378,10 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                 finish();
                 return true;
             case R.id.action_upload:
-                AlertDialog.Builder builder;
-                AlertDialog dialog;
-                builder = new AlertDialog.Builder(this);
-                final String[] dialogItems = new String[]{"Take a Photo", "Choose Existing"};
-
-                builder.setItems(dialogItems, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent i;
-                        switch(dialogItems[which]) {
-                            case "Take a Photo":
-                                if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                    ActivityCompat.requestPermissions(AvatarsActivity.this,
-                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                            REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO);
-                                } else {
-                                    try {
-                                        File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
-                                        imageDir.mkdirs();
-                                        new File(imageDir, ".nomedia").createNewFile();
-                                        File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
-                                        imageCaptureURI = Uri.fromFile(tempFile);
-                                        i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                                            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                                        else
-                                            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(AvatarsActivity.this,getPackageName() + ".fileprovider",tempFile));
-                                        i.putExtra("crop", "true");
-                                        i.putExtra("aspectX", 1);
-                                        i.putExtra("aspectY", 1);
-                                        startActivityForResult(i, REQUEST_CAMERA);
-                                    } catch (IOException e) {
-                                    }
-                                }
-                                break;
-                            case "Choose Existing":
-                                if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                                    ActivityCompat.requestPermissions(AvatarsActivity.this,
-                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                            REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO);
-                                } else {
-                                    i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                    i.addCategory(Intent.CATEGORY_OPENABLE);
-                                    i.setType("image/*");
-                                    i.putExtra("crop", "true");
-                                    i.putExtra("scale", true);
-                                    i.putExtra("aspectX", 1);
-                                    i.putExtra("aspectY", 1);
-                                    i.putExtra("outputX", 320);
-                                    i.putExtra("outputY", 320);
-                                    startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
-                                }
-                                break;
-                        }
-                        dialog.dismiss();
-                    }
-                });
-                dialog = builder.create();
-                dialog.setOwnerActivity(AvatarsActivity.this);
-                dialog.show();
-                break;
+                CropImage.activity()
+                        .setAspectRatio(1,1)
+                        .start(this);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
