@@ -1881,6 +1881,16 @@ public class ColorFormatter {
         put("cursing", get("serious_face_with_symbols_covering_mouth"));
         put("swearing", get("serious_face_with_symbols_covering_mouth"));
         put("fuck", get("serious_face_with_symbols_covering_mouth"));
+        put("angry_swearing", get("serious_face_with_symbols_covering_mouth"));
+        put("mad_swearing", get("serious_face_with_symbols_covering_mouth"));
+        put("pissed_off", get("serious_face_with_symbols_covering_mouth"));
+        put("angel_face", get("innocent"));
+        put("smiling_devil", get("smiling_imp"));
+        put("frowning_devil", get("imp"));
+        put("mad_rage", get("rage"));
+        put("angry_rage", get("rage"));
+        put("mad", get("angry"));
+        put("steam_train", get("steam_locomotive"));
     }};
 
     public static Pattern EMOJI = null;
