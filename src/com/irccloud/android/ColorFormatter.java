@@ -2406,9 +2406,9 @@ public class ColorFormatter {
             return output;
     }
 
-    private static Typeface sourceSansPro;
+    public static Typeface sourceSansPro;
     private static Typeface Hack;
-    private static class TypefaceSpan extends MetricAffectingSpan {
+    public static class TypefaceSpan extends MetricAffectingSpan {
         private Typeface typeFace;
 
         public TypefaceSpan(Typeface typeFace) {

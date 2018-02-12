@@ -885,7 +885,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         if(b != null) {
                             SpannableStringBuilder s = new SpannableStringBuilder(formatted);
-                            s.insert(0, "  ");
+                            s.insert(0, "\u202f\u202f");
                             s.setSpan(new ImageSpan(getActivity(), b) {
                                 @Override
                                 public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint p) {
@@ -907,6 +907,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     canvas.restore();
                                 }
                             }, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            s.setSpan(new ColorFormatter.TypefaceSpan(ColorFormatter.sourceSansPro), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             formatted = s;
                         }
                     }
