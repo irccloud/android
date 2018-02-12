@@ -219,6 +219,7 @@ import java.util.UUID;
 import javax.net.ssl.HttpsURLConnection;
 
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_FILE;
+import static com.irccloud.android.fragment.MessageViewFragment.ROW_MESSAGE;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_THUMBNAIL;
 
 public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler, IRCColorPickerFragment.OnColorPickedListener {
@@ -1583,7 +1584,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     e.eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid()) + 1000;
                 e.self = true;
                 e.from = server.getFrom();
-                e.nick = server.getNick();
+                e.from_nick = e.nick = server.getNick();
                 e.from_realname = server.getServerRealname();
                 e.avatar = server.getAvatar();
                 e.avatar_url = server.getAvatarURL();
@@ -1595,6 +1596,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (msg != null && msg.toLowerCase().startsWith("/me ")) {
                     e.type = "buffer_me_msg";
                     e.msg = msg.substring(4);
+                    e.from = "";
                 } else {
                     e.type = "buffer_msg";
                 }
