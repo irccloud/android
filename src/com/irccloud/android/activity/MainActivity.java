@@ -1587,7 +1587,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 e.from_realname = server.getServerRealname();
                 e.avatar = server.getAvatar();
                 e.avatar_url = server.getAvatarURL();
-                e.hostmask = "uid" + conn.getUserInfo().id + "@";
+                e.hostmask = server.getUsermask();
                 e.chan = buffer.getName();
                 if (u != null)
                     e.from_mode = u.mode;
