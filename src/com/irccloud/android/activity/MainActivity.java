@@ -3956,12 +3956,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             items = Arrays.copyOf(items, items.length + 1);
             items[items.length - 1] = "File Uploads";
         }
-        if(server.getAvatars_supported() == 1) {
-            items = Arrays.copyOf(items, items.length + 1);
-            items[items.length - 1] = "Change Avatar";
-        } else {
-            items = Arrays.copyOf(items, items.length + 1);
-            items[items.length - 1] = "Change Public Avatar";
+        if(!BuildConfig.ENTERPRISE && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("avatar-images", false)) {
+            if (server.getAvatars_supported() == 1) {
+                items = Arrays.copyOf(items, items.length + 1);
+                items[items.length - 1] = "Change Avatar";
+            } else {
+                items = Arrays.copyOf(items, items.length + 1);
+                items[items.length - 1] = "Change Public Avatar";
+            }
         }
 
         final String[] dialogItems = items;

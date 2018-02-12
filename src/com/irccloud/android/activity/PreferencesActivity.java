@@ -361,6 +361,11 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             c.removePreference(findPreference("image_service"));
         }
 
+        if(BuildConfig.ENTERPRISE) {
+            PreferenceCategory c = (PreferenceCategory) findPreference("message");
+            c.removePreference(findPreference("avatar-images"));
+        }
+
         try {
             final String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName + " (" + getPackageManager().getPackageInfo(getPackageName(), 0).versionCode + ")";
             findPreference("version").setSummary(version);

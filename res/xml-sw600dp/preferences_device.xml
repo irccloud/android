@@ -31,6 +31,12 @@
             android:summaryOn="Messages will automatically start with a capital letter"
             android:summaryOff="Messages will not automatically start with a capital letter"
             android:title="Auto-capitalize messages"/>
+		<SwitchPreference
+			android:key="reset-after-send"
+			android:defaultValue="true"
+			android:summaryOn="Colors and formatting will be reset after sending a message"
+			android:summaryOff="Colors and formatting will not be reset after sending a message"
+			android:title="Reset colors after sending"/>
         <SwitchPreference
             android:key="imageviewer"
             android:defaultValue="true"

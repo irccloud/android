@@ -280,7 +280,7 @@ public class Event /*extends ObservableBaseModel*/ {
     private int cachedAvatarSize;
 
     public String getAvatarURL(int size) {
-        if(isMessage() && size != cachedAvatarSize) {
+        if(!BuildConfig.ENTERPRISE && isMessage() && size != cachedAvatarSize) {
             cachedAvatarURL = null;
             if (avatar != null && avatar.length() > 0) {
                 if(NetworkConnection.avatar_uri_template != null)
@@ -290,7 +290,7 @@ public class Event /*extends ObservableBaseModel*/ {
                 if(cachedAvatarURL.contains("{size}")) {
                     cachedAvatarURL = UriTemplate.fromTemplate(cachedAvatarURL).set("size", size == 512 ? "512" : "72").expand();
                 }
-            } else if (!BuildConfig.ENTERPRISE && NetworkConnection.avatar_redirect_uri_template != null) {
+            } else if (NetworkConnection.avatar_redirect_uri_template != null) {
                 if(hostmask != null && hostmask.length() > 0 && hostmask.contains("@")) {
                     String ident = hostmask.substring(0, hostmask.indexOf("@"));
                     if (ident.startsWith("uid") || ident.startsWith("sid")) {
