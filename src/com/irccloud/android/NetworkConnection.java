@@ -2250,6 +2250,9 @@ public class NetworkConnection {
                     if(userInfo.prefs.has("chat-norealname") && !prefs.contains("chat-norealname")) {
                         editor.putBoolean("chat-norealname", !(userInfo.prefs.has("chat-norealname") && userInfo.prefs.get("chat-norealname") instanceof Boolean && userInfo.prefs.getBoolean("chat-norealname")));
                     }
+                    if(userInfo.prefs.has("labs") && userInfo.prefs.getJSONObject("labs").has("avatars") && !prefs.contains("avatar-images")) {
+                        editor.putBoolean("avatar-images", userInfo.prefs.getJSONObject("labs").getBoolean("avatars"));
+                    }
                 } else {
                     editor.putBoolean("time-24hr", false);
                     editor.putBoolean("time-seconds", false);
@@ -2268,6 +2271,7 @@ public class NetworkConnection {
                     editor.putBoolean("chat-nocodeblock", true);
                     editor.putBoolean("chat-noquote", true);
                     editor.putBoolean("inlineimages", false);
+                    editor.putBoolean("avatar-images", false);
                 }
                 editor.commit();
                 mEvents.clearCaches();
