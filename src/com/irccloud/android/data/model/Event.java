@@ -283,6 +283,7 @@ public class Event /*extends ObservableBaseModel*/ {
     private int cachedAvatarSize;
 
     public String getAvatarURL(int size) {
+        boolean isIRCCloudAvatar = false;
         if(!BuildConfig.ENTERPRISE && isMessage() && size != cachedAvatarSize) {
             cachedAvatarURL = null;
             if (avatar != null && avatar.length() > 0) {
@@ -298,13 +299,15 @@ public class Event /*extends ObservableBaseModel*/ {
                     String ident = hostmask.substring(0, hostmask.indexOf("@"));
                     if (ident.startsWith("uid") || ident.startsWith("sid")) {
                         ident = ident.substring(3);
-                        if (Integer.valueOf(ident) > 0)
+                        if (Integer.valueOf(ident) > 0) {
                             cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_redirect_uri_template).set("id", ident).set("modifiers", "w" + size).expand();
+                            isIRCCloudAvatar = true;
+                        }
                     }
                 }
             }
         }
-        if(cachedAvatarURL != null && avatar == null && !ServersList.getInstance().getServer(cid).isSlack()) {
+        if(cachedAvatarURL != null && avatar == null && !isIRCCloudAvatar && !ServersList.getInstance().getServer(cid).isSlack()) {
             JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
             Buffer buffer = BuffersList.getInstance().getBuffer(bid);
             boolean pref_inlineImages = false;
