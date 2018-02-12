@@ -52,6 +52,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public static final String TYPE_ARCHIVES_HEADER = "archives_header";
     public static final String TYPE_JOIN_CHANNEL = "join_channel";
     public static final String TYPE_SPAM = "spam";
+    public static final String DEFAULT_CHANTYPES = "#&!+";
 
     private enum Type {
         CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, SPAM, OTHER
@@ -147,7 +148,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
             if (s != null && s.CHANTYPES != null && s.CHANTYPES.length() > 0)
                 setChan_types(s.CHANTYPES);
             else
-                setChan_types("#");
+                setChan_types(DEFAULT_CHANTYPES);
         }
         return getName().toLowerCase().replaceAll("^[" + getChan_types() + "]+", "");
     }

@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.FontAwesome;
 import com.irccloud.android.Ignore;
+import com.irccloud.android.data.collection.BuffersList;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 
@@ -395,7 +396,11 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
         if (isupport.has("CHANTYPES"))
             CHANTYPES = isupport.get("CHANTYPES").asText();
         else
-            CHANTYPES = null;
+            CHANTYPES = Buffer.DEFAULT_CHANTYPES;
+
+        for(Buffer b : BuffersList.getInstance().getBuffersForServer(cid)) {
+            b.setChan_types(CHANTYPES);
+        }
     }
 
     public void updateIgnores(JsonNode ignores) {

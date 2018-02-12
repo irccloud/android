@@ -43,6 +43,7 @@ import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.collection.ImageList;
+import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Server;
 
 import org.xml.sax.XMLReader;
@@ -2156,7 +2157,7 @@ public class ColorFormatter {
             }
         });
 
-        String chanTypes = "#";
+        String chanTypes = Buffer.DEFAULT_CHANTYPES;
         if (server != null && server.CHANTYPES != null && server.CHANTYPES.length() > 0)
             chanTypes = server.CHANTYPES;
 
