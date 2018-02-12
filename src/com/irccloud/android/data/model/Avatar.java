@@ -99,7 +99,7 @@ public class Avatar {
         lastAccessTime = System.currentTimeMillis();
         HashMap<Integer, Bitmap> bitmaps = round?(self?(isDarkTheme?bitmaps_self_dark:bitmaps_self_light):(isDarkTheme?bitmaps_dark:bitmaps_light)):bitmaps_square;
 
-        if(!bitmaps.containsKey(size) && display_name != null && display_name.length() > 0) {
+        if(!bitmaps.containsKey(size) && display_name != null && display_name.length() > 0 && nick != null && nick.length() > 0) {
             String normalizedNick = display_name.toUpperCase().replaceAll("[_\\W]+", "");
             if(normalizedNick.length() == 0)
                 normalizedNick = display_name.toUpperCase();
