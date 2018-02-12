@@ -287,15 +287,15 @@ public class Event /*extends ObservableBaseModel*/ {
         if(!BuildConfig.ENTERPRISE && isMessage() && size != cachedAvatarSize) {
             cachedAvatarURL = null;
             if (avatar != null && avatar.length() > 0) {
-                if(NetworkConnection.avatar_uri_template != null)
-                    cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_uri_template).set("id", avatar).set("modifiers","w"+size).expand();
+                if (NetworkConnection.avatar_uri_template != null)
+                    cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_uri_template).set("id", avatar).set("modifiers", "w" + size).expand();
             } else if (avatar_url != null && avatar_url.length() > 0 && avatar_url.startsWith("https://")) {
                 cachedAvatarURL = avatar_url;
-                if(cachedAvatarURL.contains("{size}")) {
+                if (cachedAvatarURL.contains("{size}")) {
                     cachedAvatarURL = UriTemplate.fromTemplate(cachedAvatarURL).set("size", size == 512 ? "512" : "72").expand();
                 }
             } else if (NetworkConnection.avatar_redirect_uri_template != null) {
-                if(hostmask != null && hostmask.length() > 0 && hostmask.contains("@")) {
+                if (hostmask != null && hostmask.length() > 0 && hostmask.contains("@")) {
                     String ident = hostmask.substring(0, hostmask.indexOf("@"));
                     if (ident.startsWith("uid") || ident.startsWith("sid")) {
                         ident = ident.substring(3);
@@ -306,41 +306,41 @@ public class Event /*extends ObservableBaseModel*/ {
                     }
                 }
             }
-        }
-        if(cachedAvatarURL != null && avatar == null && !isIRCCloudAvatar && !ServersList.getInstance().getServer(cid).isSlack()) {
-            JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-            Buffer buffer = BuffersList.getInstance().getBuffer(bid);
-            boolean pref_inlineImages = false;
+            if (cachedAvatarURL != null && avatar == null && !isIRCCloudAvatar && !ServersList.getInstance().getServer(cid).isSlack()) {
+                JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                Buffer buffer = BuffersList.getInstance().getBuffer(bid);
+                boolean pref_inlineImages = false;
 
-            try {
-                if (prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
-                    JSONObject inlineImagesMap = null;
-                    if (buffer.isChannel()) {
-                        if (prefs.has("channel-inlineimages-disable"))
-                            inlineImagesMap = prefs.getJSONObject("channel-inlineimages-disable");
+                try {
+                    if (prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
+                        JSONObject inlineImagesMap = null;
+                        if (buffer.isChannel()) {
+                            if (prefs.has("channel-inlineimages-disable"))
+                                inlineImagesMap = prefs.getJSONObject("channel-inlineimages-disable");
+                        } else {
+                            if (prefs.has("buffer-inlineimages-disable"))
+                                inlineImagesMap = prefs.getJSONObject("buffer-inlineimages-disable");
+                        }
+
+                        pref_inlineImages = !(inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
                     } else {
-                        if (prefs.has("buffer-inlineimages-disable"))
-                            inlineImagesMap = prefs.getJSONObject("buffer-inlineimages-disable");
-                    }
+                        JSONObject inlineImagesMap = null;
+                        if (buffer.isChannel()) {
+                            if (prefs.has("channel-inlineimages"))
+                                inlineImagesMap = prefs.getJSONObject("channel-inlineimages");
+                        } else {
+                            if (prefs.has("buffer-inlineimages"))
+                                inlineImagesMap = prefs.getJSONObject("buffer-inlineimages");
+                        }
 
-                    pref_inlineImages = !(inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
-                } else {
-                    JSONObject inlineImagesMap = null;
-                    if (buffer.isChannel()) {
-                        if (prefs.has("channel-inlineimages"))
-                            inlineImagesMap = prefs.getJSONObject("channel-inlineimages");
-                    } else {
-                        if (prefs.has("buffer-inlineimages"))
-                            inlineImagesMap = prefs.getJSONObject("buffer-inlineimages");
+                        pref_inlineImages = (inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
                     }
-
-                    pref_inlineImages = (inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
+                } catch (Exception e) {
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
-            } catch (Exception e) {
-                NetworkConnection.printStackTraceToCrashlytics(e);
+                if (!pref_inlineImages)
+                    cachedAvatarURL = null;
             }
-            if(!pref_inlineImages)
-                cachedAvatarURL = null;
         }
         if(cachedAvatarURL != null)
             cachedAvatarSize = size;
