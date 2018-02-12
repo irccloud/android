@@ -43,7 +43,7 @@ public class AvatarsList {
         avatars.clear();
     }
 
-    public synchronized Avatar getAvatar(int cid, String nick) {
+    public synchronized Avatar getAvatar(int cid, String nick, String display_name) {
         Avatar a = null;
 
         if(avatars.containsKey(cid) && avatars.get(cid) != null) {
@@ -60,6 +60,7 @@ public class AvatarsList {
             a = new Avatar();
             a.cid = cid;
             a.nick = nick;
+            a.display_name = (display_name != null && display_name.length() > 0) ? display_name : nick;
             avatars.get(cid).put(nick, a);
         }
 

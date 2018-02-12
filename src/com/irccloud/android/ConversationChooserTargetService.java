@@ -72,8 +72,8 @@ public class ConversationChooserTargetService extends ChooserTargetService {
 
                 if(avatar == null) {
                     avatar = (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ?
-                            Icon.createWithBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()))) :
-                            Icon.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false))
+                            Icon.createWithBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name, null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()))) :
+                            Icon.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name, null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false))
                     );
                 }
             }

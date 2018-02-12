@@ -42,6 +42,7 @@ public class Avatar {
     public long lastAccessTime = 0;
     public int cid;
     public String nick;
+    public String display_name;
 
     public static Bitmap generateBitmap(String text, int textColor, int bgColor, boolean isDarkTheme, int size, boolean round) {
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
@@ -98,10 +99,10 @@ public class Avatar {
         lastAccessTime = System.currentTimeMillis();
         HashMap<Integer, Bitmap> bitmaps = round?(self?(isDarkTheme?bitmaps_self_dark:bitmaps_self_light):(isDarkTheme?bitmaps_dark:bitmaps_light)):bitmaps_square;
 
-        if(!bitmaps.containsKey(size) && nick != null && nick.length() > 0) {
-            String normalizedNick = nick.toUpperCase().replaceAll("[_\\W]+", "");
+        if(!bitmaps.containsKey(size) && display_name != null && display_name.length() > 0) {
+            String normalizedNick = display_name.toUpperCase().replaceAll("[_\\W]+", "");
             if(normalizedNick.length() == 0)
-                normalizedNick = nick.toUpperCase();
+                normalizedNick = display_name.toUpperCase();
 
             if(font == null) {
                 font = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansprosemibold);
@@ -121,7 +122,7 @@ public class Avatar {
     }
 
     public String toString() {
-        return "{cid: " + cid + ", nick: " + nick + "}";
+        return "{cid: " + cid + ", nick: " + nick + ", display_name: " + display_name + "}";
     }
 
     protected void finalize() throws Throwable {

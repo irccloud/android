@@ -647,7 +647,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if (e.msg != null && e.msg.length() > 0)
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                             if (e.from != null && e.from.length() > 0) {
-                                e.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
+                                e.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from_nick, e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
                             }
                             if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
                                 e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
@@ -881,7 +881,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                         }
                         if(b == null) {
-                            b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, width, e.self);
+                            b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from_nick, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, width, e.self);
                         }
                         if(b != null) {
                             SpannableStringBuilder s = new SpannableStringBuilder(formatted);
@@ -988,7 +988,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 }
                             }
                             if(b == null) {
-                                Avatar a = mAvatarsList.getAvatar(e.cid, e.from);
+                                Avatar a = mAvatarsList.getAvatar(e.cid, e.from_nick, e.from);
                                 b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width, e.self);
                                 holder.avatar.setTag(a);
                             }
@@ -1572,7 +1572,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         }
                                     }
                                     if(b == null) {
-                                        a = mAvatarsList.getAvatar(e.cid, e.from);
+                                        a = mAvatarsList.getAvatar(e.cid, e.from_nick, e.from);
                                         b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, width, e.self);
                                     }
                                     if(vh.avatar != null && b != null) {
@@ -1835,9 +1835,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                             if (group_msg == null && type.equals("user_channel_mode")) {
                                 if (event.from != null && event.from.length() > 0)
-                                    msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b>";
+                                    msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + collapsedEvents.formatNick(event.from, null, event.from_mode, false) + "</b>";
                                 else
-                                    msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
+                                    msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                                 currentCollapsedEid = eid;
                             }
                             Event heading = new Event();
@@ -1867,9 +1867,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                     if (msg == null && type.equals("user_channel_mode")) {
                         if (event.from != null && event.from.length() > 0)
-                            msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b>";
+                            msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + collapsedEvents.formatNick(event.from, null, event.from_mode, false) + "</b>";
                         else
-                            msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
+                            msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                         currentCollapsedEid = eid;
                     }
                     if (!expandedSectionEids.contains(currentCollapsedEid)) {
@@ -1899,7 +1899,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             msg = "<large>" + msg + "</large>";
 
                         if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
                         else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
                             event.html = "<b>" + event.server + "</b> " + msg;
                         else
@@ -1907,7 +1907,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
 
                     if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
-                        event.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
+                        event.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
                     }
 
                     if (event.formatted_realname == null && event.from_realname != null && event.from_realname.length() > 0) {
@@ -1940,7 +1940,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     switch (type) {
                         case "channel_mode":
                             if (event.nick != null && event.nick.length() > 0)
-                                event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
+                                event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false) + "</b>";
                             else if (event.server != null && event.server.length() > 0)
                                 event.html = event.msg + " by the server <b>" + event.server + "</b>";
                             break;
@@ -1948,7 +1948,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             msg = event.msg;
                             if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                                 msg = "<large>" + msg + "</large>";
-                            event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg + "</i>";
+                            event.html = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg + "</i>";
                             break;
                         case "buffer_msg":
                         case "notice":
@@ -2030,17 +2030,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             String html = "";
                             if (event.target_mode != null && server != null && server.PREFIX != null) {
                                 if (server.PREFIX.has(server.MODE_OPER) && server.PREFIX.get(server.MODE_OPER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
-                                    html += collapsedEvents.formatNick("Opers", server.MODE_OPER, false) + " ";
+                                    html += collapsedEvents.formatNick("Opers", null, server.MODE_OPER, false) + " ";
                                 else if (server.PREFIX.has(server.MODE_OWNER) && server.PREFIX.get(server.MODE_OWNER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OWNER).asText()))
-                                    html += collapsedEvents.formatNick("Owners", server.MODE_OWNER, false) + " ";
+                                    html += collapsedEvents.formatNick("Owners", null, server.MODE_OWNER, false) + " ";
                                 else if (server.PREFIX.has(server.MODE_ADMIN) && server.PREFIX.get(server.MODE_ADMIN) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_ADMIN).asText()))
-                                    html += collapsedEvents.formatNick("Admins", server.MODE_ADMIN, false) + " ";
+                                    html += collapsedEvents.formatNick("Admins", null, server.MODE_ADMIN, false) + " ";
                                 else if (server.PREFIX.has(server.MODE_OP) && server.PREFIX.get(server.MODE_OP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OP).asText()))
-                                    html += collapsedEvents.formatNick("Ops", server.MODE_OP, false) + " ";
+                                    html += collapsedEvents.formatNick("Ops", null, server.MODE_OP, false) + " ";
                                 else if (server.PREFIX.has(server.MODE_HALFOP) && server.PREFIX.get(server.MODE_HALFOP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_HALFOP).asText()))
-                                    html += collapsedEvents.formatNick("Half Ops", server.MODE_HALFOP, false) + " ";
+                                    html += collapsedEvents.formatNick("Half Ops", null, server.MODE_HALFOP, false) + " ";
                                 else if (server.PREFIX.has(server.MODE_VOICED) && server.PREFIX.get(server.MODE_VOICED) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_VOICED).asText()))
-                                    html += collapsedEvents.formatNick("Voiced", server.MODE_VOICED, false) + " ";
+                                    html += collapsedEvents.formatNick("Voiced", null, server.MODE_VOICED, false) + " ";
                             }
                             if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
                                 html += "<b>" + event.chan + "</b>: " + msg;
@@ -2055,12 +2055,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     e.timestamp = "";
                                     e.html = html;
                                     e.parent_eid = event.eid;
-                                    event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
+                                    event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
                                     adapter.addItem(event.eid, event);
                                     e.day = event.day;
                                     adapter.insertBelow(event.eid, e);
                                 } else {
-                                    html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + html;
+                                    html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + html;
                                 }
                             }
                             event.html = html;
@@ -2070,7 +2070,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if (event.type.startsWith("you_"))
                                 event.html += "You";
                             else
-                                event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, false, collapsedNickColor) + "</b>";
+                                event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, null, false, collapsedNickColor) + "</b>";
                             if (event.hostmask != null && event.hostmask.length() > 0)
                                 event.html += " (" + event.hostmask + ")";
                             if (event.type.startsWith("you_"))
@@ -2078,25 +2078,25 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             else
                                 event.html += " was";
                             if (event.from_hostmask != null && event.from_hostmask.length() > 0)
-                                event.html += " kicked by " + collapsedEvents.formatNick(event.nick, event.from_mode, false, collapsedNickColor);
+                                event.html += " kicked by " + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor);
                             else
                                 event.html += " kicked by the server \u0004" + collapsedNickColor + event.nick + "\u000f";
                             if (event.msg != null && event.msg.length() > 0 && !event.msg.equals(event.nick))
                                 event.html += ": " + event.msg;
                             break;
                         case "callerid":
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> (" + event.hostmask + ") " + event.msg + " Tap to accept.";
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false) + "</b> (" + event.hostmask + ") " + event.msg + " Tap to accept.";
                             break;
                         case "channel_mode_list_change":
                             if (event.from.length() == 0) {
                                 if (event.nick != null && event.nick.length() > 0)
-                                    event.html = "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> " + event.msg;
+                                    event.html = "<b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false) + "</b> " + event.msg;
                                 else if (event.server != null && event.server.length() > 0)
                                     event.html = "The server <b>" + event.server + "</b> " + event.msg;
                             }
                             break;
                         case "user_chghost":
-                            event.html = "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false, collapsedNickColor) + "</b> " + event.msg;
+                            event.html = "<b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor) + "</b> " + event.msg;
                             break;
                         case "channel_name_change":
                             if (event.from.length() == 0) {
@@ -2105,7 +2105,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 else
                                     event.html = "The server " + event.msg;
                             } else {
-                                event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false, Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2)) + "</b> " + event.msg;
+                                event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false, Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2)) + "</b> " + event.msg;
                             }
                             break;
                     }

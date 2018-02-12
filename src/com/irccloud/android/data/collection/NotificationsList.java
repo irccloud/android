@@ -447,7 +447,7 @@ public class NotificationsList {
                         action = null;
                     }
                     if(title != null && text != null)
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.cid, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, 400, false, false)));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.cid, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick, null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.cid, n.nick, null).getBitmap(false, 400, false, false)));
                 }
             }
 
@@ -794,8 +794,8 @@ public class NotificationsList {
 
                             if(!downloading) {
                                 if (avatar == null) {
-                                    avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-                                    large_avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 512, false, false);
+                                    avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick, null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                                    large_avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick, null).getBitmap(false, 512, false, false);
                                 }
                                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.cid, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, avatar, large_avatar));
                             }
@@ -946,8 +946,8 @@ public class NotificationsList {
 
                     if(!downloading) {
                         if (avatar == null) {
-                            avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-                            large_avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 512, false, false);
+                            avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick, null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                            large_avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick, null).getBitmap(false, 512, false, false);
                         }
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.cid, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, avatar, large_avatar));
                     }

@@ -157,7 +157,7 @@ public class QuickReplyActivity extends AppCompatActivity {
             if(nick == null)
                 nick = NotificationsList.getInstance().getServerNick(msg.cid);
             if(nick != null)
-                nick = "<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(nick, null, nickColors)) + "</b> ";
+                nick = "<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(nick, null, null, nickColors)) + "</b> ";
             else
                 nick = "";
             holder.message.setText(ColorFormatter.html_to_spanned(nick + msg.message, true, server));

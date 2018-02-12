@@ -4309,7 +4309,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             if(buffer.isChannel()) {
                                 icon = Icon.createWithAdaptiveBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, getResources().getDisplayMetrics()), false));
                             } else if(buffer.isConversation()) {
-                                icon = Icon.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(buffer.getCid(), buffer.getName()).getBitmap(false, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, getResources().getDisplayMetrics()), false, false));
+                                icon = Icon.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(buffer.getCid(), buffer.getName(), null).getBitmap(false, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, getResources().getDisplayMetrics()), false, false));
                             }
                             ShortcutInfo pinShortcutInfo = new ShortcutInfo.Builder(this, String.valueOf(buffer.getBid()))
                                     .setIntent(shortcutIntent)
@@ -4876,7 +4876,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             if ((event.type.equals("buffer_msg") || event.type.equals("notice")) && user != null) {
                 CollapsedEventsList c = new CollapsedEventsList();
-                html = "<b>&lt;" + ColorFormatter.irc_to_html(c.formatNick(event.from, event.from_mode, false)) + "&gt;</b> " + ColorFormatter.irc_to_html(event.msg);
+                html = "<b>&lt;" + ColorFormatter.irc_to_html(c.formatNick(event.from_nick, event.from, event.from_mode, false)) + "&gt;</b> " + ColorFormatter.irc_to_html(event.msg);
             }
             String timestamp = event.timestamp;
             if(timestamp.length() == 0 && event.parent_eid > 0) {

@@ -157,7 +157,11 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e, StringBuilder sb) {
                 if(event != null) {
-                    e.nick = e.from;
+                    e.from_nick = event.getString("from");
+                    if(event.has("display_name") && event.getString("display_name") != null && event.getString("display_name").length() > 0)
+                        e.nick = event.getString("display_name");
+                    else
+                        e.nick = e.from_nick;
                     e.from = "";
                 }
             }

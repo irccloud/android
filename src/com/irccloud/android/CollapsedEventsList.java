@@ -66,6 +66,7 @@ public class CollapsedEventsList {
         int type;
         boolean modes[] = new boolean[MODE_COUNT];
         String nick;
+        String display_name;
         String old_nick;
         String hostmask;
         String msg;
@@ -293,15 +294,15 @@ public class CollapsedEventsList {
             type = type.substring(4);
 
         if (type.equalsIgnoreCase("joined_channel")) {
-            addEvent(event.eid, CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null, event.chan);
+            addEvent(event.eid, CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null, event.chan, event.from);
         } else if (type.equalsIgnoreCase("parted_channel")) {
-            addEvent(event.eid, CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan);
+            addEvent(event.eid, CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan, event.from);
         } else if (type.equalsIgnoreCase("quit")) {
-            addEvent(event.eid, CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan);
+            addEvent(event.eid, CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan, event.from);
         } else if (type.equalsIgnoreCase("nickchange")) {
-            addEvent(event.eid, CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null, event.chan);
+            addEvent(event.eid, CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null, event.chan, event.from);
         } else if (type.equalsIgnoreCase("socket_closed") || type.equalsIgnoreCase("connecting_failed") || type.equalsIgnoreCase("connecting_cancelled")) {
-            addEvent(event.eid, CollapsedEventsList.TYPE_CONNECTIONSTATUS, null, null, null, null, event.msg, null);
+            addEvent(event.eid, CollapsedEventsList.TYPE_CONNECTIONSTATUS, null, null, null, null, event.msg, null, null);
         } else if (type.equalsIgnoreCase("user_channel_mode")) {
             JsonNode ops = event.ops;
             if (ops != null) {
@@ -313,6 +314,7 @@ public class CollapsedEventsList {
                     e.target_mode = event.target_mode;
                     e.nick = event.nick;
                     e.chan = event.chan;
+                    e.display_name = event.from;
                 }
                 JsonNode add = ops.get("add");
                 for (int i = 0; i < add.size(); i++) {
@@ -355,11 +357,11 @@ public class CollapsedEventsList {
         return true;
     }
 
-    public void addEvent(long eid, int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String chan) {
-        addEvent(eid, type, nick, old_nick, hostmask, from_mode, msg, null, chan);
+    public void addEvent(long eid, int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String chan, String display_name) {
+        addEvent(eid, type, nick, old_nick, hostmask, from_mode, msg, null, chan, display_name);
     }
 
-    public void addEvent(long eid, int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String target_mode, String chan) {
+    public void addEvent(long eid, int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String target_mode, String chan, String display_name) {
         CollapsedEvent e = null;
 
         if (type < TYPE_NICKCHANGE) {
@@ -389,8 +391,10 @@ public class CollapsedEventsList {
 
             if (old_nick != null && type != TYPE_MODE) {
                 e = findEvent(old_nick, chan);
-                if (e != null)
+                if (e != null) {
                     e.nick = nick;
+                    e.display_name = display_name;
+                }
             }
 
             if (e == null)
@@ -407,9 +411,11 @@ public class CollapsedEventsList {
                 e.msg = msg;
                 e.target_mode = target_mode;
                 e.chan = chan;
+                e.display_name = display_name;
                 data.add(e);
             } else {
                 e.eid = eid;
+                e.display_name = display_name;
                 if (e.type == TYPE_MODE) {
                     e.type = type;
                     e.msg = msg;
@@ -541,11 +547,14 @@ public class CollapsedEventsList {
         return null;
     }
 
-    public String formatNick(String nick, String from_mode, boolean colorize) {
-        return formatNick(nick, from_mode, colorize, null);
+    public String formatNick(String nick, String display_name, String from_mode, boolean colorize) {
+        return formatNick(nick, display_name, from_mode, colorize, null);
     }
 
-    public String formatNick(String nick, String from_mode, boolean colorize, String defaultColor) {
+    public String formatNick(String nick, String display_name, String from_mode, boolean colorize, String defaultColor) {
+        if(display_name == null || display_name.length() == 0)
+            display_name = nick;
+
         ObjectNode PREFIX = null;
         if (server != null)
             PREFIX = server.PREFIX;
@@ -607,7 +616,7 @@ public class CollapsedEventsList {
         if (color != null)
             output.append("\u0004").append(color);
         if (nick != null)
-            output.append(nick);
+            output.append(display_name);
         if (color != null)
             output.append("\u0004");
         return output.toString();
@@ -659,7 +668,7 @@ public class CollapsedEventsList {
                     message.append(e.msg.replace(" ", " ↮ "));
                     break;
                 case TYPE_MODE:
-                    message.append(formatNick(e.nick, e.target_mode, false, collapsedNickColor));
+                    message.append(formatNick(e.nick, e.display_name, e.target_mode, false, collapsedNickColor));
                     if(collapsedNickColor != null)
                         message.append("\u0004").append(Integer.toHexString(ColorScheme.getInstance().messageTextColor).substring(2));
                     message.append(" was ").append(e.getModes(true));
@@ -668,13 +677,13 @@ public class CollapsedEventsList {
                             message.append(" by the server ");
                             colorArrow(message, e.from_nick);
                         } else {
-                            message.append(" by ").append(formatNick(e.from_nick, e.from_mode, false, collapsedNickColor));
+                            message.append(" by ").append(formatNick(e.from_nick, null, e.from_mode, false, collapsedNickColor));
                         }
                     }
                     break;
                 case TYPE_JOIN:
                     colorArrow(message, "→ ");
-                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor)).append(was(e));
+                    message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" joined");
                     if (showChan)
                         message.append(" ").append(e.chan);
@@ -682,7 +691,7 @@ public class CollapsedEventsList {
                     break;
                 case TYPE_PART:
                     colorArrow(message, "← ");
-                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor)).append(was(e));
+                    message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" left");
                     if (showChan)
                         message.append(" ").append(e.chan);
@@ -692,7 +701,7 @@ public class CollapsedEventsList {
                     break;
                 case TYPE_QUIT:
                     colorArrow(message, "⇐ ");
-                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor)).append(was(e));
+                    message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
                     if (e.hostmask != null)
                         message.append(" quit (").append(e.hostmask).append(") ");
                     else
@@ -703,18 +712,18 @@ public class CollapsedEventsList {
                 case TYPE_NICKCHANGE:
                     message.append(e.old_nick);
                     colorArrow(message, " → ");
-                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor));
+                    message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor));
                     break;
                 case TYPE_POPIN:
                     colorArrow(message, "↔ ");
-                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor)).append(was(e));
+                    message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" popped in");
                     if (showChan)
                         message.append(" ").append(e.chan);
                     break;
                 case TYPE_POPOUT:
                     colorArrow(message, "↔ ");
-                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor)).append(was(e));
+                    message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" nipped out");
                     if (showChan)
                         message.append(" ").append(e.chan);
@@ -779,7 +788,7 @@ public class CollapsedEventsList {
                 if (e.type == TYPE_NICKCHANGE) {
                     message.append(e.old_nick);
                     colorArrow(message, " → ");
-                    message.append(formatNick(e.nick, e.from_mode, false, collapsedNickColor));
+                    message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor));
                     message.append(was(e));
                 } else if (e.type == TYPE_NETSPLIT) {
                     message.append(e.msg.replace(" ", " ↮ "));
@@ -788,7 +797,7 @@ public class CollapsedEventsList {
                     if (e.count > 1)
                         message.append(" (").append(e.count).append("x)");
                 } else if (!showChan) {
-                    message.append(formatNick(e.nick, (e.type == TYPE_MODE) ? e.target_mode : e.from_mode, false, collapsedNickColor)).append(was(e));
+                    message.append(formatNick(e.nick, e.display_name, (e.type == TYPE_MODE) ? e.target_mode : e.from_mode, false, collapsedNickColor)).append(was(e));
                 }
 
                 if ((next == null || next.type != e.type) && !showChan) {
@@ -811,7 +820,7 @@ public class CollapsedEventsList {
                     }
                 } else if (showChan && e.type != TYPE_NETSPLIT && e.type != TYPE_CONNECTIONSTATUS && e.type != TYPE_NICKCHANGE) {
                     if (groupcount == 0) {
-                        message.append(formatNick(e.nick, (e.type == TYPE_MODE) ? e.target_mode : e.from_mode, false, collapsedNickColor)).append(was(e));
+                        message.append(formatNick(e.nick, e.display_name, (e.type == TYPE_MODE) ? e.target_mode : e.from_mode, false, collapsedNickColor)).append(was(e));
                         switch (e.type) {
                             case TYPE_JOIN:
                                 message.append(" joined ");
