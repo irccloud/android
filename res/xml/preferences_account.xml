@@ -18,7 +18,7 @@
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceCategory android:title="Account">
+	<PreferenceCategory android:title="Account" android:key="account">
 		<com.irccloud.android.AppCompatEditTextPreference
 			android:key="email"
 			android:title="Email address"/>

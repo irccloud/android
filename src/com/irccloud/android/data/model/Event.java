@@ -25,6 +25,7 @@ import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
+import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ServersList;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -33,6 +34,8 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.Unique;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+
+import org.json.JSONObject;
 
 import java.util.TimerTask;
 
@@ -300,6 +303,41 @@ public class Event /*extends ObservableBaseModel*/ {
                     }
                 }
             }
+        }
+        if(cachedAvatarURL != null && avatar == null && !ServersList.getInstance().getServer(cid).isSlack()) {
+            JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+            Buffer buffer = BuffersList.getInstance().getBuffer(bid);
+            boolean pref_inlineImages = false;
+
+            try {
+                if (prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
+                    JSONObject inlineImagesMap = null;
+                    if (buffer.isChannel()) {
+                        if (prefs.has("channel-inlineimages-disable"))
+                            inlineImagesMap = prefs.getJSONObject("channel-inlineimages-disable");
+                    } else {
+                        if (prefs.has("buffer-inlineimages-disable"))
+                            inlineImagesMap = prefs.getJSONObject("buffer-inlineimages-disable");
+                    }
+
+                    pref_inlineImages = !(inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
+                } else {
+                    JSONObject inlineImagesMap = null;
+                    if (buffer.isChannel()) {
+                        if (prefs.has("channel-inlineimages"))
+                            inlineImagesMap = prefs.getJSONObject("channel-inlineimages");
+                    } else {
+                        if (prefs.has("buffer-inlineimages"))
+                            inlineImagesMap = prefs.getJSONObject("buffer-inlineimages");
+                    }
+
+                    pref_inlineImages = (inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
+                }
+            } catch (Exception e) {
+                NetworkConnection.printStackTraceToCrashlytics(e);
+            }
+            if(!pref_inlineImages)
+                cachedAvatarURL = null;
         }
         if(cachedAvatarURL != null)
             cachedAvatarSize = size;

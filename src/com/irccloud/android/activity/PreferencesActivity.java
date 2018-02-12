@@ -362,6 +362,10 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         }
 
         if(BuildConfig.ENTERPRISE) {
+            if(findPreference("public_avatar") != null) {
+                PreferenceCategory c = (PreferenceCategory) findPreference("account");
+                c.removePreference(findPreference("public_avatar"));
+            }
             PreferenceCategory c = (PreferenceCategory) findPreference("message");
             c.removePreference(findPreference("avatar-images"));
         }

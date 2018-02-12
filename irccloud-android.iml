@@ -75,6 +75,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/androidTest/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/androidTest/shaders" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/build/android-profile" />
+      <excludeFolder url="file://$MODULE_DIR$/build/filtered_resources" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/assets" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/blame" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/bundles" />
@@ -169,5 +170,7 @@
     <orderEntry type="library" name="com.google.android.gms:play-services-tasks-license-11.8.0" level="project" />
     <orderEntry type="module" module-name="android-websockets" />
     <orderEntry type="library" name="org.apache.http.legacy-android-27" level="project" />
+    <orderEntry type="module" module-name="android-websockets" />
+    <orderEntry type="module" module-name="android-websockets" />
   </component>
 </module>
