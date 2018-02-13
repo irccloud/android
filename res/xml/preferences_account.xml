@@ -37,6 +37,10 @@
 			android:key="public_avatar"
 			/>
 		<Preference
+			android:title="Avatars FAQ"
+			android:key="avatars_faq"
+			/>
+		<Preference
 			android:title="Change your password"
 			android:key="change_password"
 			/>

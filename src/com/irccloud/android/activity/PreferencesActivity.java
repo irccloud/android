@@ -303,7 +303,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             findPreference("change_password").setOnPreferenceClickListener(changePasswordClick);
         if(findPreference("delete_account") != null)
             findPreference("delete_account").setOnPreferenceClickListener(deleteAccountPasswordClick);
-        if(findPreference("public_avatar") != null)
+        if(findPreference("public_avatar") != null) {
             findPreference("public_avatar").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
@@ -312,6 +312,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     return false;
                 }
             });
+            findPreference("avatars_faq").setOnPreferenceClickListener(urlClick);
+        }
         findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
         findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
@@ -365,6 +367,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             if(findPreference("public_avatar") != null) {
                 PreferenceCategory c = (PreferenceCategory) findPreference("account");
                 c.removePreference(findPreference("public_avatar"));
+                c.removePreference(findPreference("avatars_faq"));
             }
             PreferenceCategory c = (PreferenceCategory) findPreference("message");
             c.removePreference(findPreference("avatar-images"));
@@ -947,6 +950,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 Answers.getInstance().logCustom(new CustomEvent("beta_invite"));
                 url = "https://play.google.com/apps/testing/" + getPackageName();
             }
+            if (preference.getKey().equals("avatars_faq"))
+                url = "https://www.irccloud.com/faq#faq-avatars";
             if(url != null) {
                 Answers.getInstance().logCustom(new CustomEvent("prefs_url").putCustomAttribute("url", url));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
