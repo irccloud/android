@@ -44,7 +44,7 @@
             app:riv_corner_radius="4dp" />
 
         <ProgressBar
-            android:layout_width="80dp"
+            android:layout_width="64dp"
             android:layout_height="match_parent"
             android:id="@+id/progress"
             android:indeterminate="true"

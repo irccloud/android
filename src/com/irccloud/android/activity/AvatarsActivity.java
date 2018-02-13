@@ -379,6 +379,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                 return true;
             case R.id.action_upload:
                 CropImage.activity()
+                        .setInitialCropWindowPaddingRatio(0)
                         .setAspectRatio(1,1)
                         .start(this);
                 return true;

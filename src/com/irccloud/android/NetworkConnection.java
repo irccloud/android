@@ -1946,7 +1946,7 @@ public class NetworkConnection {
             if(avatar) {
                 o.put("type", "avatar");
                 if(orgId == -1) {
-                    o.put("primary", 1);
+                    o.put("primary", "1");
                 } else {
                     o.put("org", orgId);
                 }
@@ -2022,6 +2022,8 @@ public class NetworkConnection {
                 o.put("clear", "1");
             if(orgId != -1)
                 o.put("org", orgId);
+            else
+                o.put("primary", "1");
             return send("set-avatar", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);
