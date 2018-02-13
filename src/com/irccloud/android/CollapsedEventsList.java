@@ -314,7 +314,7 @@ public class CollapsedEventsList {
                     e.target_mode = event.target_mode;
                     e.nick = event.nick;
                     e.chan = event.chan;
-                    e.display_name = event.from;
+                    e.display_name = event.nick;
                 }
                 JsonNode add = ops.get("add");
                 for (int i = 0; i < add.size(); i++) {
