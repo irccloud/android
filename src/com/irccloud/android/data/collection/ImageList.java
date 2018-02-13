@@ -129,6 +129,7 @@ public class ImageList {
         images.clear();
         GIFs.clear();
         mDownloadThreadPool.purge();
+        downloadListeners.clear();
     }
 
     public void clearFailures() {
