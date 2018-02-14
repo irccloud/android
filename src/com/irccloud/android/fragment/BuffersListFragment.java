@@ -679,7 +679,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             SparseArray<Server> servers = ServersList.getInstance().getServers();
             for (int i = 0; i < servers.size(); i++) {
                 Server s = servers.valueAt(i);
-                if (mExpandArchives.get(s.getCid(), false))
+                if (s != null && mExpandArchives.get(s.getCid(), false))
                     expandedArchives.add(s.getCid());
             }
             state.putIntegerArrayList("expandedArchives", expandedArchives);
