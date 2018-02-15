@@ -1114,6 +1114,9 @@ public class EventsList {
             if (e.self && !e.type.equals("notice"))
                 e.bg_color = colorScheme.selfBackgroundColor;
 
+            if(e.from_nick == null && e.from != null && e.from.length() > 0)
+                e.from_nick = e.from;
+
             return e;
         }
     }
