@@ -19,12 +19,14 @@ package com.irccloud.android.activity;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -304,6 +306,43 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
     public void onResume() {
         super.onResume();
         new RefreshTask().execute((Void)null);
+        if(!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("avatars-off", true) || !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("avatar-images", false)) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(AvatarsActivity.this);
+                    builder.setTitle("Enable Avatars");
+                    builder.setMessage("Viewing avatars in messages requires both the User Icons and Avatars settings to be enabled.  Would you like to enable them now?");
+                    builder.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AvatarsActivity.this).edit();
+                            editor.putBoolean("avatars-off", true);
+                            editor.putBoolean("avatar-images", true);
+                            editor.apply();
+                            try {
+                                dialog.dismiss();
+                            } catch (IllegalArgumentException e) {
+                            }
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                dialog.dismiss();
+                            } catch (IllegalArgumentException e) {
+                            }
+                        }
+                    });
+                    if(!isFinishing()) {
+                        AlertDialog dialog = builder.create();
+                        dialog.setOwnerActivity(AvatarsActivity.this);
+                        dialog.show();
+                    }
+                }
+            });
+        }
     }
 
     @Override
