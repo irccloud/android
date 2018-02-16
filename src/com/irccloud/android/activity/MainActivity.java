@@ -4450,10 +4450,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if(server.isupport != null && server.isupport.has("TOPICLEN"))
-                        dialog.setTitle("Topic for " + c.getBuffer().getDisplayName() + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
-                    else
-                        dialog.setTitle("Topic for " + c.getBuffer().getDisplayName());
+                    if(c.getBuffer() != null) {
+                        if (server.isupport != null && server.isupport.has("TOPICLEN"))
+                            dialog.setTitle("Topic for " + c.getBuffer().getDisplayName() + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
+                        else
+                            dialog.setTitle("Topic for " + c.getBuffer().getDisplayName());
+                    } else {
+                        dialog.setTitle("Topic for " + c.name);
+                    }
                 }
             });
             dialog.setOwnerActivity(this);
