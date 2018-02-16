@@ -891,14 +891,15 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                                 message = "Error: " + message;
                         }
 
-                        if (mGoogleApiClient.isConnected()) {
+                        if (mGoogleApiClient.isConnected() && email.getText().length() > 0 && password.getText().length() > 0) {
                             Auth.CredentialsApi.delete(mGoogleApiClient, new Credential.Builder(email.getText().toString()).setPassword(password.getText().toString()).build()).setResultCallback(new ResultCallback<com.google.android.gms.common.api.Status>() {
                                 @Override
                                 public void onResult(com.google.android.gms.common.api.Status status) {
                                 }
                             });
                         }
-
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
                     } catch (JSONException e) {
                         NetworkConnection.printStackTraceToCrashlytics(e);
                     }
