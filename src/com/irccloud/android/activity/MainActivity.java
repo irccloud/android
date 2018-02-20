@@ -242,7 +242,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ArrayList<Integer> backStack = new ArrayList<Integer>();
     private int launchBid = -1;
     private Uri launchURI = null;
-    private AlertDialog channelsListDialog;
     private String bufferToOpen = null;
     private int cidToOpen = -1;
     private Uri imageCaptureURI = null;
@@ -2169,8 +2168,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             excludeBIDTask = new ExcludeBIDTask();
             excludeBIDTask.execute(-1);
-            if (channelsListDialog != null)
-                channelsListDialog.dismiss();
             suggestionsAdapter.clear();
             progressBar.setVisibility(View.GONE);
             errorMsg.setVisibility(View.GONE);
@@ -2185,8 +2182,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         excludeBIDTask = new ExcludeBIDTask();
         excludeBIDTask.execute(-1);
-        if (channelsListDialog != null)
-            channelsListDialog.dismiss();
         suggestionsAdapter.clear();
         progressBar.setVisibility(View.GONE);
         errorMsg.setVisibility(View.GONE);
@@ -3102,38 +3097,29 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case NetworkConnection.EVENT_LISTRESPONSEFETCHING:
                 event = (IRCCloudJSONObject) obj;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            String dialogtitle = "List of channels on " + ServersList.getInstance().getServer(event.cid()).getHostname();
-                            if (channelsListDialog == null) {
-                                Context ctx = MainActivity.this;
-                                final AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-                                builder.setView(getLayoutInflater().inflate(R.layout.dialog_channelslist, null));
-                                builder.setTitle(dialogtitle);
-                                builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                                channelsListDialog = builder.create();
-                                channelsListDialog.setOwnerActivity(MainActivity.this);
-                            } else {
-                                channelsListDialog.setTitle(dialogtitle);
+                Bundle args = new Bundle();
+                args.putInt("cid", event.cid());
+                ChannelListFragment channelList = (ChannelListFragment) getSupportFragmentManager().findFragmentByTag("channellist");
+                if (channelList == null) {
+                    channelList = new ChannelListFragment();
+                    channelList.setArguments(args);
+                    conn.addHandler(channelList);
+                    final ChannelListFragment cl = channelList;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                if(!isFinishing()) {
+                                    cl.show(getSupportFragmentManager(), "channellist");
+                                }
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
                             }
-                            if(!isFinishing())
-                                channelsListDialog.show();
-                            ChannelListFragment channels = (ChannelListFragment) getSupportFragmentManager().findFragmentById(R.id.channelListFragment);
-                            Bundle args = new Bundle();
-                            args.putInt("cid", event.cid());
-                            channels.setArguments(args);
-                        } catch (IllegalStateException e) {
-                            //App lost focus already
                         }
-                    }
-                });
+                    });
+                } else {
+                    channelList.setArguments(args);
+                }
                 break;
             case NetworkConnection.EVENT_USERINFO:
                 if(conn != null && conn.ready && !colorScheme.theme.equals(ColorScheme.getUserTheme())) {

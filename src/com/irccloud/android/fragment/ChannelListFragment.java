@@ -16,12 +16,16 @@
 
 package com.irccloud.android.fragment;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -45,9 +49,9 @@ import org.solovyev.android.views.llm.LinearLayoutManager;
 
 import java.util.ArrayList;
 
-public class ChannelListFragment extends Fragment implements NetworkConnection.IRCEventHandler {
+public class ChannelListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     ArrayList<ChannelRow> channels;
-    ChannelsAdapter adapter;
+    ChannelsAdapter adapter = new ChannelsAdapter();
     NetworkConnection conn;
     RecyclerView recyclerView;
     TextView empty;
@@ -123,25 +127,29 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
     }
 
     @Override
-    public View onCreateView(LayoutInflater i, ViewGroup container, Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         Context ctx = getActivity();
-        if (ctx == null)
+        if(ctx == null)
             return null;
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.recyclerview, null);
         recyclerView = v.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+        recyclerView.setAdapter(adapter);
         empty = v.findViewById(android.R.id.empty);
         empty.setText("Loading channel list…");
-        return v;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        conn = NetworkConnection.getInstance();
-        conn.addHandler(this);
+        Dialog d = new AlertDialog.Builder(ctx)
+                .setTitle("List of channels on " + server.getHostname())
+                .setView(v)
+                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+        return d;
     }
 
     @Override
@@ -159,9 +167,7 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    empty.setText("Loading channel list…");
-                    adapter = new ChannelsAdapter();
-                    recyclerView.setAdapter(adapter);
+                    getDialog().setTitle("List of channels on " + server.getHostname());
                     if(adapter.getItemCount() > 0) {
                         empty.setVisibility(View.GONE);
                         recyclerView.setVisibility(View.VISIBLE);
@@ -169,6 +175,7 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
                         empty.setVisibility(View.VISIBLE);
                         recyclerView.setVisibility(View.GONE);
                     }
+                    adapter.notifyDataSetChanged();
                 }
             });
         }
@@ -176,17 +183,14 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
 
     public void onResume() {
         super.onResume();
-        if (adapter == null) {
-            adapter = new ChannelsAdapter();
-            recyclerView.setAdapter(adapter);
-            if(adapter.getItemCount() > 0) {
-                empty.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
-            } else {
-                empty.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.GONE);
-            }
+        if(adapter.getItemCount() > 0) {
+            empty.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else {
+            empty.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
         }
+        adapter.notifyDataSetChanged();
     }
 
     public void onIRCEvent(int what, Object obj) {
@@ -194,11 +198,13 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
         switch (what) {
             case NetworkConnection.EVENT_LISTRESPONSE:
                 o = (IRCCloudJSONObject) obj;
+                server = ServersList.getInstance().getServer(o.cid());
+                adapter.set(o.getJsonNode("channels"));
                 if (getActivity() != null)
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            adapter.set(o.getJsonNode("channels"));
+                            getDialog().setTitle("List of channels on " + server.getHostname());
                             adapter.notifyDataSetChanged();
                             if(adapter.getItemCount() > 0) {
                                 empty.setVisibility(View.GONE);
