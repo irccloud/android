@@ -2667,12 +2667,6 @@ public class NetworkConnection {
                         } else {
                             b.setUnread(1);
                         }
-                    } else if (b == null && !oobTasks.containsKey(-1)) {
-                        Log.e("IRCCloud", "Got a message for a buffer that doesn't exist, reconnecting!");
-                        notifyHandlers(EVENT_BACKLOG_FAILED, null);
-                        streamId = null;
-                        if (client != null)
-                            client.disconnect();
                     }
                 }
 
