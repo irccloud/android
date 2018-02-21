@@ -1290,6 +1290,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (!sugs_set.contains(emoji)) {
                             sugs_set.add(emoji);
                             sugs.add(emoji);
+                            suggestionsAdapter.atMention = false;
                         }
                     }
                 }
