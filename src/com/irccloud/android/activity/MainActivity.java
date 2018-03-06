@@ -1546,7 +1546,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 sendBtn.setEnabled(false);
                 messageTxt.clearComposingText();
 
-                String formatted = messageTxt.toIRC();
+                String formatted = server.isSlack() ? messageTxt.getText().toString() : messageTxt.toIRC();
                 String msg = formatted;
                 if (msg.startsWith("//"))
                     msg = msg.substring(1);
