@@ -99,6 +99,7 @@ public class BufferOptionsFragment extends DialogFragment {
                     if (!type.equalsIgnoreCase("console")) {
                         prefs = updatePref(prefs, joinpart.isChecked(), "buffer-hideJoinPart");
                         prefs = updatePref(prefs, collapse.isChecked(), "buffer-expandJoinPart");
+                        prefs = updatePref(prefs, !collapse.isChecked(), "buffer-collapseJoinPart");
                         prefs = updatePref(prefs, inlineFiles.isChecked(), "buffer-files-disableinline");
                     } else {
                         prefs = updatePref(prefs, expandDisco.isChecked(), "buffer-expandDisco");
@@ -145,15 +146,18 @@ public class BufferOptionsFragment extends DialogFragment {
                             enabled = true;
                     }
                     unread.setChecked(enabled);
+                    enabled = (prefs.has("expandJoinPart") && prefs.get("expandJoinPart") instanceof Boolean && prefs.getBoolean("expandJoinPart"));
                     if (prefs.has("buffer-expandJoinPart")) {
                         JSONObject expandMap = prefs.getJSONObject("buffer-expandJoinPart");
                         if (expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
-                            collapse.setChecked(false);
-                        else
-                            collapse.setChecked(true);
-                    } else {
-                        collapse.setChecked(true);
+                            enabled = true;
                     }
+                    if (prefs.has("buffer-collapseJoinPart")) {
+                        JSONObject collapseMap = prefs.getJSONObject("buffer-collapseJoinPart");
+                        if (collapseMap.has(String.valueOf(bid)) && collapseMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
+                    }
+                    collapse.setChecked(enabled);
                     if (prefs.has("buffer-expandDisco")) {
                         JSONObject expandMap = prefs.getJSONObject("buffer-expandDisco");
                         if (expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))

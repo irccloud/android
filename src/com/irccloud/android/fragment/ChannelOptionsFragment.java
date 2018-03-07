@@ -94,6 +94,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     prefs = updatePref(prefs, !unread.isChecked(), "channel-enableTrackUnread");
                     prefs = updatePref(prefs, joinpart.isChecked(), "channel-hideJoinPart");
                     prefs = updatePref(prefs, collapse.isChecked(), "channel-expandJoinPart");
+                    prefs = updatePref(prefs, !collapse.isChecked(), "channel-collapseJoinPart");
                     prefs = updatePref(prefs, notifyAll.isChecked(), "channel-notifications-all-disable");
                     prefs = updatePref(prefs, !notifyAll.isChecked(), "channel-notifications-all");
                     prefs = updatePref(prefs, autosuggest.isChecked(), "channel-disableAutoSuggest");
@@ -152,15 +153,18 @@ public class ChannelOptionsFragment extends DialogFragment {
                     } else {
                         members.setChecked(true);
                     }
+                    enabled = (prefs.has("expandJoinPart") && prefs.get("expandJoinPart") instanceof Boolean && prefs.getBoolean("expandJoinPart"));
                     if (prefs.has("channel-expandJoinPart")) {
                         JSONObject expandMap = prefs.getJSONObject("channel-expandJoinPart");
                         if (expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
-                            collapse.setChecked(false);
-                        else
-                            collapse.setChecked(true);
-                    } else {
-                        collapse.setChecked(true);
+                            enabled = true;
                     }
+                    if (prefs.has("channel-collapseJoinPart")) {
+                        JSONObject collapseMap = prefs.getJSONObject("channel-collapseJoinPart");
+                        if (collapseMap.has(String.valueOf(bid)) && collapseMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
+                    }
+                    collapse.setChecked(!enabled);
                     enabled = (prefs.has("notifications-all") && prefs.get("notifications-all") instanceof Boolean && prefs.getBoolean("notifications-all"));
                     if (prefs.has("channel-notifications-all")) {
                         JSONObject notifyAllMap = prefs.getJSONObject("channel-notifications-all");

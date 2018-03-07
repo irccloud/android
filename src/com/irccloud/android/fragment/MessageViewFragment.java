@@ -2825,18 +2825,28 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_hideJoinPart = (prefs.has("hideJoinPart") && prefs.get("hideJoinPart") instanceof Boolean && prefs.getBoolean("hideJoinPart")) || (hiddenMap != null && hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())));
 
                 JSONObject expandMap = null;
+                JSONObject collapseMap = null;
                 if (buffer.isChannel()) {
                     if (prefs.has("channel-expandJoinPart"))
                         expandMap = prefs.getJSONObject("channel-expandJoinPart");
+                    if (prefs.has("channel-collapseJoinPart"))
+                        collapseMap = prefs.getJSONObject("channel-collapseJoinPart");
                 } else if (buffer.isConsole()) {
                     if (prefs.has("buffer-expandDisco"))
                         expandMap = prefs.getJSONObject("buffer-expandDisco");
                 } else {
                     if (prefs.has("buffer-expandJoinPart"))
                         expandMap = prefs.getJSONObject("buffer-expandJoinPart");
+                    if (prefs.has("buffer-collapseJoinPart"))
+                        collapseMap = prefs.getJSONObject("buffer-collapseJoinPart");
                 }
 
-                pref_expandJoinPart = ((prefs.has("expandJoinPart") && prefs.get("expandJoinPart") instanceof Boolean && prefs.getBoolean("expandJoinPart")) || (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid()))));
+                pref_expandJoinPart = (prefs.has("expandJoinPart") && prefs.get("expandJoinPart") instanceof Boolean && prefs.getBoolean("expandJoinPart"));
+                if(pref_expandJoinPart) {
+                    pref_expandJoinPart = !(collapseMap != null && collapseMap.has(String.valueOf(buffer.getBid())) && collapseMap.getBoolean(String.valueOf(buffer.getBid())));
+                } else {
+                    pref_expandJoinPart = (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid())));
+                }
 
                 JSONObject disableFilesMap = null;
                 if (buffer.isChannel()) {
