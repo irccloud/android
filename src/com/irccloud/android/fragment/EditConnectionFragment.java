@@ -16,13 +16,10 @@
 
 package com.irccloud.android.fragment;
 
-
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -37,7 +34,6 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -57,7 +53,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;public class EditConnectionFragment extends DialogFragment {
+import java.util.ArrayList;
+
+public class EditConnectionFragment extends DialogFragment {
     private class PresetServersAdapter extends BaseAdapter {
         private Activity ctx;
 
@@ -197,6 +195,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
     EditText join_commands;
     EditText server_pass;
     EditText network;
+    LinearLayout connection_settings;
 
     public String default_hostname = null;
     public int default_port = 6667;
@@ -215,6 +214,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
         join_commands = v.findViewById(R.id.commands);
         server_pass = v.findViewById(R.id.serverpassword);
         network = v.findViewById(R.id.network);
+        connection_settings = v.findViewById(R.id.connection_settings);
 
         presets.setOnItemSelectedListener(new OnItemSelectedListener() {
 
@@ -330,6 +330,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
         super.onResume();
 
         if (server != null) {
+            connection_settings.setVisibility(server.getSlack() == 1 ? View.GONE : View.VISIBLE);
             presets.setSelection(0);
             presets.setVisibility(View.GONE);
             network.setVisibility(View.VISIBLE);
@@ -435,12 +436,15 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
                     nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString(), c);
         } else {
             String netname = network.getText().toString();
-            if (hostname.getText().toString().equalsIgnoreCase(netname))
-                netname = null;
-            NetworkConnection.getInstance().editServer(server.getCid(), hostname.getText().toString(), portValue,
-                    ssl.isChecked() ? 1 : 0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
-                    nickserv_pass.getText().toString(), join_commands.getText().toString(), c);
-
+            if(server.getSlack() == 1) {
+                NetworkConnection.getInstance().set_netname(server.getCid(), netname, c);
+            } else {
+                if (hostname.getText().toString().equalsIgnoreCase(netname))
+                    netname = null;
+                NetworkConnection.getInstance().editServer(server.getCid(), hostname.getText().toString(), portValue,
+                        ssl.isChecked() ? 1 : 0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
+                        nickserv_pass.getText().toString(), join_commands.getText().toString(), c);
+            }
         }
     }
 

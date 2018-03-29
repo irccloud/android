@@ -94,6 +94,9 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     private int avatars_supported;
 
     @Column
+    private int slack;
+
+    @Column
     public ObjectNode isupport = new ObjectMapper().createObjectNode();
 
     @Column
@@ -363,6 +366,14 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
         this.avatars_supported = avatars_supported;
     }
 
+    public int getSlack() {
+        return slack;
+    }
+
+    public void setSlack(int slack) {
+        this.slack = slack;
+    }
+
     public void updateUserModes(String modes) {
         if (modes != null && modes.length() > 0) {
             if(isupport != null && isupport.has("OWNER") && isupport.get("OWNER").asText().equals(modes.substring(0,1))) {
@@ -456,7 +467,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
 
     public boolean isSlack() {
         if(isSlack == -1)
-            isSlack = (hostname != null && hostname.endsWith(".slack.com")) || (ircserver != null && ircserver.endsWith(".slack.com")) ? 1 : 0;
+            isSlack = (slack == 1 || (hostname != null && hostname.endsWith(".slack.com")) || (ircserver != null && ircserver.endsWith(".slack.com"))) ? 1 : 0;
         return isSlack == 1;
     }
 

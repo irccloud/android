@@ -2031,6 +2031,18 @@ public class NetworkConnection {
         }
     }
 
+    public int set_netname(int cid, String name, IRCResultCallback callback) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("cid", cid);
+            o.put("netname", name);
+            return send("set-netname", o, callback);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
     public void request_backlog(int cid, int bid, long beforeId) {
         try {
             synchronized (oobTasks) {
@@ -2450,7 +2462,9 @@ public class NetworkConnection {
                         object.getInt("port"), object.getString("nick"), object.getString("status"), object.getBoolean("ssl") ? 1 : 0,
                         object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
                         object.getJsonObject("fail_info"), away, object.getJsonNode("ignores"), (object.has("order") && !object.getString("order").equals("undefined")) ? object.getInt("order") : 0, object.getString("server_realname"),
-                        object.getString("ircserver"), (object.has("orgid") && !object.getString("orgid").equals("undefined")) ? object.getInt("orgid") : 0, (object.has("avatars_supported") && !object.getString("avatars_supported").equals("undefined")) ? object.getInt("avatars_supported") : 0);
+                        object.getString("ircserver"), (object.has("orgid") && !object.getString("orgid").equals("undefined")) ? object.getInt("orgid") : 0,
+                        (object.has("avatars_supported") && !object.getString("avatars_supported").equals("undefined")) ? object.getInt("avatars_supported") : 0,
+                        (object.has("slack") && !object.getString("slack").equals("undefined")) ? object.getInt("slack") : 0);
 
                 NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"));
                 NotificationsList.getInstance().addNotificationGroup(server.getCid(), server.getName() != null && server.getName().length() > 0 ? server.getName() : server.getHostname());

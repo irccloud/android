@@ -78,7 +78,7 @@
             android:layout_height="wrap_content" />
 
         <android.support.design.widget.TextInputLayout
-            android:hint="Network"
+            android:hint="Name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         <EditText
@@ -93,130 +93,136 @@
             android:maxLines="1" />
         </android.support.design.widget.TextInputLayout>
 
-        <include layout="@layout/dialog_edit_connection_hostname"  android:layout_width="match_parent" android:layout_height="wrap_content"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="Your Identity"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <LinearLayout
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+        <LinearLayout android:id="@+id/connection_settings"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <android.support.design.widget.TextInputLayout
-                android:hint="Nickname"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            <EditText
-                android:importantForAutofill="no"
-                android:id="@+id/nickname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="6dp"
-                android:theme="?editTextTheme"
-                android:lines="1"
-                android:maxLines="1" />
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:hint="Real Name"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            <EditText
-                android:importantForAutofill="no"
-                android:id="@+id/realname"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:theme="?editTextTheme"
-                android:inputType="textPersonName" />
-            </android.support.design.widget.TextInputLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/channels_wrapper"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            <include layout="@layout/dialog_edit_connection_hostname"  android:layout_width="match_parent" android:layout_height="wrap_content"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Channels To Join"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:text="Your Identity"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <EditText
-                android:importantForAutofill="no"
+            <LinearLayout
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:id="@+id/channels"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <android.support.design.widget.TextInputLayout
+                    android:hint="Nickname"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <EditText
+                        android:importantForAutofill="no"
+                        android:id="@+id/nickname"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="6dp"
+                        android:theme="?editTextTheme"
+                        android:lines="1"
+                        android:maxLines="1" />
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:hint="Real Name"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <EditText
+                        android:importantForAutofill="no"
+                        android:id="@+id/realname"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:theme="?editTextTheme"
+                        android:inputType="textPersonName" />
+                </android.support.design.widget.TextInputLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/channels_wrapper"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="#testchannel password, #feedback"
-                android:theme="?editTextTheme"
-                android:inputType="textMultiLine" />
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Channels To Join"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <EditText
+                    android:importantForAutofill="no"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:id="@+id/channels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="#testchannel password, #feedback"
+                    android:theme="?editTextTheme"
+                    android:inputType="textMultiLine" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:text="Advanced Options"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <android.support.design.widget.TextInputLayout
+                android:hint="NickServ password"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:importantForAutofill="no"
+                    android:id="@+id/nickservpassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:theme="?editTextTheme"
+                    android:inputType="textPassword"
+                    android:lines="1"
+                    android:maxLines="1" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:hint="Server password"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:importantForAutofill="no"
+                    android:id="@+id/serverpassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:theme="?editTextTheme"
+                    android:inputType="textPassword"
+                    android:lines="1"
+                    android:maxLines="1" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:hint="Commands to run on connect"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:importantForAutofill="no"
+                    android:id="@+id/commands"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:theme="?editTextTheme"
+                    android:inputType="textMultiLine" />
+            </android.support.design.widget.TextInputLayout>
         </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:text="Advanced Options"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <android.support.design.widget.TextInputLayout
-            android:hint="NickServ password"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        <EditText
-            android:importantForAutofill="no"
-            android:id="@+id/nickservpassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:theme="?editTextTheme"
-            android:inputType="textPassword"
-            android:lines="1"
-            android:maxLines="1" />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:hint="Server password"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        <EditText
-            android:importantForAutofill="no"
-            android:id="@+id/serverpassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:theme="?editTextTheme"
-            android:inputType="textPassword"
-            android:lines="1"
-            android:maxLines="1" />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:hint="Commands to run on connect"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-        <EditText
-            android:importantForAutofill="no"
-            android:id="@+id/commands"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:theme="?editTextTheme"
-            android:inputType="textMultiLine" />
-        </android.support.design.widget.TextInputLayout>
     </LinearLayout>
 
 </ScrollView>
