@@ -687,7 +687,9 @@ public class CollapsedEventsList {
                     message.append(" joined");
                     if (showChan)
                         message.append(" ").append(e.chan);
-                    message.append(" (").append(e.hostmask).append(")");
+
+                    if (server == null || !server.isSlack())
+                        message.append(" (").append(e.hostmask).append(")");
                     break;
                 case TYPE_PART:
                     colorArrow(message, "← ");
@@ -695,17 +697,21 @@ public class CollapsedEventsList {
                     message.append(" left");
                     if (showChan)
                         message.append(" ").append(e.chan);
-                    message.append(" (").append(e.hostmask).append(")");
+                    if (server == null || !server.isSlack())
+                        message.append(" (").append(e.hostmask).append(")");
                     if (e.msg != null && e.msg.length() > 0)
                         message.append(": ").append(e.msg);
                     break;
                 case TYPE_QUIT:
                     colorArrow(message, "⇐ ");
                     message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
-                    if (e.hostmask != null)
+                    if (e.hostmask != null && (server == null || !server.isSlack())) {
                         message.append(" quit (").append(e.hostmask).append(") ");
-                    else
-                        message.append(" quit: ");
+                    } else {
+                        message.append(" quit");
+                        if(e.msg != null && e.msg.length() > 0)
+                            message.append(": ");
+                    }
                     if (e.msg != null && e.msg.length() > 0)
                         message.append(e.msg);
                     break;
