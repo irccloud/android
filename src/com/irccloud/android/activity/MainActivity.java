@@ -1218,12 +1218,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (buffer != null && messageTxt.getText().length() > 0 && buffer.isChannel() && buffer.getName().toLowerCase().startsWith(text) && !sugs_set.contains(buffer.getName())) {
                     sugs_set.add(buffer.getName());
                     sugs.add(buffer.getName());
+                    suggestionsAdapter.atMention = false;
                 }
                 if(channels != null) {
                     for (Channel channel : channels) {
                         if (text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !sugs_set.contains(channel.name) && !channel.getBuffer().isMPDM()) {
                             sugs_set.add(channel.name);
                             sugs.add(channel.name);
+                            suggestionsAdapter.atMention = false;
                         }
                     }
                 }
