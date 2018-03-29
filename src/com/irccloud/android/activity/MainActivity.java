@@ -47,6 +47,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.media.ExifInterface;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -4995,12 +4996,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (selected_user != null) {
             if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                itemList.add("Whois…");
+                if(!server.isSlack())
+                    itemList.add("Whois…");
                 itemList.add("Send a message");
                 itemList.add("Mention");
-                itemList.add("Invite to a channel…");
+                if(!server.isSlack())
+                    itemList.add("Invite to a channel…");
                 itemList.add("Ignore");
-                if (buffer.isChannel()) {
+                if (!server.isSlack() && buffer.isChannel()) {
                     User self_user = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
                     if (self_user != null && self_user.mode != null) {
                         if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o")) {
@@ -5020,13 +5023,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
             }
-            itemList.add("Copy Hostmask");
+            if(!server.isSlack())
+                itemList.add("Copy Hostmask");
+            if(server.isSlack())
+                itemList.add("Slack Profile");
         }
 
         items = itemList.toArray(new String[itemList.size()]);
 
         if (selected_user != null)
-            if (selected_user.hostmask != null && selected_user.hostmask.length() > 0)
+            if (!server.isSlack() && selected_user.hostmask != null && selected_user.hostmask.length() > 0)
                 builder.setTitle(selected_user.getDisplayName() + "\n(" + ColorFormatter.strip(selected_user.hostmask) + ")");
             else
                 builder.setTitle(selected_user.getDisplayName());
@@ -5285,6 +5291,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.setOwnerActivity(MainActivity.this);
                     dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                     dialog.show();
+                } else if (items[item].equals("Slack Profile")) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(server.getSlackBaseURL() + "/team/" + selected_user.nick));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                 }
                 dialogInterface.dismiss();
             }
