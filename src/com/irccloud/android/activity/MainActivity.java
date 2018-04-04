@@ -2468,6 +2468,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
+    private void hide_keyboard() {
+        try {
+            if (getCurrentFocus() != null) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                if(imm != null)
+                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            }
+        } catch (Exception e) {
+        }
+    }
+
     public void onIRCEvent(int what, Object obj) {
         super.onIRCEvent(what, obj);
         Integer event_bid = 0;
@@ -2708,6 +2719,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         if (event != null && event.cid() == buffer.getCid()) {
+                            hide_keyboard();
                             Bundle args = new Bundle();
                             args.putInt("cid", event.cid());
                             Buffer b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("channel"));
@@ -2741,6 +2753,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         if (event != null && event.cid() == buffer.getCid()) {
+                            hide_keyboard();
                             Bundle args = new Bundle();
                             args.putInt("cid", event.cid());
                             Buffer b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("channel"));
@@ -2774,6 +2787,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         if (event != null && event.cid() == buffer.getCid()) {
+                            hide_keyboard();
                             Bundle args = new Bundle();
                             args.putInt("cid", event.cid());
                             Buffer b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("channel"));
@@ -2807,6 +2821,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         if (event != null && event.cid() == buffer.getCid()) {
+                            hide_keyboard();
                             Bundle args = new Bundle();
                             args.putInt("cid", event.cid());
                             Buffer b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("channel"));
@@ -2840,6 +2855,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         if (event != null && event.cid() == buffer.getCid()) {
+                            hide_keyboard();
                             Bundle args = new Bundle();
                             args.putInt("cid", buffer.getCid());
                             args.putString("event", event.toString());
@@ -2864,6 +2880,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        hide_keyboard();
                         Bundle args = new Bundle();
                         args.putString("event", event.toString());
                         WhoListFragment whoList = (WhoListFragment) getSupportFragmentManager().findFragmentByTag("wholist");
@@ -2886,6 +2903,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        hide_keyboard();
                         Bundle args = new Bundle();
                         args.putString("event", event.toString());
                         NamesListFragment namesList = (NamesListFragment) getSupportFragmentManager().findFragmentByTag("nameslist");
@@ -2908,6 +2926,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        hide_keyboard();
                         StringBuilder sb = new StringBuilder();
                         JsonNode servers = event.getJsonNode("servers");
                         if(servers != null) {
@@ -2940,6 +2959,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        hide_keyboard();
                         String msg = "";
                         String type = event.getString("query_type");
 
@@ -2978,6 +2998,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        hide_keyboard();
                         StringBuilder sb = new StringBuilder();
                         JsonNode users = event.getJsonNode("users");
                         for(int i = 0; i < users.size(); i++) {
@@ -3012,6 +3033,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        hide_keyboard();
                         Bundle args = new Bundle();
                         args.putString("event", event.toString());
                         LinksListFragment linksFragment = new LinksListFragment();
@@ -3025,6 +3047,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        hide_keyboard();
                         StringBuilder sb = new StringBuilder();
                         JsonNode modules = event.getJsonNode("modules");
                         for(int i = 0; i < modules.size(); i++) {
@@ -3055,6 +3078,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        hide_keyboard();
                         StringBuilder sb = new StringBuilder();
                         JsonNode trace = event.getJsonNode("trace");
                         for(int i = 0; i < trace.size(); i++) {
@@ -3085,6 +3109,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        hide_keyboard();
                         Bundle args = new Bundle();
                         args.putString("event", event.toString());
                         WhoisFragment whois = (WhoisFragment) getSupportFragmentManager().findFragmentByTag("whois");
@@ -3107,6 +3132,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        hide_keyboard();
                         Bundle args = new Bundle();
                         args.putString("title", "WHOWAS response for " + event.getString("nick"));
                         args.putString("event", event.toString());
@@ -3138,6 +3164,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            hide_keyboard();
                             try {
                                 if(!isFinishing()) {
                                     cl.show(getSupportFragmentManager(), "channellist");
@@ -3686,13 +3713,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             }
-            try {
-                if (getCurrentFocus() != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-                }
-            } catch (Exception e) {
-            }
+            hide_keyboard();
         }
 
         @Override
@@ -6835,8 +6856,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(messageTxt.getWindowToken(), 0);
+                hide_keyboard();
                 wasScreenOn = false;
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 wasScreenOn = true;
