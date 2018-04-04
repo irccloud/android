@@ -254,6 +254,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private TextWatcher textWatcher = null;
     private Intent pastebinResult = null;
     private ColorScheme colorScheme = ColorScheme.getInstance();
+    private String msgid = null;
 
     private ColorFilter highlightsFilter;
     private ColorFilter unreadFilter;
@@ -791,6 +792,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             server = ServersList.getInstance().getServer(savedInstanceState.getInt("cid"));
             buffer = BuffersList.getInstance().getBuffer(savedInstanceState.getInt("bid"));
             backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
+            if(savedInstanceState.containsKey("msgid"))
+                msgid = savedInstanceState.getString("msgid");
         } else if(NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getUserInfo() != null) {
             buffer = BuffersList.getInstance().getBuffer(NetworkConnection.getInstance().getUserInfo().last_selected_bid);
             if(buffer != null)
@@ -1431,6 +1434,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             else
                 buffer.setDraft(null);
         }
+        if (msgid != null)
+            state.putString("msgid", msgid);
         synchronized (backStack) {
             state.putSerializable("backStack", backStack);
         }
@@ -1442,6 +1447,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public void onBackPressed() {
         if (drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT))) {
             drawerLayout.closeDrawers();
+            return;
+        }
+        if (msgid != null) {
+            setBuffer(buffer.getBid(), null);
             return;
         }
         synchronized (backStack) {
@@ -1616,6 +1625,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 e.highlight = false;
                 e.reqid = -1;
                 e.pending = true;
+                if(msgid != null) {
+                    e.is_reply = true;
+                    e.reply = msgid;
+                }
             }
         }
 
@@ -1632,7 +1645,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return null;
             }
             if (e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-                e.reqid = conn.say(e.cid, e.chan, e.command, new NetworkConnection.IRCResultCallback() {
+                NetworkConnection.IRCResultCallback cb = new NetworkConnection.IRCResultCallback() {
                     @Override
                     public void onIRCResult(IRCCloudJSONObject result) {
                         if(!result.getBoolean("success")) {
@@ -1645,7 +1658,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
                         }
                     }
-                });
+                };
+                if(msgid != null)
+                    e.reqid = conn.reply(e.cid, e.chan, e.command, msgid, cb);
+                else
+                    e.reqid = conn.say(e.cid, e.chan, e.command, cb);
                 if (e.msg != null)
                     pendingEvents.put(e.reqid, e);
             }
@@ -2001,8 +2018,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         } else if (buffer != null) {
-            int bid = buffer.getBid();
-            onBufferSelected(bid);
+            setBuffer(buffer.getBid(), msgid);
         }
 
         if(buffer != null && actionBar != null) {
@@ -2330,7 +2346,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
 
-            if (buffer.getArchived() > 0 && !buffer.isConsole()) {
+            if (msgid != null && msgid.length() > 0) {
+                actionBar.setTitle("Thread");
+                title.setText("Thread");
+                subtitle.setVisibility(View.VISIBLE);
+                subtitle.setText(buffer.getEmojiCompatName());
+                actionBar.setSubtitle(buffer.getDisplayName());
+                key.setVisibility(View.GONE);
+            } else if (buffer.getArchived() > 0 && !buffer.isConsole()) {
                 subtitle.setVisibility(View.VISIBLE);
                 subtitle.setText("(archived)");
                 if (buffer.isConversation()) {
@@ -2420,6 +2443,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
 
             if(conn != null && !conn.ready)
+                hide = true;
+
+            if(msgid != null)
                 hide = true;
 
             if (hide) {
@@ -3496,16 +3522,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public boolean onCreateOptionsMenu(Menu menu) {
         if (NetworkConnection.getInstance().ready) {
             if(buffer != null && buffer.getType() != null) {
-                if (buffer.isChannel()) {
-                    getMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
-                    getMenuInflater().inflate(R.menu.activity_message_channel, menu);
-                } else if (buffer.isConversation())
-                    getMenuInflater().inflate(R.menu.activity_message_conversation, menu);
-                else if (buffer.isConsole())
-                    getMenuInflater().inflate(R.menu.activity_message_console, menu);
+                if (msgid != null) {
+                    getMenuInflater().inflate(R.menu.activity_message_thread, menu);
+                } else {
+                    if (buffer.isChannel()) {
+                        getMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
+                        getMenuInflater().inflate(R.menu.activity_message_channel, menu);
+                    } else if (buffer.isConversation())
+                        getMenuInflater().inflate(R.menu.activity_message_conversation, menu);
+                    else if (buffer.isConsole())
+                        getMenuInflater().inflate(R.menu.activity_message_console, menu);
 
-                getMenuInflater().inflate(R.menu.activity_message_archive, menu);
-                getMenuInflater().inflate(R.menu.activity_message_shortcut, menu);
+                    getMenuInflater().inflate(R.menu.activity_message_archive, menu);
+                    getMenuInflater().inflate(R.menu.activity_message_shortcut, menu);
+                }
             }
             getMenuInflater().inflate(R.menu.activity_main, menu);
         }
@@ -4864,9 +4894,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (event.row_type == ROW_FILE || event.row_type == ROW_THUMBNAIL) {
             if(event.entities.has("id"))
-                showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)), event.entities);
+                showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)), event.entities, null);
             else
-                showUserPopup(user, ColorFormatter.html_to_spanned(event.entities.get("url").asText(), true, ServersList.getInstance().getServer(event.cid)), event.entities);
+                showUserPopup(user, ColorFormatter.html_to_spanned(event.entities.get("url").asText(), true, ServersList.getInstance().getServer(event.cid)), event.entities, null);
         } else if (event.html != null) {
             String html = event.html;
 
@@ -4879,9 +4909,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 Event e = EventsList.getInstance().getEvent(event.parent_eid, event.bid);
                 timestamp = e.timestamp;
             }
-            showUserPopup(user, ColorFormatter.html_to_spanned(timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)), null);
+            String msgid = null;
+            if(event.type.equals("buffer_msg") || event.type.equals("buffer_me_msg")) {
+                msgid = event.is_reply ? event.reply() : event.msgid;
+            }
+            showUserPopup(user, ColorFormatter.html_to_spanned(timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)), null, msgid);
         } else {
-            showUserPopup(user, null, null);
+            showUserPopup(user, null, null, null);
         }
         return true;
     }
@@ -4956,12 +4990,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onUserSelected(int c, String chan, String nick) {
         UsersList u = UsersList.getInstance();
-        showUserPopup(u.getUser(buffer.getBid(), nick), null, null);
+        showUserPopup(u.getUser(buffer.getBid(), nick), null, null, null);
     }
 
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
-    private void showUserPopup(User user, Spanned message, final JsonNode entities) {
+    private void showUserPopup(User user, Spanned message, final JsonNode entities, final String msgid) {
         ArrayList<String> itemList = new ArrayList<String>();
         final String[] items;
         SpannableStringBuilder sb;
@@ -4992,6 +5026,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 itemList.add("Close Preview");
             }
             itemList.add("Copy Message");
+        }
+
+        if (msgid != null && this.msgid == null) {
+            itemList.add("Reply");
         }
 
         if (selected_user != null) {
@@ -5295,6 +5333,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(server.getSlackBaseURL() + "/team/" + selected_user.nick));
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
+                } else if (items[item].equals("Reply")) {
+                    setBuffer(buffer.getBid(), msgid);
                 }
                 dialogInterface.dismiss();
             }
@@ -5339,12 +5379,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public void onBufferSelected(int bid) {
+        setBuffer(bid, null);
+    }
+
+    public void setBuffer(int bid, String msgid) {
         boolean changed = (buffer == null || buffer.getBid() != bid);
+        if(this.msgid != null || msgid != null) {
+            String m = this.msgid;
+            if (m == null)
+                m = "";
+            if (!m.equals(msgid)) {
+                changed = true;
+            }
+        }
 
         launchBid = -1;
         launchURI = null;
         cidToOpen = -1;
         bufferToOpen = null;
+        this.msgid = msgid;
         setIntent(new Intent(this, MainActivity.class));
 
         if (suggestionsTimerTask != null)
@@ -5431,6 +5484,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             b.putInt("cid", buffer.getCid());
         b.putInt("bid", bid);
         b.putBoolean("fade", shouldFadeIn);
+        b.putString("msgid", msgid);
         BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
         BuffersListFragment blf2 = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersListDocked);
         final MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
@@ -5462,8 +5516,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        if (mvf != null)
+                        if (mvf != null) {
                             mvf.setArguments(b);
+                        }
                         messageTxt.setTextWithEmoji("");
                         if (buffer != null && buffer.getDraft() != null)
                             messageTxt.append(buffer.getDraft());

@@ -1599,6 +1599,20 @@ public class NetworkConnection {
         }
     }
 
+    public int reply(int cid, String to, String message, String msgid, IRCResultCallback callback) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("cid", cid);
+            o.put("to", to);
+            o.put("reply", message);
+            o.put("msgid", msgid);
+            return send("reply", o, callback);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
     public JSONObject postSay(int cid, String to, String message, String sk) throws IOException {
         if(to == null)
             to = "*";

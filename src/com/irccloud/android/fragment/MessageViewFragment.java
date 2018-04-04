@@ -96,6 +96,7 @@ import com.irccloud.android.OffsetLinearLayout;
 import com.irccloud.android.R;
 import com.irccloud.android.activity.BaseActivity;
 import com.irccloud.android.activity.ImageViewerActivity;
+import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.activity.UploadsActivity;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.ImageList;
@@ -173,6 +174,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private Typeface hackRegular;
     private HashMap<String, JsonNode> filePropsCache = new HashMap<>();
     private HashSet<String> hiddenFileIDs = new HashSet<>();
+    private HashMap<String, Event> msgids = new HashMap<>();
+    private String msgid;
 
     public static final int ROW_MESSAGE = 0;
     public static final int ROW_TIMESTAMP = 1;
@@ -184,8 +187,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private static final String TYPE_TIMESTAMP = "__timestamp__";
     private static final String TYPE_BACKLOGMARKER = "__backlog__";
     private static final String TYPE_LASTSEENEID = "__lastseeneid__";
-    private static final String TYPE_THUMBNAIL = "__thumbnail__";
-    private static final String TYPE_FILE = "__file__";
 
     private MessageAdapter adapter;
 
@@ -225,6 +226,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_disableQuote = false;
     private boolean pref_inlineImages = false;
     private boolean pref_avatarImages = false;
+    private boolean pref_replyCollapse = false;
 
     private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
@@ -256,6 +258,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             LinearLayout messageContainer;
             LinearLayout socketClosedBar;
             LinearLayout thumbnailWrapper;
+            LinearLayout replyCountContainer;
             TextView timestamp;
             TextView timestamp_left;
             TextView timestamp_right;
@@ -266,6 +269,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             TextView filename;
             TextView metadata;
             TextView extension;
+            TextView reply;
+            TextView replyCountIcon;
+            TextView replyCount;
             ImageView failed;
             ImageView avatar;
             GifImageView thumbnail;
@@ -701,7 +707,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (position >= data.size() || ctx == null)
                 return null;
 
-            Event e;
+            final Event e;
             synchronized (data) {
                 e = data.get(position);
             }
@@ -749,6 +755,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.extension = row.findViewById(R.id.extension);
                     holder.progress = row.findViewById(R.id.progress);
                     holder.quoteBorder = row.findViewById(R.id.quoteBorder);
+                    holder.replyCountContainer = row.findViewById(R.id.replyCountContainer);
+                    holder.reply = row.findViewById(R.id.reply);
+                    if(holder.reply != null)
+                        holder.reply.setTypeface(FontAwesome.getTypeface());
+                    holder.replyCountIcon = row.findViewById(R.id.replyCountIcon);
+                    if(holder.replyCountIcon != null) {
+                        holder.replyCountIcon.setTypeface(FontAwesome.getTypeface());
+                    }
+                    holder.replyCount = row.findViewById(R.id.replyCount);
                     holder.type = e.row_type;
 
                     row.setTag(holder);
@@ -1063,6 +1078,57 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(holder.quoteBorder != null)
                     holder.quoteBorder.setVisibility(e.quoted ? View.VISIBLE : View.GONE );
+
+                if(holder.reply != null) {
+                    if(!pref_replyCollapse && (e.is_reply || e.reply_count > 0)) {
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(holder.reply.getLayoutParams());
+                        if(!pref_chatOneLine && e.header) {
+                            lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics());
+                        } else {
+                            lp.topMargin = 0;
+                        }
+                        holder.reply.setLayoutParams(lp);
+                        holder.reply.setText(e.is_reply ? FontAwesome.COMMENT : FontAwesome.COMMENTS);
+                        holder.reply.setTextColor(0x66000000 + Integer.parseInt(ColorScheme.colorForNick(e.is_reply ? e.reply() : e.msgid, ColorScheme.getInstance().isDarkTheme), 16));
+                        holder.reply.setVisibility(View.VISIBLE);
+                        holder.reply.setOnClickListener(new OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if(getActivity() != null && getActivity() instanceof MainActivity) {
+                                    ((MainActivity)getActivity()).setBuffer(buffer.getBid(), e.is_reply ? e.reply() : e.msgid);
+                                }
+                            }
+                        });
+                    } else {
+                        holder.reply.setVisibility(View.INVISIBLE);
+                        holder.reply.setOnClickListener(null);
+                    }
+                }
+
+                if(holder.replyCountContainer != null) {
+                    if(e.reply_count > 0 && pref_replyCollapse) {
+                        holder.replyCountIcon.setText(FontAwesome.COMMENT);
+                        holder.replyCountIcon.setTextColor(0x66000000 + Integer.parseInt(ColorScheme.colorForNick(e.msgid, ColorScheme.getInstance().isDarkTheme), 16));
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(e.reply_count).append(" ");
+                        sb.append(e.reply_count == 1 ? "reply" : "replies");
+                        sb.append(": ");
+                        sb.append(TextUtils.join(", ", e.reply_nicks));
+                        holder.replyCount.setText(sb.toString());
+                        holder.replyCount.setTextColor(0x66ffffff);
+                        holder.replyCountContainer.setVisibility(View.VISIBLE);
+                        holder.replyCountContainer.setOnClickListener(new OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if(getActivity() != null && getActivity() instanceof MainActivity) {
+                                    ((MainActivity)getActivity()).setBuffer(buffer.getBid(), e.msgid);
+                                }
+                            }
+                        });
+                    } else {
+                        holder.replyCountContainer.setVisibility(View.GONE);
+                    }
+                }
 
                 if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
                     if(e.row_type == ROW_THUMBNAIL) {
@@ -1659,6 +1725,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         } else {
             Crashlytics.log(Log.WARN, "IRCCloud", "MessageViewFragment: couldn't find buffer to switch to");
         }
+        msgid = args.getString("msgid");
         requestingBacklog = false;
         avgInsertTime = 0;
         newMsgs = 0;
@@ -1770,6 +1837,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 if (earliest_eid == 0 || event.eid < earliest_eid)
                     earliest_eid = event.eid;
+
+                if(msgid != null && msgid.length() > 0 && !(msgid.equals(event.msgid) || msgid.equals(event.reply())))
+                    return;
 
                 String type = event.type;
                 long eid = event.eid;
@@ -2110,6 +2180,25 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                             break;
                     }
+                }
+
+                if(event.msgid != null && event.msgid.length() > 0)
+                    msgids.put(event.msgid, event);
+
+                if(event.reply() != null && event.reply().length() > 0) {
+                    Event parent = msgids.get(event.reply());
+                    if(parent != null) {
+                        parent.reply_count++;
+                        if (parent.reply_nicks == null)
+                            parent.reply_nicks = new HashSet<>();
+                        parent.reply_nicks.add(event.from);
+                    }
+                }
+                event.is_reply = (event.reply() != null && event.reply().length() > 0);
+                if(event.is_reply && pref_replyCollapse) {
+                    if(!backlog)
+                        adapter.notifyDataSetChanged();
+                    return;
                 }
 
                 adapter.addItem(eid, event);
@@ -2772,6 +2861,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     private synchronized void refresh(MessageAdapter adapter, TreeMap<Long, Event> events) {
         ImageList.getInstance().clear();
+        msgids.clear();
         earliest_eid = 0;
         pref_24hr = false;
         pref_seconds = false;
@@ -2888,6 +2978,20 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     pref_disableInlineFiles = true;
                     pref_inlineImages = false;
                 }
+
+                JSONObject replyCollapseMap = null;
+                if (buffer.isChannel()) {
+                    if (prefs.has("channel-hideJoinPart"))
+                        replyCollapseMap = prefs.getJSONObject("channel-reply-collapse");
+                } else {
+                    if (prefs.has("buffer-hideJoinPart"))
+                        replyCollapseMap = prefs.getJSONObject("buffer-reply-collapse");
+                }
+
+                pref_replyCollapse = (prefs.has("reply-collapse") && prefs.get("reply-collapse") instanceof Boolean && prefs.getBoolean("reply-collapse")) || (replyCollapseMap != null && replyCollapseMap.has(String.valueOf(buffer.getBid())) && replyCollapseMap.getBoolean(String.valueOf(buffer.getBid())));
+
+                if(msgid != null && msgid.length() > 0)
+                    pref_replyCollapse = false;
             } catch (JSONException e1) {
                 NetworkConnection.printStackTraceToCrashlytics(e1);
             }
@@ -2931,6 +3035,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         next = i.hasNext() ? i.next() : null;
                         String type = (next == null) ? "" : next.type;
 
+                        e.reply_count = 0;
                         if (next != null && currentCollapsedEid != -1 && !expandedSectionEids.contains(currentCollapsedEid) && (type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode"))) {
                             calendar.setTimeInMillis(next.getTime());
                             insertEvent(adapter, e, true, calendar.get(Calendar.DAY_OF_YEAR) == lastCollapsedDay);

@@ -1076,6 +1076,7 @@ public class EventsList {
             e.entities = event.getJsonNode("entities");
             e.avatar = event.getString("avatar");
             e.avatar_url = event.getString("avatar_url");
+            e.msgid = event.getString("msgid");
 
             if((e.type.equals("buffer_msg") || e.type.equals("buffer_me_msg")) && (e.from == null || e.from.length() == 0))
                 e.from = e.from_nick = e.server;

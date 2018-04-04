@@ -37,6 +37,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import org.json.JSONObject;
 
+import java.util.HashSet;
 import java.util.TimerTask;
 
 /*@Table(databaseName = IRCCloudDatabase.NAME,
@@ -162,6 +163,9 @@ public class Event /*extends ObservableBaseModel*/ {
     @Column
     public String avatar_url;
 
+    @Column
+    public String msgid;
+
     public String timestamp;
     public String html;
     public Spanned formatted;
@@ -172,6 +176,9 @@ public class Event /*extends ObservableBaseModel*/ {
     public boolean quoted;
     public boolean code_block;
     public long parent_eid;
+    public boolean is_reply;
+    public int reply_count;
+    public HashSet<String> reply_nicks;
 
     public Event() {
 
@@ -345,5 +352,16 @@ public class Event /*extends ObservableBaseModel*/ {
         if(cachedAvatarURL != null)
             cachedAvatarSize = size;
         return cachedAvatarURL;
+    }
+
+    public String reply = null;
+    public String reply() {
+        if(reply != null)
+            return reply;
+        if(entities != null && entities.has("reply") && !entities.get("reply").isNull())
+            return entities.get("reply").asText();
+        if(entities != null && entities.has("known_client_tags") && !entities.get("known_client_tags").isNull() && entities.get("known_client_tags").has("reply"))
+            return entities.get("known_client_tags").get("reply").asText();
+        return null;
     }
 }

@@ -24,12 +24,22 @@
             android:orientation="horizontal"
             >
 
+    <TextView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:id="@+id/reply"
+        android:layout_gravity="top"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:visibility="invisible"
+        android:contentDescription="reply"/>
+
     <com.makeramen.roundedimageview.RoundedImageView
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:id="@+id/avatar"
         android:layout_gravity="right|top"
-        android:layout_marginLeft="4dp"
+        android:layout_marginLeft="6dp"
         android:layout_marginRight="12dp"
         android:contentDescription="user icon"
         app:riv_corner_radius="4dp"
@@ -141,5 +151,35 @@
                 android:layout_marginLeft="8dp"
                 android:visibility="gone"/>
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/replyCountContainer"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:id="@+id/replyCountIcon"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="2dp"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:contentDescription="reply"/>
+
+            <TextView
+                android:id="@+id/replyCount"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:ellipsize="end"
+                android:singleLine="true"/>
+
+        </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

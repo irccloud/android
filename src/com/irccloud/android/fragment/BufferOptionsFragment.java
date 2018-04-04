@@ -47,6 +47,7 @@ public class BufferOptionsFragment extends DialogFragment {
     SwitchCompat readOnSelect;
     SwitchCompat inlineFiles;
     SwitchCompat inlineImages;
+    SwitchCompat replyCollapse;
     int cid;
     int bid;
     String type;
@@ -101,6 +102,7 @@ public class BufferOptionsFragment extends DialogFragment {
                         prefs = updatePref(prefs, collapse.isChecked(), "buffer-expandJoinPart");
                         prefs = updatePref(prefs, !collapse.isChecked(), "buffer-collapseJoinPart");
                         prefs = updatePref(prefs, inlineFiles.isChecked(), "buffer-files-disableinline");
+                        prefs = updatePref(prefs, !replyCollapse.isChecked(), "buffer-reply-collapse");
                     } else {
                         prefs = updatePref(prefs, expandDisco.isChecked(), "buffer-expandDisco");
                     }
@@ -201,6 +203,15 @@ public class BufferOptionsFragment extends DialogFragment {
 
                         inlineImages.setChecked((inlineImagesMap != null && inlineImagesMap.has(String.valueOf(bid)) && inlineImagesMap.getBoolean(String.valueOf(bid))));
                     }
+                    if (prefs.has("buffer-reply-collapse")) {
+                        JSONObject collapseMap = prefs.getJSONObject("buffer-reply-collapse");
+                        if (collapseMap.has(String.valueOf(bid)) && collapseMap.getBoolean(String.valueOf(bid)))
+                            replyCollapse.setChecked(false);
+                        else
+                            replyCollapse.setChecked(true);
+                    } else {
+                        replyCollapse.setChecked(true);
+                    }
                 } else {
                     joinpart.setChecked(true);
                     unread.setChecked(true);
@@ -209,6 +220,7 @@ public class BufferOptionsFragment extends DialogFragment {
                     readOnSelect.setChecked(false);
                     inlineFiles.setChecked(true);
                     inlineImages.setChecked(false);
+                    replyCollapse.setChecked(false);
                 }
             }
         } catch (JSONException e) {
@@ -230,6 +242,7 @@ public class BufferOptionsFragment extends DialogFragment {
         unread = v.findViewById(R.id.unread);
         joinpart = v.findViewById(R.id.joinpart);
         collapse = v.findViewById(R.id.collapse);
+        replyCollapse = v.findViewById(R.id.replyCollapse);
         expandDisco = v.findViewById(R.id.expandDisco);
         readOnSelect = v.findViewById(R.id.readOnSelect);
         inlineFiles = v.findViewById(R.id.inlineFiles);
@@ -275,6 +288,7 @@ public class BufferOptionsFragment extends DialogFragment {
             collapse.setVisibility(View.GONE);
             inlineFiles.setVisibility(View.GONE);
             inlineImages.setVisibility(View.GONE);
+            replyCollapse.setVisibility(View.GONE);
         } else {
             expandDisco.setVisibility(View.GONE);
         }

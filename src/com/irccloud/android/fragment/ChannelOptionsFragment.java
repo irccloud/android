@@ -46,6 +46,7 @@ public class ChannelOptionsFragment extends DialogFragment {
     SwitchCompat readOnSelect;
     SwitchCompat inlineFiles;
     SwitchCompat inlineImages;
+    SwitchCompat replyCollapse;
     int cid;
     int bid;
 
@@ -103,6 +104,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     prefs = updatePref(prefs, inlineFiles.isChecked(), "channel-files-disableinline");
                     prefs = updatePref(prefs, inlineImages.isChecked(), "channel-inlineimages-disable");
                     prefs = updatePref(prefs, !inlineImages.isChecked(), "channel-inlineimages");
+                    prefs = updatePref(prefs, !replyCollapse.isChecked(), "channel-reply-collapse");
 
                     NetworkConnection.getInstance().set_prefs(prefs.toString(), null);
                 } else {
@@ -220,7 +222,15 @@ public class ChannelOptionsFragment extends DialogFragment {
 
                         inlineImages.setChecked((inlineImagesMap != null && inlineImagesMap.has(String.valueOf(bid)) && inlineImagesMap.getBoolean(String.valueOf(bid))));
                     }
-
+                    if (prefs.has("channel-reply-collapse")) {
+                        JSONObject collapseMap = prefs.getJSONObject("channel-reply-collapse");
+                        if (collapseMap.has(String.valueOf(bid)) && collapseMap.getBoolean(String.valueOf(bid)))
+                            replyCollapse.setChecked(true);
+                        else
+                            replyCollapse.setChecked(false);
+                    } else {
+                        replyCollapse.setChecked(false);
+                    }
                 } else {
                     notifyAll.setChecked(false);
                     joinpart.setChecked(true);
@@ -231,6 +241,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     readOnSelect.setChecked(false);
                     inlineFiles.setChecked(true);
                     inlineImages.setChecked(false);
+                    replyCollapse.setChecked(false);
                 }
             } else {
                 notifyAll.setChecked(false);
@@ -241,6 +252,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                 autosuggest.setChecked(true);
                 readOnSelect.setChecked(false);
                 inlineImages.setChecked(false);
+                replyCollapse.setChecked(false);
             }
             if (!getActivity().getResources().getBoolean(R.bool.isTablet))
                 members.setVisibility(View.GONE);
@@ -269,6 +281,7 @@ public class ChannelOptionsFragment extends DialogFragment {
         notifyAll = v.findViewById(R.id.notifyAll);
         joinpart = v.findViewById(R.id.joinpart);
         collapse = v.findViewById(R.id.collapse);
+        replyCollapse = v.findViewById(R.id.replyCollapse);
         autosuggest = v.findViewById(R.id.autosuggest);
         readOnSelect = v.findViewById(R.id.readOnSelect);
         inlineFiles = v.findViewById(R.id.inlineFiles);
