@@ -1083,9 +1083,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if(!pref_replyCollapse && (e.is_reply || e.reply_count > 0)) {
                         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(holder.reply.getLayoutParams());
                         if(!pref_chatOneLine && e.header) {
-                            lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics());
+                            lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 8, getResources().getDisplayMetrics());
                         } else {
-                            lp.topMargin = 0;
+                            lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, -4, getResources().getDisplayMetrics());;
                         }
                         holder.reply.setLayoutParams(lp);
                         holder.reply.setText(e.is_reply ? FontAwesome.COMMENT : FontAwesome.COMMENTS);
