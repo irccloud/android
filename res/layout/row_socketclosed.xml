@@ -24,7 +24,7 @@
     <LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingLeft="8dp"
+		android:paddingLeft="24dp"
 		android:paddingRight="8dp">
 
 		<ImageView
@@ -32,7 +32,7 @@
 			android:layout_height="wrap_content"
 			android:id="@+id/avatar"
 			android:layout_gravity="right|top"
-			android:layout_marginLeft="4dp"
+			android:layout_marginLeft="6dp"
 			android:layout_marginRight="12dp"
 			android:contentDescription="user icon"
 			android:visibility="gone"/>
