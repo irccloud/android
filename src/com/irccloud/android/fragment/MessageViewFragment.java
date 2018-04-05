@@ -1780,7 +1780,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 refreshTask.onPostExecute(refreshTask.doInBackground());
             }
         } else {
-            if (buffer == null || buffer.getMin_eid() == 0 || earliest_eid == buffer.getMin_eid() || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
+            if (buffer == null || buffer.getMin_eid() == 0 || earliest_eid == buffer.getMin_eid() || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready || (msgid != null && msgids.containsKey(msgid))) {
                 headerView.setVisibility(View.GONE);
                 loadBacklogButton.setVisibility(View.GONE);
             } else if (buffer != null && buffer.getDeferred() > 0) {
@@ -1825,7 +1825,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         synchronized (adapterLock) {
             try {
                 long start = System.currentTimeMillis();
-                if (event.eid <= buffer.getMin_eid()) {
+                if (event.eid <= buffer.getMin_eid() || (msgid != null && msgids.containsKey(msgid))) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -2754,7 +2754,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         return null;
                     }
                 }
-            } else if (buffer != null && buffer.getMin_eid() > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !isCancelled()) {
+            } else if (buffer != null && buffer.getMin_eid() > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !isCancelled() && !(msgid != null && msgids.containsKey(msgid))) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -3052,7 +3052,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         @Override
                         public void run() {
                             headerView.setVisibility(View.GONE);
-                            if(buffer.getMin_eid() > 0 && earliest_eid > buffer.getMin_eid() && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                            if(buffer.getMin_eid() > 0 && earliest_eid > buffer.getMin_eid() && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !(msgid != null && msgids.containsKey(msgid))) {
                                 if(buffer.getDeferred() > 0) {
                                     backlogFailed.setVisibility(View.GONE);
                                     loadBacklogButton.setVisibility(View.GONE);
