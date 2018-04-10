@@ -177,7 +177,7 @@
                 android:layout_height="wrap_content"
                 android:clickable="false"
                 android:ellipsize="end"
-                android:singleLine="true"/>
+                android:maxLines="2"/>
 
         </LinearLayout>
 
