@@ -44,6 +44,8 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.fragment.BuffersListFragment;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -118,7 +120,12 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
             }
             if(getIntent() != null && getIntent().hasExtra(Intent.EXTRA_STREAM)) {
                 mUri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-                if(mUri.getPath().startsWith(getCacheDir().getParent()) && !mUri.getPath().startsWith(getCacheDir().getAbsolutePath())) {
+                String path = mUri.getPath();
+                try {
+                    path = new File(path).getCanonicalPath();
+                } catch (IOException e) {
+                }
+                if(path.startsWith(getCacheDir().getParent()) && !path.startsWith(getCacheDir().getAbsolutePath())) {
                     Toast.makeText(this, "Unable to upload file: invalid file path", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {

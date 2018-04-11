@@ -1895,7 +1895,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } else {
             if (intent.hasExtra(Intent.EXTRA_STREAM) && intent.getParcelableExtra(Intent.EXTRA_STREAM) != null) {
                 Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                if(uri.getPath().startsWith(getCacheDir().getParent()) && !uri.getPath().startsWith(getCacheDir().getAbsolutePath())) {
+                String path = uri.getPath();
+                try {
+                    path = new File(path).getCanonicalPath();
+                } catch (IOException e) {
+                }
+                if(path.startsWith(getCacheDir().getParent()) && !path.startsWith(getCacheDir().getAbsolutePath())) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
