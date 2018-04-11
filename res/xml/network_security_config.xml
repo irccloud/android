@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2015 IRCCloud, Ltd.
+  ~ Copyright (c) 2018 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
   -->
 
 <network-security-config>
-    <domain-config>
+    <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">irccloud.com</domain>
         <pin-set expiration="2019-03-21">
             <pin digest="SHA-256">A0us4Wg8ZwLOrXMWm8W4BsECg+dz98ntmZZAmm8if9c=</pin>
-            <pin digest="SHA-256">hPUhE79j0hDUJDg/Zy+yqkLt/lJKEa9PWb0vrnp2oyQ=</pin>
-            <pin digest="SHA-256">58qRu/uxh4gFezqAcERupSkRYBlBAvfcw7mEjGPLnNU=</pin>
+            <pin digest="SHA-256">5kJvNEMw0KjrCAu7eXY5HZdvyCS13BbA0VJG1RSP91w=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true"/>
     </domain-config>
+    <base-config cleartextTrafficPermitted="true" />
 </network-security-config>
