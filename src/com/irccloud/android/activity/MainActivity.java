@@ -4005,7 +4005,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             items[items.length - 1] = "File Uploads";
         }
         if(!BuildConfig.ENTERPRISE && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("avatar-images", false)) {
-            if (server.getAvatars_supported() == 1) {
+            if (server.getAvatars_supported() == 1 && !server.isSlack()) {
                 items = Arrays.copyOf(items, items.length + 1);
                 items[items.length - 1] = "Change Avatar";
             } else {
@@ -4108,7 +4108,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         case "Change Avatar":
                         case "Change Public Avatar":
                             i = new Intent(MainActivity.this, AvatarsActivity.class);
-                            if(server.getOrgId() > 0)
+                            if(server.getOrgId() > 0 && !server.isSlack())
                                 i.putExtra("orgId", server.getOrgId());
                             startActivity(i);
                             break;
