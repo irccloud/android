@@ -17,6 +17,7 @@
 package com.irccloud.android.data.model;
 
 import android.text.Spanned;
+import android.util.Patterns;
 
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,6 +27,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.BuffersList;
+import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.ServersList;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -39,6 +41,7 @@ import org.json.JSONObject;
 
 import java.util.HashSet;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
 
 /*@Table(databaseName = IRCCloudDatabase.NAME,
         uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})*/
@@ -289,6 +292,22 @@ public class Event /*extends ObservableBaseModel*/ {
     private String cachedAvatarURL;
     private int cachedAvatarSize;
 
+    public String getGravatar(int size) {
+        if(from_realname != null && from_realname.length() > 0) {
+            Matcher m = Patterns.EMAIL_ADDRESS.matcher(from_realname);
+            if(m.find()) {
+                String email = from_realname.substring(m.start(), m.end()).toLowerCase();
+                try {
+                    cachedAvatarURL = "https://www.gravatar.com/avatar/" + ImageList.MD5(email).toLowerCase() + "?size=" + size + "&default=404";
+                    cachedAvatarSize = size;
+                } catch (Exception e) {
+                    cachedAvatarURL = null;
+                }
+            }
+        }
+        return cachedAvatarURL;
+    }
+
     public String getAvatarURL(int size) {
         boolean isIRCCloudAvatar = false;
         if(!BuildConfig.ENTERPRISE && isMessage() && size != cachedAvatarSize) {
@@ -349,6 +368,8 @@ public class Event /*extends ObservableBaseModel*/ {
                     cachedAvatarURL = null;
             }
         }
+        if(cachedAvatarURL == null || ImageList.getInstance().isFailedURL(cachedAvatarURL))
+            cachedAvatarURL = getGravatar(size);
         if(cachedAvatarURL != null)
             cachedAvatarSize = size;
         return cachedAvatarURL;

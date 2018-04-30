@@ -872,7 +872,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                     Spanned formatted = e.formatted;
                     if(formatted != null && !pref_avatarsOff && e.parent_eid == 0 && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
-                        int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize+4, getResources().getDisplayMetrics());
+                        final int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize+4, getResources().getDisplayMetrics());
                         Bitmap b = null;
                         URL avatarURL = null;
                         try {
@@ -883,16 +883,34 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         if(avatarURL != null) {
                             try {
+                                final String avatarURL_string = avatarURL.toString();
                                 b = ImageList.getInstance().getImage(avatarURL);
                                 if(b != null && b.getWidth() != width)
                                     b = Bitmap.createScaledBitmap(b, width, width, false);
                                 ImageList.getInstance().fetchImage(avatarURL, 0, new ImageList.OnImageFetchedListener() {
                                     @Override
                                     public void onImageFetched(Bitmap image) {
-                                        refreshSoon();
+                                        if(image != null) {
+                                            refreshSoon();
+                                        } else {
+                                            String gravatar = e.getGravatar(width);
+                                            if(gravatar != null && !gravatar.equals(avatarURL_string)) {
+                                                try {
+                                                    ImageList.getInstance().fetchImage(new URL(gravatar), 0, new ImageList.OnImageFetchedListener() {
+                                                        @Override
+                                                        public void onImageFetched(Bitmap image) {
+                                                            refreshSoon();
+                                                        }
+                                                    }, 600000);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }
                                     }
                                 }, 600000);
                             } catch (IOException e1) {
+                                e1.printStackTrace();
                             }
                         }
                         if(b == null) {
@@ -992,12 +1010,30 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 e1.printStackTrace();
                             }
                             if(avatarURL != null) {
+                                final int width = lp.width;
+                                final String avatarURL_string = avatarURL.toString();
                                 try {
                                     b = ImageList.getInstance().getImage(avatarURL);
                                     ImageList.getInstance().fetchImage(avatarURL, 0, new ImageList.OnImageFetchedListener() {
                                         @Override
                                         public void onImageFetched(Bitmap image) {
-                                            refreshSoon();
+                                            if(image != null) {
+                                                refreshSoon();
+                                            } else {
+                                                String gravatar = e.getGravatar(width);
+                                                if(gravatar != null && !gravatar.equals(avatarURL_string)) {
+                                                    try {
+                                                        ImageList.getInstance().fetchImage(new URL(gravatar), 0, new ImageList.OnImageFetchedListener() {
+                                                            @Override
+                                                            public void onImageFetched(Bitmap image) {
+                                                                refreshSoon();
+                                                            }
+                                                        }, 600000);
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }
                                         }
                                     }, 600000);
                                 } catch (IOException e1) {
@@ -1606,7 +1642,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 }
 
                                 if(e != null) {
-                                    int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics());
+                                    final int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics());
                                     Avatar a = null;
                                     Bitmap b = null;
                                     URL avatarURL = null;
@@ -1623,16 +1659,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 ImageList.getInstance().fetchImage(avatarURL, new ImageList.OnImageFetchedListener() {
                                                     @Override
                                                     public void onImageFetched(Bitmap image) {
-                                                        runOnUiThread(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                try {
-                                                                    ListView v = getListView();
-                                                                    mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
-                                                                } catch (Exception e) {
+                                                        if(image != null) {
+                                                            runOnUiThread(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    try {
+                                                                        ListView v = getListView();
+                                                                        mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
+                                                                    } catch (Exception e) {
+                                                                    }
                                                                 }
-                                                            }
-                                                        });
+                                                            });
+                                                        }
                                                     }
                                                 });
                                         } catch (IOException e1) {

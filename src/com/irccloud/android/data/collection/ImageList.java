@@ -313,8 +313,9 @@ public class ImageList {
     private void notifyListeners(URL url, Bitmap result) {
         synchronized (downloadListeners) {
             if (downloadListeners.containsKey(url.toString())) {
-                for (OnImageFetchedListener listener : downloadListeners.get(url.toString()))
+                for (OnImageFetchedListener listener : downloadListeners.get(url.toString())) {
                     listener.onImageFetched(result);
+                }
                 downloadListeners.remove(url.toString());
             }
         }
@@ -522,7 +523,7 @@ public class ImageList {
         return new File(new File(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir(), "ImageCache"), MD5(url.toString()));
     }
 
-    private String MD5(String md5) {
+    public static String MD5(String md5) {
         try {
             if(md == null)
                 md = java.security.MessageDigest.getInstance("MD5");
