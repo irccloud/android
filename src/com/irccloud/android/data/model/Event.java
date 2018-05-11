@@ -299,7 +299,10 @@ public class Event /*extends ObservableBaseModel*/ {
                 String email = from_realname.substring(m.start(), m.end()).toLowerCase();
                 try {
                     cachedAvatarURL = "https://www.gravatar.com/avatar/" + ImageList.MD5(email).toLowerCase() + "?size=" + size + "&default=404";
-                    cachedAvatarSize = size;
+                    if(ImageList.getInstance().isFailedURL(cachedAvatarURL))
+                        cachedAvatarURL = null;
+                    else
+                        cachedAvatarSize = size;
                 } catch (Exception e) {
                     cachedAvatarURL = null;
                 }

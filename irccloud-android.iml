@@ -114,23 +114,22 @@
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-tasks-license-12.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-gass-license-12.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.9.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.android.databinding:adapters-3.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.android.databinding:adapters-3.1.2" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-fragment-27.1.1" level="project" />
     <orderEntry type="library" name="Gradle: android.arch.core:runtime-1.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.android.databinding:library-3.1.1" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:design-27.1.1" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:appcompat-v7-27.1.1" level="project" />
     <orderEntry type="library" name="Gradle: com.commonsware.cwac:richedit-0.5.2" level="project" />
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:beta-1.2.7" level="project" />
     <orderEntry type="library" name="Gradle: io.fabric.sdk.android:fabric-1.4.2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-api-phone-license-12.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.android.databinding:library-3.1.2" level="project" />
     <orderEntry type="library" name="Gradle: org.solovyev.android.views:linear-layout-manager-0.5" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-emoji-27.1.1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-base-license-12.0.1" level="project" />
     <orderEntry type="library" name="Gradle: android.arch.lifecycle:runtime-1.1.0" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:transition-27.1.1" level="project" />
     <orderEntry type="library" name="Gradle: pl.droidsonroids.gif:android-gif-drawable-1.2.8" level="project" />
-    <orderEntry type="library" name="Gradle: com.android.databinding:baseLibrary:3.1.1@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.makeramen:roundedimageview-2.3.0" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-annotations:27.1.1@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-iid-license-12.0.1" level="project" />
@@ -151,6 +150,7 @@
     <orderEntry type="library" name="Gradle: com.datatheorem.android.trustkit:trustkit-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-basement-license-12.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-core-utils-27.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.android.databinding:baseLibrary:3.1.2@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-api-phone-12.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-identity-12.0.1" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/sam/Projects/irccloud-android/libs/sdk-v1.0.0.jar:unspecified@jar" level="project" />

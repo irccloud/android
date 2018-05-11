@@ -70,6 +70,10 @@
             android:key="nick-colors"
             android:defaultValue="false"
             android:title="Colourise nicknames"/>
+		<SwitchPreference
+			android:key="mention-colors"
+			android:defaultValue="false"
+			android:title="Colourise mentions"/>
 	</PreferenceCategory>
 
 </PreferenceScreen>

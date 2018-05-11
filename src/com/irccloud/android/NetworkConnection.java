@@ -2248,6 +2248,7 @@ public class NetworkConnection {
                     editor.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.get("time-seconds") instanceof Boolean && userInfo.prefs.getBoolean("time-seconds"));
                     editor.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.get("mode-showsymbol") instanceof Boolean && userInfo.prefs.getBoolean("mode-showsymbol"));
                     editor.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors") instanceof Boolean && userInfo.prefs.getBoolean("nick-colors"));
+                    editor.putBoolean("mention-colors", userInfo.prefs.has("mention-colors") && userInfo.prefs.get("mention-colors") instanceof Boolean && userInfo.prefs.getBoolean("mention-colors"));
                     editor.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert") instanceof Boolean && userInfo.prefs.getBoolean("emoji-disableconvert")));
                     editor.putBoolean("pastebin-disableprompt", !(userInfo.prefs.has("pastebin-disableprompt") && userInfo.prefs.get("pastebin-disableprompt") instanceof Boolean && userInfo.prefs.getBoolean("pastebin-disableprompt")));
                     editor.putBoolean("hideJoinPart", !(userInfo.prefs.has("hideJoinPart") && userInfo.prefs.get("hideJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("hideJoinPart")));
@@ -2290,6 +2291,7 @@ public class NetworkConnection {
                     editor.putBoolean("chat-norealname", true);
                     editor.putBoolean("mode-showsymbol", false);
                     editor.putBoolean("nick-colors", false);
+                    editor.putBoolean("mention-colors", false);
                     editor.putBoolean("emoji-disableconvert", true);
                     editor.putBoolean("pastebin-disableprompt", true);
                     editor.putBoolean("ascii-compact", false);

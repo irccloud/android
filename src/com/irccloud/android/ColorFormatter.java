@@ -31,6 +31,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.CharacterStyle;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.MetricAffectingSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
@@ -43,6 +44,7 @@ import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.collection.ImageList;
+import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Server;
 
@@ -50,7 +52,10 @@ import org.xml.sax.XMLReader;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2072,11 +2077,11 @@ public class ColorFormatter {
     }
 
     public static Spanned html_to_spanned(String msg) {
-        return html_to_spanned(msg, false, null, null);
+        return html_to_spanned(msg, false, null, null, false);
     }
 
     public static Spanned html_to_spanned(String msg, boolean linkify, final Server server) {
-        return html_to_spanned(msg, linkify, server, null);
+        return html_to_spanned(msg, linkify, server, null, false);
     }
 
     public static CharSequence strip(String msg) {
@@ -2087,8 +2092,14 @@ public class ColorFormatter {
     }
 
     public static Spanned html_to_spanned(String msg, boolean linkify, final Server server, final JsonNode entities) {
+        return html_to_spanned(msg, linkify, server, entities, false);
+    }
+
+    public static Spanned html_to_spanned(String msg, boolean linkify, final Server server, final JsonNode entities, final boolean colorize_mentions) {
         if (msg == null)
             msg = "";
+
+        final ArrayList<Mention> mention_spans = new ArrayList<>();
 
         final Spannable output = (Spannable) Html.fromHtml(msg, null, new Html.TagHandler() {
             @Override
@@ -2147,6 +2158,26 @@ public class ColorFormatter {
                             output.setSpan(new TypefaceSpan(Hack), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
+                } else if(tag.startsWith("nick_")) {
+                    if (opening) {
+                        output.setSpan(new ForegroundColorSpan(0), len, len, Spannable.SPAN_MARK_MARK);
+                    } else {
+                        Object obj = getLast(output, ForegroundColorSpan.class);
+                        int where = output.getSpanStart(obj);
+
+                        output.removeSpan(obj);
+
+                        if (where != len) {
+                            String nick = tag.substring(5);
+                            if(server != null && !nick.equals(server.getNick())) {
+                                Mention m = new Mention();
+                                m.position = where;
+                                m.length = len;
+                                m.span = new ForegroundColorSpan(Color.parseColor("#" + ColorScheme.colorForNick(nick, ColorScheme.getInstance().isDarkTheme)));
+                                mention_spans.add(m);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -2166,6 +2197,12 @@ public class ColorFormatter {
                 }
             }
         });
+
+        if(colorize_mentions) {
+            for (Mention m : mention_spans) {
+                output.setSpan(m.span, m.position, m.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
 
         String chanTypes = Buffer.DEFAULT_CHANTYPES;
         if (server != null && server.CHANTYPES != null && server.CHANTYPES.length() > 0)
@@ -2535,9 +2572,51 @@ public class ColorFormatter {
         return builder.toString();
     }
 
+    private static class Mention {
+        public int position;
+        public int length;
+        public boolean at_mention;
+        public ForegroundColorSpan span;
+
+        public String toString() {
+            return "{position=" + position + ", length=" + length + ", at_mention:" + at_mention + "}";
+        }
+    }
+
+    private static void offset_mention_map(HashMap<String, ArrayList<Mention>> mentions_map, int start, int offset) {
+        for(ArrayList<Mention> mentions : mentions_map.values()) {
+            for(Mention m : mentions) {
+                if(m.position > start)
+                    m.position += offset;
+            }
+        }
+    }
+
     public static String irc_to_html(String msg) {
+        return irc_to_html(msg, null, 0, null, 0);
+    }
+
+    public static String irc_to_html(String msg, JsonNode mentions, int mention_offset, JsonNode mention_data, int cid) {
         if (msg == null)
             return "";
+
+        HashMap<String, ArrayList<Mention>> mentions_map = new HashMap<>();
+        if(mentions != null) {
+            Iterator<Map.Entry<String, JsonNode>> i = mentions.fields();
+            while(i.hasNext()) {
+                Map.Entry<String, JsonNode> entry = i.next();
+                ArrayList<Mention> mention_list = new ArrayList<>();
+                Iterator<JsonNode> j = entry.getValue().elements();
+                while(j.hasNext()) {
+                    JsonNode node = j.next();
+                    Mention m = new Mention();
+                    m.position = node.get(0).asInt();
+                    m.length = node.get(1).asInt();
+                    mention_list.add(m);
+                }
+                mentions_map.put(entry.getKey(), mention_list);
+            }
+        }
 
         int pos = 0;
         boolean bold = false, underline = false, italics = false, monospace = false, strike = false;
@@ -2546,8 +2625,29 @@ public class ColorFormatter {
         builder.append((char)0x0f);
         builder.insert(0, "<irc>");
 
+        if(mentions_map != null && !mentions_map.isEmpty()) {
+            offset_mention_map(mentions_map, -1, mention_offset + 5);
+
+            for (Map.Entry<String,ArrayList<Mention>> entry : mentions_map.entrySet()) {
+                for (Mention m : entry.getValue()) {
+                    String tag = "nick_" + entry.getKey();
+                    m.at_mention = m.position > 0 && builder.charAt(m.position - 1) == '@';
+                    builder.replace(m.position, m.position + m.length, new String(new char[m.length]).replace("\0", "A"));
+                    builder.insert(m.position + m.length, "</" + tag + ">");
+                    builder.insert(m.position, "<" + tag + ">");
+                    m.position += tag.length() + 2;
+                    offset_mention_map(mentions_map, m.position, tag.length() * 2 + 5);
+                }
+            }
+        }
+
         try {
+            int old_length = builder.length();
             while (pos < builder.length()) {
+                if (mentions_map != null && !mentions_map.isEmpty() && old_length != builder.length()) {
+                    offset_mention_map(mentions_map, pos, builder.length() - old_length);
+                }
+                old_length = builder.length();
                 if (builder.charAt(pos) == 0x02) { //Bold
                     builder.deleteCharAt(pos);
                     String html = closeTags(bold, underline, italics, strike, fg, bg);
@@ -2772,6 +2872,27 @@ public class ColorFormatter {
         }
 
         builder.append("</irc>");
+
+        if(mentions_map != null && !mentions_map.isEmpty()) {
+            for(Map.Entry<String, ArrayList<Mention>> e : mentions_map.entrySet()) {
+                for(Mention m : e.getValue()) {
+                    String nick = e.getKey();
+                    if(m.at_mention) {
+                        if (mention_data != null) {
+                            if (mention_data.has(nick)) {
+                                JsonNode node = mention_data.get(nick);
+                                if (node.has("display_name") && !node.get("display_name").isNull() && node.get("display_name").asText().length() > 0)
+                                    nick = node.get("display_name").asText();
+                            }
+                        } else {
+                            nick = UsersList.getInstance().getDisplayName(cid, nick);
+                        }
+                    }
+                    builder.replace(m.position, m.position + m.length, nick);
+                }
+            }
+        }
+
         return builder.toString();
     }
 }

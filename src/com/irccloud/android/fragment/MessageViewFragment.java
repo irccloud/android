@@ -227,6 +227,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_inlineImages = false;
     private boolean pref_avatarImages = false;
     private boolean pref_replyCollapse = false;
+    private boolean pref_mentionColors = false;
 
     private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
@@ -646,10 +647,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         public void format(Event e) {
             if (e != null) {
                 synchronized (e) {
-                    if (e.html != null) {
+                    if (e.html != null && e.formatted == null) {
                         try {
-                            e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
-                            e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities);
+                            e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, (e.html != null && e.msg != null)?(e.html.length() - e.msg.length()):0, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0));
+                            e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
                             if (e.msg != null && e.msg.length() > 0)
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                             if (e.from != null && e.from.length() > 0) {
@@ -665,6 +666,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 e.quoted = false;
                             }
                         } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     }
                 }
@@ -2057,7 +2059,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             msg = event.msg;
                             if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                                 msg = "<large>" + msg + "</large>";
-                            event.html = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg + "</i>";
+                            event.html = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
                             break;
                         case "buffer_msg":
                         case "notice":
@@ -2919,6 +2921,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_disableQuote = false;
         pref_inlineImages = false;
         pref_avatarImages = false;
+        pref_mentionColors = false;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -2935,6 +2938,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_disableCodeSpan = (prefs.has("chat-nocodespan") && prefs.get("chat-nocodespan") instanceof Boolean && prefs.getBoolean("chat-nocodespan"));
                 pref_disableCodeBlock = (prefs.has("chat-nocodeblock") && prefs.get("chat-nocodeblock") instanceof Boolean && prefs.getBoolean("chat-nocodeblock"));
                 pref_disableQuote = (prefs.has("chat-noquote") && prefs.get("chat-noquote") instanceof Boolean && prefs.getBoolean("chat-noquote"));
+                pref_mentionColors = (prefs.has("mention-colors") && prefs.get("mention-colors") instanceof Boolean && prefs.getBoolean("mention-colors"));
                 if(prefs.has("channel-disableTrackUnread")) {
                     JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
                     if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {

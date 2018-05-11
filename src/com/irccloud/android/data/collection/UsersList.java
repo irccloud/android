@@ -232,4 +232,18 @@ public class UsersList {
         }
         return null;
     }
+
+    public synchronized String getDisplayName(int cid, String nick) {
+        for (Integer bid : users.keySet()) {
+            if (users.get(bid) != null) {
+                for(User u : users.get(bid).values()) {
+                    if(u.cid != cid)
+                        break;
+                    if(u.nick.equalsIgnoreCase(nick))
+                        return u.getDisplayName();
+                }
+            }
+        }
+        return nick;
+    }
 }
