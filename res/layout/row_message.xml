@@ -25,7 +25,9 @@
 
     <TextView
         android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_height="wrap_content"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
         android:paddingLeft="8dp"
         android:id="@+id/reply"
         android:layout_gravity="top"
