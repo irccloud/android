@@ -1960,6 +1960,8 @@ public class ColorFormatter {
     public static Pattern IS_BLOCKQUOTE = Pattern.compile("(^|\\n)>(?![<>]|[\\W_](?:[<>/OoDpb|\\\\{}()\\[\\]](?=\\s|$)))([^\\n]+)");
     public static Pattern IS_CODE_SPAN = Pattern.compile("`([^`\\n]+?)`");
 
+    public static Pattern HTML_ENTITY = Pattern.compile("&[^\\s;]+;");
+
     public static void init() {
         if(sourceSansPro == null)
             sourceSansPro = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansproregular);
@@ -2158,7 +2160,7 @@ public class ColorFormatter {
                             output.setSpan(new TypefaceSpan(Hack), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
-                } else if(tag.startsWith("nick_")) {
+                } else if(tag.equals("nick")) {
                     if (opening) {
                         output.setSpan(new ForegroundColorSpan(0), len, len, Spannable.SPAN_MARK_MARK);
                     } else {
@@ -2168,7 +2170,7 @@ public class ColorFormatter {
                         output.removeSpan(obj);
 
                         if (where != len) {
-                            String nick = tag.substring(5);
+                            String nick = output.subSequence(where, len).toString();
                             if(server != null && !nick.equals(server.getNick())) {
                                 Mention m = new Mention();
                                 m.position = where;
@@ -2618,6 +2620,13 @@ public class ColorFormatter {
             }
         }
 
+        if(mentions_map != null && !mentions_map.isEmpty()) {
+            Matcher m = HTML_ENTITY.matcher(msg);
+            while (m.find()) {
+                offset_mention_map(mentions_map, m.start(), m.end() - m.start() - 1);
+            }
+        }
+
         int pos = 0;
         boolean bold = false, underline = false, italics = false, monospace = false, strike = false;
         String fg = "", bg = "";
@@ -2630,13 +2639,12 @@ public class ColorFormatter {
 
             for (Map.Entry<String,ArrayList<Mention>> entry : mentions_map.entrySet()) {
                 for (Mention m : entry.getValue()) {
-                    String tag = "nick_" + entry.getKey();
                     m.at_mention = m.position > 0 && builder.charAt(m.position - 1) == '@';
                     builder.replace(m.position, m.position + m.length, new String(new char[m.length]).replace("\0", "A"));
-                    builder.insert(m.position + m.length, "</" + tag + ">");
-                    builder.insert(m.position, "<" + tag + ">");
-                    m.position += tag.length() + 2;
-                    offset_mention_map(mentions_map, m.position, tag.length() * 2 + 5);
+                    builder.insert(m.position + m.length, "</nick>");
+                    builder.insert(m.position, "<nick>");
+                    m.position += 6;
+                    offset_mention_map(mentions_map, m.position, 13);
                 }
             }
         }
