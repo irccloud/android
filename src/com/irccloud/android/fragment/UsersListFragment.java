@@ -216,7 +216,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
         String operGroupMode = "Y";
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
-            if(user.nick.equals(s.getNick()))
+            if(s != null && user.nick.equals(s.getNick()))
                 s.setFrom(user.getDisplayName());
             String mode = user.mode.toLowerCase();
             if (mode.contains(s != null ? s.MODE_OPER.toLowerCase() : "y") && (PREFIX.has(s != null ? s.MODE_OPER : "Y") || PREFIX.has(s != null ? s.MODE_OPER.toLowerCase() : "y"))) {
