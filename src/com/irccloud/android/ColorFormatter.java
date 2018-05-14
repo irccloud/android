@@ -2171,12 +2171,12 @@ public class ColorFormatter {
 
                         if (where != len) {
                             String nick = output.subSequence(where, len).toString();
+                            Mention m = new Mention();
+                            m.position = where;
+                            m.length = len;
+                            mention_spans.add(m);
                             if(server != null && !nick.equalsIgnoreCase(server.getNick())) {
-                                Mention m = new Mention();
-                                m.position = where;
-                                m.length = len;
                                 m.span = new ForegroundColorSpan(Color.parseColor("#" + ColorScheme.colorForNick(nick, ColorScheme.getInstance().isDarkTheme)));
-                                mention_spans.add(m);
                             }
                         }
                     }
@@ -2202,7 +2202,10 @@ public class ColorFormatter {
 
         if(colorize_mentions) {
             for (Mention m : mention_spans) {
-                output.setSpan(m.span, m.position, m.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                if(m.span != null)
+                    output.setSpan(m.span, m.position, m.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                else
+                    output.setSpan(new ForegroundColorSpan(ColorScheme.getInstance().collapsedRowNickColor), m.position, m.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
 
