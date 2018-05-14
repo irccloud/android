@@ -47,6 +47,7 @@ import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.model.User;
 
 import org.xml.sax.XMLReader;
 
@@ -2171,6 +2172,11 @@ public class ColorFormatter {
 
                         if (where != len) {
                             String nick = output.subSequence(where, len).toString();
+                            if(server != null) {
+                                User u = UsersList.getInstance().findUserOnConnection(server.getCid(), nick);
+                                if(u != null)
+                                    nick = u.nick;
+                            }
                             Mention m = new Mention();
                             m.position = where;
                             m.length = len;
