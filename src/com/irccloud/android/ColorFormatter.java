@@ -2171,7 +2171,7 @@ public class ColorFormatter {
 
                         if (where != len) {
                             String nick = output.subSequence(where, len).toString();
-                            if(server != null && !nick.equals(server.getNick())) {
+                            if(server != null && !nick.equalsIgnoreCase(server.getNick())) {
                                 Mention m = new Mention();
                                 m.position = where;
                                 m.length = len;
