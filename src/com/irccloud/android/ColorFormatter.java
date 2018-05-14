@@ -2200,13 +2200,11 @@ public class ColorFormatter {
             }
         });
 
-        if(colorize_mentions) {
-            for (Mention m : mention_spans) {
-                if(m.span != null)
-                    output.setSpan(m.span, m.position, m.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                else
-                    output.setSpan(new ForegroundColorSpan(ColorScheme.getInstance().collapsedRowNickColor), m.position, m.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
+        for (Mention m : mention_spans) {
+            if(m.span != null && colorize_mentions)
+                output.setSpan(m.span, m.position, m.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            else
+                output.setSpan(new ForegroundColorSpan(ColorScheme.getInstance().collapsedRowNickColor), m.position, m.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         String chanTypes = Buffer.DEFAULT_CHANTYPES;
