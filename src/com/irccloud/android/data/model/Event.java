@@ -241,6 +241,9 @@ public class Event /*extends ObservableBaseModel*/ {
                 " pending: " + pending +
                 " self: " + self +
                 " header: " + header +
+                " avatar: " + avatar +
+                " avatar_url: " + avatar_url +
+                " getAvatarURL: " + getAvatarURL(72) +
                 "}";
     }
 
@@ -329,9 +332,14 @@ public class Event /*extends ObservableBaseModel*/ {
                     String ident = hostmask.substring(0, hostmask.indexOf("@"));
                     if (ident.startsWith("uid") || ident.startsWith("sid")) {
                         ident = ident.substring(3);
-                        if (Integer.valueOf(ident) > 0) {
-                            cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_redirect_uri_template).set("id", ident).set("modifiers", "s" + size).expand();
-                            isIRCCloudAvatar = true;
+                        try {
+                            if (Integer.valueOf(ident) > 0) {
+                                cachedAvatarURL = UriTemplate.fromTemplate(NetworkConnection.avatar_redirect_uri_template).set("id", ident).set("modifiers", "s" + size).expand();
+                                isIRCCloudAvatar = true;
+                            }
+                        } catch (NumberFormatException e) {
+                            cachedAvatarURL = null;
+                            isIRCCloudAvatar = false;
                         }
                     }
                 }
