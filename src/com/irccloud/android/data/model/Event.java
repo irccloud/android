@@ -182,6 +182,7 @@ public class Event /*extends ObservableBaseModel*/ {
     public boolean is_reply;
     public int reply_count;
     public HashSet<String> reply_nicks;
+    public int mention_offset;
 
     public Event() {
 

@@ -2619,11 +2619,13 @@ public class ColorFormatter {
                 while(j.hasNext()) {
                     JsonNode node = j.next();
                     Mention m = new Mention();
-                    m.position = node.get(0).asInt();
+                    m.position = node.get(0).asInt() + mention_offset;
                     m.length = node.get(1).asInt();
-                    mention_list.add(m);
+                    if(m.position >= 0 && m.position + m.length < msg.length())
+                        mention_list.add(m);
                 }
-                mentions_map.put(entry.getKey(), mention_list);
+                if(mention_list.size() > 0)
+                    mentions_map.put(entry.getKey(), mention_list);
             }
         }
 
@@ -2642,7 +2644,7 @@ public class ColorFormatter {
         builder.insert(0, "<irc>");
 
         if(mentions_map != null && !mentions_map.isEmpty()) {
-            offset_mention_map(mentions_map, -1, mention_offset + 5);
+            offset_mention_map(mentions_map, -1, 5);
 
             for (Map.Entry<String,ArrayList<Mention>> entry : mentions_map.entrySet()) {
                 for (Mention m : entry.getValue()) {
