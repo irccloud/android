@@ -2065,6 +2065,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         case "buffer_msg":
                         case "notice":
                             event.code_block = false;
+                            event.mention_offset = 0;
                             event.color = ColorScheme.getInstance().messageTextColor;
                             msg = event.msg;
                             if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
