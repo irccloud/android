@@ -2652,8 +2652,8 @@ public class ColorFormatter {
                     builder.replace(m.position, m.position + m.length, new String(new char[m.length]).replace("\0", "A"));
                     builder.insert(m.position + m.length, "</nick>");
                     builder.insert(m.position, "<nick>");
-                    m.position += 6;
                     offset_mention_map(mentions_map, m.position, 13);
+                    m.position += 6;
                 }
             }
         }
