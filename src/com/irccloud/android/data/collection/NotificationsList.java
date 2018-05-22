@@ -146,7 +146,7 @@ public class NotificationsList {
         }
     }
 
-    public synchronized void updateLastSeenEid(int bid, long eid) {
+    public void updateLastSeenEid(int bid, long eid) {
         Notification_LastSeenEID n = new Notification_LastSeenEID();
         n.bid = bid;
         n.eid = eid;
@@ -173,7 +173,7 @@ public class NotificationsList {
         }
     }
 
-    public synchronized void updateServerNick(int cid, String nick) {
+    public void updateServerNick(int cid, String nick) {
         Notification_ServerNick n = new Notification_ServerNick();
         n.cid = cid;
         n.nick = nick;
@@ -187,7 +187,7 @@ public class NotificationsList {
         }
     }
 
-    public synchronized void dismiss(int bid, long eid) {
+    public void dismiss(int bid, long eid) {
         synchronized (dbLock) {
             Log.d("IRCCloud", "Dismiss bid" + bid + " eid"+eid);
             Notification n = getNotification(eid);
@@ -199,7 +199,7 @@ public class NotificationsList {
         updateTeslaUnreadCount();
     }
 
-    public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type, String network, String avatar_url) {
+    public void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type, String network, String avatar_url) {
         long last_eid = getLastSeenEid(bid);
         if (eid <= last_eid) {
             Crashlytics.log("Refusing to add notification for seen eid: " + eid);
@@ -326,7 +326,7 @@ public class NotificationsList {
         }
     }
 
-    public synchronized void excludeBid(int bid) {
+    public void excludeBid(int bid) {
         synchronized (dbLock) {
             excludeBid = -1;
             List<Notification> notifications = getOtherNotifications();

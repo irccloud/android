@@ -1082,7 +1082,7 @@ public class NetworkConnection {
         }
     }
 
-    public synchronized void load() {
+    public void load() {
         /*notifyHandlers(EVENT_CACHE_START, null);
         try {
             String versionName = IRCCloudApplication.getInstance().getPackageManager().getPackageInfo(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), 0).versionName;
@@ -1110,7 +1110,7 @@ public class NetworkConnection {
         notifyHandlers(EVENT_CACHE_END, null);*/
     }
 
-    public synchronized void save(int delay) {
+    public void save(int delay) {
         /*if (saveTimerTask != null)
             saveTimerTask.cancel();
 
@@ -1507,20 +1507,22 @@ public class NetworkConnection {
         connect();
     }
 
-    private synchronized int send(String method, JSONObject params, IRCResultCallback callback) {
+    private int send(String method, JSONObject params, IRCResultCallback callback) {
         if (client == null || (state != STATE_CONNECTED && !method.equals("auth")))
             return -1;
-        try {
-            params.put("_reqid", ++last_reqid);
-            if(callback != null)
-                resultCallbacks.put(last_reqid, callback);
-            params.put("_method", method);
-            //Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method + " Params: " + params.toString());
-            client.send(params.toString());
-            return last_reqid;
-        } catch (Exception e) {
-            printStackTraceToCrashlytics(e);
-            return -1;
+        synchronized (resultCallbacks) {
+            try {
+                params.put("_reqid", ++last_reqid);
+                if (callback != null)
+                    resultCallbacks.put(last_reqid, callback);
+                params.put("_method", method);
+                //Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method + " Params: " + params.toString());
+                client.send(params.toString());
+                return last_reqid;
+            } catch (Exception e) {
+                printStackTraceToCrashlytics(e);
+                return -1;
+            }
         }
     }
 
@@ -3308,7 +3310,7 @@ public class NetworkConnection {
         return response;
     }
 
-    public synchronized void addHandler(IRCEventHandler handler) {
+    public void addHandler(IRCEventHandler handler) {
         synchronized (handlers) {
             if (!handlers.contains(handler))
                 handlers.add(handler);
@@ -3319,7 +3321,7 @@ public class NetworkConnection {
     }
 
     @TargetApi(24)
-    public synchronized void removeHandler(IRCEventHandler handler) {
+    public void removeHandler(IRCEventHandler handler) {
         synchronized (handlers) {
             handlers.remove(handler);
         }
@@ -3337,85 +3339,85 @@ public class NetworkConnection {
         notifyHandlers(message, object, null);
     }
 
-    public synchronized void notifyHandlers(int message, final Object object, IRCEventHandler exclude) {
-        int bid;
+    public void notifyHandlers(int message, final Object object, IRCEventHandler exclude) {
+        synchronized (handlers) {
+            int bid;
 
-        switch(message) {
-            case EVENT_OOB_START:
-                backlog = true;
-                numbuffers = 0;
-                totalbuffers = 0;
-                currentBid = -1;
-                if (object != null && (int)object == -1) {
-                    mBuffers.invalidate();
-                    mChannels.invalidate();
-                    return;
-                }
-                break;
-            case EVENT_OOB_END:
-                backlog = false;
-                bid = ((OOBFetcher)object).getBid();
-                ArrayList<Buffer> buffers = mBuffers.getBuffers();
-                for (Buffer b : buffers) {
-                    if (b.getTimeout() > 0) {
-                        Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: bid" + b.getBid());
-                        request_backlog(b.getCid(), b.getBid(), 0);
+            switch(message) {
+                case EVENT_OOB_START:
+                    backlog = true;
+                    numbuffers = 0;
+                    totalbuffers = 0;
+                    currentBid = -1;
+                    if (object != null && (int)object == -1) {
+                        mBuffers.invalidate();
+                        mChannels.invalidate();
+                        return;
                     }
+                    break;
+                case EVENT_OOB_END:
+                    backlog = false;
+                    bid = ((OOBFetcher)object).getBid();
+                    ArrayList<Buffer> buffers = mBuffers.getBuffers();
+                    for (Buffer b : buffers) {
+                        if (b.getTimeout() > 0) {
+                            Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: bid" + b.getBid());
+                            request_backlog(b.getCid(), b.getBid(), 0);
+                        }
 
-                    if(oobTasks.size() > 10)
-                        break;
-                }
-                NotificationsList.getInstance().deleteOldNotifications();
-                NotificationsList.getInstance().pruneNotificationChannels();
-                if (bid != -1) {
-                    Buffer b = mBuffers.getBuffer(bid);
-                    if(b != null) {
-                        b.setTimeout(0);
-                        b.setDeferred(0);
+                        if(oobTasks.size() > 10)
+                            break;
                     }
-                }
-                oobTasks.remove(bid);
-                if(oobTasks.size() > 0)
-                    oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
-                break;
-            case EVENT_OOB_FAILED:
-                backlog = false;
-                bid = ((OOBFetcher)object).getBid();
-                if (bid == -1) {
-                    Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
-                    streamId = null;
-                    highest_eid = 0;
-                    if (client != null)
-                        client.disconnect();
-                    return;
-                } else {
-                    Buffer b = mBuffers.getBuffer(bid);
-                    if (b != null && b.getTimeout() == 1) {
-                        //TODO: move this
-                        int retryDelay = 1000;
-                        Crashlytics.log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
-                        idleTimer.schedule(new TimerTask() {
-                            public void run() {
-                                ((OOBFetcher)object).connect();
-                            }
-                        }, retryDelay);
-                        retryDelay *= 2;
-                    } else {
-                        Crashlytics.log(Log.ERROR, TAG, "Failed to fetch backlog");
-                        synchronized (oobTasks) {
-                            oobTasks.remove(bid);
-                            if(oobTasks.size() > 0)
-                                oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
+                    NotificationsList.getInstance().deleteOldNotifications();
+                    NotificationsList.getInstance().pruneNotificationChannels();
+                    if (bid != -1) {
+                        Buffer b = mBuffers.getBuffer(bid);
+                        if(b != null) {
+                            b.setTimeout(0);
+                            b.setDeferred(0);
                         }
                     }
-                }
-                break;
-            default:
-                break;
-        }
+                    oobTasks.remove(bid);
+                    if(oobTasks.size() > 0)
+                        oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
+                    break;
+                case EVENT_OOB_FAILED:
+                    backlog = false;
+                    bid = ((OOBFetcher)object).getBid();
+                    if (bid == -1) {
+                        Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
+                        streamId = null;
+                        highest_eid = 0;
+                        if (client != null)
+                            client.disconnect();
+                        return;
+                    } else {
+                        Buffer b = mBuffers.getBuffer(bid);
+                        if (b != null && b.getTimeout() == 1) {
+                            //TODO: move this
+                            int retryDelay = 1000;
+                            Crashlytics.log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
+                            idleTimer.schedule(new TimerTask() {
+                                public void run() {
+                                    ((OOBFetcher)object).connect();
+                                }
+                            }, retryDelay);
+                            retryDelay *= 2;
+                        } else {
+                            Crashlytics.log(Log.ERROR, TAG, "Failed to fetch backlog");
+                            synchronized (oobTasks) {
+                                oobTasks.remove(bid);
+                                if(oobTasks.size() > 0)
+                                    oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
 
-        synchronized (handlers) {
-            if (handlers != null && (message == EVENT_PROGRESS || accrued == 0)) {
+            if (message == EVENT_PROGRESS || accrued == 0) {
                 for (int i = 0; i < handlers.size(); i++) {
                     IRCEventHandler handler = handlers.get(i);
                     if (handler != exclude) {
