@@ -2004,6 +2004,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     currentCollapsedEid = -1;
                     lastCollapsedEid = -1;
                     collapsedEvents.clear();
+                    event.mention_offset = 0;
                     if (event.html == null) {
                         String msg = event.msg;
                         if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
@@ -2015,6 +2016,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.html = "<b>" + event.server + "</b> " + msg;
                         else
                             event.html = msg;
+                        event.mention_offset = event.html.length() - event.msg.length();
                     }
 
                     if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
@@ -2239,6 +2241,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false, Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2)) + "</b> " + event.msg;
                             }
                             break;
+                        case "channel_topic":
+                            if(event.msg.startsWith("set the topic: "))
+                                event.mention_offset += 15;
                     }
                 }
 
