@@ -2632,7 +2632,8 @@ public class ColorFormatter {
         if(mentions_map != null && !mentions_map.isEmpty()) {
             Matcher m = HTML_ENTITY.matcher(msg);
             while (m.find()) {
-                offset_mention_map(mentions_map, m.start(), m.end() - m.start() - 1);
+                if(m.start() >= mention_offset)
+                    offset_mention_map(mentions_map, m.start(), m.end() - m.start() - 1);
             }
         }
 
