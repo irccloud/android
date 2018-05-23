@@ -2906,7 +2906,8 @@ public class ColorFormatter {
                             nick = UsersList.getInstance().getDisplayName(cid, nick);
                         }
                     }
-                    builder.replace(m.position, m.position + m.length, nick);
+                    if(m.position > 0 && m.position + m.length < builder.length())
+                        builder.replace(m.position, m.position + m.length, nick);
                 }
             }
         }
