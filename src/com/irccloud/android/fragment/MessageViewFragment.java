@@ -456,7 +456,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     e.day = calendar.get(Calendar.DAY_OF_YEAR);
                 }
 
-                if (currentGroupPosition > 0 && eid == currentCollapsedEid && e.eid != eid) { //Shortcut for replacing the current group
+                if (currentGroupPosition > 0 && currentGroupPosition < data.size() && eid == currentCollapsedEid && e.eid != eid) { //Shortcut for replacing the current group
                     calendar.setTimeInMillis(e.getTime());
                     lastDay = e.day;
                     data.remove(currentGroupPosition);
@@ -2016,7 +2016,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.html = "<b>" + event.server + "</b> " + msg;
                         else
                             event.html = msg;
-                        event.mention_offset = event.html.length() - event.msg.length();
+                        if(event.html != null && event.msg != null)
+                            event.mention_offset = event.html.length() - event.msg.length();
                     }
 
                     if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
