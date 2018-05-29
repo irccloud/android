@@ -4929,6 +4929,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if ((event.type.equals("buffer_msg") || event.type.equals("notice")) && user != null) {
                 CollapsedEventsList c = new CollapsedEventsList();
                 html = "<b>&lt;" + ColorFormatter.irc_to_html(c.formatNick(event.from_nick, event.from, event.from_mode, false)) + "&gt;</b> " + ColorFormatter.irc_to_html(event.msg);
+            } else if(event.type.equals("buffer_me_msg")) {
+                CollapsedEventsList c = new CollapsedEventsList();
+                html = "— <i><b>" + ColorFormatter.irc_to_html(c.formatNick(event.from_nick, event.from, event.from_mode, false)) + "</b> " + ColorFormatter.irc_to_html(event.msg) + "</i>";
             }
             String timestamp = event.timestamp;
             if(timestamp.length() == 0 && event.parent_eid > 0) {
