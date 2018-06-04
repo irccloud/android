@@ -2074,7 +2074,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         case "buffer_msg":
                         case "notice":
                             event.code_block = false;
-                            event.mention_offset = 0;
+                            event.mention_offset = type.equals("notice")?5:0;
                             event.color = ColorScheme.getInstance().messageTextColor;
                             msg = event.msg;
                             if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
@@ -3146,7 +3146,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
             if (conn.getReconnectTimestamp() == 0 && conn.getState() == NetworkConnection.STATE_CONNECTED)
                 conn.schedule_idle_timer();
-            update_global_msg();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    update_global_msg();
+                }
+            });
         }
     }
 
