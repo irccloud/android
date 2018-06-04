@@ -56,4 +56,15 @@ public class Ignore {
         cache.put(usermask, false);
         return false;
     }
+
+    public synchronized String getMatch(String usermask) {
+        if (ignores != null && ignores.size() > 0) {
+            for (String ignore : ignores) {
+                if (usermask.replace("!~", "!").toLowerCase().matches(ignore)) {
+                    return ignore.replace(".*", "*").replace("\\", "");
+                }
+            }
+        }
+        return null;
+    }
 }

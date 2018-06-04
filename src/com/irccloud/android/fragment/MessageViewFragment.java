@@ -100,6 +100,7 @@ import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.activity.UploadsActivity;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.ImageList;
+import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -176,6 +177,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private HashSet<String> hiddenFileIDs = new HashSet<>();
     private HashMap<String, Event> msgids = new HashMap<>();
     private String msgid;
+    private String buffer_usermask;
 
     public static final int ROW_MESSAGE = 0;
     public static final int ROW_TIMESTAMP = 1;
@@ -1881,6 +1883,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(msgid != null && msgid.length() > 0 && !(msgid.equals(event.msgid) || msgid.equals(event.reply())))
                     return;
 
+                if(buffer.getType() != null && buffer.getType().equals("conversation") && !buffer.isMPDM() && !event.self) {
+                    buffer_usermask = event.from_nick + "!" + event.hostmask;
+                }
+
                 String type = event.type;
                 long eid = event.eid;
 
@@ -2948,6 +2954,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_inlineImages = false;
         pref_avatarImages = false;
         pref_mentionColors = false;
+        buffer_usermask = null;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -3139,6 +3146,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
             if (conn.getReconnectTimestamp() == 0 && conn.getState() == NetworkConnection.STATE_CONNECTED)
                 conn.schedule_idle_timer();
+            update_global_msg();
         }
     }
 
@@ -3451,8 +3459,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (conn != null && conn.globalMsg != null) {
                 globalMsg.setText(Html.fromHtml(conn.globalMsg));
                 globalMsgView.setVisibility(View.VISIBLE);
+                globalMsgView.findViewById(R.id.dismissGlobalMessage).setVisibility(View.VISIBLE);
             } else {
-                globalMsgView.setVisibility(View.GONE);
+                if(buffer != null && buffer.getType() != null && buffer.isConversation() && !buffer.isMPDM() && ignore != null && buffer_usermask != null && ignore.match(buffer_usermask)) {
+                    globalMsg.setText(Html.fromHtml("Ignoring: <b>" + ignore.getMatch(buffer_usermask) + "</b><br/>This hides channel messages and prevents message notifications.  Archive to hide completely."));
+                    globalMsgView.setVisibility(View.VISIBLE);
+                    globalMsgView.findViewById(R.id.dismissGlobalMessage).setVisibility(View.GONE);
+                } else {
+                    globalMsgView.setVisibility(View.GONE);
+                }
             }
         }
     }
