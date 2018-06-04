@@ -2031,7 +2031,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 String collapsedNickColor = Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2);
                 String msg;
-                String from = event.from;
+                String from = event.from_nick;
                 if (from == null || from.length() == 0)
                     from = event.nick;
 

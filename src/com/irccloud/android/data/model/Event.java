@@ -264,7 +264,7 @@ public class Event /*extends ObservableBaseModel*/ {
         Server s = ServersList.getInstance().getServer(cid);
         if (s != null) {
             Ignore ignore = s.ignores;
-            String from = this.from;
+            String from = this.from_nick;
             if (from == null || from.length() == 0)
                 from = this.nick;
             if (ignore.match(from + "!" + hostmask))
