@@ -566,6 +566,9 @@ public class ImageList {
                     new ImgurTask("gallery", URL, listener).execute(id.substring(8));
                 } else if (id.startsWith("a/") && id.length() > 2) {
                     new ImgurTask("album", URL, listener).execute(id.substring(2));
+                } else if (id.startsWith("t/") && id.length() > 2 && id.substring(2).contains("/")) {
+                    id = id.substring(2);
+                    new ImgurTask("image", URL, listener).execute(id.substring(id.indexOf("/") + 1));
                 } else {
                     listener.onImageInfo(null);
                 }
