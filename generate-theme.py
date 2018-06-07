@@ -354,12 +354,12 @@ f.write("""<?xml version="1.0" encoding="utf-8"?>
     </item>
     <item android:top="-2dp" android:left="8dp" android:right="8dp">
         <shape android:shape="line" >
-            <stroke android:color="@color/{theme}_text10" android:width="1dp"/>
+            <stroke android:color="@color/{theme}_border5" android:width="1dp"/>
         </shape>
     </item>
     <item android:top="2dp" android:left="8dp" android:right="8dp">
         <shape android:shape="line" >
-            <stroke android:color="@color/{theme}_text10" android:width="1dp"/>
+            <stroke android:color="@color/{theme}_border5" android:width="1dp"/>
         </shape>
     </item>
 </layer-list>
