@@ -1120,15 +1120,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.quoteBorder.setVisibility(e.quoted ? View.VISIBLE : View.GONE );
 
                 if(holder.reply != null) {
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(holder.reply.getLayoutParams());
                     if(!pref_replyCollapse && (e.is_reply || e.reply_count > 0)) {
-                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(holder.reply.getLayoutParams());
                         if(!pref_chatOneLine && e.header) {
-                            lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 8, getResources().getDisplayMetrics());
+                            lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 2, getResources().getDisplayMetrics());
                         } else {
                             lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, -4, getResources().getDisplayMetrics());;
                         }
                         holder.reply.setLayoutParams(lp);
-                        holder.reply.setText(e.is_reply ? FontAwesome.COMMENT : FontAwesome.COMMENTS);
+                        holder.reply.setText(e.is_reply ? FontAwesome.COMMENTS : FontAwesome.COMMENT);
                         holder.reply.setTextColor(0x66000000 + Integer.parseInt(ColorScheme.colorForNick(e.is_reply ? e.reply() : e.msgid, ColorScheme.getInstance().isDarkTheme), 16));
                         holder.reply.setVisibility(View.VISIBLE);
                         holder.reply.setOnClickListener(new OnClickListener() {
@@ -1140,6 +1140,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                         });
                     } else {
+                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 2, getResources().getDisplayMetrics());
+                        holder.reply.setLayoutParams(lp);
                         holder.reply.setVisibility(View.INVISIBLE);
                         holder.reply.setOnClickListener(null);
                     }

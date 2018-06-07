@@ -24,11 +24,10 @@
             >
 
     <TextView
-        android:layout_width="24dp"
+        android:layout_width="18dp"
         android:layout_height="wrap_content"
         android:paddingTop="2dp"
         android:paddingBottom="2dp"
-        android:paddingLeft="8dp"
         android:id="@+id/reply"
         android:layout_gravity="top"
         android:textSize="12sp"
@@ -41,8 +40,8 @@
         android:layout_height="32dp"
         android:id="@+id/avatar"
         android:layout_gravity="right|top"
-        android:layout_marginLeft="6dp"
-        android:layout_marginRight="12dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="8dp"
         android:contentDescription="user icon"
         app:riv_corner_radius="4dp"
         android:visibility="gone"/>
