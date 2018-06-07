@@ -53,7 +53,7 @@
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/avatar"
                 app:riv_corner_radius="4dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="6dp"
                 android:layout_width="32dp"
                 android:layout_height="32dp"/>
         </com.irccloud.android.OffsetLinearLayout>

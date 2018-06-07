@@ -15,7 +15,6 @@
   ~ limitations under the License.
   -->
 <resources>
-
     <dimen name="drawer_width">260dp</dimen>
     <dimen name="userlist_width">260dp</dimen>
     <dimen name="splashlogo_width">128dp</dimen>
@@ -28,7 +27,6 @@
     <dimen name="scrollbar_inset">2dp</dimen>
     <dimen name="scrollbar_size">8dp</dimen>
     <integer name="default_text_size">14</integer>
-    <dimen name="message_row_spacing">0dp</dimen>
     <integer name="max_input_lines">4</integer>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>

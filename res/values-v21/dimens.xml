@@ -15,7 +15,6 @@
   -->
 
 <resources>
-  <dimen name="message_row_spacing">4dp</dimen>
   <dimen name="scrollbar_inset">0dp</dimen>
   <dimen name="scrollbar_size">4dp</dimen>
 </resources>

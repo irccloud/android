@@ -993,7 +993,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if(pref_compact)
                         holder.messageContainer.setPadding(0,0,0,0);
                     else
-                        holder.messageContainer.setPadding(0,0,0,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
+                        holder.messageContainer.setPadding(0,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),0,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
                 }
 
                 if (holder.avatar != null) {
@@ -1002,7 +1002,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.avatar.setImageBitmap(null);
                         lp.topMargin = lp.width = lp.height = 0;
                     } else {
-                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
+                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics());
                         lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics());
                         Bitmap b = null;
                         if (e.group_eid < 1 && e.from != null && e.from.length() > 0 && (pref_chatOneLine || e.header)) {
