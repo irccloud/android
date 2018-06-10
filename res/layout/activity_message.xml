@@ -124,6 +124,7 @@
                             android:enabled="false"
                             android:nextFocusLeft="@id/photoBtn"
                             android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
+                            android:importantForAutofill="no"
                             android:background="?attr/textareaBackgroundColor"
                             android:minHeight="32dp"/>
 

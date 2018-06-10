@@ -1866,7 +1866,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private void insertEvent(final MessageAdapter adapter, final Event event, boolean backlog, boolean nextIsGrouped) {
-        synchronized (adapterLock) {
+        synchronized (MessageViewFragment.this) {
             try {
                 long start = System.currentTimeMillis();
                 if (event.eid <= buffer.getMin_eid() || (msgid != null && msgids.containsKey(msgid))) {
@@ -2253,6 +2253,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         case "channel_topic":
                             if(event.msg.startsWith("set the topic: "))
                                 event.mention_offset += 15;
+                            break;
                     }
                 }
 
