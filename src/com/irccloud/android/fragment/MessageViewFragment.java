@@ -1865,7 +1865,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    private void insertEvent(final MessageAdapter adapter, final Event event, boolean backlog, boolean nextIsGrouped) {
+    private void insertEvent(final MessageAdapter adapter, final Event event, final boolean backlog, boolean nextIsGrouped) {
         synchronized (MessageViewFragment.this) {
             try {
                 long start = System.currentTimeMillis();
@@ -2322,7 +2322,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 properties.put("mime_type", "image/image");
                                             }
 
-                                            insertEntity(adapter, event, properties, !ready);
+                                            insertEntity(adapter, event, properties, backlog || !ready);
                                             try {
                                                 URL u = new URL(info.thumbnail);
                                                 int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
