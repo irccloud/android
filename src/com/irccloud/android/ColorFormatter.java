@@ -2285,9 +2285,11 @@ public class ColorFormatter {
                                 for (JsonNode file : entities.get("files")) {
                                     String file_url = template.set("id", file.get("id").asText()).expand();
                                     String u = file_url.toLowerCase();
+                                    String extension = file.hasNonNull("extension")?file.get("extension").asText():("." + file.get("mime_type").asText().substring(6));
                                     isImageEnt = ((lower.equals(u) || lower.startsWith(u + "/")) && file.get("mime_type").asText().startsWith("image/"));
                                     if (isImageEnt) {
-                                        url = file_url;
+                                        if(!lower.endsWith(extension.toLowerCase()))
+                                            url = template.set("name", file.get("id").asText() + extension).expand();
                                         break;
                                     }
                                 }
