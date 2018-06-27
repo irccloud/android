@@ -73,5 +73,11 @@
             android:summaryOn="Channels list will be displayed as a sidebar"
             android:summaryOff="Channels list will be displayed in a drawer"
             android:title="Show sidebars in landscape"/>
+		<SwitchPreference
+			android:key="hiddenMembers"
+			android:defaultValue="true"
+			android:summaryOn="Channel members list will be displayed as a sidebar"
+			android:summaryOff="Channels list will be displayed in a drawer"
+			android:title="Always show channel members in landscape"/>
 	</PreferenceCategory>
 </PreferenceScreen>

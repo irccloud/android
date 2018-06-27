@@ -2436,7 +2436,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (buffer != null && buffer.isChannel()) {
                 c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                 if (c != null)
-                    hide = false;
+                    hide = !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hiddenMembers", true);
             }
             try {
                 if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
@@ -3626,7 +3626,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         menu.findItem(R.id.menu_rename).setEnabled(false);
                     }
                     if (menu.findItem(R.id.menu_userlist) != null && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
-                        boolean hide = true;
+                        boolean hide = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hiddenMembers", true);
                         try {
                             if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                                 JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");

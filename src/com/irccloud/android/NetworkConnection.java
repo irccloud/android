@@ -2284,6 +2284,9 @@ public class NetworkConnection {
                     if(userInfo.prefs.has("labs") && userInfo.prefs.getJSONObject("labs").has("avatars") && !prefs.contains("avatar-images")) {
                         editor.putBoolean("avatar-images", userInfo.prefs.getJSONObject("labs").getBoolean("avatars"));
                     }
+                    if(userInfo.prefs.has("hiddenMembers") && !prefs.contains("hiddenMembers")) {
+                        editor.putBoolean("hiddenMembers", !(userInfo.prefs.has("hiddenMembers") && userInfo.prefs.get("hiddenMembers") instanceof Boolean && userInfo.prefs.getBoolean("hiddenMembers")));
+                    }
                 } else {
                     editor.putBoolean("time-24hr", false);
                     editor.putBoolean("time-seconds", false);
