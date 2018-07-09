@@ -965,6 +965,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if (holder.expandable != null) {
+                    ViewGroup.LayoutParams lp = holder.expandable.getLayoutParams();
+                    lp.width = lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize, getResources().getDisplayMetrics());
+                    holder.expandable.setLayoutParams(lp);
+                    holder.expandable.setTextSize(textSize);
                     if (e.group_eid > 0 && (e.group_eid != e.eid || expandedSectionEids.contains(e.group_eid))) {
                         if (expandedSectionEids.contains(e.group_eid)) {
                             if (e.group_eid == e.eid + 1) {
