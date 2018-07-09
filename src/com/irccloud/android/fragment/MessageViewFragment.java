@@ -206,6 +206,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
     public boolean ready = false;
     private final Object adapterLock = new Object();
+    private final Object formatLock = new Object();
 
     public View suggestionsContainer = null;
     public GridView suggestions = null;
@@ -648,7 +649,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         public void format(Event e) {
             if (e != null) {
-                synchronized (e) {
+                synchronized (formatLock) {
                     if (e.html != null && e.formatted == null) {
                         try {
                             e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0));
