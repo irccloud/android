@@ -1839,10 +1839,9 @@ public class NetworkConnection {
         }
     }
 
-    public int set_user_settings(String email, String realname, String hwords, boolean autoaway, IRCResultCallback callback) {
+    public int set_user_settings(String realname, String hwords, boolean autoaway, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
-            o.put("email", email);
             o.put("realname", realname);
             o.put("hwords", hwords);
             o.put("autoaway", autoaway ? "1" : "0");
@@ -1853,11 +1852,14 @@ public class NetworkConnection {
         }
     }
 
-    public int change_password(String oldPassword, String newPassword, IRCResultCallback callback) {
+    public int change_password(String email, String oldPassword, String newPassword, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
+            if(email != null)
+                o.put("email", email);
             o.put("password", oldPassword);
-            o.put("newpassword", newPassword);
+            if(newPassword != null)
+                o.put("newpassword", newPassword);
             return send("change-password", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);

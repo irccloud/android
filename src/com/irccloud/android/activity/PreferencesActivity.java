@@ -457,7 +457,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             else
                 findPreference("name").setSummary(((AppCompatEditTextPreference) findPreference("name")).getText());
             if(findPreference("email") != null) {
-                findPreference("email").setOnPreferenceChangeListener(settingstoggle);
+                findPreference("email").setOnPreferenceClickListener(changeEmailClick);
                 if (conn.getUserInfo() != null)
                     findPreference("email").setSummary(conn.getUserInfo().email);
                 else
@@ -560,7 +560,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                             ((AppCompatEditTextPreference) findPreference("name")).setText(userInfo.name);
                             findPreference("name").setSummary(userInfo.name);
                             if(findPreference("email") != null) {
-                                ((AppCompatEditTextPreference) findPreference("email")).setText(userInfo.email);
                                 findPreference("email").setSummary(userInfo.email);
                             }
                             ((AppCompatEditTextPreference) findPreference("highlights")).setText(userInfo.highlights);
@@ -601,9 +600,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             if (preference.getKey().equals("name")) {
                 conn.getUserInfo().name = (String) newValue;
                 findPreference("name").setSummary((String) newValue);
-            } else if (preference.getKey().equals("email")) {
-                conn.getUserInfo().email = (String) newValue;
-                findPreference("email").setSummary((String) newValue);
             } else if (preference.getKey().equals("highlights")) {
                 conn.getUserInfo().highlights = (String) newValue;
                 findPreference("highlights").setSummary((String) newValue);
@@ -869,7 +865,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             if (!isCancelled()) {
                 NetworkConnection.UserInfo userInfo = conn.getUserInfo();
                 if (userInfo != null)
-                    conn.set_user_settings(userInfo.email, userInfo.name, userInfo.highlights, userInfo.auto_away, new NetworkConnection.IRCResultCallback() {
+                    conn.set_user_settings(userInfo.name, userInfo.highlights, userInfo.auto_away, new NetworkConnection.IRCResultCallback() {
                         @Override
                         public void onIRCResult(IRCCloudJSONObject result) {
                             if(!result.getBoolean("success")) {
@@ -1226,7 +1222,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     newpassword = newPassword.getText().toString();
-                    conn.change_password(oldPassword.getText().toString(), newpassword, new NetworkConnection.IRCResultCallback() {
+                    conn.change_password(null, oldPassword.getText().toString(), newpassword, new NetworkConnection.IRCResultCallback() {
                         @Override
                         public void onIRCResult(IRCCloudJSONObject result) {
                             if(result.getBoolean("success")) {
@@ -1283,13 +1279,80 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(PreferencesActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(PreferencesActivity.this, msg, Toast.LENGTH_LONG).show();
                                     }
                                 });
                             }
                         }
                     });
                     Answers.getInstance().logCustom(new CustomEvent("change-password"));
+                }
+            });
+            builder.setNegativeButton("Cancel", null);
+            builder.setView(v);
+
+            if(!isFinishing())
+                builder.show();
+            return false;
+        }
+    };
+
+    Preference.OnPreferenceClickListener changeEmailClick = new Preference.OnPreferenceClickListener() {
+
+        public boolean onPreferenceClick(Preference preference) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
+            builder.setTitle("Change Email Address");
+
+            View v = getLayoutInflater().inflate(R.layout.dialog_change_email, null);
+            final EditText email = v.findViewById(R.id.email);
+            email.setText(conn.getUserInfo().email);
+            final EditText password = v.findViewById(R.id.password);
+
+            builder.setPositiveButton("Change Email", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    conn.change_password(email.getText().toString(), password.getText().toString(), null, new NetworkConnection.IRCResultCallback() {
+                        @Override
+                        public void onIRCResult(IRCCloudJSONObject result) {
+                            if(result.getBoolean("success")) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(PreferencesActivity.this, "Your email address has been successfully updated", Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            } else {
+                                String error;
+                                Crashlytics.log(Log.ERROR, "IRCCloud", "Email not changed: " + result.getString("message"));
+                                switch(result.getString("message")) {
+                                    case "oldpassword":
+                                        error = "Current password incorrect";
+                                        break;
+                                    case "rate_limited":
+                                        error = "Rate limited, try again in a few minutes";
+                                        break;
+                                    case "newpassword":
+                                    case "password_error":
+                                        error = "Invalid password, please try again";
+                                        break;
+                                    case "email_not_unique":
+                                        error = "This email address is already in use";
+                                        break;
+                                    default:
+                                        error = result.getString("message");
+                                        break;
+                                }
+                                final String msg = "Error changing email: " + error;
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(PreferencesActivity.this, msg, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    Answers.getInstance().logCustom(new CustomEvent("change-email"));
                 }
             });
             builder.setNegativeButton("Cancel", null);
