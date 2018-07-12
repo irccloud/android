@@ -21,7 +21,7 @@
         <import type="android.view.View"/>
         <variable name="pastebin" type="com.irccloud.android.data.model.Pastebin"/>
     </data>
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -89,5 +89,5 @@
                 android:background="@null" />
         </LinearLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </layout>

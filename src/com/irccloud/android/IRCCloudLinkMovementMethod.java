@@ -24,7 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Browser;
-import android.support.customtabs.CustomTabsIntent;
+import androidx.browser.customtabs.CustomTabsIntent;
 import android.text.Layout;
 import android.text.Selection;
 import android.text.Spannable;

@@ -26,56 +26,56 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:orientation="vertical">
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/unread"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Show unread message indicator"
             android:textSize="16sp" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/readOnSelect"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Mark as read automatically"
             android:textSize="16sp" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/joinpart"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Show nick changes, joins, parts"
             android:textSize="16sp" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/collapse"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Collapse nick changes, joins, parts"
             android:textSize="16sp" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/replyCollapse"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Collapse reply threads"
             android:textSize="16sp" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/expandDisco"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Group repeated disconnects"
             android:textSize="16sp" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/inlineFiles"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="Embed uploaded files"
             android:textSize="16sp" />
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/inlineImages"
             android:layout_width="match_parent"
             android:layout_height="48dp"

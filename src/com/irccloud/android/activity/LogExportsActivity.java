@@ -27,11 +27,11 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ShareCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -262,7 +262,7 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
         toolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(toolbar);
 
-        toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
+        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

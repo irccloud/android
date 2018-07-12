@@ -16,10 +16,10 @@
 
 package com.irccloud.android.data.model;
 
-import android.databinding.BaseObservable;
-import android.databinding.Bindable;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
 import android.os.Build;
-import android.support.text.emoji.EmojiCompat;
+import androidx.emoji.text.EmojiCompat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -17,7 +17,7 @@
 package com.irccloud.android;
 
 import android.graphics.Typeface;
-import android.support.v4.content.res.ResourcesCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 /**
  * Created by sam on 9/22/15.

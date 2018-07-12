@@ -25,8 +25,8 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -239,7 +239,7 @@ public class PastebinsActivity extends BaseActivity {
         toolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(toolbar);
 
-        toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
+        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

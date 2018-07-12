@@ -19,7 +19,7 @@ package com.irccloud.android.activity;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;

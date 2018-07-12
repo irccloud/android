@@ -58,7 +58,6 @@ import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.User;
 
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1246,9 +1245,8 @@ public class NetworkConnection {
         if (!wifiLock.isHeld())
             wifiLock.acquire();
 
-        List<BasicNameValuePair> extraHeaders = Arrays.asList(
-                new BasicNameValuePair("User-Agent", useragent)
-        );
+        Map<String, String> extraHeaders = new HashMap<>();
+        extraHeaders.put("User-Agent", useragent);
 
         String url = "wss://" + IRCCLOUD_HOST + IRCCLOUD_PATH;
         if (highest_eid > 0 && streamId != null && streamId.length() > 0) {

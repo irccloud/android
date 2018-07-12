@@ -32,12 +32,12 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
-import android.support.text.emoji.EmojiCompat;
-import android.support.text.emoji.FontRequestEmojiCompatConfig;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.provider.FontRequest;
-import android.support.v4.provider.FontsContractCompat;
+import androidx.annotation.Nullable;
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.text.FontRequestEmojiCompatConfig;
+import androidx.core.app.ActivityCompat;
+import androidx.core.provider.FontRequest;
+import androidx.core.provider.FontsContractCompat;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -55,8 +55,9 @@ import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import androidx.multidex.MultiDexApplication;
 import io.fabric.sdk.android.Fabric;@SuppressWarnings("unused")
-public class IRCCloudApplicationBase extends Application {
+public class IRCCloudApplicationBase extends MultiDexApplication {
     private NetworkConnection conn = null;
     private TimerTask notifierSockerTimerTask = null;
     private static final Timer notifierTimer = new Timer("notifier-timer");

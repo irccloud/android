@@ -26,17 +26,12 @@ import com.codebutler.android_websockets.HybiParser;
 import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
 
-import org.apache.http.Header;
-import org.apache.http.HttpException;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpResponseException;
 import org.apache.http.conn.ssl.StrictHostnameVerifier;
-import org.apache.http.message.BasicLineParser;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -52,6 +47,9 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+
+import okhttp3.Headers;
+import okhttp3.internal.http.StatusLine;
 
 @TargetApi(8)
 public class HTTPFetcher {
@@ -236,11 +234,14 @@ public class HTTPFetcher {
                 HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(mSocket.getInputStream());
 
                 // Read HTTP response status line.
-                StatusLine statusLine = parseStatusLine(readLine(stream));
-                if (statusLine == null) {
-                    throw new HttpException("Received no reply from server.");
-                } else if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                    throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
+                String statusLineString = readLine(stream);
+                if (statusLineString == null) {
+                    throw new Exception("Received no reply from server.");
+                } else {
+                    StatusLine statusLine = StatusLine.parse(statusLineString);
+                    if (statusLine.code != HttpURLConnection.HTTP_OK) {
+                        throw new Exception(statusLine.toString());
+                    }
                 }
 
                 // Read HTTP response headers.
@@ -284,15 +285,17 @@ public class HTTPFetcher {
             HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(mSocket.getInputStream());
 
             // Read HTTP response status line.
-            StatusLine statusLine = parseStatusLine(readLine(stream));
-            if(statusLine != null)
-                Crashlytics.log(Log.DEBUG, TAG, "Got HTTP response: " + statusLine);
-
-            if (statusLine == null) {
-                throw new HttpException("Received no reply from server.");
-            } else if (statusLine.getStatusCode() != HttpStatus.SC_OK && statusLine.getStatusCode() != HttpStatus.SC_MOVED_PERMANENTLY) {
-                Crashlytics.log(Log.ERROR, TAG, "Failure: " + mURI + ": " + statusLine.getStatusCode() + " " + statusLine.getReasonPhrase());
-                throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
+            String statusLineString = readLine(stream);
+            StatusLine statusLine;
+            if (statusLineString == null) {
+                throw new Exception("Received no reply from server.");
+            } else {
+                Crashlytics.log(Log.DEBUG, TAG, "Got HTTP response: " + statusLineString);
+                statusLine = StatusLine.parse(statusLineString);
+                if (statusLine.code != HttpURLConnection.HTTP_OK && statusLine.code != HttpURLConnection.HTTP_MOVED_PERM) {
+                    Crashlytics.log(Log.ERROR, TAG, "Failure: " + mURI + ": " + statusLine.toString());
+                    throw new Exception(statusLine.toString());
+                }
             }
 
             // Read HTTP response headers.
@@ -300,12 +303,13 @@ public class HTTPFetcher {
 
             boolean gzipped = false;
             while (!TextUtils.isEmpty(line = readLine(stream))) {
-                Header header = parseHeader(line);
-                if(header.getName().equalsIgnoreCase("content-encoding") && header.getValue().equalsIgnoreCase("gzip"))
+                int index = line.indexOf(":");
+                Headers header = new Headers.Builder().add(line.substring(0, index).trim(), line.substring(index + 1)).build();
+                if(header.name(0).equalsIgnoreCase("content-encoding") && header.value(0).equalsIgnoreCase("gzip"))
                     gzipped = true;
-                if(statusLine.getStatusCode() == HttpStatus.SC_MOVED_PERMANENTLY && header.getName().equalsIgnoreCase("location")) {
-                    Crashlytics.log(Log.INFO, TAG, "Redirecting to: " + header.getValue());
-                    mURI = new URL(header.getValue());
+                if(statusLine.code == HttpURLConnection.HTTP_MOVED_PERM && header.name(0).equalsIgnoreCase("location")) {
+                    Crashlytics.log(Log.INFO, TAG, "Redirecting to: " + header.value(0));
+                    mURI = new URL(header.value(0));
                     mSocket.close();
                     mSocket = null;
                     mThread = null;
@@ -336,17 +340,6 @@ public class HTTPFetcher {
 
     protected void onStreamConnected(InputStream stream) throws Exception {
 
-    }
-
-    private StatusLine parseStatusLine(String line) {
-        if (TextUtils.isEmpty(line)) {
-            return null;
-        }
-        return BasicLineParser.parseStatusLine(line, new BasicLineParser());
-    }
-
-    private Header parseHeader(String line) {
-        return BasicLineParser.parseHeader(line, new BasicLineParser());
     }
 
     // Can't use BufferedReader because it buffers past the HTTP data.

@@ -39,7 +39,7 @@
             android:layout_gravity="center"
             android:adjustViewBounds="true" />
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:id="@+id/filename_heading"
             android:hint="Filename"
@@ -53,14 +53,14 @@
             android:theme="?editTextTheme"
             android:nextFocusDown="@+id/message"
             android:inputType="textUri"/>
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
         <!-- Dummy item to prevent EditText from receiving focus on launch -->
 
         <LinearLayout
             android:focusable="true" android:focusableInTouchMode="true"
             android:layout_width="0px" android:layout_height="0px"><requestFocus/></LinearLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/message_heading"
             android:hint="Message (optional)"
             android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -74,7 +74,7 @@
             android:lines="0"
             android:nextFocusUp="@id/filename"
             android:inputType="text" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
         <TextView
             android:id="@+id/filesize"
             android:layout_width="wrap_content"

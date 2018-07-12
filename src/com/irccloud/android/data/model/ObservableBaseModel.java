@@ -16,8 +16,8 @@
 
 package com.irccloud.android.data.model;
 
-import android.databinding.Observable;
-import android.databinding.PropertyChangeRegistry;
+import androidx.databinding.Observable;
+import androidx.databinding.PropertyChangeRegistry;
 import android.os.Handler;
 import android.os.Looper;
 

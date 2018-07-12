@@ -20,7 +20,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
 		android:hint="Hostname"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_width="match_parent"
@@ -31,14 +31,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="?editTextTheme" />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
     <LinearLayout
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical">
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
 			android:hint="Port"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,9 +51,9 @@
 	        android:layout_marginRight="6dp"
             android:theme="?editTextTheme"
 	        android:inputType="number" />
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 	
-	    <android.support.v7.widget.SwitchCompat
+	    <androidx.appcompat.widget.SwitchCompat
 	        android:id="@+id/ssl"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"

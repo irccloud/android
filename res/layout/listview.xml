@@ -22,7 +22,7 @@
               android:background="?dialogBackgroundColor"
               android:gravity="center" >
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:visibility="gone"
         android:id="@+id/toolbar"
         android:background="?navBarColor"

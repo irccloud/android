@@ -20,7 +20,7 @@
     <data>
         <variable name="label" type="String"/>
     </data>
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="?listItemBackgroundColor"
@@ -56,5 +56,5 @@
             android:background="@null"
             android:layout_marginLeft="16dp" />
         </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </layout>

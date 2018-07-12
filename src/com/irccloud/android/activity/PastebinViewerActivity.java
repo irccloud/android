@@ -30,13 +30,13 @@ import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.customtabs.CustomTabsClient;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.customtabs.CustomTabsServiceConnection;
-import android.support.customtabs.CustomTabsSession;
-import android.support.v4.app.ShareCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
+import androidx.browser.customtabs.CustomTabsClient;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.browser.customtabs.CustomTabsServiceConnection;
+import androidx.browser.customtabs.CustomTabsSession;
+import androidx.core.app.ShareCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -165,7 +165,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
+        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

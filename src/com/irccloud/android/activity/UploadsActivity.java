@@ -27,9 +27,9 @@ import android.net.Uri;
 import android.net.http.HttpResponseCache;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -465,7 +465,7 @@ public class UploadsActivity extends BaseActivity {
             getSupportActionBar().setElevation(0);
         }
 
-        toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
+        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

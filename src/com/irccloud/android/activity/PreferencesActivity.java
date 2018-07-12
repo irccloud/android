@@ -42,16 +42,16 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatCallback;
-import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.view.ActionMode;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatCallback;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.view.ActionMode;
+import androidx.appcompat.widget.Toolbar;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.TypedValue;
@@ -169,7 +169,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             getSupportActionBar().setElevation(0);
         }
 
-        toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
+        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

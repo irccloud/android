@@ -20,7 +20,7 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.databinding.Bindable;
+import androidx.databinding.Bindable;
 import android.net.Uri;
 import android.text.format.DateUtils;
 

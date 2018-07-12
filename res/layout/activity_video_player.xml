@@ -39,7 +39,7 @@
             android:id="@+id/progress"
             android:layout_gravity="center"/>
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:background="@drawable/actionbar_translucent"
             android:layout_width="match_parent"

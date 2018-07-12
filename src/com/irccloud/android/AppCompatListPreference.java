@@ -17,8 +17,8 @@
 package com.irccloud.android;
 
 
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AlertDialog.Builder;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;

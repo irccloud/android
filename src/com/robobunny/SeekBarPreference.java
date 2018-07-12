@@ -19,7 +19,7 @@ package com.robobunny;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.Preference;
-import android.support.v7.widget.AppCompatSeekBar;
+import androidx.appcompat.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;

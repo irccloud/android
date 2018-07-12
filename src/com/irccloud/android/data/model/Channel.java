@@ -16,7 +16,7 @@
 
 package com.irccloud.android.data.model;
 
-import android.databinding.BaseObservable;
+import androidx.databinding.BaseObservable;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.IRCCloudDatabase;

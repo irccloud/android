@@ -24,7 +24,7 @@
         <variable name="server" type="String"/>
         <variable name="mask" type="android.text.Spanned"/>
     </data>
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="?listItemBackgroundColor"
@@ -85,5 +85,5 @@
             android:textStyle="italic" />
 
         </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </layout>

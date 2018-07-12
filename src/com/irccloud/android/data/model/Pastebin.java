@@ -16,8 +16,8 @@
 
 package com.irccloud.android.data.model;
 
-import android.databinding.BaseObservable;
-import android.databinding.Bindable;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
 import android.text.format.DateUtils;
 
 import com.damnhandy.uri.template.UriTemplate;

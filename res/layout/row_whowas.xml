@@ -26,7 +26,7 @@
         <variable name="info" type="String"/>
         <variable name="actualhost" type="String"/>
     </data>
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="?listItemBackgroundColor"
@@ -139,5 +139,5 @@
                 android:textIsSelectable="true"
                 android:textColor="?android:attr/textColorSecondary" />
         </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 </layout>
