@@ -28,105 +28,69 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.FontAwesome;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.data.collection.BuffersList;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 
-import java.util.ArrayList;
-
-//@Table(databaseName = IRCCloudDatabase.NAME)
-public class Server extends BaseObservable /*extends ObservableBaseModel*/ implements Comparable<Server> {
-    @Column
-    @PrimaryKey
+public class Server extends BaseObservable implements Comparable<Server> {
     private int cid = -1;
 
-    @Column
     private String name;
 
-    @Column
     private String hostname;
 
-    @Column
     private int port;
 
-    @Column
     private String nick;
 
-    @Column
     private String from;
 
-    @Column
     private String avatar;
 
-    @Column
     private String avatar_url;
 
-    @Column
     private String status;
 
-    @Column
     private int ssl;
 
-    @Column
     private String realname;
 
-    @Column
     private String server_realname;
 
-    @Column
     private ObjectNode fail_info;
 
-    @Column
     private String away;
 
-    @Column
     private String usermask;
 
-    @Column
     private String mode;
 
-    @Column
     private String ircserver;
 
-    @Column
     private int orgId;
 
-    @Column
     private int avatars_supported;
 
-    @Column
     private int slack;
 
-    @Column
     public ObjectNode isupport = new ObjectMapper().createObjectNode();
 
-    @Column
     public JsonNode raw_ignores;
 
-    @Column(name = "server_order")
+    //@Column(name = "server_order")
     private int order;
 
-    @Column
     public String CHANTYPES;
 
-    @Column
     public ObjectNode PREFIX;
 
-    @Column
     public String MODE_OPER = "Y";
 
-    @Column
     public String MODE_OWNER = "q";
 
-    @Column
     public String MODE_ADMIN = "a";
 
-    @Column
     public String MODE_OP = "o";
 
-    @Column
     public String MODE_HALFOP = "h";
 
-    @Column
     public String MODE_VOICED = "v";
 
     private String server_pass;

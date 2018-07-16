@@ -53,6 +53,7 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.SeparatedListAdapter;
+import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.LogExportsList;
 import com.irccloud.android.data.model.Buffer;
@@ -103,13 +104,13 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                 final LogExport fileToDelete = (LogExport)getItem((Integer)view.getTag());
                 AlertDialog.Builder builder = new AlertDialog.Builder(LogExportsActivity.this);
                 builder.setTitle("Delete File");
-                builder.setMessage("Are you sure you want to delete '" + fileToDelete.file_name + "'?");
+                builder.setMessage("Are you sure you want to delete '" + fileToDelete.getFile_name() + "'?");
                 builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         fileToDelete.file().delete();
-                        fileToDelete.download_id = 0;
-                        fileToDelete.save();
+                        fileToDelete.setDownload_id(0);
+                        IRCCloudDatabase.getInstance().LogExportsDao().update(fileToDelete);
                         new RefreshTask().execute((Void)null);
                     }
                 });
@@ -198,17 +199,17 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
 
             for(LogExport e : exports) {
                 e.clearCache();
-                if(e.finish_date == 0 && e.expiry_date == 0)
+                if(e.getFinish_date() == 0 && e.getExpiry_date() == 0)
                     inprogress.add(e);
                 else if(e.getExists())
                     downloaded.add(e);
                 else
                     available.add(e);
 
-                if(uriToDownload != null && uriToDownload.toString().equals(e.redirect_url)) {
+                if(uriToDownload != null && uriToDownload.toString().equals(e.getRedirect_url())) {
                     uriToDownload = null;
 
-                    if(e.download_id == 0)
+                    if(e.getDownload_id() == 0)
                         e.download();
                 }
             }
@@ -314,7 +315,7 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                             public void run() {
                                 if(result.getBoolean("success")) {
                                     LogExport e = LogExportsList.getInstance().create(result.getJsonNode("export"));
-                                    e.save();
+                                    IRCCloudDatabase.getInstance().LogExportsDao().insert(e);
                                     new RefreshTask().execute((Void)null);
                                     Snackbar.make(findViewById(android.R.id.list), "Your log export is in progress.", Snackbar.LENGTH_SHORT).show();
                                 } else if (result.getString("message").equals("rate_limited")) {
@@ -350,7 +351,7 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                 }
 
                 for(LogExport e : inProgressAdapter.exports) {
-                    if(e.cid == requestCid && e.bid == requestBid) {
+                    if(e.getCid() == requestCid && e.getBid() == requestBid) {
                         Snackbar.make(findViewById(android.R.id.list), "This log export is already in progress.", Snackbar.LENGTH_SHORT).show();
                         exportButton.setEnabled(true);
                         exportButton.setAlpha(1.0f);
@@ -378,11 +379,11 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                     intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
                     intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
                     if(Build.VERSION.SDK_INT >= 16)
-                        intent.setClipData(ClipData.newRawUri(e.file_name, uri));
+                        intent.setClipData(ClipData.newRawUri(e.getFile_name(), uri));
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(Intent.createChooser(intent, "Open Log Archive"));
                 } else {
-                    if(e.download_id == 0 && e.redirect_url != null)
+                    if(e.getDownload_id() == 0 && e.getRedirect_url() != null)
                         e.download();
                 }
             }

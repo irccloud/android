@@ -16,43 +16,72 @@
 
 package com.irccloud.android.data.model;
 
-import com.irccloud.android.data.IRCCloudDatabase;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.annotation.ForeignKey;
-import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.annotation.Unique;
-import com.raizlabs.android.dbflow.annotation.UniqueGroup;
-import com.raizlabs.android.dbflow.structure.BaseModel;
+import androidx.room.Entity;
+import androidx.room.Index;
 
-@Table(database = IRCCloudDatabase.class,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})
-public class RecentConversation extends BaseModel {
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
-    public int cid;
+@Entity(primaryKeys = {"cid", "bid"}, indices = {@Index(value = {"cid", "bid"}, unique = true)})
+public class RecentConversation {
+    private int cid;
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
-    public int bid;
+    private int bid;
 
-    @Column
-    public String name;
+    private String name;
 
-    @Column
-    public String type;
+    private String type;
 
-    @Column
-    public long timestamp;
+    private long timestamp;
 
-    @Column
-    public String avatar_url;
+    private String avatar_url;
+
+    public int getCid() {
+        return cid;
+    }
+
+    public void setCid(int cid) {
+        this.cid = cid;
+    }
+
+    public int getBid() {
+        return bid;
+    }
+
+    public void setBid(int bid) {
+        this.bid = bid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getAvatar_url() {
+        return avatar_url;
+    }
+
+    public void setAvatar_url(String avatar_url) {
+        this.avatar_url = avatar_url;
+    }
 
     public String toString() {
-        return "{cid: " + cid + ", bid: " + bid + ", name: " + name + ", type: " + type + "}";
+        return "{cid: " + getCid() + ", bid: " + getBid() + ", name: " + getName() + ", type: " + getType() + "}";
     }
 }

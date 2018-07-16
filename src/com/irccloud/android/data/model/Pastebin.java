@@ -21,10 +21,8 @@ import androidx.databinding.Bindable;
 import android.text.format.DateUtils;
 
 import com.damnhandy.uri.template.UriTemplate;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.BR;
-import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.OnErrorListener;

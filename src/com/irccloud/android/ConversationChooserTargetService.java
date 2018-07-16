@@ -54,16 +54,16 @@ public class ConversationChooserTargetService extends ChooserTargetService {
         List<RecentConversation> conversations = RecentConversationsList.getInstance().getConversations();
 
         for(RecentConversation c : conversations) {
-            Buffer b = BuffersList.getInstance().getBuffer(c.bid);
+            Buffer b = BuffersList.getInstance().getBuffer(c.getBid());
             if(b == null) {
-                BuffersList.getInstance().createBuffer(c.bid, c.cid, 0, 0, c.name, c.type, 0, 1, 0, 0);
-                b = BuffersList.getInstance().getBuffer(c.bid);
+                BuffersList.getInstance().createBuffer(c.getBid(), c.getCid(), 0, 0, c.getName(), c.getType(), 0, 1, 0, 0);
+                b = BuffersList.getInstance().getBuffer(c.getBid());
             }
             Icon avatar = null;
             if(b.isConversation()) {
                 try {
-                    if (c.avatar_url != null && c.avatar_url.length() > 0 && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
-                        Bitmap bitmap = ImageList.getInstance().getImage(new URL(c.avatar_url));
+                    if (c.getAvatar_url() != null && c.getAvatar_url().length() > 0 && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
+                        Bitmap bitmap = ImageList.getInstance().getImage(new URL(c.getAvatar_url()));
                         if (bitmap != null)
                             avatar = Icon.createWithBitmap(bitmap);
                     }
@@ -72,14 +72,14 @@ public class ConversationChooserTargetService extends ChooserTargetService {
 
                 if(avatar == null) {
                     avatar = (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ?
-                            Icon.createWithBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name, null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()))) :
-                            Icon.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name, null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false))
+                            Icon.createWithBitmap(AvatarsList.getInstance().getAvatar(c.getCid(), c.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()))) :
+                            Icon.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.getCid(), c.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false))
                     );
                 }
             }
             Bundle extras = new Bundle();
-            extras.putInt("bid", c.bid);
-            targets.add(new ChooserTarget(c.name, c.type.equals("channel")?channelIcon:avatar, 0.5f, cn, extras));
+            extras.putInt("bid", c.getBid());
+            targets.add(new ChooserTarget(c.getName(), c.getType().equals("channel")?channelIcon:avatar, 0.5f, cn, extras));
         }
 
         return targets;

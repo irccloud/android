@@ -16,20 +16,31 @@
 
 package com.irccloud.android.data.model;
 
-import com.irccloud.android.data.IRCCloudDatabase;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.structure.BaseModel;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-@Table(database = IRCCloudDatabase.class)
-public class Notification_ServerNick extends BaseModel {
-    @Column
+@Entity
+public class Notification_ServerNick {
     @PrimaryKey
-    public int cid;
+    private int cid;
 
-    @Column
-    public String nick;
+    private String nick;
+
+    public int getCid() {
+        return cid;
+    }
+
+    public void setCid(int cid) {
+        this.cid = cid;
+    }
+
+    public String getNick() {
+        return nick;
+    }
+
+    public void setNick(String nick) {
+        this.nick = nick;
+    }
 
     @Override
     public String toString() {

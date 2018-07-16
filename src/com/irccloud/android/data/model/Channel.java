@@ -18,62 +18,36 @@ package com.irccloud.android.data.model;
 
 import androidx.databinding.BaseObservable;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.BuffersList;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.annotation.Unique;
-import com.raizlabs.android.dbflow.annotation.UniqueGroup;
-import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.ArrayList;
 
-/*@Table(databaseName = IRCCloudDatabase.NAME,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})*/
-public class Channel extends BaseObservable /*extends ObservableBaseModel*/ {
+public class Channel extends BaseObservable {
     public static class Mode {
         public String mode;
         public String param;
     }
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
     public int cid;
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
     public int bid;
 
-    @Column
     public String name;
 
-    @Column
     public String topic_text;
 
-    @Column
     public long topic_time;
 
-    @Column
     public String topic_author;
 
-    @Column
     public String type;
 
-    @Column
     public String mode;
 
-    @Column
     public long timestamp;
 
-    @Column
     public String url;
 
-    @Column
     public boolean key;
 
     public ArrayList<Mode> modes = new ArrayList<>();

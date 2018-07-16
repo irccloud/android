@@ -45,7 +45,7 @@ public class DownloadCompletedReceiver extends BroadcastReceiver {
 
         if(e != null) {
             DownloadManager d = (DownloadManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
-            Cursor c = d.query(new DownloadManager.Query().setFilterById(e.download_id));
+            Cursor c = d.query(new DownloadManager.Query().setFilterById(e.getDownload_id()));
 
             if(c != null && c.moveToFirst()) {
                 int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
@@ -55,7 +55,7 @@ public class DownloadCompletedReceiver extends BroadcastReceiver {
                 String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/" + R.raw.digit);
 
                 NotificationCompat.Builder notification = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), "export_complete")
-                        .setContentTitle(e.file_name)
+                        .setContentTitle(e.getFile_name())
                         .setContentText((status == DownloadManager.STATUS_SUCCESSFUL) ? "Download complete." : "Download failed.")
                         .setAutoCancel(true)
                         .setLocalOnly(true)
@@ -83,7 +83,7 @@ public class DownloadCompletedReceiver extends BroadcastReceiver {
                 Intent i = new Intent(context, LogExportsActivity.class);
                 notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int)e.download_id, notification.build());
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) e.getDownload_id(), notification.build());
 
             }
         }

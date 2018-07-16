@@ -29,7 +29,6 @@ import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Notification;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DashClock extends DashClockExtension {
@@ -77,11 +76,11 @@ public class DashClock extends DashClockExtension {
             List<Notification> msgs = NotificationsList.getInstance().getMessageNotifications();
             count = 0;
             for (Notification n : msgs) {
-                if(n.nick != null) {
-                    if (n.message_type.equals("buffer_me_msg"))
-                        msg += "— " + n.nick + " " + Html.fromHtml(n.message) + "\n";
+                if(n.getNick() != null) {
+                    if (n.getMessage_type().equals("buffer_me_msg"))
+                        msg += "— " + n.getNick() + " " + Html.fromHtml(n.getMessage()) + "\n";
                     else
-                        msg += "<" + n.nick + "> " + Html.fromHtml(n.message) + "\n";
+                        msg += "<" + n.getNick() + "> " + Html.fromHtml(n.getMessage()) + "\n";
                     count++;
                 }
             }

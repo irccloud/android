@@ -19,11 +19,6 @@ package com.irccloud.android.data.collection;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.LogExport;
-import com.irccloud.android.data.model.LogExport_Table;
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.Select;
-import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,7 +28,41 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
+
 public class LogExportsList {
+    @Dao
+    public interface LogExportsDao {
+        @Query("SELECT * FROM LogExport ORDER BY start_date DESC")
+        List<LogExport> getLogExports();
+
+        @Query("SELECT * FROM LogExport WHERE id = :id LIMIT 1")
+        LogExport getLogExport(int id);
+
+        @Query("SELECT * FROM LogExport WHERE download_id = :download_id LIMIT 1")
+        LogExport getDownload(long download_id);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insert(LogExport logExport);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insertAll(List<LogExport> logExports);
+
+        @Update
+        void update(LogExport logExport);
+
+        @Delete
+        void delete(LogExport logExport);
+
+        @Query("DELETE FROM LogExport")
+        void clear();
+    }
+
     private static LogExportsList instance = null;
     private final Object dbLock = new Object();
 
@@ -44,36 +73,28 @@ public class LogExportsList {
     }
 
     public void clear() {
-        synchronized (dbLock) {
-            Delete.table(LogExport.class);
-        }
+        IRCCloudDatabase.getInstance().LogExportsDao().clear();
     }
 
     public List<LogExport> getLogExports() {
-        synchronized (dbLock) {
-            return new Select().from(LogExport.class).where().orderBy(LogExport_Table.start_date, false).queryList();
-        }
+        return IRCCloudDatabase.getInstance().LogExportsDao().getLogExports();
     }
 
     public LogExport get(int id) {
-        synchronized (dbLock) {
-            return new Select().from(LogExport.class).where(LogExport_Table.id.is(id)).querySingle();
-        }
+        return IRCCloudDatabase.getInstance().LogExportsDao().getLogExport(id);
     }
 
     public LogExport getDownload(long downloadid) {
-        synchronized (dbLock) {
-            return new Select().from(LogExport.class).where(LogExport_Table.download_id.is(downloadid)).querySingle();
-        }
+        return IRCCloudDatabase.getInstance().LogExportsDao().getDownload(downloadid);
     }
 
     public void update(JSONObject logs) {
         HashMap<Integer, LogExport> dbCache = new HashMap<>();
-        ArrayList<LogExport> add = new ArrayList<>();
+        final ArrayList<LogExport> add = new ArrayList<>();
 
         synchronized (dbLock) {
             for(LogExport e : getLogExports()) {
-                dbCache.put(e.id, e);
+                dbCache.put(e.getId(), e);
             }
         }
 
@@ -86,7 +107,7 @@ public class LogExportsList {
                 if (dbCache.containsKey(log.getInt("id"))) {
                     LogExport e = dbCache.get(log.getInt("id"));
                     if (!e.file().exists())
-                        e.delete();
+                        IRCCloudDatabase.getInstance().LogExportsDao().delete(e);
                 }
             }
         } catch (Exception e) {
@@ -94,56 +115,58 @@ public class LogExportsList {
         }
 
         if(add.size() > 0)
-            FastStoreModelTransaction
-                    .insertBuilder(FlowManager.getModelAdapter(LogExport.class))
-                    .addAll(add)
-                    .build().execute(FlowManager.getWritableDatabase(IRCCloudDatabase.class));
+            IRCCloudDatabase.getInstance().runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    IRCCloudDatabase.getInstance().LogExportsDao().insertAll(add);
+                }
+            });
     }
 
     public LogExport create(JSONObject log) throws JSONException {
         LogExport e = new LogExport();
-        e.id = log.getInt("id");
+        e.setId(log.getInt("id"));
         if(log.isNull("cid"))
-            e.cid = -1;
+            e.setCid(-1);
         else
-            e.cid = log.getInt("cid");
+            e.setCid(log.getInt("cid"));
         if(log.isNull("bid"))
-            e.bid = -1;
+            e.setBid(-1);
         else
-            e.bid = log.getInt("bid");
-        e.file_name = log.getString("file_name");
-        e.redirect_url = log.getString("redirect_url");
+            e.setBid(log.getInt("bid"));
+        e.setFile_name(log.getString("file_name"));
+        e.setRedirect_url(log.getString("redirect_url"));
         if(!log.isNull("startdate"))
-            e.start_date = log.getLong("startdate");
+            e.setStart_date(log.getLong("startdate"));
         if(!log.isNull("finishdate"))
-            e.finish_date = log.getLong("finishdate");
+            e.setFinish_date(log.getLong("finishdate"));
         if(!log.isNull("expirydate"))
-            e.expiry_date = log.getLong("expirydate");
+            e.setExpiry_date(log.getLong("expirydate"));
 
         return e;
     }
 
     public LogExport create(JsonNode log) {
         LogExport e = new LogExport();
-        e.id = log.get("id").asInt();
+        e.setId(log.get("id").asInt());
         if(log.get("cid") != null && log.get("cid").isNull())
-            e.cid = -1;
+            e.setCid(-1);
         else
-            e.cid = log.get("cid").asInt();
+            e.setCid(log.get("cid").asInt());
         if(log.get("bid") != null && log.get("bid").isNull())
-            e.bid = -1;
+            e.setBid(-1);
         else
-            e.bid = log.get("bid").asInt();
+            e.setBid(log.get("bid").asInt());
         if(log.get("file_name") != null && !log.get("file_name").isNull())
-            e.file_name = log.get("file_name").asText();
+            e.setFile_name(log.get("file_name").asText());
         if(log.get("redirect_url") != null && !log.get("redirect_url").isNull())
-            e.redirect_url = log.get("redirect_url").asText();
+            e.setRedirect_url(log.get("redirect_url").asText());
         if(log.get("startdate") != null && !log.get("startdate").isNull())
-            e.start_date = log.get("startdate").asLong();
+            e.setStart_date(log.get("startdate").asLong());
         if(log.get("finishdate") != null && !log.get("finishdate").isNull())
-            e.finish_date = log.get("finishdate").asLong();
+            e.setFinish_date(log.get("finishdate").asLong());
         if(log.get("expirydate") != null && !log.get("expirydate").isNull())
-            e.expiry_date = log.get("expirydate").asLong();
+            e.setExpiry_date(log.get("expirydate").asLong());
 
         return e;
     }

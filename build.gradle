@@ -35,6 +35,7 @@ allprojects {
 }
 
 apply plugin: 'com.android.application'
+
 if (rootProject.file('private.properties').exists()) {
     apply plugin: 'io.fabric'
 }
@@ -336,10 +337,6 @@ tasks.whenTaskAdded { task ->
     }
 }
 
-ext {
-    dbflowVersion = "4.2.4"
-}
-
 dependencies {
     implementation "androidx.appcompat:appcompat:1.0.0-beta01"
     implementation "androidx.cardview:cardview:1.0.0-beta01"
@@ -348,6 +345,8 @@ dependencies {
     implementation "androidx.browser:browser:1.0.0-beta01"
     implementation "androidx.emoji:emoji:1.0.0-beta01"
     implementation "androidx.exifinterface:exifinterface:1.0.0-beta01"
+    implementation "androidx.room:room-runtime:2.0.0-beta01"
+    annotationProcessor "androidx.room:room-compiler:2.0.0-beta01"
     implementation "com.google.android.gms:play-services-base:15.0.1"
     implementation "com.google.android.gms:play-services-auth:15.0.1"
     implementation "com.google.android.gms:play-services-identity:15.0.1"
@@ -361,9 +360,6 @@ dependencies {
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation project(':android-websockets')
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
-    annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:$dbflowVersion"
-    implementation "com.github.Raizlabs.DBFlow:dbflow-core:$dbflowVersion"
-    implementation "com.github.Raizlabs.DBFlow:dbflow:$dbflowVersion"
     implementation 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     implementation 'com.datatheorem.android.trustkit:trustkit:1.0.0'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.6.0'

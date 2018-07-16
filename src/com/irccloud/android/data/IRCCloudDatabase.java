@@ -15,10 +15,43 @@
  */
 
 package com.irccloud.android.data;
-import com.raizlabs.android.dbflow.annotation.Database;
 
-@Database(name = IRCCloudDatabase.NAME, version = IRCCloudDatabase.VERSION)
-public class IRCCloudDatabase {
+import com.irccloud.android.BackgroundTaskService;
+import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.data.collection.LogExportsList;
+import com.irccloud.android.data.collection.NotificationsList;
+import com.irccloud.android.data.collection.RecentConversationsList;
+import com.irccloud.android.data.model.BackgroundTask;
+import com.irccloud.android.data.model.LogExport;
+import com.irccloud.android.data.model.Notification;
+import com.irccloud.android.data.model.Notification_LastSeenEID;
+import com.irccloud.android.data.model.Notification_ServerNick;
+import com.irccloud.android.data.model.RecentConversation;
+
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+
+@Database(entities = {RecentConversation.class, BackgroundTask.class, LogExport.class, Notification.class, Notification_LastSeenEID.class, Notification_ServerNick.class}, version = IRCCloudDatabase.VERSION, exportSchema = false)
+public abstract class IRCCloudDatabase extends RoomDatabase {
     public static final String NAME = "irccloud";
-    public static final int VERSION = 3;
+    public static final int VERSION = 10;
+
+    public abstract RecentConversationsList.RecentConversationsDao RecentConversationsDao();
+    public abstract BackgroundTaskService.BackgroundTasksDao BackgroundTasksDao();
+    public abstract LogExportsList.LogExportsDao LogExportsDao();
+    public abstract NotificationsList.NotificationsDao NotificationsDao();
+
+    private static IRCCloudDatabase sInstance;
+    public static IRCCloudDatabase getInstance() {
+        if (sInstance == null) {
+            synchronized (IRCCloudDatabase.class) {
+                if (sInstance == null) {
+                    sInstance = Room.databaseBuilder(IRCCloudApplication.getInstance().getApplicationContext(),
+                            IRCCloudDatabase.class, NAME).allowMainThreadQueries().build();;
+                }
+            }
+        }
+        return sInstance;
+    }
 }

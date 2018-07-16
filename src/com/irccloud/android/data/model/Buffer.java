@@ -30,9 +30,6 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ChannelsList;
 import com.irccloud.android.data.collection.ServersList;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Unique;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,11 +38,8 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 
-/*@Table(databaseName = IRCCloudDatabase.NAME,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})*/
-public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
+public class Buffer extends BaseObservable {
     public static final String TYPE_CONSOLE = "console";
     public static final String TYPE_CHANNEL = "channel";
     public static final String TYPE_CONVERSATION = "conversation";
@@ -68,62 +62,40 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         return server;
     }
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
     private int bid = -1;
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
     private int cid = -1;
 
-    @Column
     private long min_eid;
 
-    @Column
     private long last_seen_eid;
 
-    @Column
     private long created;
 
-    @Column
     private String name;
 
-    @Column
     private String type;
 
-    @Column
     private int archived;
 
-    @Column
     private int deferred;
 
-    @Column
     private int timeout;
 
-    @Column
     private String away_msg;
 
-    @Column
     private CharSequence draft;
 
-    @Column
     private String chan_types;
 
-    @Column
     private boolean scrolledUp;
 
-    @Column
     private int scrollPosition;
 
-    @Column
     private int scrollPositionOffset;
 
-    @Column
     private int unread;
 
-    @Column
     private int highlights;
 
     private int valid = 1;

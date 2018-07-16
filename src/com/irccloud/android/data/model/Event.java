@@ -24,18 +24,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
-import com.irccloud.android.R;
-import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.ServersList;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.annotation.Unique;
-import com.raizlabs.android.dbflow.annotation.UniqueGroup;
-import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import org.json.JSONObject;
 
@@ -43,130 +34,84 @@ import java.util.HashSet;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 
-/*@Table(databaseName = IRCCloudDatabase.NAME,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})*/
-public class Event /*extends ObservableBaseModel*/ {
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
+public class Event {
     public int cid;
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
     public int bid;
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
     public long eid;
 
-    @Column
     public long server_time;
 
-    @Column
     public String type;
 
-    @Column
     public String msg;
 
-    @Column
     public String hostmask;
 
-    @Column(name = "event_from")
+    //@Column(name = "event_from")
     public String from;
 
-    @Column
     public String from_nick;
 
-    @Column
     public String from_mode;
 
-    @Column
     public String from_realname;
 
-    @Column
     public String from_hostmask;
 
-    @Column
     public String nick;
 
-    @Column
     public String old_nick;
 
-    @Column
     public String server;
 
-    @Column
     public String diff;
 
-    @Column
     public String chan;
 
-    @Column
     public boolean highlight;
 
-    @Column
     public boolean self;
 
-    @Column
     public boolean to_chan;
 
-    @Column
     public boolean to_buffer;
 
-    @Column
     public int color;
 
-    @Column
     public int bg_color;
 
-    @Column
     public JsonNode ops;
 
-    @Column
     public long group_eid;
 
-    @Column
     public int row_type = 0;
 
-    @Column
     public String group_msg;
 
-    @Column
     public boolean linkify = true;
 
-    @Column
     public String target_mode;
 
-    @Column
     public int reqid;
 
-    @Column
     public boolean pending;
 
-    @Column
     public boolean failed;
 
-    @Column
     public String command;
 
-    @Column
     public int day = -1;
 
-    @Column
     public String contentDescription;
 
-    @Column
     public JsonNode entities;
 
-    @Column
     public String avatar;
 
-    @Column
     public String avatar_url;
 
-    @Column
     public String msgid;
 
     public String timestamp;

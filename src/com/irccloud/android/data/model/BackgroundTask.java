@@ -16,28 +16,59 @@
 
 package com.irccloud.android.data.model;
 
-import com.irccloud.android.data.IRCCloudDatabase;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.structure.BaseModel;
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
-@Table(database = IRCCloudDatabase.class)
-public class BackgroundTask extends BaseModel {
+@Entity
+public class BackgroundTask {
+    @Ignore
     public static final int TYPE_GCM_REGISTER = 1;
+    @Ignore
     public static final int TYPE_GCM_UNREGISTER = 2;
+    @Ignore
     public static final int TYPE_BACKLOG_SYNC = 3;
 
-    @Column
     @PrimaryKey
-    public String tag;
+    @NonNull
+    private String tag;
 
-    @Column
-    public int type;
+    private int type;
 
-    @Column
-    public String session;
+    private String session;
 
-    @Column
-    public String data;
+    private String data;
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String getSession() {
+        return session;
+    }
+
+    public void setSession(String session) {
+        this.session = session;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
 }

@@ -40,15 +40,15 @@ public class NotificationsTests extends AndroidTestCase {
 		assertEquals(1, notifications.size());
 		
 		Notification n1 = notifications.get(0);
-		assertEquals(1, n1.cid);
-		assertEquals(1, n1.bid);
-		assertEquals(2, n1.eid);
-		assertEquals("sam", n1.nick);
-		assertEquals("test", n1.message);
-		assertEquals("TestNetwork", n1.network);
-		assertEquals("sam", n1.chan);
-		assertEquals("conversation", n1.buffer_type);
-		assertEquals("buffer_msg", n1.message_type);
+		assertEquals(1, n1.getCid());
+		assertEquals(1, n1.getBid());
+		assertEquals(2, n1.getEid());
+		assertEquals("sam", n1.getNick());
+		assertEquals("test", n1.getMessage());
+		assertEquals("TestNetwork", n1.getNetwork());
+		assertEquals("sam", n1.getChan());
+		assertEquals("conversation", n1.getBuffer_type());
+		assertEquals("buffer_msg", n1.getMessage_type());
 
 		n.clear();
 		b.clear();

@@ -37,6 +37,13 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.WearableExtender;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.RemoteInput;
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
+
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -56,17 +63,9 @@ import com.irccloud.android.activity.QuickReplyActivity;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Notification;
-import com.irccloud.android.data.model.Notification_Table;
 import com.irccloud.android.data.model.Notification_LastSeenEID;
-import com.irccloud.android.data.model.Notification_LastSeenEID_Table;
 import com.irccloud.android.data.model.Notification_ServerNick;
-import com.irccloud.android.data.model.Notification_ServerNick_Table;
 import com.irccloud.android.data.model.Server;
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
-import com.raizlabs.android.dbflow.sql.language.Select;
-import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
 import org.json.JSONArray;
@@ -81,11 +80,88 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class NotificationsList {
+    @Dao
+    public interface NotificationsDao {
+        @Query("SELECT COUNT(*) FROM Notification")
+        int count();
+
+        @Query("SELECT COUNT(*) FROM Notification WHERE nick != null")
+        int unread_count();
+
+        @Query("SELECT * FROM Notification ORDER BY bid,eid ASC")
+        List<Notification> getNotifications();
+
+        @Query("SELECT * FROM Notification WHERE bid != :excludeBid AND message_type != 'callerid' AND message_type != 'callerid_success' AND message_type != 'channel_invite' ORDER BY bid,eid ASC")
+        List<Notification> getMessageNotifications(int excludeBid);
+
+        @Query("SELECT * FROM Notification WHERE bid != :excludeBid AND (message_type = 'callerid' OR message_type = 'callerid_success' OR message_type = 'channel_invite') ORDER BY bid,eid ASC")
+        List<Notification> getOtherNotifications(int excludeBid);
+
+        @Query("SELECT * FROM Notification WHERE eid = :eid LIMIT 1")
+        Notification getNotification(long eid);
+
+        @Query("SELECT * FROM Notification_LastSeenEID WHERE bid = :bid LIMIT 1")
+        Notification_LastSeenEID getLastSeenEID(int bid);
+
+        @Query("SELECT * FROM Notification_ServerNick WHERE cid = :cid LIMIT 1")
+        Notification_ServerNick getServerNick(int cid);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insert(Notification notification);
+
+        @Update
+        void update(Notification notification);
+
+        @Update
+        void update(List<Notification> notification);
+
+        @Delete
+        void delete(Notification notification);
+
+        @Delete
+        void delete(List<Notification> notifications);
+
+        @Query("DELETE FROM Notification WHERE bid = :bid")
+        void delete(int bid);
+
+        @Query("DELETE FROM Notification WHERE bid = :bid AND eid = :eid")
+        void delete(int bid, long eid);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insert(Notification_LastSeenEID lastSeenEID);
+
+        @Update
+        void update(Notification_LastSeenEID lastSeenEID);
+
+        @Delete
+        void delete(Notification_LastSeenEID lastSeenEID);
+
+        @Query("DELETE FROM Notification_LastSeenEID WHERE bid = :bid")
+        void deleteLastSeenEID(int bid);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insert(Notification_ServerNick serverNick);
+
+        @Update
+        void update(Notification_ServerNick serverNick);
+
+        @Delete
+        void delete(Notification_ServerNick serverNick);
+
+        @Query("DELETE FROM Notification")
+        void clearNotifications();
+
+        @Query("DELETE FROM Notification_LastSeenEID")
+        void clearLastSeenEIDs();
+
+        @Query("DELETE FROM Notification_ServerNick")
+        void clearServerNicks();
+    }
+
     private static NotificationsList instance = null;
     private int excludeBid = -1;
     private static final Timer mNotificationTimer = new Timer("notification-timer");
     private TimerTask mNotificationTimerTask = null;
-    private final Object dbLock = new Object();
 
     public interface NotificationAddedListener {
         void onNotificationAdded(Notification notification);
@@ -100,16 +176,14 @@ public class NotificationsList {
     }
 
     public List<Notification> getNotifications() {
-        synchronized (dbLock) {
-            return new Select().from(Notification.class).where().orderBy(Notification_Table.bid, true).orderBy(Notification_Table.eid, true).queryList();
-        }
+        return IRCCloudDatabase.getInstance().NotificationsDao().getNotifications();
     }
 
     public void clear() {
         try {
             for (Notification n : getNotifications()) {
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.bid);
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.getBid());
             }
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
             try {
@@ -122,78 +196,52 @@ public class NotificationsList {
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
         updateTeslaUnreadCount();
-        synchronized (dbLock) {
-            Delete.table(Notification.class);
-        }
+        IRCCloudDatabase.getInstance().NotificationsDao().clearNotifications();
     }
 
     public void clearLastSeenEIDs() {
-        synchronized (dbLock) {
-            Delete.table(Notification_LastSeenEID.class);
-        }
+        IRCCloudDatabase.getInstance().NotificationsDao().clearLastSeenEIDs();
     }
 
     public long getLastSeenEid(int bid) {
         Buffer b = BuffersList.getInstance().getBuffer(bid);
         if(b != null)
             return b.getLast_seen_eid();
-        synchronized (dbLock) {
-            Notification_LastSeenEID eid = new Select().from(Notification_LastSeenEID.class).where(Notification_LastSeenEID_Table.bid.is(bid)).querySingle();
-            if (eid != null)
-                return eid.eid;
-            else
-                return -1;
-        }
+        Notification_LastSeenEID eid = IRCCloudDatabase.getInstance().NotificationsDao().getLastSeenEID(bid);
+        if (eid != null)
+            return eid.getEid();
+        else
+            return -1;
     }
 
     public void updateLastSeenEid(int bid, long eid) {
         Notification_LastSeenEID n = new Notification_LastSeenEID();
-        n.bid = bid;
-        n.eid = eid;
-        Buffer b = BuffersList.getInstance().getBuffer(bid);
-        if(b != null) {
-            FlowManager.getDatabase(IRCCloudDatabase.class).getTransactionManager().getSaveQueue().add(n);
-        } else {
-            synchronized (dbLock) {
-                n.save();
-            }
-        }
+        n.setBid(bid);
+        n.setEid(eid);
+        IRCCloudDatabase.getInstance().NotificationsDao().insert(n);
     }
 
     public String getServerNick(int cid) {
         Server s = ServersList.getInstance().getServer(cid);
         if(s != null && s.getNick() != null && s.getNick().length() > 0)
             return s.getNick();
-        synchronized (dbLock) {
-            Notification_ServerNick nick = new Select().from(Notification_ServerNick.class).where(Notification_ServerNick_Table.cid.is(cid)).querySingle();
-            if (nick != null)
-                return nick.nick;
-            else
-                return null;
-        }
+        Notification_ServerNick nick = IRCCloudDatabase.getInstance().NotificationsDao().getServerNick(cid);
+        if (nick != null)
+            return nick.getNick();
+        else
+            return null;
     }
 
     public void updateServerNick(int cid, String nick) {
         Notification_ServerNick n = new Notification_ServerNick();
-        n.cid = cid;
-        n.nick = nick;
-        Server s = ServersList.getInstance().getServer(cid);
-        if(s != null) {
-            FlowManager.getDatabase(IRCCloudDatabase.class).getTransactionManager().getSaveQueue().add(n);
-        } else {
-            synchronized (dbLock) {
-                n.save();
-            }
-        }
+        n.setCid(cid);
+        n.setNick(nick);
+        IRCCloudDatabase.getInstance().NotificationsDao().insert(n);
     }
 
     public void dismiss(int bid, long eid) {
-        synchronized (dbLock) {
-            Log.d("IRCCloud", "Dismiss bid" + bid + " eid"+eid);
-            Notification n = getNotification(eid);
-            if (n != null)
-                n.delete();
-        }
+        Log.d("IRCCloud", "Dismiss bid" + bid + " eid"+eid);
+        IRCCloudDatabase.getInstance().NotificationsDao().delete(bid, eid);
         if (IRCCloudApplication.getInstance() != null)
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         updateTeslaUnreadCount();
@@ -207,20 +255,18 @@ public class NotificationsList {
         }
 
         Notification n = new Notification();
-        n.bid = bid;
-        n.cid = cid;
-        n.eid = eid;
-        n.nick = from;
-        n.message = TextUtils.htmlEncode(ColorFormatter.strip(message).toString());
-        n.chan = chan;
-        n.buffer_type = buffer_type;
-        n.message_type = message_type;
-        n.network = network;
-        n.avatar_url = avatar_url;
+        n.setBid(bid);
+        n.setCid(cid);
+        n.setEid(eid);
+        n.setNick(from);
+        n.setMessage(TextUtils.htmlEncode(ColorFormatter.strip(message).toString()));
+        n.setChan(chan);
+        n.setBuffer_type(buffer_type);
+        n.setMessage_type(message_type);
+        n.setNetwork(network);
+        n.setAvatar_url(avatar_url);
 
-        synchronized (dbLock) {
-            n.save();
-        }
+        IRCCloudDatabase.getInstance().NotificationsDao().insert(n);
 
         if(notificationAddedListener != null)
             notificationAddedListener.onNotificationAdded(n);
@@ -236,20 +282,18 @@ public class NotificationsList {
         List<Notification> notifications = getNotifications();
 
         for (Notification n : notifications) {
-            long last_seen_eid = getLastSeenEid(n.bid);
-            Buffer b = BuffersList.getInstance().getBuffer(n.bid);
+            long last_seen_eid = getLastSeenEid(n.getBid());
+            Buffer b = BuffersList.getInstance().getBuffer(n.getBid());
             if(b != null)
                 last_seen_eid = b.getLast_seen_eid();
-            if (last_seen_eid == -1 || n.eid <= last_seen_eid) {
-                synchronized (dbLock) {
-                    n.delete();
-                }
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.bid);
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
+            if (last_seen_eid == -1 || n.getEid() <= last_seen_eid) {
+                IRCCloudDatabase.getInstance().NotificationsDao().delete(n);
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.getBid());
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
                 changed = true;
                 try {
                     if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
-                        NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(), com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[]{String.valueOf(n.bid)});
+                        NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(), com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[]{String.valueOf(n.getBid())});
                 } catch (Exception e) {
                 }
             }
@@ -269,20 +313,13 @@ public class NotificationsList {
 
         if (notifications.size() > 0) {
             for (Notification n : notifications) {
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
             }
         }
         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
 
-        synchronized (dbLock) {
-            notifications = getNotifications();
-            for (Notification n : notifications) {
-                if (n.bid == bid) {
-                    n.delete();
-                }
-            }
-            new Delete().from(Notification_LastSeenEID.class).where(Notification_LastSeenEID_Table.bid.is(bid)).query();
-        }
+        IRCCloudDatabase.getInstance().NotificationsDao().delete(bid);
+        IRCCloudDatabase.getInstance().NotificationsDao().deleteLastSeenEID(bid);
         IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         try {
             if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
@@ -293,52 +330,33 @@ public class NotificationsList {
         updateTeslaUnreadCount();
     }
 
-    public long count() {
-        synchronized (dbLock) {
-            return new Select().from(Notification.class).count();
-        }
+    public int count() {
+        return IRCCloudDatabase.getInstance().NotificationsDao().count();
     }
 
     public List<Notification> getMessageNotifications() {
-        synchronized (dbLock) {
-            return new Select().from(Notification.class).where(Notification_Table.bid.isNot(excludeBid))
-                    .and(Notification_Table.message_type.isNot("callerid"))
-                    .and(Notification_Table.message_type.isNot("callerid_success"))
-                    .and(Notification_Table.message_type.isNot("channel_invite"))
-                    .orderBy(Notification_Table.bid, true).orderBy(Notification_Table.eid, true).queryList();
-        }
+        return IRCCloudDatabase.getInstance().NotificationsDao().getMessageNotifications(excludeBid);
     }
 
     public List<Notification> getOtherNotifications() {
-        synchronized (dbLock) {
-            return new Select().from(Notification.class).where(
-                    OperatorGroup.clause(Notification_Table.bid.isNot(excludeBid))
-                            .and(OperatorGroup.clause(Notification_Table.message_type.is("callerid"))
-                                    .or(Notification_Table.message_type.is("callerid_success"))
-                    .or(Notification_Table.message_type.is("channel_invite"))))
-                    .orderBy(Notification_Table.bid, true).orderBy(Notification_Table.eid, true).queryList();
-        }
+        return IRCCloudDatabase.getInstance().NotificationsDao().getOtherNotifications(excludeBid);
     }
 
     public Notification getNotification(long eid) {
-        synchronized (dbLock) {
-            return new Select().from(Notification.class).where(Notification_Table.eid.is(eid)).querySingle();
-        }
+        return IRCCloudDatabase.getInstance().NotificationsDao().getNotification(eid);
     }
 
     public void excludeBid(int bid) {
-        synchronized (dbLock) {
-            excludeBid = -1;
-            List<Notification> notifications = getOtherNotifications();
+        excludeBid = -1;
+        List<Notification> notifications = getOtherNotifications();
 
-            if (notifications.size() > 0) {
-                for (Notification n : notifications) {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
-                }
+        if (notifications.size() > 0) {
+            for (Notification n : notifications) {
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
             }
-            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
-            excludeBid = bid;
         }
+        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
+        excludeBid = bid;
     }
 
     private String mTicker = null;
@@ -395,66 +413,68 @@ public class NotificationsList {
 
         if (notifications.size() > 0 && notify) {
             for (Notification n : notifications) {
-                if (!n.shown) {
-                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + n.message_type);
-                    if (n.message_type.equals("callerid")) {
-                        title = n.network;
-                        text = n.nick + " is trying to contact you";
-                        ticker = n.nick + " is trying to contact you on " + n.network;
+                if (!n.isShown()) {
+                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + n.getMessage_type());
+                    if (n.getMessage_type().equals("callerid")) {
+                        title = n.getNetwork();
+                        text = n.getNick() + " is trying to contact you";
+                        ticker = n.getNick() + " is trying to contact you on " + n.getNetwork();
 
                         Intent i = new Intent(RemoteInputService.ACTION_REPLY);
                         i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), RemoteInputService.class.getName()));
-                        i.putExtra("cid", n.cid);
-                        i.putExtra("eid", n.eid);
-                        i.putExtra("chan", n.chan);
-                        i.putExtra("buffer_type", n.buffer_type);
-                        i.putExtra("network", n.network);
-                        i.putExtra("to", n.nick);
-                        i.putExtra("reply", "/accept " + n.nick);
-                        action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Accept", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.eid / 1000), i, PendingIntent.FLAG_UPDATE_CURRENT));
-                    } else if(n.message_type.equals("callerid_success")) {
-                        title = n.network;
-                        text = n.nick + " has been added to your accept list";
-                        ticker = n.nick + " has been added to your accept list on " + n.network;
+                        i.putExtra("cid", n.getCid());
+                        i.putExtra("eid", n.getEid());
+                        i.putExtra("chan", n.getChan());
+                        i.putExtra("buffer_type", n.getBuffer_type());
+                        i.putExtra("network", n.getNetwork());
+                        i.putExtra("to", n.getNick());
+                        i.putExtra("reply", "/accept " + n.getNick());
+                        action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Accept", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, PendingIntent.FLAG_UPDATE_CURRENT));
+                    } else if(n.getMessage_type().equals("callerid_success")) {
+                        title = n.getNetwork();
+                        text = n.getNick() + " has been added to your accept list";
+                        ticker = n.getNick() + " has been added to your accept list on " + n.getNetwork();
                         Intent i = new Intent(RemoteInputService.ACTION_REPLY);
                         i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), RemoteInputService.class.getName()));
-                        i.putExtra("cid", n.cid);
-                        i.putExtra("eid", n.eid);
-                        i.putExtra("chan", n.chan);
-                        i.putExtra("buffer_type", n.buffer_type);
-                        i.putExtra("network", n.network);
-                        i.putExtra("to", n.nick);
-                        action = new NotificationCompat.Action.Builder(R.drawable.ic_wearable_reply, "Message", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.eid / 1000), i, PendingIntent.FLAG_UPDATE_CURRENT))
+                        i.putExtra("cid", n.getCid());
+                        i.putExtra("eid", n.getEid());
+                        i.putExtra("chan", n.getChan());
+                        i.putExtra("buffer_type", n.getBuffer_type());
+                        i.putExtra("network", n.getNetwork());
+                        i.putExtra("to", n.getNick());
+                        action = new NotificationCompat.Action.Builder(R.drawable.ic_wearable_reply, "Message", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, PendingIntent.FLAG_UPDATE_CURRENT))
                                 .setAllowGeneratedReplies(true)
-                                .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Message to " + n.nick).build()).build();
-                    } else if(n.message_type.equals("channel_invite")) {
-                        title = n.network;
-                        text = n.nick + " invited you to join " + n.chan;
+                                .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Message to " + n.getNick()).build()).build();
+                    } else if(n.getMessage_type().equals("channel_invite")) {
+                        title = n.getNetwork();
+                        text = n.getNick() + " invited you to join " + n.getChan();
                         ticker = text;
                         try {
                             Intent i = new Intent();
                             i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
-                            i.setData(Uri.parse(IRCCloudApplication.getInstance().getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + n.cid + "/" + URLEncoder.encode(n.chan, "UTF-8")));
-                            i.putExtra("eid", n.eid);
-                            action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Join", PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.eid / 1000), i, PendingIntent.FLAG_UPDATE_CURRENT));
+                            i.setData(Uri.parse(IRCCloudApplication.getInstance().getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + n.getCid() + "/" + URLEncoder.encode(n.getChan(), "UTF-8")));
+                            i.putExtra("eid", n.getEid());
+                            action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Join", PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, PendingIntent.FLAG_UPDATE_CURRENT));
                         } catch (Exception e) {
                             action = null;
                         }
                     } else {
-                        title = n.nick;
-                        text = n.message;
-                        ticker = n.message;
+                        title = n.getNick();
+                        text = n.getMessage();
+                        ticker = n.getMessage();
                         action = null;
                     }
                     if(title != null && text != null)
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.cid, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick, null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.cid, n.nick, null).getBitmap(false, 400, false, false)));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.getEid() / 1000), buildNotification(ticker, n.getCid(), n.getBid(), new long[]{n.getEid()}, title, text, 1, null, n.getNetwork(), null, action, AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, 400, false, false)));
                 }
             }
 
-            FastStoreModelTransaction
-                    .deleteBuilder(FlowManager.getModelAdapter(Notification.class))
-                    .addAll(notifications)
-                    .build().execute(FlowManager.getWritableDatabase(IRCCloudDatabase.class));
+            IRCCloudDatabase.getInstance().runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    IRCCloudDatabase.getInstance().NotificationsDao().delete(notifications);
+                }
+            });
         }
     }
 
@@ -548,19 +568,19 @@ public class NotificationsList {
         wearableExtender.setBackground(wearBackground);
         if(messages != null && messages.size() > 0) {
             StringBuilder weartext = new StringBuilder();
-            String servernick = getServerNick(messages.get(0).cid);
+            String servernick = getServerNick(messages.get(0).getCid());
             NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(servernick);
             style.setConversationTitle(title + ((network != null) ? (" (" + network + ")") : ""));
             for(Notification n : messages) {
-                if(n != null && n.message != null && n.message.length() > 0) {
+                if(n != null && n.getMessage() != null && n.getMessage().length() > 0) {
                     if (weartext.length() > 0)
                         weartext.append("<br/>");
-                    if (n.message_type.equals("buffer_me_msg")) {
-                        style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, "— " + ((n.nick == null) ? servernick : n.nick));
-                        weartext.append("<b>— ").append((n.nick == null) ? servernick : n.nick).append("</b> ").append(n.message);
+                    if (n.getMessage_type().equals("buffer_me_msg")) {
+                        style.addMessage(Html.fromHtml(n.getMessage()).toString(), n.getEid() / 1000, "— " + ((n.getNick() == null) ? servernick : n.getNick()));
+                        weartext.append("<b>— ").append((n.getNick() == null) ? servernick : n.getNick()).append("</b> ").append(n.getMessage());
                     } else {
-                        style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
-                        weartext.append("<b>&lt;").append((n.nick == null) ? servernick : n.nick).append("&gt;</b> ").append(n.message);
+                        style.addMessage(Html.fromHtml(n.getMessage()).toString(), n.getEid() / 1000, n.getNick());
+                        weartext.append("<b>&lt;").append((n.getNick() == null) ? servernick : n.getNick()).append("&gt;</b> ").append(n.getMessage());
                     }
                 }
             }
@@ -569,8 +589,8 @@ public class NotificationsList {
             for(int j = messages.size() - 1; j >= 0; j--) {
                 Notification n = messages.get(j);
                 if(n != null) {
-                    if(n.nick == null)
-                        history.add(Html.fromHtml(n.message).toString());
+                    if(n.getNick() == null)
+                        history.add(Html.fromHtml(n.getMessage()).toString());
                     else
                         break;
                 }
@@ -587,13 +607,13 @@ public class NotificationsList {
                 int j = 0;
                 for(Notification n : messages) {
                     if(messages.size() - ++j < 3) {
-                        if (n != null && n.message != null && n.message.length() > 0) {
+                        if (n != null && n.getMessage() != null && n.getMessage().length() > 0) {
                             if (weartext.length() > 0)
                                 weartext.append("<br/>");
-                            if (n.message_type.equals("buffer_me_msg")) {
-                                weartext.append("<b>— ").append((n.nick == null) ? servernick : n.nick).append("</b> ").append(n.message);
+                            if (n.getMessage_type().equals("buffer_me_msg")) {
+                                weartext.append("<b>— ").append((n.getNick() == null) ? servernick : n.getNick()).append("</b> ").append(n.getMessage());
                             } else {
-                                weartext.append("<b>&lt;").append((n.nick == null) ? servernick : n.nick).append("&gt;</b> ").append(n.message);
+                                weartext.append("<b>&lt;").append((n.getNick() == null) ? servernick : n.getNick()).append("&gt;</b> ").append(n.getMessage());
                             }
                         }
                     }
@@ -653,17 +673,17 @@ public class NotificationsList {
 
             if (messages != null) {
                 for (Notification n : messages) {
-                    if (n != null && n.nick != null && n.message != null && n.message.length() > 0) {
-                        if (n.buffer_type.equals("conversation")) {
-                            if (n.message_type.equals("buffer_me_msg"))
-                                unreadConvBuilder.addMessage("— " + n.nick + " " + Html.fromHtml(n.message).toString());
+                    if (n != null && n.getNick() != null && n.getMessage() != null && n.getMessage().length() > 0) {
+                        if (n.getBuffer_type().equals("conversation")) {
+                            if (n.getMessage_type().equals("buffer_me_msg"))
+                                unreadConvBuilder.addMessage("— " + n.getNick() + " " + Html.fromHtml(n.getMessage()).toString());
                             else
-                                unreadConvBuilder.addMessage(Html.fromHtml(n.message).toString());
+                                unreadConvBuilder.addMessage(Html.fromHtml(n.getMessage()).toString());
                         } else {
-                            if (n.message_type.equals("buffer_me_msg"))
-                                unreadConvBuilder.addMessage("— " + n.nick + " " + Html.fromHtml(n.message).toString());
+                            if (n.getMessage_type().equals("buffer_me_msg"))
+                                unreadConvBuilder.addMessage("— " + n.getNick() + " " + Html.fromHtml(n.getMessage()).toString());
                             else
-                                unreadConvBuilder.addMessage(n.nick + " said: " + Html.fromHtml(n.message).toString());
+                                unreadConvBuilder.addMessage(n.getNick() + " said: " + Html.fromHtml(n.getMessage()).toString());
                         }
                     }
                 }
@@ -727,41 +747,41 @@ public class NotificationsList {
             notify = true;
 
         if (notifications.size() > 0 && notify) {
-            int lastbid = notifications.get(0).bid;
+            int lastbid = notifications.get(0).getBid();
             int count = 0;
             long[] eids = new long[notifications.size()];
             ArrayList<Notification> messages = new ArrayList<>(notifications.size());
             Notification last = notifications.get(0);
             boolean show = false;
             for (Notification n : notifications) {
-                if (n.bid != lastbid) {
+                if (n.getBid() != lastbid) {
                     if (show) {
-                        String title = last.chan;
+                        String title = last.getChan();
                         if (title == null || title.length() == 0)
-                            title = last.nick;
+                            title = last.getNick();
                         if (title == null || title.length() == 0)
-                            title = last.network;
+                            title = last.getNetwork();
 
                         Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
-                        replyIntent.putExtra("bid", last.bid);
-                        replyIntent.putExtra("cid", last.cid);
+                        replyIntent.putExtra("bid", last.getBid());
+                        replyIntent.putExtra("cid", last.getCid());
                         replyIntent.putExtra("eids", eids);
-                        replyIntent.putExtra("network", last.network);
-                        replyIntent.putExtra("chan", last.chan);
-                        replyIntent.putExtra("buffer_type", last.buffer_type);
-                        replyIntent.putExtra("to", last.chan);
+                        replyIntent.putExtra("network", last.getNetwork());
+                        replyIntent.putExtra("chan", last.getChan());
+                        replyIntent.putExtra("buffer_type", last.getBuffer_type());
+                        replyIntent.putExtra("to", last.getChan());
 
                         String body;
-                        if (last.buffer_type.equals("channel")) {
-                            if (last.message_type.equals("buffer_me_msg"))
-                                body = "<b>— " + ((last.nick != null)?last.nick:getServerNick(last.cid)) + "</b> " + last.message;
+                        if (last.getBuffer_type().equals("channel")) {
+                            if (last.getMessage_type().equals("buffer_me_msg"))
+                                body = "<b>— " + ((last.getNick() != null)? last.getNick() :getServerNick(last.getCid())) + "</b> " + last.getMessage();
                             else
-                                body = "<b>&lt;" + ((last.nick != null)?last.nick:getServerNick(last.cid)) + "&gt;</b> " + last.message;
+                                body = "<b>&lt;" + ((last.getNick() != null)? last.getNick() :getServerNick(last.getCid())) + "&gt;</b> " + last.getMessage();
                         } else {
-                            if (last.message_type.equals("buffer_me_msg"))
-                                body = "— " + ((last.nick != null)?last.nick:getServerNick(last.cid)) + " " + last.message;
+                            if (last.getMessage_type().equals("buffer_me_msg"))
+                                body = "— " + ((last.getNick() != null)? last.getNick() :getServerNick(last.getCid())) + " " + last.getMessage();
                             else
-                                body = last.message;
+                                body = last.getMessage();
                         }
 
                         ArrayList<String> lines = new ArrayList<>(Arrays.asList(text.split("<br/>")));
@@ -769,18 +789,18 @@ public class NotificationsList {
                             lines.remove(0);
 
                         try {
-                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.message_type);
+                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.getMessage_type());
                             Bitmap avatar = null;
                             Bitmap large_avatar = null;
                             boolean downloading = false;
 
-                            if(last.avatar_url != null && last.avatar_url.length() > 0) {
+                            if(last.getAvatar_url() != null && last.getAvatar_url().length() > 0) {
                                 try {
-                                    URL url = new URL(last.avatar_url);
+                                    URL url = new URL(last.getAvatar_url());
                                     avatar = large_avatar = ImageList.getInstance().getImage(url);
                                     if(avatar == null) {
                                         downloading = true;
-                                        last.shown = false;
+                                        last.setShown(false);
                                         ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
                                             @Override
                                             public void onImageFetched(Bitmap image) {
@@ -794,16 +814,16 @@ public class NotificationsList {
 
                             if(!downloading) {
                                 if (avatar == null) {
-                                    avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick, null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-                                    large_avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick, null).getBitmap(false, 512, false, false);
+                                    avatar = AvatarsList.getInstance().getAvatar(last.getCid(), last.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                                    large_avatar = AvatarsList.getInstance().getAvatar(last.getCid(), last.getNick(), null).getBitmap(false, 512, false, false);
                                 }
-                                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.cid, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, avatar, large_avatar));
+                                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.getCid(), lastbid, eids, title, body, count, replyIntent, last.getNetwork(), messages, null, avatar, large_avatar));
                             }
                         } catch (Exception e) {
                             Crashlytics.logException(e);
                         }
                     }
-                    lastbid = n.bid;
+                    lastbid = n.getBid();
                     text = "";
                     count = 0;
                     eids = new long[notifications.size()];
@@ -813,20 +833,20 @@ public class NotificationsList {
 
                 if (text.length() > 0)
                     text += "<br/>";
-                if (n.buffer_type.equals("conversation") && n.message_type.equals("buffer_me_msg"))
-                    text += "— " + n.message;
-                else if (n.buffer_type.equals("conversation"))
-                    text += n.message;
-                else if (n.message_type.equals("buffer_me_msg"))
-                    text += "<b>— " + ((n.nick != null)?n.nick:getServerNick(n.cid)) + "</b> " + n.message;
+                if (n.getBuffer_type().equals("conversation") && n.getMessage_type().equals("buffer_me_msg"))
+                    text += "— " + n.getMessage();
+                else if (n.getBuffer_type().equals("conversation"))
+                    text += n.getMessage();
+                else if (n.getMessage_type().equals("buffer_me_msg"))
+                    text += "<b>— " + ((n.getNick() != null)? n.getNick() :getServerNick(n.getCid())) + "</b> " + n.getMessage();
                 else
-                    text += "<b>" + ((n.nick != null)?n.nick:getServerNick(n.cid)) + "</b> " + n.message;
+                    text += "<b>" + ((n.getNick() != null)? n.getNick() :getServerNick(n.getCid())) + "</b> " + n.getMessage();
 
-                if (!n.shown) {
-                    n.shown = true;
+                if (!n.isShown()) {
+                    n.setShown(true);
                     show = true;
 
-                    if (n.nick != null && prefs.getBoolean("notify_sony", false)) {
+                    if (n.getNick() != null && prefs.getBoolean("notify_sony", false)) {
                         long time = System.currentTimeMillis();
                         long sourceId = NotificationUtil.getSourceId(IRCCloudApplication.getInstance().getApplicationContext(), SonyExtensionService.EXTENSION_SPECIFIC_ID);
                         if (sourceId == NotificationUtil.INVALID_ID) {
@@ -837,22 +857,22 @@ public class NotificationsList {
                         } else {
                             ContentValues eventValues = new ContentValues();
                             eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.EVENT_READ_STATUS, false);
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.DISPLAY_NAME, n.nick);
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.DISPLAY_NAME, n.getNick());
 
-                            if (n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0)
-                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.chan);
+                            if (n.getBuffer_type().equals("channel") && n.getChan() != null && n.getChan().length() > 0)
+                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.getChan());
                             else
-                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.network);
+                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.getNetwork());
 
-                            if (n.message_type.equals("buffer_me_msg"))
-                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, "— " + Html.fromHtml(n.message).toString());
+                            if (n.getMessage_type().equals("buffer_me_msg"))
+                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, "— " + Html.fromHtml(n.getMessage()).toString());
                             else
-                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, Html.fromHtml(n.message).toString());
+                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, Html.fromHtml(n.getMessage()).toString());
 
                             eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PERSONAL, 1);
                             eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PUBLISHED_TIME, time);
                             eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.SOURCE_ID, sourceId);
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY, String.valueOf(n.bid));
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY, String.valueOf(n.getBid()));
 
                             try {
                                 IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(com.sonyericsson.extras.liveware.aef.notification.Notification.Event.URI, eventValues);
@@ -866,54 +886,54 @@ public class NotificationsList {
                         }
                     }
 
-                    if (prefs.getBoolean("notify_pebble", false) && n.nick != null) {
-                        String pebbleTitle = n.network + ":\n";
+                    if (prefs.getBoolean("notify_pebble", false) && n.getNick() != null) {
+                        String pebbleTitle = n.getNetwork() + ":\n";
                         String pebbleBody = "";
-                        if (n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0)
-                            pebbleTitle = n.chan + ":\n";
+                        if (n.getBuffer_type().equals("channel") && n.getChan() != null && n.getChan().length() > 0)
+                            pebbleTitle = n.getChan() + ":\n";
 
-                        if (n.message_type.equals("buffer_me_msg"))
-                            pebbleBody = "— " + n.message;
+                        if (n.getMessage_type().equals("buffer_me_msg"))
+                            pebbleBody = "— " + n.getMessage();
                         else
-                            pebbleBody = n.message;
+                            pebbleBody = n.getMessage();
 
-                        if (n.chan != null && n.nick != null && n.nick.length() > 0)
-                            notifyPebble(n.nick, pebbleTitle + Html.fromHtml(pebbleBody).toString());
+                        if (n.getChan() != null && n.getNick() != null && n.getNick().length() > 0)
+                            notifyPebble(n.getNick(), pebbleTitle + Html.fromHtml(pebbleBody).toString());
                         else
-                            notifyPebble(n.network, pebbleTitle + Html.fromHtml(pebbleBody).toString());
+                            notifyPebble(n.getNetwork(), pebbleTitle + Html.fromHtml(pebbleBody).toString());
                     }
                 }
                 messages.add(n);
-                eids[count++] = n.eid;
-                if(n.nick != null)
+                eids[count++] = n.getEid();
+                if(n.getNick() != null)
                     last = n;
             }
 
             if (show) {
-                String title = last.chan;
+                String title = last.getChan();
                 if (title == null || title.length() == 0)
-                    title = last.network;
+                    title = last.getNetwork();
 
                 Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
-                replyIntent.putExtra("bid", last.bid);
-                replyIntent.putExtra("cid", last.cid);
-                replyIntent.putExtra("network", last.network);
+                replyIntent.putExtra("bid", last.getBid());
+                replyIntent.putExtra("cid", last.getCid());
+                replyIntent.putExtra("network", last.getNetwork());
                 replyIntent.putExtra("eids", eids);
-                replyIntent.putExtra("chan", last.chan);
-                replyIntent.putExtra("buffer_type", last.buffer_type);
-                replyIntent.putExtra("to", last.chan);
+                replyIntent.putExtra("chan", last.getChan());
+                replyIntent.putExtra("buffer_type", last.getBuffer_type());
+                replyIntent.putExtra("to", last.getChan());
 
                 String body = "";
-                if (last.buffer_type.equals("channel")) {
-                    if (last.message_type.equals("buffer_me_msg"))
-                        body = "<b>— " + ((last.nick != null)?last.nick:getServerNick(last.cid)) + "</b> " + last.message;
+                if (last.getBuffer_type().equals("channel")) {
+                    if (last.getMessage_type().equals("buffer_me_msg"))
+                        body = "<b>— " + ((last.getNick() != null)? last.getNick() :getServerNick(last.getCid())) + "</b> " + last.getMessage();
                     else
-                        body = "<b>&lt;" + ((last.nick != null)?last.nick:getServerNick(last.cid)) + "&gt;</b> " + last.message;
+                        body = "<b>&lt;" + ((last.getNick() != null)? last.getNick() :getServerNick(last.getCid())) + "&gt;</b> " + last.getMessage();
                 } else {
-                    if (last.message_type.equals("buffer_me_msg"))
-                        body = "— " + ((last.nick != null)?last.nick:getServerNick(last.cid)) + " " + last.message;
+                    if (last.getMessage_type().equals("buffer_me_msg"))
+                        body = "— " + ((last.getNick() != null)? last.getNick() :getServerNick(last.getCid())) + " " + last.getMessage();
                     else
-                        body = last.message;
+                        body = last.getMessage();
                 }
 
                 ArrayList<String> lines = new ArrayList<>(Arrays.asList(text.split("<br/>")));
@@ -921,18 +941,18 @@ public class NotificationsList {
                     lines.remove(0);
 
                 try {
-                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.message_type);
+                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.getMessage_type());
                     Bitmap avatar = null;
                     Bitmap large_avatar = null;
                     boolean downloading = false;
 
-                    if(last.avatar_url != null && last.avatar_url.length() > 0) {
+                    if(last.getAvatar_url() != null && last.getAvatar_url().length() > 0) {
                         try {
-                            URL url = new URL(last.avatar_url);
+                            URL url = new URL(last.getAvatar_url());
                             avatar = large_avatar = ImageList.getInstance().getImage(url);
                             if(avatar == null) {
                                 downloading = true;
-                                last.shown = false;
+                                last.setShown(false);
                                 ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
                                     @Override
                                     public void onImageFetched(Bitmap image) {
@@ -946,17 +966,22 @@ public class NotificationsList {
 
                     if(!downloading) {
                         if (avatar == null) {
-                            avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick, null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-                            large_avatar = AvatarsList.getInstance().getAvatar(last.cid, last.nick, null).getBitmap(false, 512, false, false);
+                            avatar = AvatarsList.getInstance().getAvatar(last.getCid(), last.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                            large_avatar = AvatarsList.getInstance().getAvatar(last.getCid(), last.getNick(), null).getBitmap(false, 512, false, false);
                         }
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.cid, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, avatar, large_avatar));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.getBid(), buildNotification(ticker, last.getCid(), last.getBid(), eids, title, body, count, replyIntent, last.getNetwork(), messages, null, avatar, large_avatar));
                     }
                 } catch (Exception e) {
                     Crashlytics.logException(e);
                 }
             }
 
-            FlowManager.getDatabase(IRCCloudDatabase.class).getTransactionManager().getSaveQueue().addAll2(notifications);
+            IRCCloudDatabase.getInstance().runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    IRCCloudDatabase.getInstance().NotificationsDao().update(notifications);
+                }
+            });
         }
     }
 
@@ -992,9 +1017,7 @@ public class NotificationsList {
         try {
             ContentValues cv = new ContentValues();
             cv.put("tag", IRCCloudApplication.getInstance().getApplicationContext().getPackageManager().getLaunchIntentForPackage(IRCCloudApplication.getInstance().getApplicationContext().getPackageName()).getComponent().flattenToString());
-            synchronized (dbLock) {
-                cv.put("count", new Select().from(Notification.class).where(Notification_Table.nick.isNotNull()).count());
-            }
+            cv.put("count", IRCCloudDatabase.getInstance().NotificationsDao().unread_count());
             IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(Uri.parse("content://com.teslacoilsw.notifier/unread_count"), cv);
         } catch (IllegalArgumentException ex) {
         } catch (Exception ex) {

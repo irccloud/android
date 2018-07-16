@@ -30,7 +30,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.appcompat.app.AppCompatActivity;
-import android.text.method.LinkMovementMethod;
+
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +42,6 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.fasterxml.jackson.databind.type.ArrayType;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.ColorScheme;
@@ -53,10 +52,6 @@ import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
 import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Server;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -87,7 +82,7 @@ public class QuickReplyActivity extends AppCompatActivity {
             List<Notification> notifications = NotificationsList.getInstance().getNotifications();
 
             for(Notification n : notifications) {
-                if(n.cid == cid && n.bid == bid)
+                if(n.getCid() == cid && n.getBid() == bid)
                     msgs.add(n);
             }
 
@@ -133,7 +128,7 @@ public class QuickReplyActivity extends AppCompatActivity {
                holder.timestamp.setVisibility(View.GONE);
             } else {
                Calendar calendar = Calendar.getInstance();
-               calendar.setTimeInMillis(msg.eid / 1000);
+               calendar.setTimeInMillis(msg.getEid() / 1000);
 
                if (timestamp_width == -1) {
                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
@@ -153,14 +148,14 @@ public class QuickReplyActivity extends AppCompatActivity {
                holder.timestamp.setText(formatter.format(calendar.getTime()));
                holder.timestamp.setTextColor(ColorScheme.getInstance().timestampColor);
             }
-            String nick = msg.nick;
+            String nick = msg.getNick();
             if(nick == null)
-                nick = NotificationsList.getInstance().getServerNick(msg.cid);
+                nick = NotificationsList.getInstance().getServerNick(msg.getCid());
             if(nick != null)
                 nick = "<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(nick, null, null, nickColors)) + "</b> ";
             else
                 nick = "";
-            holder.message.setText(ColorFormatter.html_to_spanned(nick + msg.message, true, server));
+            holder.message.setText(ColorFormatter.html_to_spanned(nick + msg.getMessage(), true, server));
             holder.message.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
             holder.message.setTextColor(ColorScheme.getInstance().messageTextColor);
             holder.message.setLinkTextColor(ColorScheme.getInstance().linkColor);
@@ -261,7 +256,7 @@ public class QuickReplyActivity extends AppCompatActivity {
         NotificationsList.getInstance().notificationAddedListener = new NotificationsList.NotificationAddedListener() {
             @Override
             public void onNotificationAdded(Notification notification) {
-                if(notification.cid == cid && notification.bid == bid) {
+                if(notification.getCid() == cid && notification.getBid() == bid) {
                     findViewById(R.id.conversation).post(new Runnable() {
                         @Override
                         public void run() {

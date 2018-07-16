@@ -16,17 +16,42 @@
 
 package com.irccloud.android.data.collection;
 
+import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.RecentConversation;
-import com.irccloud.android.data.model.RecentConversation_Table;
-import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.List;
 
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
+
 public class RecentConversationsList {
+    @Dao
+    public interface RecentConversationsDao {
+        @Query("SELECT * FROM RecentConversation ORDER BY timestamp DESC")
+        List<RecentConversation> getConversations();
+
+        @Query("SELECT * FROM RecentConversation WHERE cid = :cid AND bid = :bid LIMIT 1")
+        RecentConversation getConversation(int cid, int bid);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insert(RecentConversation recentConversation);
+
+        @Update
+        void update(RecentConversation recentConversation);
+
+        @Delete
+        void delete(RecentConversation recentConversation);
+
+        @Query("DELETE FROM RecentConversation")
+        void clear();
+    }
+
     private static RecentConversationsList instance = null;
-    private final Object dbLock = new Object();
 
     public static RecentConversationsList getInstance() {
         if (instance == null)
@@ -35,28 +60,22 @@ public class RecentConversationsList {
     }
 
     public void clear() {
-        synchronized (dbLock) {
-            Delete.table(RecentConversation.class);
-        }
+        IRCCloudDatabase.getInstance().RecentConversationsDao().clear();
     }
 
     public List<RecentConversation> getConversations() {
-        synchronized (dbLock) {
-            return new Select().from(RecentConversation.class).where().orderBy(RecentConversation_Table.timestamp, false).queryList();
-        }
+        return IRCCloudDatabase.getInstance().RecentConversationsDao().getConversations();
     }
 
     public RecentConversation getConversation(int cid, int bid) {
-        synchronized (dbLock) {
-            return new Select().from(RecentConversation.class).where(RecentConversation_Table.cid.is(cid)).and(RecentConversation_Table.bid.is(bid)).querySingle();
-        }
+        return IRCCloudDatabase.getInstance().RecentConversationsDao().getConversation(cid, bid);
     }
 
     public void updateConversation(int cid, int bid, long timestamp) {
         RecentConversation c = getConversation(cid, bid);
         if(c != null) {
-            if(c.timestamp < timestamp)
-                c.timestamp = timestamp;
+            if(c.getTimestamp() < timestamp)
+                c.setTimestamp(timestamp);
             else
                 return;
         } else {
@@ -64,34 +83,28 @@ public class RecentConversationsList {
             if(b == null)
                 return;
             c = new RecentConversation();
-            c.cid = cid;
-            c.bid = bid;
-            c.name = b.getName();
-            c.type = b.getType();
-            c.timestamp = timestamp;
+            c.setCid(cid);
+            c.setBid(bid);
+            c.setName(b.getName());
+            c.setType(b.getType());
+            c.setTimestamp(timestamp);
         }
-        synchronized (dbLock) {
-            c.save();
-        }
+        IRCCloudDatabase.getInstance().RecentConversationsDao().insert(c);
     }
 
     public void updateAvatar(int cid, int bid, String avatar_url) {
         RecentConversation c = getConversation(cid, bid);
         if(c != null) {
-            c.avatar_url = avatar_url;
-            synchronized (dbLock) {
-                c.save();
-            }
+            c.setAvatar_url(avatar_url);
+            IRCCloudDatabase.getInstance().RecentConversationsDao().update(c);
         }
     }
 
     public void prune() {
         List<RecentConversation> conversations = getConversations();
         for(RecentConversation c : conversations) {
-            if(BuffersList.getInstance().getBuffer(c.bid) == null) {
-                synchronized (dbLock) {
-                    c.delete();
-                }
+            if(BuffersList.getInstance().getBuffer(c.getBid()) == null) {
+                IRCCloudDatabase.getInstance().RecentConversationsDao().delete(c);
             }
         }
 
@@ -99,9 +112,7 @@ public class RecentConversationsList {
         while(conversations.size() > 5) {
             RecentConversation last = conversations.get(conversations.size() - 1);
             conversations.remove(last);
-            synchronized (dbLock) {
-                last.delete();
-            }
+            IRCCloudDatabase.getInstance().RecentConversationsDao().delete(last);
         }
     }
 }

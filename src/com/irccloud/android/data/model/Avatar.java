@@ -21,7 +21,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.os.Build;
 import androidx.core.content.res.ResourcesCompat;
 import android.text.TextPaint;
 

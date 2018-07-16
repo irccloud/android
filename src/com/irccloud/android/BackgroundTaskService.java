@@ -30,40 +30,70 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.gcm.OneoffTask;
 import com.google.android.gms.gcm.TaskParams;
 import com.google.android.gms.iid.InstanceID;
+import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.BackgroundTask;
-import com.irccloud.android.data.model.BackgroundTask_Table;
-import com.raizlabs.android.dbflow.sql.language.Select;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
 
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
+
 public class BackgroundTaskService extends GcmTaskService {
+    @Dao
+    public interface BackgroundTasksDao {
+        @Query("SELECT * FROM BackgroundTask")
+        List<BackgroundTask> getBackgroundTasks();
+
+        @Query("SELECT * FROM BackgroundTask WHERE type = :type")
+        List<BackgroundTask> getBackgroundTasks(int type);
+
+        @Query("SELECT * FROM BackgroundTask WHERE type = :type AND data = :data")
+        List<BackgroundTask> getBackgroundTasks(int type, String data);
+
+        @Query("SELECT * FROM BackgroundTask WHERE tag = :tag LIMIT 1")
+        BackgroundTask getBackgroundTask(String tag);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insert(BackgroundTask backgroundTask);
+
+        @Update
+        void update(BackgroundTask backgroundTask);
+
+        @Delete
+        void delete(BackgroundTask backgroundTask);
+    }
+
     private static final int GCM_INTERVAL = 30; //Wait up to 30 seconds before sending GCM registration
     private static final int SYNC_INTERVAL = 60 * 60; //Sync backlog hourly
 
     public static void registerGCM(Context context) {
-        List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(BackgroundTask_Table.type.is(BackgroundTask.TYPE_GCM_REGISTER)).queryList();
+        List<BackgroundTask> tasks = IRCCloudDatabase.getInstance().BackgroundTasksDao().getBackgroundTasks(BackgroundTask.TYPE_GCM_REGISTER);
         for(BackgroundTask t : tasks) {
-            Crashlytics.log(Log.INFO, "IRCCloud", "Removing old GCM registration task: " + t.tag);
+            Crashlytics.log(Log.INFO, "IRCCloud", "Removing old GCM registration task: " + t.getTag());
             try {
-                GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
+                GcmNetworkManager.getInstance(context).cancelTask(t.getTag(), BackgroundTaskService.class);
             } catch (Exception e) {
             }
-            t.delete();
+            IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(t);
         }
 
         if(NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
             BackgroundTask task = new BackgroundTask();
-            task.type = BackgroundTask.TYPE_GCM_REGISTER;
-            task.tag = Long.toString(System.currentTimeMillis());
-            task.session = NetworkConnection.getInstance().session;
+            task.setType(BackgroundTask.TYPE_GCM_REGISTER);
+            task.setTag(Long.toString(System.currentTimeMillis()));
+            task.setSession(NetworkConnection.getInstance().session);
 
-            Crashlytics.log(Log.INFO, "IRCCloud", "Scheduled GCM registration task: " + task.tag);
+            Crashlytics.log(Log.INFO, "IRCCloud", "Scheduled GCM registration task: " + task.getTag());
             try {
                 GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
-                        .setTag(task.tag)
+                        .setTag(task.getTag())
                         .setExecutionWindow(1, GCM_INTERVAL)
                         .setRequiredNetwork(OneoffTask.NETWORK_STATE_CONNECTED)
                         .setService(BackgroundTaskService.class)
@@ -71,33 +101,31 @@ public class BackgroundTaskService extends GcmTaskService {
             } catch (Exception e) {
                 return;
             }
-            task.save();
+            IRCCloudDatabase.getInstance().BackgroundTasksDao().insert(task);
         }
     }
 
     private static void scheduleUnregister(final Context context, String token, String session) {
         if(token != null && token.length() > 0) {
-            List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(BackgroundTask_Table.type.is(BackgroundTask.TYPE_GCM_REGISTER))
-                    .and(BackgroundTask_Table.data.is(token))
-                    .queryList();
+            List<BackgroundTask> tasks = IRCCloudDatabase.getInstance().BackgroundTasksDao().getBackgroundTasks(BackgroundTask.TYPE_GCM_REGISTER, token);
 
             for(BackgroundTask t : tasks) {
                 try {
-                    GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
+                    GcmNetworkManager.getInstance(context).cancelTask(t.getTag(), BackgroundTaskService.class);
                 } catch (Exception e) {
                 }
-                t.delete();
+                IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(t);
             }
 
             BackgroundTask task = new BackgroundTask();
-            task.type = BackgroundTask.TYPE_GCM_UNREGISTER;
-            task.tag = Long.toString(System.currentTimeMillis());
-            task.data = token;
-            task.session = session;
+            task.setType(BackgroundTask.TYPE_GCM_UNREGISTER);
+            task.setTag(Long.toString(System.currentTimeMillis()));
+            task.setData(token);
+            task.setSession(session);
 
             try {
                 GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
-                        .setTag(task.tag)
+                        .setTag(task.getTag())
                         .setExecutionWindow(1, GCM_INTERVAL)
                         .setRequiredNetwork(OneoffTask.NETWORK_STATE_CONNECTED)
                         .setService(BackgroundTaskService.class)
@@ -105,7 +133,7 @@ public class BackgroundTaskService extends GcmTaskService {
             } catch (Exception e) {
                 return;
             }
-            task.save();
+            IRCCloudDatabase.getInstance().BackgroundTasksDao().insert(task);
         }
     }
 
@@ -116,16 +144,14 @@ public class BackgroundTaskService extends GcmTaskService {
         if(token == null)
             return;
 
-        List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(BackgroundTask_Table.type.is(BackgroundTask.TYPE_GCM_REGISTER))
-                .and(BackgroundTask_Table.data.is(token))
-                .queryList();
+        List<BackgroundTask> tasks = IRCCloudDatabase.getInstance().BackgroundTasksDao().getBackgroundTasks(BackgroundTask.TYPE_GCM_REGISTER, token);
 
         for(BackgroundTask t : tasks) {
             try {
-                GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
+                GcmNetworkManager.getInstance(context).cancelTask(t.getTag(), BackgroundTaskService.class);
             } catch (Exception e) {
             }
-            t.delete();
+            IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(t);
         }
 
         if(Looper.myLooper() == Looper.getMainLooper()) {
@@ -189,15 +215,15 @@ public class BackgroundTaskService extends GcmTaskService {
     @Override
     public int onRunTask(TaskParams taskParams) {
         Crashlytics.log(Log.INFO, "IRCCloud", "Executing background task with tag: " + taskParams.getTag());
-        BackgroundTask task = new Select().from(BackgroundTask.class).where(BackgroundTask_Table.tag.is(taskParams.getTag())).querySingle();
+        BackgroundTask task = IRCCloudDatabase.getInstance().BackgroundTasksDao().getBackgroundTask(taskParams.getTag());
         if(task != null) {
-            switch(task.type) {
+            switch(task.getType()) {
                 case BackgroundTask.TYPE_GCM_REGISTER:
                     return onGcmRegister(task);
                 case BackgroundTask.TYPE_GCM_UNREGISTER:
-                    int result = onGcmUnregister(this, task.data, task.session);
+                    int result = onGcmUnregister(this, task.getData(), task.getSession());
                     if(result != GcmNetworkManager.RESULT_RESCHEDULE)
-                        task.delete();
+                        IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(task);
                     return result;
                 case BackgroundTask.TYPE_BACKLOG_SYNC:
                     sendBroadcast(new Intent(this, SyncReceiver.class));
@@ -212,28 +238,28 @@ public class BackgroundTaskService extends GcmTaskService {
 
     private int onGcmRegister(BackgroundTask task) {
         try {
-            if(task.session == null || task.session.length() == 0)
+            if(task.getSession() == null || task.getSession().length() == 0)
                 return GcmNetworkManager.RESULT_FAILURE;
 
             Crashlytics.log(Log.INFO, "IRCCloud", "Registering for GCM");
-            String token = task.data;
+            String token = task.getData();
             if(token == null || token.length() == 0) {
                 String GCM_ID = BuildConfig.GCM_ID;
                 if(BuildConfig.ENTERPRISE && getSharedPreferences("prefs", 0).getString("host", BuildConfig.HOST).equals("api.irccloud.com"))
                     GCM_ID = BuildConfig.GCM_ID_IRCCLOUD;
                 token = InstanceID.getInstance(this).getToken(GCM_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE);
-                task.data = token;
-                task.save();
+                task.setData(token);
+                IRCCloudDatabase.getInstance().BackgroundTasksDao().update(task);
                 SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                 editor.putString("gcm_token", token);
                 editor.commit();
             }
             if(token != null && token.length() > 0) {
-                JSONObject result = NetworkConnection.getInstance().registerGCM(token, task.session);
+                JSONObject result = NetworkConnection.getInstance().registerGCM(token, task.getSession());
                 if (result != null && result.has("success")) {
                     if(result.getBoolean("success")) {
                         Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully registered");
-                        task.delete();
+                        IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(task);
                         return GcmNetworkManager.RESULT_SUCCESS;
                     } else {
                         Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to register device: " + result.toString());
@@ -248,7 +274,7 @@ public class BackgroundTaskService extends GcmTaskService {
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
         Crashlytics.log(Log.ERROR, "IRCCloud", "GCM registration failed");
-        task.delete();
+        IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(task);
 
         return GcmNetworkManager.RESULT_FAILURE;
     }

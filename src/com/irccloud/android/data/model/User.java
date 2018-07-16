@@ -16,61 +16,34 @@
 
 package com.irccloud.android.data.model;
 
-import com.irccloud.android.data.IRCCloudDatabase;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.annotation.Unique;
-import com.raizlabs.android.dbflow.annotation.UniqueGroup;
-import com.raizlabs.android.dbflow.structure.BaseModel;
-
-/*@Table(databaseName = IRCCloudDatabase.NAME,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})*/
-public class User /*extends BaseModel*/ {
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
+public class User {
+    //@Unique(unique = false, uniqueGroups = 1)
     public int cid;
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
+    //@Unique(unique = false, uniqueGroups = 1)
     public int bid;
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
+    //@Unique(unique = false, uniqueGroups = 1)
     public String nick;
 
-    @Column
     public String old_nick = null;
 
-    @Column
     public String nick_lowercase;
 
-    @Column
     public String hostmask;
 
-    @Column
     public String mode;
 
-    @Column
     public int away;
 
-    @Column
     public String away_msg;
 
-    @Column
     public String ircserver;
 
-    @Column
     public String display_name;
 
-    @Column
     public int joined;
 
-    @Column
     public long last_mention = -1;
 
     public String getDisplayName() {

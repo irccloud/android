@@ -20,7 +20,14 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
+
+import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
+
 import android.net.Uri;
 import android.text.format.DateUtils;
 
@@ -30,44 +37,135 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ServersList;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
 
 import java.io.File;
 
-@Table(database = IRCCloudDatabase.class)
-public class LogExport extends ObservableBaseModel {
-    @Column
+@Entity(indices = {@Index("id"), @Index("download_id")})
+public class LogExport extends BaseObservable {
     @PrimaryKey
-    public int id;
+    private int id;
 
-    @Column
-    public int cid;
+    private int cid;
 
-    @Column
-    public int bid;
+    private int bid;
 
-    @Column
-    public String file_name;
+    private String file_name;
 
-    @Column
-    public String redirect_url;
+    private String redirect_url;
 
-    @Column
-    public long start_date;
+    private long start_date;
 
-    @Column
-    public long finish_date;
+    private long finish_date;
 
-    @Column
-    public long expiry_date;
+    private long expiry_date;
 
-    @Column
-    public long download_id;
+    private long download_id;
 
-    @Column
-    public String name;
+    private String name;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getCid() {
+        return cid;
+    }
+
+    public void setCid(int cid) {
+        this.cid = cid;
+    }
+
+    public int getBid() {
+        return bid;
+    }
+
+    public void setBid(int bid) {
+        this.bid = bid;
+    }
+
+    public String getFile_name() {
+        return file_name;
+    }
+
+    public void setFile_name(String file_name) {
+        this.file_name = file_name;
+    }
+
+    public String getRedirect_url() {
+        return redirect_url;
+    }
+
+    public void setRedirect_url(String redirect_url) {
+        this.redirect_url = redirect_url;
+    }
+
+    public long getStart_date() {
+        return start_date;
+    }
+
+    public void setStart_date(long start_date) {
+        this.start_date = start_date;
+    }
+
+    public long getFinish_date() {
+        return finish_date;
+    }
+
+    public void setFinish_date(long finish_date) {
+        this.finish_date = finish_date;
+    }
+
+    public long getExpiry_date() {
+        return expiry_date;
+    }
+
+    public void setExpiry_date(long expiry_date) {
+        this.expiry_date = expiry_date;
+    }
+
+    public long getDownload_id() {
+        return download_id;
+    }
+
+    public void setDownload_id(long download_id) {
+        this.download_id = download_id;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setExpiryTime(String expiryTime) {
+        this.expiryTime = expiryTime;
+    }
+
+    public boolean isDownloadComplete() {
+        return downloadComplete;
+    }
+
+    public void setDownloadComplete(boolean downloadComplete) {
+        this.downloadComplete = downloadComplete;
+    }
+
+    public String getFilesize() {
+        return filesize;
+    }
+
+    public void setFilesize(String filesize) {
+        this.filesize = filesize;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
 
     @Bindable
     public String getName() {
@@ -92,9 +190,13 @@ public class LogExport extends ObservableBaseModel {
                 name = "All Networks";
             }
             if(name != null)
-                save();
+                IRCCloudDatabase.getInstance().LogExportsDao().update(this);
         }
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     private String startTime;
@@ -141,12 +243,12 @@ public class LogExport extends ObservableBaseModel {
                     downloadComplete = true;
                     if (status == DownloadManager.STATUS_FAILED) {
                         download_id = 0;
-                        save();
+                        IRCCloudDatabase.getInstance().LogExportsDao().update(this);
                     }
                 }
             } else {
                 download_id = 0;
-                save();
+                IRCCloudDatabase.getInstance().LogExportsDao().update(this);
             }
         }
         return -1;
@@ -192,7 +294,7 @@ public class LogExport extends ObservableBaseModel {
             download_id = d.enqueue(r);
             notifyPropertyChanged(BR.downloadProgress);
             notifyPropertyChanged(BR.isDownloading);
-            save();
+            IRCCloudDatabase.getInstance().LogExportsDao().update(this);
         }
     }
 
@@ -200,6 +302,7 @@ public class LogExport extends ObservableBaseModel {
         return new File(IRCCloudApplication.getInstance().getApplicationContext().getExternalFilesDir(null), "export");
     }
 
+    @Ignore
     private File file;
     public File file() {
         if(file == null && file_name != null)

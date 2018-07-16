@@ -18,7 +18,6 @@ package com.irccloud.android;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -48,15 +47,15 @@ import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
-import com.raizlabs.android.dbflow.config.FlowConfig;
-import com.raizlabs.android.dbflow.config.FlowManager;
 
 import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import androidx.multidex.MultiDexApplication;
-import io.fabric.sdk.android.Fabric;@SuppressWarnings("unused")
+import io.fabric.sdk.android.Fabric;
+
+@SuppressWarnings("unused")
 public class IRCCloudApplicationBase extends MultiDexApplication {
     private NetworkConnection conn = null;
     private TimerTask notifierSockerTimerTask = null;
@@ -79,7 +78,6 @@ public class IRCCloudApplicationBase extends MultiDexApplication {
             editor.putInt("dbVersion", IRCCloudDatabase.VERSION);
             editor.commit();
         }
-        FlowManager.init(new FlowConfig.Builder(this).build());
 
         if(Build.VERSION.SDK_INT >= 19)
             EmojiCompat.init(new FontRequestEmojiCompatConfig(getApplicationContext(), new FontRequest(

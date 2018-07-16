@@ -16,20 +16,32 @@
 
 package com.irccloud.android.data.model;
 
-import com.irccloud.android.data.IRCCloudDatabase;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.structure.BaseModel;
 
-@Table(database = IRCCloudDatabase.class)
-public class Notification_LastSeenEID extends BaseModel {
-    @Column
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity
+public class Notification_LastSeenEID {
     @PrimaryKey
-    public int bid;
+    private int bid;
 
-    @Column
-    public long eid;
+    private long eid;
+
+    public int getBid() {
+        return bid;
+    }
+
+    public void setBid(int bid) {
+        this.bid = bid;
+    }
+
+    public long getEid() {
+        return eid;
+    }
+
+    public void setEid(long eid) {
+        this.eid = eid;
+    }
 
     @Override
     public String toString() {

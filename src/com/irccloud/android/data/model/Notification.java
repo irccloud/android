@@ -16,60 +16,122 @@
 
 package com.irccloud.android.data.model;
 
-import com.irccloud.android.data.IRCCloudDatabase;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ConflictAction;
-import com.raizlabs.android.dbflow.annotation.ForeignKey;
-import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.annotation.Unique;
-import com.raizlabs.android.dbflow.annotation.UniqueGroup;
-import com.raizlabs.android.dbflow.structure.BaseModel;
+import androidx.room.Entity;
+import androidx.room.Index;
 
-@Table(database = IRCCloudDatabase.class,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})
-public class Notification extends BaseModel {
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
-    public int cid;
+@Entity(primaryKeys = {"cid", "bid", "eid"}, indices = {@Index(value = {"cid", "bid", "eid"}, unique = true)})
+public class Notification {
+    private int cid;
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
-    public int bid;
+    private int bid;
 
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
-    public long eid;
+    private long eid;
 
-    @Column
-    public String nick;
+    private String nick;
 
-    @Column
-    public String message;
+    private String message;
 
-    @Column
-    public String network;
+    private String network;
 
-    @Column
-    public String chan;
+    private String chan;
 
-    @Column
-    public String buffer_type;
+    private String buffer_type;
 
-    @Column
-    public String message_type;
+    private String message_type;
 
-    @Column
-    public String avatar_url;
+    private String avatar_url;
 
-    @Column
-    public boolean shown = false;
+    private boolean shown = false;
+
+    public int getCid() {
+        return cid;
+    }
+
+    public void setCid(int cid) {
+        this.cid = cid;
+    }
+
+    public int getBid() {
+        return bid;
+    }
+
+    public void setBid(int bid) {
+        this.bid = bid;
+    }
+
+    public long getEid() {
+        return eid;
+    }
+
+    public void setEid(long eid) {
+        this.eid = eid;
+    }
+
+    public String getNick() {
+        return nick;
+    }
+
+    public void setNick(String nick) {
+        this.nick = nick;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getNetwork() {
+        return network;
+    }
+
+    public void setNetwork(String network) {
+        this.network = network;
+    }
+
+    public String getChan() {
+        return chan;
+    }
+
+    public void setChan(String chan) {
+        this.chan = chan;
+    }
+
+    public String getBuffer_type() {
+        return buffer_type;
+    }
+
+    public void setBuffer_type(String buffer_type) {
+        this.buffer_type = buffer_type;
+    }
+
+    public String getMessage_type() {
+        return message_type;
+    }
+
+    public void setMessage_type(String message_type) {
+        this.message_type = message_type;
+    }
+
+    public String getAvatar_url() {
+        return avatar_url;
+    }
+
+    public void setAvatar_url(String avatar_url) {
+        this.avatar_url = avatar_url;
+    }
+
+    public boolean isShown() {
+        return shown;
+    }
+
+    public void setShown(boolean shown) {
+        this.shown = shown;
+    }
 
     public String toString() {
-        return "{cid: " + cid + ", bid: " + bid + ", eid: " + eid + ", nick: " + nick + ", message: " + message + ", network: " + network + ", chan: " + chan + ", message_type: " + message_type + " shown: " + shown + "}";
+        return "{cid: " + getCid() + ", bid: " + getBid() + ", eid: " + getEid() + ", nick: " + getNick() + ", message: " + getMessage() + ", network: " + getNetwork() + ", chan: " + getChan() + ", message_type: " + getMessage_type() + " shown: " + isShown() + "}";
     }
 }

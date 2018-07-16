@@ -64,6 +64,7 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.ImageList;
@@ -294,14 +295,14 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 JsonNode export = o.getJsonNode("export");
                 LogExport e = LogExportsList.getInstance().get(export.get("id").asInt());
                 if(e != null) {
-                    e.file_name = export.get("file_name").asText();
-                    e.redirect_url = export.get("redirect_url").asText();
-                    e.finish_date = export.get("finishdate").asLong();
-                    e.expiry_date = export.get("expirydate").asLong();
+                    e.setFile_name(export.get("file_name").asText());
+                    e.setRedirect_url(export.get("redirect_url").asText());
+                    e.setFinish_date(export.get("finishdate").asLong());
+                    e.setExpiry_date(export.get("expirydate").asLong());
                 } else {
                     e = LogExportsList.getInstance().create(export);
                 }
-                e.save();
+                IRCCloudDatabase.getInstance().LogExportsDao().insert(e);
                 final LogExport e1 = e;
                 Snackbar.make(findViewById(android.R.id.content), "Logs for " + e.getName() + " are now available", Snackbar.LENGTH_LONG)
                         .setAction("Download", new View.OnClickListener() {
