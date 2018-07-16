@@ -41,6 +41,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Browser;
 import androidx.annotation.NonNull;
+import androidx.core.text.PrecomputedTextCompat;
 import androidx.fragment.app.ListFragment;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -178,6 +179,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private HashMap<String, Event> msgids = new HashMap<>();
     private String msgid;
     private String buffer_usermask;
+    private PrecomputedTextCompat.Params precomputedTextParams = null;
 
     public static final int ROW_MESSAGE = 0;
     public static final int ROW_TIMESTAMP = 1;
@@ -668,6 +670,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             } else {
                                 e.quoted = false;
                             }
+                            if(precomputedTextParams != null)
+                                e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -962,6 +966,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.message.setPadding(0,0,0,0);
                         holder.message.setBackgroundDrawable(null);
                     }
+                    if(precomputedTextParams == null)
+                        precomputedTextParams = new PrecomputedTextCompat.Params.Builder(holder.message.getPaint()).build();
                 }
 
                 if (holder.expandable != null) {
@@ -1871,7 +1877,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private void insertEvent(final MessageAdapter adapter, final Event event, final boolean backlog, boolean nextIsGrouped) {
-        synchronized (MessageViewFragment.this) {
+        synchronized (MessageViewFragment.class) {
+            event.formatted = null;
             try {
                 long start = System.currentTimeMillis();
                 if (event.eid <= buffer.getMin_eid() || (msgid != null && msgids.containsKey(msgid))) {
@@ -3658,17 +3665,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                         });
                     }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            insertEvent(adapter, event, false, false);
-                        }
-                    });
-                    if (event.pending && event.self && adapter != null && getListView() != null) {
+                    if (buffer.getScrolledUp() || EventsList.getInstance().getSizeOfBuffer(buffer.getBid()) <= 200) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                getListView().setSelection(adapter.getCount() - 1);
+                                insertEvent(adapter, event, false, false);
+                                if (event.pending && event.self && adapter != null && getListView() != null) {
+                                    getListView().setSelection(adapter.getCount() - 1);
+                                }
                             }
                         });
                     }
