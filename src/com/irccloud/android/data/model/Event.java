@@ -128,6 +128,7 @@ public class Event {
     public int reply_count;
     public HashSet<String> reply_nicks;
     public int mention_offset;
+    public boolean ready_for_display;
 
     public Event() {
 

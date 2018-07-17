@@ -650,7 +650,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
 
         public void format(Event e) {
-            if (e != null) {
+            if (e != null && e.ready_for_display) {
                 synchronized (formatLock) {
                     if (e.html != null && e.formatted == null) {
                         try {
@@ -677,13 +677,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                     }
                 }
-            }
-        }
-
-        public void format() {
-            for (int i = 0; i < data.size(); i++) {
-                Event e = data.get(i);
-                format(e);
             }
         }
 
@@ -1878,6 +1871,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     private void insertEvent(final MessageAdapter adapter, final Event event, final boolean backlog, boolean nextIsGrouped) {
         synchronized (MessageViewFragment.class) {
+            event.ready_for_display = false;
             event.formatted = null;
             try {
                 long start = System.currentTimeMillis();
@@ -2288,6 +2282,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     return;
                 }
 
+                event.ready_for_display = true;
                 adapter.addItem(eid, event);
 
                 if(!event.pending && pref_inlineImages && event.type.equals("buffer_msg") && event.msg.length() > 0 && event.row_type != ROW_THUMBNAIL) {
@@ -2760,14 +2755,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    private class FormatTask extends AsyncTaskEx<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            adapter.format();
-            return null;
-        }
-    }
-
     private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
         private MessageAdapter adapter;
 
@@ -2914,7 +2901,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     } else {
                         earliest_eid = 0;
                     }
-                    new FormatTask().execute((Void) null);
                 } catch (IllegalStateException e) {
                     //The list view isn't on screen anymore
                     NetworkConnection.printStackTraceToCrashlytics(e);
