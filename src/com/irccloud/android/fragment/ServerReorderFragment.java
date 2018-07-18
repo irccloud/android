@@ -41,6 +41,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
+import com.mobeta.android.dslv.DragSortController;
 import com.mobeta.android.dslv.DragSortListView;
 
 import java.util.ArrayList;
@@ -212,6 +213,13 @@ public class ServerReorderFragment extends DialogFragment implements NetworkConn
 
     private void init(View v) {
         listView = v.findViewById(android.R.id.list);
+        DragSortController controller = new DragSortController(listView);
+        controller.setDragHandleId(R.id.drag_handle);
+        controller.setSortEnabled(true);
+        controller.setDragInitMode(DragSortController.ON_DRAG);
+
+        listView.setOnTouchListener(controller);
+        listView.setFloatViewManager(controller);
         listView.setDropListener(dropListener);
         TextView tv = v.findViewById(R.id.hint);
         tv.setTypeface(FontAwesome.getTypeface());

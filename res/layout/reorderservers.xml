@@ -50,8 +50,6 @@
 	    android:layout_height="match_parent"
 	    android:divider="#00000000"
 	    android:dividerHeight="0dp"
-	    android:fastScrollEnabled="false"
-        app:drag_handle_id="@+id/drag_handle"
-        app:drag_start_mode="onMove"/>
+	    android:fastScrollEnabled="false"/>
 
 </LinearLayout>

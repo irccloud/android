@@ -38,7 +38,6 @@
             android:layout_marginRight="4dp"
             android:layout_weight="0"
             android:textSize="16sp"
-            android:background="?serverBackgroundDrawable"
             android:id="@+id/icon" />
 
         <TextView
@@ -51,7 +50,6 @@
             android:lines="1"
             android:maxLines="1"
             android:paddingRight="6dp"
-            android:background="?serverBackgroundDrawable"
            android:textSize="16sp" />
 
         <TextView
@@ -63,7 +61,6 @@
             android:layout_weight="0"
             android:textColor="?unreadBlueColor"
             android:id="@+id/drag_handle"
-            android:background="?serverBackgroundDrawable"
             android:gravity="center" />
 
     </LinearLayout>
