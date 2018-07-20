@@ -56,7 +56,17 @@ import androidx.multidex.MultiDexApplication;
 import io.fabric.sdk.android.Fabric;
 
 @SuppressWarnings("unused")
-public class IRCCloudApplicationBase extends MultiDexApplication {
+public class IRCCloudApplication extends MultiDexApplication {
+    private static IRCCloudApplication instance = null;
+
+    public static IRCCloudApplication getInstance() {
+        if (instance != null) {
+            return instance;
+        } else {
+            return new IRCCloudApplication();
+        }
+    }
+
     private NetworkConnection conn = null;
     private TimerTask notifierSockerTimerTask = null;
     private static final Timer notifierTimer = new Timer("notifier-timer");
@@ -65,6 +75,7 @@ public class IRCCloudApplicationBase extends MultiDexApplication {
 
     @Override
     public void onCreate() {
+        instance = this;
         super.onCreate();
         TrustKit.initializeWithNetworkSecurityConfiguration(getApplicationContext(), R.xml.network_security_config);
         Fabric.with(this, new Crashlytics());
