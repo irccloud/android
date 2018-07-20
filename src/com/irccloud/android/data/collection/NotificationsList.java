@@ -583,7 +583,7 @@ public class NotificationsList {
                 wearableExtender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(Html.fromHtml(weartext.toString())).extend(new WearableExtender().setStartScrollBottom(true)).build());
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                 weartext.setLength(0);
                 int j = 0;
                 for(Notification n : messages) {

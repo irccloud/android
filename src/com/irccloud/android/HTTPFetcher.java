@@ -366,11 +366,8 @@ public class HTTPFetcher {
         SSLContext context = SSLContext.getInstance("TLS");
 
         TrustManager[] trustManagers = null;
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            trustManagers = new TrustManager[1];
-            trustManagers[0] = TrustKit.getInstance().getTrustManager(mURI.getHost());
-        }
+        trustManagers = new TrustManager[1];
+        trustManagers[0] = TrustKit.getInstance().getTrustManager(mURI.getHost());
 
         context.init(null, trustManagers, null);
         return context.getSocketFactory();

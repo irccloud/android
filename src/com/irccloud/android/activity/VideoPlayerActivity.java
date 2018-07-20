@@ -172,7 +172,6 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if(Build.VERSION.SDK_INT > 16) {
             getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-                @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
                 @Override
                 public void onSystemUiVisibilityChange(int visibility) {
                     if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {

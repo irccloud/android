@@ -253,166 +253,6 @@ public class NetworkConnection {
 
     private HashMap<Integer, OOBFetcher> oobTasks = new HashMap<Integer, OOBFetcher>();
 
-    private PrivateKey SSLAuthKey;
-    private String SSLAuthAlias;
-    private X509Certificate[] SSLAuthCertificateChain;
-
-    public void setSSLAuth(String alias, PrivateKey key, X509Certificate[] certificateChain) {
-        SSLAuthAlias = alias;
-        SSLAuthKey = key;
-        SSLAuthCertificateChain = certificateChain;
-    }
-
-    TrustManager tms[];
-    X509ExtendedKeyManager kms[];
-
-    public SSLSocketFactory IRCCloudSocketFactory = new SSLSocketFactory() {
-        final String CIPHERS[] = {
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-                "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
-                "TLS_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_RSA_WITH_AES_256_CBC_SHA",
-                "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
-                "SSL_RSA_WITH_RC4_128_SHA",
-                "SSL_RSA_WITH_RC4_128_MD5",
-        };
-        final String PROTOCOLS[] = {
-                "TLSv1.2", "TLSv1.1", "TLSv1"
-        };
-        SSLSocketFactory internalSocketFactory;
-
-        private void init() {
-            try {
-                SSLContext c = SSLContext.getInstance("TLS");
-                c.init(kms, tms, null);
-                internalSocketFactory = c.getSocketFactory();
-            } catch (Exception e) {
-                printStackTraceToCrashlytics(e);
-            }
-        }
-
-        @Override
-        public String[] getDefaultCipherSuites() {
-            return CIPHERS;
-        }
-
-        @Override
-        public String[] getSupportedCipherSuites() {
-            return CIPHERS;
-        }
-
-        @Override
-        public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
-            if (internalSocketFactory == null)
-                init();
-            SSLSocket socket = (SSLSocket) internalSocketFactory.createSocket(s, host, port, autoClose);
-            try {
-                socket.setEnabledProtocols(PROTOCOLS);
-            } catch (IllegalArgumentException e) {
-                //Not supported on older Android versions
-                printStackTraceToCrashlytics(e);
-            }
-
-            try {
-                socket.setEnabledCipherSuites(CIPHERS);
-            } catch (IllegalArgumentException e) {
-                //Not supported on older Android versions
-                printStackTraceToCrashlytics(e);
-            }
-            return socket;
-        }
-
-        @Override
-        public Socket createSocket(String host, int port) throws IOException {
-            if (internalSocketFactory == null)
-                init();
-            SSLSocket socket = (SSLSocket) internalSocketFactory.createSocket(host, port);
-            try {
-                socket.setEnabledProtocols(PROTOCOLS);
-            } catch (IllegalArgumentException e) {
-                //Not supported on older Android versions
-                printStackTraceToCrashlytics(e);
-            }
-
-            try {
-                socket.setEnabledCipherSuites(CIPHERS);
-            } catch (IllegalArgumentException e) {
-                //Not supported on older Android versions
-                printStackTraceToCrashlytics(e);
-            }
-            return socket;
-        }
-
-        @Override
-        public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
-            if (internalSocketFactory == null)
-                init();
-            SSLSocket socket = (SSLSocket) internalSocketFactory.createSocket(host, port, localHost, localPort);
-            try {
-                socket.setEnabledProtocols(PROTOCOLS);
-            } catch (IllegalArgumentException e) {
-                //Not supported on older Android versions
-                printStackTraceToCrashlytics(e);
-            }
-
-            try {
-                socket.setEnabledCipherSuites(CIPHERS);
-            } catch (IllegalArgumentException e) {
-                //Not supported on older Android versions
-                printStackTraceToCrashlytics(e);
-            }
-            return socket;
-        }
-
-        @Override
-        public Socket createSocket(InetAddress host, int port) throws IOException {
-            if (internalSocketFactory == null)
-                init();
-            SSLSocket socket = (SSLSocket) internalSocketFactory.createSocket(host, port);
-            try {
-                socket.setEnabledProtocols(PROTOCOLS);
-            } catch (IllegalArgumentException e) {
-                //Not supported on older Android versions
-                printStackTraceToCrashlytics(e);
-            }
-
-            try {
-                socket.setEnabledCipherSuites(CIPHERS);
-            } catch (IllegalArgumentException e) {
-                //Not supported on older Android versions
-                printStackTraceToCrashlytics(e);
-            }
-            return socket;
-        }
-
-        @Override
-        public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-            if (internalSocketFactory == null)
-                init();
-            SSLSocket socket = (SSLSocket) internalSocketFactory.createSocket(address, port, localAddress, localPort);
-            try {
-                socket.setEnabledProtocols(PROTOCOLS);
-            } catch (IllegalArgumentException e) {
-                //Not supported on older Android versions
-                printStackTraceToCrashlytics(e);
-            }
-
-            try {
-                socket.setEnabledCipherSuites(CIPHERS);
-            } catch (IllegalArgumentException e) {
-                //Not supported on older Android versions
-                printStackTraceToCrashlytics(e);
-            }
-            return socket;
-        }
-    };
-
     public synchronized static NetworkConnection getInstance() {
         if (instance == null) {
             instance = new NetworkConnection();
@@ -583,101 +423,6 @@ public class NetworkConnection {
 
         WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiLock = wfm.createWifiLock(TAG);
-
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            kms = new X509ExtendedKeyManager[1];
-            kms[0] = new X509ExtendedKeyManager() {
-                @Override
-                public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
-                    return SSLAuthAlias;
-                }
-
-                @Override
-                public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public X509Certificate[] getCertificateChain(String alias) {
-                    return SSLAuthCertificateChain;
-                }
-
-                @Override
-                public String[] getClientAliases(String keyType, Principal[] issuers) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public String[] getServerAliases(String keyType, Principal[] issuers) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public PrivateKey getPrivateKey(String alias) {
-                    return SSLAuthKey;
-                }
-            };
-
-            tms = new TrustManager[1];
-            tms[0] = new X509TrustManager() {
-                @Override
-                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    throw new CertificateException("Not implemented");
-                }
-
-                @Override
-                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    try {
-                        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("X509");
-                        trustManagerFactory.init((KeyStore) null);
-
-                        for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
-                            if (trustManager instanceof X509TrustManager) {
-                                X509TrustManager x509TrustManager = (X509TrustManager) trustManager;
-                                x509TrustManager.checkServerTrusted(chain, authType);
-                            }
-                        }
-                    } catch (KeyStoreException e) {
-                        throw new CertificateException(e);
-                    } catch (NoSuchAlgorithmException e) {
-                        throw new CertificateException(e);
-                    }
-
-                    if (BuildConfig.SSL_FPS != null && BuildConfig.SSL_FPS.length > 0) {
-                        try {
-                            MessageDigest md = MessageDigest.getInstance("SHA-256");
-                            byte[] sha256 = md.digest(chain[0].getEncoded());
-                            // http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java
-                            final char[] hexArray = "0123456789ABCDEF".toCharArray();
-                            char[] hexChars = new char[sha256.length * 2];
-                            for (int j = 0; j < sha256.length; j++) {
-                                int v = sha256[j] & 0xFF;
-                                hexChars[j * 2] = hexArray[v >>> 4];
-                                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-                            }
-                            String hexCharsStr = new String(hexChars);
-                            boolean matched = false;
-                            for (String fp : BuildConfig.SSL_FPS) {
-                                if (fp.equals(hexCharsStr)) {
-                                    matched = true;
-                                    break;
-                                }
-                            }
-                            if (!matched)
-                                throw new CertificateException("Incorrect CN in cert chain");
-                        } catch (NoSuchAlgorithmException e) {
-                            printStackTraceToCrashlytics(e);
-                        }
-                    }
-                }
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-            };
-            WebSocketClient.setTrustManagers(tms);
-        }
     }
 
     public int getState() {
@@ -1273,11 +1018,9 @@ public class NetworkConnection {
             client.disconnect();
         }
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            TrustManager[] trustManagers = new TrustManager[1];
-            trustManagers[0] = TrustKit.getInstance().getTrustManager(IRCCLOUD_HOST);
-            WebSocketClient.setTrustManagers(trustManagers);
-        }
+        TrustManager[] trustManagers = new TrustManager[1];
+        trustManagers[0] = TrustKit.getInstance().getTrustManager(IRCCLOUD_HOST);
+        WebSocketClient.setTrustManagers(trustManagers);
 
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
             @Override
@@ -3235,10 +2978,7 @@ public class NetworkConnection {
 
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1 && url.getHost().equals(IRCCLOUD_HOST))
-                https.setSSLSocketFactory(IRCCloudSocketFactory);
-            else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
+            https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
             conn = https;
         } else {
             conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));

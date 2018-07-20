@@ -6476,10 +6476,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             try {
                 String boundary = UUID.randomUUID().toString();
                 http = (HttpsURLConnection) new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/upload" + (avatar?"-avatar":"")).openConnection();
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
-                    http.setSSLSocketFactory(NetworkConnection.getInstance().IRCCloudSocketFactory);
-                else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                    http.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(NetworkConnection.IRCCLOUD_HOST));
+                http.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(NetworkConnection.IRCCLOUD_HOST));
                 http.setReadTimeout(60000);
                 http.setConnectTimeout(60000);
                 http.setDoOutput(true);

@@ -410,10 +410,7 @@ public class ImageList {
                     try {
                         if (url.getProtocol().toLowerCase().equals("https")) {
                             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1)
-                                https.setSSLSocketFactory(NetworkConnection.getInstance().IRCCloudSocketFactory);
-                            else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                                https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
+                            https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
                             conn = https;
                         } else {
                             conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
