@@ -664,13 +664,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
                                 e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
                             }
-                            if(!pref_disableQuote && e.type.equals("buffer_msg") && ColorFormatter.is_blockquote(e.formatted.toString())) {
+                            if(e.formatted != null && !pref_disableQuote && e.type.equals("buffer_msg") && ColorFormatter.is_blockquote(e.formatted.toString())) {
                                 e.formatted = (Spanned)e.formatted.subSequence(1, e.formatted.length());
                                 e.quoted = true;
                             } else {
                                 e.quoted = false;
                             }
-                            if(precomputedTextParams != null)
+                            if(precomputedTextParams != null && e.formatted != null)
                                 e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
                         } catch (Exception ex) {
                             ex.printStackTrace();
