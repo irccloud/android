@@ -2082,6 +2082,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         e.mention_offset = -pos;
                                         if(strippedSpace)
                                             e.mention_offset--;
+                                        e.ready_for_display = true;
+                                        adapter.format(e);
                                         adapter.insertBelow(eid, e);
                                     } else {
                                         msg = lastChunk;
@@ -2103,6 +2105,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         e.header = false;
                                         e.parent_eid = eid;
                                         e.mention_offset = -(m.start() + 3);
+                                        e.ready_for_display = true;
+                                        adapter.format(e);
                                         adapter.insertBelow(eid, e);
                                     }
 
@@ -2126,6 +2130,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     e.mention_offset = -pos;
                                     if(strippedSpace)
                                         e.mention_offset--;
+                                    e.ready_for_display = true;
                                     if (e.html.length() > 0)
                                         adapter.insertBelow(eid, e);
                                 }
