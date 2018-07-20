@@ -58,7 +58,6 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
-import com.irccloud.android.SonyExtensionService;
 import com.irccloud.android.activity.QuickReplyActivity;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.Buffer;
@@ -66,7 +65,6 @@ import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Notification_LastSeenEID;
 import com.irccloud.android.data.model.Notification_ServerNick;
 import com.irccloud.android.data.model.Server;
-import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -186,12 +184,6 @@ public class NotificationsList {
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.getBid());
             }
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
-            try {
-                if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
-                    NotificationUtil.deleteAllEvents(IRCCloudApplication.getInstance().getApplicationContext());
-            } catch (Exception e) {
-                //Sony LiveWare was probably removed
-            }
         } catch (Exception e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
@@ -291,11 +283,6 @@ public class NotificationsList {
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.getBid());
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
                 changed = true;
-                try {
-                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
-                        NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(), com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[]{String.valueOf(n.getBid())});
-                } catch (Exception e) {
-                }
             }
         }
         if (changed) {
@@ -321,12 +308,6 @@ public class NotificationsList {
         IRCCloudDatabase.getInstance().NotificationsDao().delete(bid);
         IRCCloudDatabase.getInstance().NotificationsDao().deleteLastSeenEID(bid);
         IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
-        try {
-            if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
-                NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(), com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[]{String.valueOf(bid)});
-        } catch (Exception e) {
-            //User has probably uninstalled Sony Liveware
-        }
         updateTeslaUnreadCount();
     }
 
@@ -845,46 +826,6 @@ public class NotificationsList {
                 if (!n.isShown()) {
                     n.setShown(true);
                     show = true;
-
-                    if (n.getNick() != null && prefs.getBoolean("notify_sony", false)) {
-                        long time = System.currentTimeMillis();
-                        long sourceId = NotificationUtil.getSourceId(IRCCloudApplication.getInstance().getApplicationContext(), SonyExtensionService.EXTENSION_SPECIFIC_ID);
-                        if (sourceId == NotificationUtil.INVALID_ID) {
-                            Crashlytics.log(Log.ERROR, "IRCCloud", "Sony LiveWare Manager not configured, disabling Sony notifications");
-                            SharedPreferences.Editor editor = prefs.edit();
-                            editor.putBoolean("notify_sony", false);
-                            editor.commit();
-                        } else {
-                            ContentValues eventValues = new ContentValues();
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.EVENT_READ_STATUS, false);
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.DISPLAY_NAME, n.getNick());
-
-                            if (n.getBuffer_type().equals("channel") && n.getChan() != null && n.getChan().length() > 0)
-                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.getChan());
-                            else
-                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.getNetwork());
-
-                            if (n.getMessage_type().equals("buffer_me_msg"))
-                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, "— " + Html.fromHtml(n.getMessage()).toString());
-                            else
-                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, Html.fromHtml(n.getMessage()).toString());
-
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PERSONAL, 1);
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PUBLISHED_TIME, time);
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.SOURCE_ID, sourceId);
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY, String.valueOf(n.getBid()));
-
-                            try {
-                                IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(com.sonyericsson.extras.liveware.aef.notification.Notification.Event.URI, eventValues);
-                            } catch (IllegalArgumentException e) {
-                                Log.e("IRCCloud", "Failed to insert event", e);
-                            } catch (SecurityException e) {
-                                Log.e("IRCCloud", "Failed to insert event, is Live Ware Manager installed?", e);
-                            } catch (SQLException e) {
-                                Log.e("IRCCloud", "Failed to insert event", e);
-                            }
-                        }
-                    }
 
                     if (prefs.getBoolean("notify_pebble", false) && n.getNick() != null) {
                         String pebbleTitle = n.getNetwork() + ":\n";

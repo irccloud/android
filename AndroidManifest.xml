@@ -38,7 +38,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
     <uses-permission android:name="android.permission.NFC" />
-    <uses-permission android:name="com.sonyericsson.extras.liveware.aef.EXTENSION_PERMISSION" />
     <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY" />
     <uses-permission
         android:name="android.permission.READ_PHONE_STATE"
@@ -384,22 +383,6 @@
                 <action android:name="${applicationId}.DISMISS_NOTIFICATION" />
 
                 <data android:scheme="irccloud-dismiss" />
-            </intent-filter>
-        </receiver>
-
-        <service android:name=".SonyExtensionService" />
-
-        <receiver android:name=".SonyExtensionReceiver">
-            <intent-filter>
-
-                <!-- Generic extension intents. -->
-                <action android:name="com.sonyericsson.extras.liveware.aef.registration.EXTENSION_REGISTER_REQUEST" />
-                <action android:name="com.sonyericsson.extras.liveware.aef.registration.ACCESSORY_CONNECTION" />
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
-
-                <!-- Notification intents -->
-                <action android:name="com.sonyericsson.extras.liveware.aef.notification.VIEW_EVENT_DETAIL" />
-                <action android:name="com.sonyericsson.extras.liveware.aef.notification.REFRESH_REQUEST" />
             </intent-filter>
         </receiver>
 

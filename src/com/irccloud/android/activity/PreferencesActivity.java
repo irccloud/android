@@ -89,7 +89,6 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
-import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONException;
@@ -240,31 +239,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 addPreferencesFromResource(R.xml.preferences_pebble);
         } catch (Exception e) {
         }
-        boolean foundSony = false;
-        try {
-            getPackageManager().getPackageInfo("com.sonyericsson.extras.liveware", 0);
-            addPreferencesFromResource(R.xml.preferences_sony);
-            foundSony = true;
-        } catch (Exception e) {
-        }
-        if (!foundSony) {
-            try {
-                getPackageManager().getPackageInfo("com.sonyericsson.extras.smartwatch", 0);
-                addPreferencesFromResource(R.xml.preferences_sony);
-                foundSony = true;
-            } catch (Exception e) {
-            }
-        }
-        if (!foundSony) {
-            try {
-                getPackageManager().getPackageInfo("com.sonyericsson.extras.liveview", 0);
-                addPreferencesFromResource(R.xml.preferences_sony);
-                foundSony = true;
-            } catch (Exception e) {
-            }
-        }
-        if (foundSony)
-            findPreference("notify_sony").setOnPreferenceChangeListener(sonytoggle);
         if(BuildConfig.DEBUG) {
             //addPreferencesFromResource(R.xml.preferences_debug);
             /*findPreference("enable_cache").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -624,15 +598,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
     Preference.OnPreferenceChangeListener dashclocktoggle = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
             sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
-            return true;
-        }
-    };
-
-    Preference.OnPreferenceChangeListener sonytoggle = new Preference.OnPreferenceChangeListener() {
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if (!(Boolean) newValue) {
-                NotificationUtil.deleteAllEvents(PreferencesActivity.this);
-            }
             return true;
         }
     };
