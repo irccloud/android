@@ -2247,6 +2247,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 event.ready_for_display = true;
+                adapter.format(event);
                 adapter.addItem(eid, event);
 
                 if(!event.pending && pref_inlineImages && event.type.equals("buffer_msg") && event.msg.length() > 0 && event.row_type != ROW_THUMBNAIL) {
