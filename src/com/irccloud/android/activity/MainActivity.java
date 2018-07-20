@@ -342,16 +342,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         else
             messageTxt.applyForegroundColor(color);
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
-                @Override
-                public void run() {
-                    mColorPickerFragment.getView().setVisibility(View.GONE);
-                }
-            });
-        } else {
-            mColorPickerFragment.getView().setVisibility(View.GONE);
-        }
+        mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                mColorPickerFragment.getView().setVisibility(View.GONE);
+            }
+        });
     }
 
     private void startFormatActionMode() {
@@ -431,16 +427,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         messageTxt.clearTypingEffects();
                         messageTxt.onSelectionChanged(messageTxt.getSelectionStart(), messageTxt.getSelectionEnd());
                         if(mColorPickerFragment.getView().getVisibility() == View.VISIBLE) {
-                            if (Build.VERSION.SDK_INT >= 16) {
-                                mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mColorPickerFragment.getView().setVisibility(View.GONE);
-                                    }
-                                });
-                            } else {
-                                mColorPickerFragment.getView().setVisibility(View.GONE);
-                            }
+                            mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mColorPickerFragment.getView().setVisibility(View.GONE);
+                                }
+                            });
                         }
                         return true;
                     case R.id.menu_color:
@@ -448,25 +440,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
                         if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
                             mColorPickerFragment.setArguments(b);
-                            if (Build.VERSION.SDK_INT >= 16) {
-                                mColorPickerFragment.getView().setAlpha(0);
-                                mColorPickerFragment.getView().animate().alpha(1.0f);
-                            }
+                            mColorPickerFragment.getView().setAlpha(0);
+                            mColorPickerFragment.getView().animate().alpha(1.0f);
                             mColorPickerFragment.getView().setVisibility(View.VISIBLE);
                         } else {
                             if(mColorPickerFragment.isBackground()) {
                                 mColorPickerFragment.setArguments(b);
                             } else {
-                                if (Build.VERSION.SDK_INT >= 16) {
-                                    mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mColorPickerFragment.getView().setVisibility(View.GONE);
-                                        }
-                                    });
-                                } else {
-                                    mColorPickerFragment.getView().setVisibility(View.GONE);
-                                }
+                                mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mColorPickerFragment.getView().setVisibility(View.GONE);
+                                    }
+                                });
                             }
                         }
                         return true;
@@ -475,25 +461,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, true);
                         if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
                             mColorPickerFragment.setArguments(b);
-                            if (Build.VERSION.SDK_INT >= 16) {
-                                mColorPickerFragment.getView().setAlpha(0);
-                                mColorPickerFragment.getView().animate().alpha(1.0f);
-                            }
+                            mColorPickerFragment.getView().setAlpha(0);
+                            mColorPickerFragment.getView().animate().alpha(1.0f);
                             mColorPickerFragment.getView().setVisibility(View.VISIBLE);
                         } else {
                             if(!mColorPickerFragment.isBackground()) {
                                 mColorPickerFragment.setArguments(b);
                             } else {
-                                if (Build.VERSION.SDK_INT >= 16) {
-                                    mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mColorPickerFragment.getView().setVisibility(View.GONE);
-                                        }
-                                    });
-                                } else {
-                                    mColorPickerFragment.getView().setVisibility(View.GONE);
-                                }
+                                mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mColorPickerFragment.getView().setVisibility(View.GONE);
+                                    }
+                                });
                             }
                         }
                         return true;
@@ -505,16 +485,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void onDestroyActionMode(ActionMode actionMode) {
                 formattingActionMode = null;
                 if(mColorPickerFragment != null) {
-                    if (Build.VERSION.SDK_INT >= 16) {
-                        mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                mColorPickerFragment.getView().setVisibility(View.GONE);
-                            }
-                        });
-                    } else {
-                        mColorPickerFragment.getView().setVisibility(View.GONE);
-                    }
+                    mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            mColorPickerFragment.getView().setVisibility(View.GONE);
+                        }
+                    });
                 }
             }
         });
@@ -640,7 +616,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         new ImgurRefreshTask(uri).execute((Void) null);
                     } else {
                         fileUploadTask = new FileUploadTask(uri, MainActivity.this);
-                        if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(MainActivity.this,
                                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                     REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
@@ -865,7 +841,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                         new ImgurRefreshTask(uri).execute((Void) null);
                                     } else {
                                         fileUploadTask = new FileUploadTask(uri, MainActivity.this);
-                                        if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                             ActivityCompat.requestPermissions(MainActivity.this,
                                                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                                     REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
@@ -985,10 +961,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             progressBar.setProgress(0);
             progressBar.setIndeterminate(true);
             if (progressBar.getVisibility() != View.VISIBLE) {
-                if (Build.VERSION.SDK_INT >= 16) {
-                    progressBar.setAlpha(0);
-                    progressBar.animate().alpha(1).setDuration(200);
-                }
+                progressBar.setAlpha(0);
+                progressBar.animate().alpha(1).setDuration(200);
                 progressBar.setVisibility(View.VISIBLE);
             }
             if (conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.getReconnectTimestamp() > 0) {
@@ -1318,16 +1292,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             suggestions.smoothScrollToPosition(0);
                         }
                         if (suggestionsContainer.getVisibility() == View.INVISIBLE) {
-                            if (Build.VERSION.SDK_INT < 16) {
-                                AlphaAnimation anim = new AlphaAnimation(0, 1);
-                                anim.setDuration(250);
-                                anim.setFillAfter(true);
-                                suggestionsContainer.startAnimation(anim);
-                            } else {
-                                suggestionsContainer.setAlpha(0);
-                                suggestionsContainer.setTranslationY(1000);
-                                suggestionsContainer.animate().alpha(1).translationY(0).setInterpolator(new DecelerateInterpolator());
-                            }
+                            suggestionsContainer.setAlpha(0);
+                            suggestionsContainer.setTranslationY(1000);
+                            suggestionsContainer.animate().alpha(1).translationY(0).setInterpolator(new DecelerateInterpolator());
                             suggestionsContainer.setVisibility(View.VISIBLE);
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -1341,39 +1308,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     } else {
                         if (suggestionsContainer.getVisibility() == View.VISIBLE) {
-                            if (Build.VERSION.SDK_INT < 16) {
-                                AlphaAnimation anim = new AlphaAnimation(1, 0);
-                                anim.setDuration(250);
-                                anim.setFillAfter(true);
-                                anim.setAnimationListener(new Animation.AnimationListener() {
-                                    @Override
-                                    public void onAnimationStart(Animation animation) {
-
-                                    }
-
-                                    @Override
-                                    public void onAnimationEnd(Animation animation) {
-                                        suggestionsContainer.setVisibility(View.INVISIBLE);
-                                        suggestionsAdapter.clear();
-                                        suggestionsAdapter.notifyDataSetChanged();
-                                    }
-
-                                    @Override
-                                    public void onAnimationRepeat(Animation animation) {
-
-                                    }
-                                });
-                                suggestionsContainer.startAnimation(anim);
-                            } else {
-                                suggestionsContainer.animate().alpha(1).translationY(1000).setInterpolator(new AccelerateInterpolator()).withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        suggestionsContainer.setVisibility(View.INVISIBLE);
-                                        suggestionsAdapter.clear();
-                                        suggestionsAdapter.notifyDataSetChanged();
-                                    }
-                                });
-                            }
+                            suggestionsContainer.animate().alpha(1).translationY(1000).setInterpolator(new AccelerateInterpolator()).withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    suggestionsContainer.setVisibility(View.INVISIBLE);
+                                    suggestionsAdapter.clear();
+                                    suggestionsAdapter.notifyDataSetChanged();
+                                }
+                            });
                             sortedUsers = null;
                             sortedChannels = null;
                             if (actionBar != null && !actionBar.isShowing())
@@ -1480,10 +1422,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
                     mColorPickerFragment.setArguments(b);
                     if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
-                        if (Build.VERSION.SDK_INT >= 16) {
-                            mColorPickerFragment.getView().setAlpha(0);
-                            mColorPickerFragment.getView().animate().alpha(1.0f);
-                        }
+                        mColorPickerFragment.getView().setAlpha(0);
+                        mColorPickerFragment.getView().animate().alpha(1.0f);
                         mColorPickerFragment.getView().setVisibility(View.VISIBLE);
                     }
                     return true;
@@ -1931,7 +1871,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         new ImgurRefreshTask(uri).execute((Void) null);
                     } else {
                         fileUploadTask = new FileUploadTask(uri, this);
-                        if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(MainActivity.this,
                                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                     REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
@@ -3306,16 +3246,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             errorMsg.setVisibility(View.GONE);
                             error = null;
                             if (progressBar.getVisibility() == View.VISIBLE) {
-                                if (Build.VERSION.SDK_INT >= 16) {
-                                    progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            progressBar.setVisibility(View.GONE);
-                                        }
-                                    });
-                                } else {
-                                    progressBar.setVisibility(View.GONE);
-                                }
+                                progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                });
                             }
                             if(actionBar != null) {
                                 actionBar.setDisplayShowTitleEnabled(false);
@@ -3760,24 +3696,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         String original_filename;
 
-        if (Build.VERSION.SDK_INT < 16) {
-            original_filename = fileUri.getLastPathSegment();
-        } else {
-            Cursor cursor = null;
-            try {
-                cursor = context.getContentResolver().query(fileUri, null, null, null, null, null);
-                if (cursor != null && cursor.moveToFirst()) {
-                    original_filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                } else {
-                    original_filename = fileUri.getLastPathSegment();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                original_filename = String.valueOf(System.currentTimeMillis());
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(fileUri, null, null, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                original_filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+            } else {
+                original_filename = fileUri.getLastPathSegment();
             }
-            if(cursor != null)
-                cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            original_filename = String.valueOf(System.currentTimeMillis());
         }
+        if(cursor != null)
+            cursor.close();
 
         if(original_filename == null || original_filename.length() == 0)
             original_filename = "file";
@@ -3848,7 +3780,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
                     } else {
                         fileUploadTask = new FileUploadTask(imageCaptureURI, this);
-                        if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(MainActivity.this,
                                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                     REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
@@ -3871,7 +3803,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         new ImgurRefreshTask(selectedImage).execute((Void) null);
                     } else {
                         fileUploadTask = new FileUploadTask(selectedImage, this);
-                        if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(MainActivity.this,
                                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                     REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
@@ -3885,7 +3817,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (selectedFile != null) {
                     selectedFile = makeTempCopy(selectedFile, this);
                     fileUploadTask = new FileUploadTask(selectedFile, this);
-                    if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions(MainActivity.this,
                                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                 REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
@@ -4023,7 +3955,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(buffer != null) {
                     switch(dialogItems[which]) {
                         case "Take a Photo":
-                            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                 ActivityCompat.requestPermissions(MainActivity.this,
                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO);
@@ -4045,7 +3977,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                             break;
                         case "Record a Video":
-                            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                 ActivityCompat.requestPermissions(MainActivity.this,
                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         REQUEST_EXTERNAL_MEDIA_RECORD_VIDEO);
@@ -4068,7 +4000,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             break;
                         case "Choose Existing":
                         case "Choose Existing Photo":
-                            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                 ActivityCompat.requestPermissions(MainActivity.this,
                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO);
@@ -4080,7 +4012,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                             break;
                         case "Choose Existing Document":
-                            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                 ActivityCompat.requestPermissions(MainActivity.this,
                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT);
@@ -5485,7 +5417,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
 
             try {
-                if (Build.VERSION.SDK_INT >= 16 && buffer != null && server != null) {
+                if (buffer != null && server != null) {
                     NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
                     if (nfc != null) {
                         String uri = "irc";
@@ -5533,58 +5465,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (shouldFadeIn) {
             ImageList.getInstance().prune();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Fade Out");
-            if (Build.VERSION.SDK_INT < 16) {
-                AlphaAnimation anim = new AlphaAnimation(1, 0);
-                anim.setDuration(150);
-                anim.setFillAfter(true);
-                anim.setAnimationListener(new Animation.AnimationListener() {
+            if(mvf != null) {
+                mvf.avatar.animate().alpha(0);
+                mvf.getListView().animate().alpha(0).withEndAction(new Runnable() {
                     @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        if (mvf != null) {
-                            mvf.setArguments(b);
-                        }
+                    public void run() {
+                        mvf.setArguments(b);
                         messageTxt.setTextWithEmoji("");
                         if (buffer != null && buffer.getDraft() != null)
                             messageTxt.append(buffer.getDraft());
                     }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
                 });
-                try {
-                    if(mvf != null) {
-                        mvf.getListView().startAnimation(anim);
-                        mvf.avatar.startAnimation(anim);
-                    }
-
-                    if(ulf != null)
-                        ulf.getRecyclerView().startAnimation(anim);
-                } catch (Exception e) {
-
-                }
-            } else {
-                if(mvf != null) {
-                    mvf.avatar.animate().alpha(0);
-                    mvf.getListView().animate().alpha(0).withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            mvf.setArguments(b);
-                            messageTxt.setTextWithEmoji("");
-                            if (buffer != null && buffer.getDraft() != null)
-                                messageTxt.append(buffer.getDraft());
-                        }
-                    });
-                }
-                if(ulf != null)
-                    ulf.getRecyclerView().animate().alpha(0);
             }
+            if(ulf != null)
+                ulf.getRecyclerView().animate().alpha(0);
             if(mvf != null)
                 mvf.showSpinner(true);
         } else {
@@ -5632,24 +5526,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
             UsersListFragment ulf = (UsersListFragment) getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
 
-            if (Build.VERSION.SDK_INT < 16) {
-                AlphaAnimation anim = new AlphaAnimation(0, 1);
-                anim.setDuration(150);
-                anim.setFillAfter(true);
-                if (mvf != null && mvf.getListView() != null)
-                    mvf.getListView().startAnimation(anim);
-                if (mvf != null && mvf.avatar != null)
-                    mvf.avatar.startAnimation(anim);
-                if (ulf != null && ulf.getRecyclerView() != null)
-                    ulf.getRecyclerView().startAnimation(anim);
-            } else {
-                if (mvf != null && mvf.getListView() != null)
-                    mvf.getListView().animate().alpha(1);
-                if (mvf != null && mvf.avatar != null)
-                    mvf.avatar.animate().alpha(1);
-                if (ulf != null && ulf.getRecyclerView() != null)
-                    ulf.getRecyclerView().animate().alpha(1);
-            }
+            if (mvf != null && mvf.getListView() != null)
+                mvf.getListView().animate().alpha(1);
+            if (mvf != null && mvf.avatar != null)
+                mvf.avatar.animate().alpha(1);
+            if (ulf != null && ulf.getRecyclerView() != null)
+                ulf.getRecyclerView().animate().alpha(1);
             if (mvf != null && mvf.getListView() != null) {
                 if (mvf.buffer != buffer && buffer != null && BuffersList.getInstance().getBuffer(buffer.getBid()) != null) {
                     Bundle b = new Bundle();
@@ -5918,7 +5800,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         prefs.commit();
                         if (mImageUri != null) {
                             imgurTask = new ImgurUploadTask(mImageUri);
-                            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                 ActivityCompat.requestPermissions(MainActivity.this,
                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         REQUEST_EXTERNAL_MEDIA_IMGUR);
@@ -5930,7 +5812,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else {
                     if (mImageUri != null) {
                         imgurTask = new ImgurUploadTask(mImageUri);
-                        if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(MainActivity.this,
                                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                     REQUEST_EXTERNAL_MEDIA_IMGUR);
@@ -6051,10 +5933,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     progressBar.setProgress(0);
                     progressBar.setIndeterminate(true);
                     if (progressBar.getVisibility() != View.VISIBLE) {
-                        if (Build.VERSION.SDK_INT >= 16) {
-                            progressBar.setAlpha(0);
-                            progressBar.animate().alpha(1).setDuration(200);
-                        }
+                        progressBar.setAlpha(0);
+                        progressBar.animate().alpha(1).setDuration(200);
                         progressBar.setVisibility(View.VISIBLE);
                     }
                 }
@@ -6070,10 +5950,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         actionBar.setSubtitle(null);
                         actionBar.setDisplayShowCustomEnabled(false);
                         actionBar.setDisplayShowTitleEnabled(true);
-                        if (Build.VERSION.SDK_INT >= 16) {
-                            progressBar.setAlpha(0);
-                            progressBar.animate().alpha(1).setDuration(200);
-                        }
+                        progressBar.setAlpha(0);
+                        progressBar.animate().alpha(1).setDuration(200);
                         progressBar.setVisibility(View.VISIBLE);
                     }
                     if (values[0] < 1.0f) {
@@ -6099,16 +5977,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             if (activity != null) {
                 if (progressBar.getVisibility() == View.VISIBLE) {
-                    if (Build.VERSION.SDK_INT >= 16) {
-                        progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                progressBar.setVisibility(View.GONE);
-                            }
-                        });
-                    } else {
-                        progressBar.setVisibility(View.GONE);
-                    }
+                    progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
                 }
                 if(actionBar != null) {
                     actionBar.setDisplayShowCustomEnabled(true);
@@ -6275,23 +6149,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             mFileUri = fileUri;
             type = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().getType(mFileUri);
 
-            if (Build.VERSION.SDK_INT < 16) {
-                original_filename = fileUri.getLastPathSegment();
-            } else {
-                Cursor cursor = null;
-                try {
-                    cursor = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().query(fileUri, null, null, null, null, null);
-                    if (cursor != null && cursor.moveToFirst()) {
-                        original_filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                    } else {
-                        original_filename = fileUri.getLastPathSegment();
-                    }
-                } catch (Exception e) {
-                    original_filename = String.valueOf(System.currentTimeMillis());
+            Cursor cursor = null;
+            try {
+                cursor = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().query(fileUri, null, null, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    original_filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                } else {
+                    original_filename = fileUri.getLastPathSegment();
                 }
-                if(cursor != null)
-                    cursor.close();
+            } catch (Exception e) {
+                original_filename = String.valueOf(System.currentTimeMillis());
             }
+            if(cursor != null)
+                cursor.close();
 
             if(original_filename == null || original_filename.length() == 0)
                 original_filename = "file";
@@ -6705,10 +6575,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     activity.progressBar.setProgress(0);
                     activity.progressBar.setIndeterminate(true);
                     if (activity.progressBar.getVisibility() != View.VISIBLE) {
-                        if (Build.VERSION.SDK_INT >= 16) {
-                            activity.progressBar.setAlpha(0);
-                            activity.progressBar.animate().alpha(1).setDuration(200);
-                        }
+                        activity.progressBar.setAlpha(0);
+                        activity.progressBar.animate().alpha(1).setDuration(200);
                         activity.progressBar.setVisibility(View.VISIBLE);
                     }
                 }
@@ -6730,10 +6598,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         activity.actionBar.setSubtitle(null);
                         activity.actionBar.setDisplayShowCustomEnabled(false);
                         activity.actionBar.setDisplayShowTitleEnabled(true);
-                        if (Build.VERSION.SDK_INT >= 16) {
-                            activity.progressBar.setAlpha(0);
-                            activity.progressBar.animate().alpha(1).setDuration(200);
-                        }
+                        activity.progressBar.setAlpha(0);
+                        activity.progressBar.animate().alpha(1).setDuration(200);
                         activity.progressBar.setVisibility(View.VISIBLE);
                     }
                     if (values[0] < 1.0f) {
@@ -6806,17 +6672,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         private void hide_progress() {
             if(activity != null && activity.actionBar != null) {
                 if (activity.progressBar.getVisibility() == View.VISIBLE) {
-                    if (Build.VERSION.SDK_INT >= 16) {
-                        activity.progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(activity != null && activity.progressBar != null)
-                                    activity.progressBar.setVisibility(View.GONE);
-                            }
-                        });
-                    } else {
-                        activity.progressBar.setVisibility(View.GONE);
-                    }
+                    activity.progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(activity != null && activity.progressBar != null)
+                                activity.progressBar.setVisibility(View.GONE);
+                        }
+                    });
                 }
                 activity.actionBar.setDisplayShowCustomEnabled(true);
                 activity.actionBar.setDisplayShowTitleEnabled(false);

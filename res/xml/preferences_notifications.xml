@@ -38,6 +38,11 @@
 			android:defaultValue="1"
 			android:title="LED"/>
 		<SwitchPreference
+			android:key="notify_quickreply"
+			android:defaultValue="true"
+			android:summary="Quickly reply to messages from the notification tray"
+			android:title="Quick Reply"/>
+		<SwitchPreference
 			android:key="notifications_all"
 			android:defaultValue="false"
 			android:title="Notify on all channel messages"/>

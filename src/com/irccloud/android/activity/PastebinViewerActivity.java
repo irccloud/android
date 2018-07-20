@@ -101,11 +101,9 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                     mWebView.loadDataWithBaseURL(url, html, "text/html", "UTF-8", null);
 
                     try {
-                        if (Build.VERSION.SDK_INT >= 16) {
-                            NfcAdapter nfc = NfcAdapter.getDefaultAdapter(PastebinViewerActivity.this);
-                            if (nfc != null) {
-                                nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(url)), PastebinViewerActivity.this);
-                            }
+                        NfcAdapter nfc = NfcAdapter.getDefaultAdapter(PastebinViewerActivity.this);
+                        if (nfc != null) {
+                            nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(url)), PastebinViewerActivity.this);
                         }
                     } catch (Exception e) {
                     }
@@ -383,7 +381,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 intent.intent.setData(Uri.parse(url.contains("?")?url.substring(0, url.indexOf("?")):url));
                 if(Build.VERSION.SDK_INT >= 22)
                     intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
-                if (Build.VERSION.SDK_INT >= 16 && intent.startAnimationBundle != null) {
+                if (intent.startAnimationBundle != null) {
                     startActivity(intent.intent, intent.startAnimationBundle);
                 } else {
                     startActivity(intent.intent);

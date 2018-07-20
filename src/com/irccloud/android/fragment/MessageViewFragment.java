@@ -1460,70 +1460,34 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     public void showSpinner(boolean show) {
         if (show) {
-            if (Build.VERSION.SDK_INT < 16) {
-                AlphaAnimation anim = new AlphaAnimation(0, 1);
-                anim.setDuration(150);
-                anim.setFillAfter(true);
-                spinner.setAnimation(anim);
-            } else {
-                spinner.setAlpha(0);
-                spinner.animate().alpha(1);
-            }
+            spinner.setAlpha(0);
+            spinner.animate().alpha(1);
             spinner.setVisibility(View.VISIBLE);
         } else {
-            if (Build.VERSION.SDK_INT < 16) {
-                AlphaAnimation anim = new AlphaAnimation(1, 0);
-                anim.setDuration(150);
-                anim.setFillAfter(true);
-                anim.setAnimationListener(new AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        spinner.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-                spinner.setAnimation(anim);
-            } else {
-                spinner.animate().alpha(0).withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        spinner.setVisibility(View.GONE);
-                    }
-                });
-            }
+            spinner.animate().alpha(0).withEndAction(new Runnable() {
+                @Override
+                public void run() {
+                    spinner.setVisibility(View.GONE);
+                }
+            });
         }
     }
 
     private void hideView(final View v) {
         if (v.getVisibility() != View.GONE) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                v.animate().alpha(0).setDuration(100).withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        v.setVisibility(View.GONE);
-                    }
-                });
-            } else {
-                v.setVisibility(View.GONE);
-            }
+            v.animate().alpha(0).setDuration(100).withEndAction(new Runnable() {
+                @Override
+                public void run() {
+                    v.setVisibility(View.GONE);
+                }
+            });
         }
     }
 
     private void showView(final View v) {
         if (v.getVisibility() != View.VISIBLE) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                v.setAlpha(0);
-                v.animate().alpha(1).setDuration(100);
-            }
+            v.setAlpha(0);
+            v.animate().alpha(1).setDuration(100);
             v.setVisibility(View.VISIBLE);
         }
     }

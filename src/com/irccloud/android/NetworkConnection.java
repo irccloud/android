@@ -943,7 +943,7 @@ public class NetworkConnection {
 
     public void set_pastebin_cookie() {
         try {
-            if (Build.VERSION.SDK_INT >= 16 && config != null) {
+            if (config != null) {
                 CookieSyncManager sm = CookieSyncManager.createInstance(IRCCloudApplication.getInstance().getApplicationContext());
                 CookieManager cm = CookieManager.getInstance();
                 Uri u = Uri.parse(config.getString("pastebin_uri_template"));

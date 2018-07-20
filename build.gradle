@@ -70,7 +70,7 @@ android {
     defaultConfig {
         versionCode 195
         versionName "4.10"
-        minSdkVersion 14
+        minSdkVersion 17
         targetSdkVersion 28
         multiDexEnabled true
         applicationId "com.irccloud.android"

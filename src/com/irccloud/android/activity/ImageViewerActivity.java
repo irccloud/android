@@ -359,11 +359,9 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             player.setVolume(0, 0);
 
             try {
-                if (Build.VERSION.SDK_INT >= 16) {
-                    NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-                    if (nfc != null) {
-                        nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(urlStr)), this);
-                    }
+                NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+                if (nfc != null) {
+                    nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(urlStr)), this);
                 }
             } catch (Exception e) {
             }
@@ -394,11 +392,9 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                     "</html>", "text/html", "UTF-8", null);
 
             try {
-                if (Build.VERSION.SDK_INT >= 16) {
-                    NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-                    if (nfc != null) {
-                        nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(urlStr)), this);
-                    }
+                NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+                if (nfc != null) {
+                    nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(urlStr)), this);
                 }
             } catch (Exception e) {
             }
@@ -589,7 +585,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 intent.intent.setData(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
                 if(Build.VERSION.SDK_INT >= 22)
                     intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
-                if (Build.VERSION.SDK_INT >= 16 && intent.startAnimationBundle != null) {
+                if (intent.startAnimationBundle != null) {
                     startActivity(intent.intent, intent.startAnimationBundle);
                 } else {
                     startActivity(intent.intent);
@@ -601,14 +597,12 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             finish();
             return true;
         } else if (item.getItemId() == R.id.action_save) {
-            if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
             } else {
                 DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 if (d != null) {
                     String uri = getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http");
-                    if(Build.VERSION.SDK_INT < 16 && uri.startsWith("https://")) //Android 4.1 and below don't support SNI in DownloadManager
-                        uri = "http://" + uri.substring(8);
                     DownloadManager.Request r = new DownloadManager.Request(Uri.parse(uri));
                     r.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, getIntent().getData().getLastPathSegment());
                     r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);

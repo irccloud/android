@@ -59,6 +59,14 @@
 			android:defaultValue="false"
 			android:summary="\@, +, etc." android:title="Show usermode symbols"/>
         <SwitchPreference
+            android:key="emoji-disableconvert"
+            android:defaultValue="true"
+            android:title="Convert :emocodes: to emoji"/>
+		<SwitchPreference
+			android:key="emoji-nobig"
+			android:defaultValue="true"
+			android:title="Enlarge emoji-only messages"/>
+        <SwitchPreference
             android:key="nick-colors"
             android:defaultValue="false"
             android:title="Colourise nicknames"/>
@@ -66,6 +74,6 @@
 			android:key="mention-colors"
 			android:defaultValue="false"
 			android:title="Colourise mentions"/>
-    </PreferenceCategory>
+	</PreferenceCategory>
 
 </PreferenceScreen>

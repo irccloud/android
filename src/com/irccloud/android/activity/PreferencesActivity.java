@@ -924,7 +924,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     intent.intent.setData(Uri.parse(url));
                     if (Build.VERSION.SDK_INT >= 22)
                         intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
-                    if (Build.VERSION.SDK_INT >= 16 && intent.startAnimationBundle != null) {
+                    if (intent.startAnimationBundle != null) {
                         startActivity(intent.intent, intent.startAnimationBundle);
                     } else {
                         startActivity(intent.intent);
@@ -1087,7 +1087,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         MediaPlayer mp = new MediaPlayer();
 
         public boolean onPreferenceClick(Preference preference) {
-            if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(PreferencesActivity.this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
                 return false;

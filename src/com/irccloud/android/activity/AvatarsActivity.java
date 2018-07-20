@@ -373,7 +373,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                 fileUploadTask = new MainActivity.FileUploadTask(uri, null);
                 fileUploadTask.avatar = true;
                 fileUploadTask.orgId = orgId;
-                if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                if(ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(AvatarsActivity.this,
                             new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             REQUEST_EXTERNAL_MEDIA_IRCCLOUD);

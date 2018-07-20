@@ -66,8 +66,7 @@ public class IRCCloudApplicationBase extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-            TrustKit.initializeWithNetworkSecurityConfiguration(getApplicationContext(), R.xml.network_security_config);
+        TrustKit.initializeWithNetworkSecurityConfiguration(getApplicationContext(), R.xml.network_security_config);
         Fabric.with(this, new Crashlytics());
         Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

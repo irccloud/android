@@ -332,14 +332,13 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                         .setPositiveButton("Download", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(VideoPlayerActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                if(ActivityCompat.checkSelfPermission(VideoPlayerActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                     ActivityCompat.requestPermissions(VideoPlayerActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
                                 } else {
                                     DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                                     if (d != null) {
                                         String uri = getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http");
-                                        if(Build.VERSION.SDK_INT < 16 && uri.startsWith("https://")) //Android 4.1 and below don't support SNI in DownloadManager
-                                            uri = "http://" + uri.substring(8);
+                                        uri = "http://" + uri.substring(8);
                                         DownloadManager.Request r = new DownloadManager.Request(Uri.parse(uri));
                                         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                                         r.allowScanningByMediaScanner();
@@ -499,7 +498,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if (item.getItemId() == R.id.action_download) {
-            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
             } else {
                 DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
