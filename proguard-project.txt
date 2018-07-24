@@ -20,7 +20,6 @@
 -dontnote com.google.ads.**
 -dontnote com.mobeta.android.dslv.**
 -dontnote com.codebutler.**
--dontnote com.sonyericsson.**
 -dontnote com.samsung.**
 -dontnote com.google.android.apps.dashclock.**
 -dontwarn sun.misc.Unsafe
@@ -38,6 +37,9 @@
 -dontwarn com.squareup.**
 -dontwarn com.samsung.**
 -dontwarn java.nio.**
+-dontwarn okhttp3.**
+-dontwarn org.conscrypt.**
+-dontwarn org.codehaus.mojo.**
 #Play Services
 -keep class * extends java.util.ListResourceBundle {
     protected java.lang.Object[][] getContents();
