@@ -2110,6 +2110,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public void onPause() {
         super.onPause();
 
+        if(buffer != null && buffer.getBid() > 0 && messageTxt != null)
+            buffer.setDraft(messageTxt.getText());
+
         if(isFinishing()) {
             if (imgurTask != null)
                 imgurTask.setActivity(null);
