@@ -1982,21 +1982,20 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     currentCollapsedEid = -1;
                     lastCollapsedEid = -1;
                     collapsedEvents.clear();
-                    event.mention_offset = 0;
-                    if (event.html == null) {
-                        String msg = event.msg;
-                        if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
-                            msg = "<large>" + msg + "</large>";
+                    String msg = event.msg;
+                    if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                        msg = "<large>" + msg + "</large>";
 
-                        if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
-                        else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
-                            event.html = "<b>" + event.server + "</b> " + msg;
-                        else
-                            event.html = msg;
-                        if(event.html != null && event.msg != null)
-                            event.mention_offset = event.html.length() - event.msg.length();
-                    }
+                    if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
+                        event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
+                    else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
+                        event.html = "<b>" + event.server + "</b> " + msg;
+                    else
+                        event.html = msg;
+                    if(event.html != null && event.msg != null)
+                        event.mention_offset = event.html.length() - event.msg.length();
+                    if(event.type.equals("channel_topic") && event.msg.startsWith("set the topic: "))
+                        event.mention_offset += 15;
 
                     if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
                         event.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
@@ -2224,10 +2223,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             } else {
                                 event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false, Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2)) + "</b> " + event.msg;
                             }
-                            break;
-                        case "channel_topic":
-                            if(event.msg.startsWith("set the topic: "))
-                                event.mention_offset += 15;
                             break;
                     }
                 }
