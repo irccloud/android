@@ -150,6 +150,13 @@ public class IRCCloudApplication extends MultiDexApplication {
             editor.commit();
         }
 
+        if (prefs.contains("notify_ringtone") && prefs.getString("notify_ringtone", "").startsWith("android.resource://" + getPackageName())) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("notify_ringtone", "android.resource://" + getPackageName() + "/" + R.raw.digit);
+            editor.commit();
+        }
+
+
         if(!prefs.getBoolean("ringtone_migrated", false)) {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 String notification_uri = prefs.getString("notify_ringtone", "");
