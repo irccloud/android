@@ -3092,19 +3092,21 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            headerView.setVisibility(View.GONE);
-                            if(buffer.getMin_eid() > 0 && earliest_eid > buffer.getMin_eid() && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !(msgid != null && msgids.containsKey(msgid))) {
-                                if(buffer.getDeferred() > 0) {
-                                    backlogFailed.setVisibility(View.GONE);
-                                    loadBacklogButton.setVisibility(View.GONE);
-                                    headerView.setVisibility(View.VISIBLE);
-                                    requestingBacklog = true;
-                                    NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
+                            if(buffer != null) {
+                                headerView.setVisibility(View.GONE);
+                                if (buffer.getMin_eid() > 0 && earliest_eid > buffer.getMin_eid() && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !(msgid != null && msgids.containsKey(msgid))) {
+                                    if (buffer.getDeferred() > 0) {
+                                        backlogFailed.setVisibility(View.GONE);
+                                        loadBacklogButton.setVisibility(View.GONE);
+                                        headerView.setVisibility(View.VISIBLE);
+                                        requestingBacklog = true;
+                                        NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
+                                    } else {
+                                        loadBacklogButton.setVisibility(View.VISIBLE);
+                                    }
                                 } else {
-                                    loadBacklogButton.setVisibility(View.VISIBLE);
+                                    loadBacklogButton.setVisibility(View.GONE);
                                 }
-                            } else {
-                                loadBacklogButton.setVisibility(View.GONE);
                             }
                         }
                     });
