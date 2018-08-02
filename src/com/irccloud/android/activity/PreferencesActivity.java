@@ -435,7 +435,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 if (conn.getUserInfo() != null)
                     findPreference("email").setSummary(conn.getUserInfo().email);
                 else
-                    findPreference("email").setSummary(((AppCompatEditTextPreference) findPreference("email")).getText());
+                    findPreference("email").setSummary(null);
             }
             findPreference("highlights").setOnPreferenceChangeListener(settingstoggle);
             if (conn.getUserInfo() != null)
