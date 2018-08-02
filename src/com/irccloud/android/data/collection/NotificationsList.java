@@ -36,6 +36,7 @@ import android.preference.PreferenceManager;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.WearableExtender;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.Person;
 import androidx.core.app.RemoteInput;
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -549,19 +550,20 @@ public class NotificationsList {
         wearableExtender.setBackground(wearBackground);
         if(messages != null && messages.size() > 0) {
             StringBuilder weartext = new StringBuilder();
-            String servernick = getServerNick(messages.get(0).getCid());
+            Person servernick = new Person.Builder().setName(getServerNick(messages.get(0).getCid())).build();
             NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(servernick);
             style.setConversationTitle(title + ((network != null) ? (" (" + network + ")") : ""));
+            style.setGroupConversation(true);
             for(Notification n : messages) {
                 if(n != null && n.getMessage() != null && n.getMessage().length() > 0) {
                     if (weartext.length() > 0)
                         weartext.append("<br/>");
                     if (n.getMessage_type().equals("buffer_me_msg")) {
                         style.addMessage(Html.fromHtml(n.getMessage()).toString(), n.getEid() / 1000, "— " + ((n.getNick() == null) ? servernick : n.getNick()));
-                        weartext.append("<b>— ").append((n.getNick() == null) ? servernick : n.getNick()).append("</b> ").append(n.getMessage());
+                        weartext.append("<b>— ").append((n.getNick() == null) ? servernick.getName() : n.getNick()).append("</b> ").append(n.getMessage());
                     } else {
                         style.addMessage(Html.fromHtml(n.getMessage()).toString(), n.getEid() / 1000, n.getNick());
-                        weartext.append("<b>&lt;").append((n.getNick() == null) ? servernick : n.getNick()).append("&gt;</b> ").append(n.getMessage());
+                        weartext.append("<b>&lt;").append((n.getNick() == null) ? servernick.getName() : n.getNick()).append("&gt;</b> ").append(n.getMessage());
                     }
                 }
             }
