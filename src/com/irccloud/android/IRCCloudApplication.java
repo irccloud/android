@@ -150,7 +150,7 @@ public class IRCCloudApplication extends MultiDexApplication {
             editor.commit();
         }
 
-        if (prefs.contains("notify_ringtone") && prefs.getString("notify_ringtone", "").startsWith("android.resource://" + getPackageName())) {
+        if (prefs.contains("notify_ringtone") && prefs.getString("notify_ringtone", "").startsWith("android.resource://" + getPackageName() + "/")) {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("notify_ringtone", "android.resource://" + getPackageName() + "/" + R.raw.digit);
             editor.commit();

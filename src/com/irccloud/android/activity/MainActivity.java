@@ -2399,7 +2399,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (hide) {
                 usersListFragmentDocked.setVisibility(View.GONE);
                 if (drawerLayout != null) {
-                    if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow() && c != null)
+                    if(conn != null && conn.ready && c != null)
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
                     else
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
