@@ -2367,9 +2367,7 @@ public class ColorFormatter {
                             }
                         }
 
-                        if (isVideoEnt || lower.matches("(^.*/.*\\.3gpp?)|(^.*/.*\\.mp4$)|(^.*/.*\\.m4v$)|(^.*/.*\\.webm$)") ||
-                                url.toLowerCase().matches("(^https?://(www\\.)?facebook\\.com/video\\.php\\?.*$)|" +
-                                        "(^https?://(www\\.)?facebook\\.com/.*/videos/[0-9]+/?)")) {
+                        if (isVideoEnt || lower.matches("(^.*/.*\\.3gpp?)|(^.*/.*\\.mp4$)|(^.*/.*\\.m4v$)|(^.*/.*\\.webm$)")) {
                             if (lower.startsWith("http://"))
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME) + "://" + url.substring(7);
                             else if (lower.startsWith("https://"))

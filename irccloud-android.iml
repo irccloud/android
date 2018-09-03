@@ -94,6 +94,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jniLibs" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/legacy_multidex_aapt_derived_proguard_rules" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/legacy_multidex_main_dex_list" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/lint_jar" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/merged_assets" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/merged_manifests" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/prebuild" />
@@ -112,86 +113,86 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-api-phone-15.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-basement-15.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-base-15.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.cursoradapter:cursoradapter-1.0.0-beta01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.legacy:legacy-support-core-utils-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.vectordrawable:vectordrawable-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:crashlytics-core-2.6.1" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.core:core-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.appcompat:appcompat-1.0.0-beta01" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-ads-base-15.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.arch.core:core-common:2.0.0-rc01@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.collection:collection:1.0.0-rc02@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.coordinatorlayout:coordinatorlayout-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-ads-lite-15.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.browser:browser-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.print:print-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.recyclerview:recyclerview-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-runtime-3.2.0-beta03" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.vectordrawable:vectordrawable-1.0.0-beta01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.vectordrawable:vectordrawable-animated-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.print:print-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.browser:browser-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.9.2@jar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.interpolator:interpolator-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.versionedparcelable:versionedparcelable-1.0.0-beta01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.swiperefreshlayout:swiperefreshlayout-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okio:okio:1.14.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.9.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.arch.core:core-common:2.0.0-beta01@jar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.room:room-common:2.0.0-beta01@jar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.annotation:annotation:1.0.0-beta01@jar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.cardview:cardview-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-livedata-core-2.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-common:3.2.0-beta03@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-common:2.0.0-rc01@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.recyclerview:recyclerview-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.core:core-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.versionedparcelable:versionedparcelable-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-viewmodel-2.0.0-rc01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.sqlite:sqlite-framework-2.0.0-rc01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.viewpager:viewpager-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-ads-15.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.commonsware.cwac:richedit-0.5.2" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-common:2.0.0-beta01@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.exifinterface:exifinterface-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:beta-1.2.7" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.transition:transition-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.fragment:fragment-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.asynclayoutinflater:asynclayoutinflater-1.0.0-beta01" level="project" />
     <orderEntry type="library" name="Gradle: io.fabric.sdk.android:fabric-1.4.2" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.loader:loader-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.localbroadcastmanager:localbroadcastmanager-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: com.google.android.material:material-1.0.0-beta01" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-tasks-15.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-viewmodel-2.0.0-beta01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.legacy:legacy-support-core-ui-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-16.0.0" level="project" />
     <orderEntry type="library" name="Gradle: org.solovyev.android.views:linear-layout-manager-0.5" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-identity-15.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.vectordrawable:vectordrawable-animated-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.legacy:legacy-support-core-utils-1.0.0-beta01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.loader:loader-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-common:3.2.0-rc02@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-runtime-2.0.0-rc01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.legacy:legacy-support-v4-1.0.0-rc01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.interpolator:interpolator-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.appcompat:appcompat-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.arch.core:core-runtime-2.0.0-rc01" level="project" />
     <orderEntry type="library" name="Gradle: pl.droidsonroids.gif:android-gif-drawable-1.2.8" level="project" />
     <orderEntry type="library" name="Gradle: com.makeramen:roundedimageview-2.3.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-base-15.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.fragment:fragment-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: androidx.multidex:multidex-2.0.0" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.coordinatorlayout:coordinatorlayout-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-15.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-livedata-core-2.0.0-rc01" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.android.material:material-1.0.0-rc01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.customview:customview-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:crashlytics-2.9.1" level="project" />
     <orderEntry type="library" name="Gradle: com.damnhandy:handy-uri-templates:2.0.2@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.asynclayoutinflater:asynclayoutinflater-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-base-15.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.room:room-runtime-2.0.0-beta01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.drawerlayout:drawerlayout-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.media:media-1.0.0-rc01" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/sam/Projects/irccloud-android/libs/multiwindow-v1.3.2.jar:unspecified@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.apps.dashclock:dashclock-api:2.0.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-adapters-3.2.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.datatheorem.android.trustkit:trustkit-1.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.documentfile:documentfile-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-gass-15.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.sqlite:sqlite-2.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.exifinterface:exifinterface-1.0.0-beta01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-runtime-3.2.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-gcm-15.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-ads-identifier-15.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.documentfile:documentfile-1.0.0-beta01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.transition:transition-1.0.0-rc01" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/sam/Projects/irccloud-android/libs/sdk-v1.0.0.jar:unspecified@jar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.viewpager:viewpager-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.emoji:emoji-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.slidingpanelayout:slidingpanelayout-1.0.0-beta01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.slidingpanelayout:slidingpanelayout-1.0.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: com.vandalsoftware.android:dslv-0.6.3" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.legacy:legacy-support-core-ui-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.swiperefreshlayout:swiperefreshlayout-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.media:media-1.0.0-alpha3" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-stats-15.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.theartofdev.edmodo:android-image-cropper-2.6.0" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okhttp3:okhttp:3.10.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-adapters-3.2.0-beta03" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.room:room-common:2.0.0-rc01@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.9.2@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-iid-15.0.1" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.legacy:legacy-support-v4-1.0.0-alpha3" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.arch.core:core-runtime-2.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-runtime-2.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.sqlite:sqlite-framework-2.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.collection:collection:1.0.0-beta01@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.localbroadcastmanager:localbroadcastmanager-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.cardview:cardview-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.room:room-runtime-2.0.0-rc01" level="project" />
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:answers-1.4.1" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.drawerlayout:drawerlayout-1.0.0-beta01" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.customview:customview-1.0.0-beta01" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.annotation:annotation:1.0.0-rc02@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.cursoradapter:cursoradapter-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.emoji:emoji-1.0.0-rc02" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.sqlite:sqlite-2.0.0-rc01" level="project" />
     <orderEntry type="module" module-name="android-websockets" />
   </component>
 </module>

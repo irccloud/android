@@ -361,11 +361,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
 
         if (getIntent() != null && getIntent().getDataString() != null) {
             Uri url = Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http"));
-            if(url.getHost().endsWith("facebook.com")) {
-                new FacebookTask().execute(url);
-            } else {
-                video.setVideoURI(url);
-            }
+            video.setVideoURI(url);
             Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Video"));
         } else {
             finish();
@@ -553,45 +549,6 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             }
         } else {
             Toast.makeText(this, "Unable to download: permission denied", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private class FacebookTask extends AsyncTaskEx<Uri, Void, String> {
-
-        @Override
-        protected String doInBackground(Uri... params) {
-            try {
-                String videoID = null;
-                Uri url = params[0];
-                if(url.getPath().equals("/video.php")) {
-                    videoID = url.getQueryParameter("v");
-                    if(videoID == null)
-                        videoID = url.getQueryParameter("id");
-                } else {
-                    videoID = url.getPathSegments().get(2);
-                }
-
-                if(videoID != null) {
-                    JSONObject o = NetworkConnection.getInstance().fetchJSON("https://graph.facebook.com/v2.2/" + videoID + "?fields=source&access_token=" + BuildConfig.FB_ACCESS_TOKEN);
-                    if (o.has("source"))
-                        return o.getString("source");
-                }
-            } catch (Exception e) {
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String url) {
-            if (url != null) {
-                if(mCustomTabsSession != null)
-                    mCustomTabsSession.mayLaunchUrl(Uri.parse(url), null, null);
-                video.setVideoURI(Uri.parse(url));
-            } else {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
-                startActivity(intent);
-                finish();
-            }
         }
     }
 }

@@ -673,7 +673,7 @@ public class ImageList {
 
     public class ImgurTask extends AsyncTaskEx<String, Void, JSONObject> {
         private String type = "gallery";
-        private final String REST_URL = (BuildConfig.MASHAPE_KEY.length() > 0) ? "https://imgur-apiv3.p.mashape.com/3/" : "https://api.imgur.com/3/";
+        private final String REST_URL = "https://api.imgur.com/3/";
         private String original_url = null;
         private String title = null;
         private OnImageInfoListener listener = null;
@@ -688,8 +688,6 @@ public class ImageList {
         protected JSONObject doInBackground(String... params) {
             try {
                 HashMap<String, String> headers = new HashMap<>();
-                if (BuildConfig.MASHAPE_KEY.length() > 0)
-                    headers.put("X-Mashape-Authorization", BuildConfig.MASHAPE_KEY);
                 headers.put("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(REST_URL + type + "/" + params[0], headers);
                 if (o.getBoolean("success")) {
