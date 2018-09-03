@@ -22,7 +22,7 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0-beta03'
+        classpath 'com.android.tools.build:gradle:3.2.0-rc02'
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -64,7 +64,7 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '28.0.1'
+    buildToolsVersion '28.0.2'
     testBuildType 'debugTest'
 
     defaultConfig {
@@ -114,15 +114,11 @@ android {
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
-                buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
-                buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
-                buildConfigField "String", "MASHAPE_KEY", "\"\""
-                buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
             }
             buildConfigField "String[]", "SSL_FPS", "{\"54A0A7A4EE83A09B71F867581627EB242BD2398EAAA1DC7AB4CCE26E6EED8EB8\", \"E68F27E003ED788159670B6A4C6C5328F1D1FDA81CB19CC8B816F9364684233B\"}"
@@ -152,15 +148,11 @@ android {
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
-                buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
-                buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
-                buildConfigField "String", "MASHAPE_KEY", "\"\""
-                buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
             }
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
@@ -196,16 +188,12 @@ android {
                 buildConfigField "String", "GCM_ID_IRCCLOUD", "\"" + props['GCM_ID_IRCCLOUD'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
-                buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
-                buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "GCM_ID_IRCCLOUD", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
-                buildConfigField "String", "MASHAPE_KEY", "\"\""
-                buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
             }
             buildConfigField "String[]", "SSL_FPS", "null"
@@ -237,16 +225,12 @@ android {
                 buildConfigField "String", "GCM_ID_IRCCLOUD", "\"" + props['GCM_ID_IRCCLOUD'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
-                buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
-                buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "GCM_ID_IRCCLOUD", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
-                buildConfigField "String", "MASHAPE_KEY", "\"\""
-                buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
             }
             buildConfigField "String[]", "SSL_FPS", "null"
@@ -338,17 +322,17 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:1.0.0-beta01"
-    implementation "androidx.cardview:cardview:1.0.0-beta01"
-    implementation "com.google.android.material:material:1.0.0-beta01"
-    implementation "androidx.recyclerview:recyclerview:1.0.0-beta01"
-    implementation "androidx.browser:browser:1.0.0-beta01"
-    implementation "androidx.emoji:emoji:1.0.0-beta01"
-    implementation "androidx.exifinterface:exifinterface:1.0.0-beta01"
-    implementation "androidx.room:room-runtime:2.0.0-beta01"
-    annotationProcessor "androidx.room:room-compiler:2.0.0-beta01"
+    implementation "androidx.appcompat:appcompat:1.0.0-rc02"
+    implementation "androidx.cardview:cardview:1.0.0-rc02"
+    implementation "com.google.android.material:material:1.0.0-rc01"
+    implementation "androidx.recyclerview:recyclerview:1.0.0-rc02"
+    implementation "androidx.browser:browser:1.0.0-rc02"
+    implementation "androidx.emoji:emoji:1.0.0-rc02"
+    implementation "androidx.exifinterface:exifinterface:1.0.0-rc02"
+    implementation "androidx.room:room-runtime:2.0.0-rc01"
+    annotationProcessor "androidx.room:room-compiler:2.0.0-rc01"
     implementation "com.google.android.gms:play-services-base:15.0.1"
-    implementation "com.google.android.gms:play-services-auth:15.0.1"
+    implementation "com.google.android.gms:play-services-auth:16.0.0"
     implementation "com.google.android.gms:play-services-identity:15.0.1"
     implementation "com.google.android.gms:play-services-ads:15.0.1"
     implementation "com.google.android.gms:play-services-gcm:15.0.1"
