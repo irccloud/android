@@ -255,6 +255,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private Intent pastebinResult = null;
     private ColorScheme colorScheme = ColorScheme.getInstance();
     private String msgid = null;
+    public TextListFragment help_fragment = null;
 
     private ColorFilter highlightsFilter;
     private ColorFilter unreadFilter;
@@ -944,6 +945,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (conn != null)
             conn.removeHandler(this);
         conn = null;
+        help_fragment = null;
     }
 
     private void updateReconnecting() {
@@ -2154,6 +2156,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         progressBar.setVisibility(View.GONE);
         errorMsg.setVisibility(View.GONE);
         error = null;
+        help_fragment = null;
         synchronized (backStack) {
             if (buffer != null)
                 backStack.add(0, buffer.getBid());
@@ -3051,6 +3054,50 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                 });
+                break;
+            case NetworkConnection.EVENT_ALERT:
+                event = (IRCCloudJSONObject) obj;
+                if(event.type().equals("help") || event.type().equals("stats")) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            hide_keyboard();
+
+                            Bundle args = new Bundle();
+                            if(event.has("command"))
+                                args.putString("title", "HELP for " + event.getString("command"));
+                            else
+                                args.putString("title", event.type().toUpperCase());
+
+                            String msg = "";
+                            if(event.has("parts"))
+                                msg = event.getString("parts");
+
+                            if (event.has("msg")) {
+                                if(msg.length() > 0)
+                                    msg += ": ";
+                                msg += event.getString("msg");
+                            }
+                            msg += "\n";
+
+                            args.putString("text", msg);
+                            if(help_fragment == null || help_fragment.dismissed || !help_fragment.type.equals(event.type()) || (help_fragment.getActivity() != null && help_fragment.getActivity() != MainActivity.this)) {
+                                help_fragment = new TextListFragment();
+                                help_fragment.type = event.type();
+                                help_fragment.setArguments(args);
+                                try {
+                                    help_fragment.show(getSupportFragmentManager(), "help_stats");
+                                } catch (IllegalStateException e) {
+                                    //App lost focus already
+                                }
+                            } else {
+                                args.putString("text", help_fragment.getArguments().getString("text", "\n") + msg);
+                                help_fragment.getArguments().putAll(args);
+                                help_fragment.refresh();
+                            }
+                        }
+                    });
+                }
                 break;
             case NetworkConnection.EVENT_WHOIS:
                 event = (IRCCloudJSONObject) obj;

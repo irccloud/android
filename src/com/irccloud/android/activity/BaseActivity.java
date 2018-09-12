@@ -447,6 +447,10 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     o = (IRCCloudJSONObject) obj;
 
                     switch(o.type()) {
+                        case "help":
+                            break;
+                        case "stats":
+                            break;
                         case "invite_only_chan":
                             showAlert(o.cid(), "You need an invitation to join " + o.getString("chan"));
                             break;

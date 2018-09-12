@@ -32,11 +32,14 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.irccloud.android.R;
+import com.irccloud.android.activity.MainActivity;
 
 public class TextListFragment extends DialogFragment {
-    TextView textView;
-    String title = null;
-    String text = null;
+    private TextView textView;
+    private String title = null;
+    private String text = null;
+    public boolean dismissed = false;
+    public String type;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -69,6 +72,22 @@ public class TextListFragment extends DialogFragment {
                 })
                 .create();
         return d;
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        dismissed = true;
+        if(getActivity() != null && ((MainActivity)getActivity()).help_fragment == this)
+            ((MainActivity)getActivity()).help_fragment = null;
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        dismissed = true;
+        if(getActivity() != null && ((MainActivity)getActivity()).help_fragment == this)
+            ((MainActivity)getActivity()).help_fragment = null;
     }
 
     @Override
