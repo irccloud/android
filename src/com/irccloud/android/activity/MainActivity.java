@@ -6528,7 +6528,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 http.setReadTimeout(60000);
                 http.setConnectTimeout(60000);
                 http.setDoOutput(true);
-                http.setFixedLengthStreamingMode(total + (boundary.length() * 2) + original_filename.length() + type.length() + 88);
+                http.setFixedLengthStreamingMode(total + (boundary.length() * 2) + original_filename.getBytes().length + type.length() + 88);
                 http.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
                 http.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
                 http.setRequestProperty("Cookie", "session=" + NetworkConnection.getInstance().session);
