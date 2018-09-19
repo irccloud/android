@@ -68,8 +68,8 @@ android {
     testBuildType 'debugTest'
 
     defaultConfig {
-        versionCode 201
-        versionName "4.11.2"
+        versionCode 202
+        versionName "4.12"
         minSdkVersion 17
         targetSdkVersion 28
         multiDexEnabled true
@@ -324,7 +324,7 @@ tasks.whenTaskAdded { task ->
 dependencies {
     implementation "androidx.appcompat:appcompat:1.0.0-rc02"
     implementation "androidx.cardview:cardview:1.0.0-rc02"
-    implementation "com.google.android.material:material:1.0.0-rc01"
+    implementation "com.google.android.material:material:1.0.0-rc02"
     implementation "androidx.recyclerview:recyclerview:1.0.0-rc02"
     implementation "androidx.browser:browser:1.0.0-rc02"
     implementation "androidx.emoji:emoji:1.0.0-rc02"
