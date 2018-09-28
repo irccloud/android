@@ -2658,7 +2658,7 @@ public class ColorFormatter {
                     Mention m = new Mention();
                     m.position = node.get(0).asInt() + mention_offset;
                     m.length = node.get(1).asInt();
-                    if(m.position >= 0 && m.position + m.length < msg.length())
+                    if(m.position >= 0 && m.position + m.length <= msg.length())
                         mention_list.add(m);
                 }
                 if(mention_list.size() > 0)
