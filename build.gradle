@@ -68,8 +68,8 @@ android {
     testBuildType 'debugTest'
 
     defaultConfig {
-        versionCode 202
-        versionName "4.12"
+        versionCode 203
+        versionName "4.13"
         minSdkVersion 17
         targetSdkVersion 28
         multiDexEnabled true
@@ -322,20 +322,20 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:1.0.0-rc02"
-    implementation "androidx.cardview:cardview:1.0.0-rc02"
-    implementation "com.google.android.material:material:1.0.0-rc02"
-    implementation "androidx.recyclerview:recyclerview:1.0.0-rc02"
-    implementation "androidx.browser:browser:1.0.0-rc02"
-    implementation "androidx.emoji:emoji:1.0.0-rc02"
-    implementation "androidx.exifinterface:exifinterface:1.0.0-rc02"
-    implementation "androidx.room:room-runtime:2.0.0-rc01"
-    annotationProcessor "androidx.room:room-compiler:2.0.0-rc01"
-    implementation "com.google.android.gms:play-services-base:15.0.1"
-    implementation "com.google.android.gms:play-services-auth:16.0.0"
-    implementation "com.google.android.gms:play-services-identity:15.0.1"
-    implementation "com.google.android.gms:play-services-ads:15.0.1"
-    implementation "com.google.android.gms:play-services-gcm:15.0.1"
+    implementation "androidx.appcompat:appcompat:1.0.0"
+    implementation "androidx.cardview:cardview:1.0.0"
+    implementation "com.google.android.material:material:1.0.0"
+    implementation "androidx.recyclerview:recyclerview:1.0.0"
+    implementation "androidx.browser:browser:1.0.0"
+    implementation "androidx.emoji:emoji:1.0.0"
+    implementation "androidx.exifinterface:exifinterface:1.0.0"
+    implementation "androidx.room:room-runtime:2.0.0"
+    annotationProcessor "androidx.room:room-compiler:2.0.0"
+    implementation "com.google.android.gms:play-services-base:16.0.1"
+    implementation "com.google.android.gms:play-services-auth:16.0.1"
+    implementation "com.google.android.gms:play-services-identity:16.0.0"
+    implementation "com.google.android.gms:play-services-ads:17.0.0"
+    implementation "com.google.android.gms:play-services-gcm:16.0.0"
     implementation 'com.google.android.apps.dashclock:dashclock-api:+'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.0.2'
