@@ -655,6 +655,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if (e.html != null && e.formatted == null) {
                         try {
                             e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0));
+                            if(e.lastEditEID > 0)
+                                e.html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
                             e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
                             if (e.msg != null && e.msg.length() > 0)
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
@@ -3536,6 +3538,20 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_SETIGNORES:
                 e = (IRCCloudJSONObject) obj;
                 if (buffer != null && e.cid() == buffer.getCid()) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (refreshTask != null)
+                                refreshTask.cancel(true);
+                            refreshTask = new RefreshTask();
+                            refreshTask.execute((Void) null);
+                        }
+                    });
+                }
+                break;
+            case NetworkConnection.EVENT_MESSAGECHANGE:
+                e = (IRCCloudJSONObject) obj;
+                if (buffer != null && e.bid() == buffer.getBid()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

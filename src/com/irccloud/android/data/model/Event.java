@@ -129,6 +129,7 @@ public class Event {
     public HashSet<String> reply_nicks;
     public int mention_offset;
     public boolean ready_for_display;
+    public long lastEditEID;
 
     public Event() {
 

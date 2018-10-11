@@ -4902,9 +4902,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (event.row_type == ROW_FILE || event.row_type == ROW_THUMBNAIL) {
             if(event.entities.has("id"))
-                showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)), event.entities, null);
+                showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)), event.entities, null, false, null);
             else
-                showUserPopup(user, ColorFormatter.html_to_spanned(event.entities.get("url").asText(), true, ServersList.getInstance().getServer(event.cid)), event.entities, null);
+                showUserPopup(user, ColorFormatter.html_to_spanned(event.entities.get("url").asText(), true, ServersList.getInstance().getServer(event.cid)), event.entities, null, false, null);
         } else if (event.html != null) {
             String html = event.html;
 
@@ -4924,9 +4924,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(event.type.equals("buffer_msg") || event.type.equals("buffer_me_msg")) {
                 msgid = event.is_reply ? event.reply() : event.msgid;
             }
-            showUserPopup(user, ColorFormatter.html_to_spanned(timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)), null, msgid);
+
+            boolean canEdit = event.self;
+            Server s = ServersList.getInstance().getServer(event.cid);
+            if(s == null || !(s.isSlack() || s.getOrgId() > 0))
+                canEdit = false;
+
+            showUserPopup(user, ColorFormatter.html_to_spanned(timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)), null, msgid, canEdit, event.msg);
         } else {
-            showUserPopup(user, null, null, null);
+            showUserPopup(user, null, null, null, false, null);
         }
         return true;
     }
@@ -5001,12 +5007,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onUserSelected(int c, String chan, String nick) {
         UsersList u = UsersList.getInstance();
-        showUserPopup(u.getUser(buffer.getBid(), nick), null, null, null);
+        showUserPopup(u.getUser(buffer.getBid(), nick), null, null, null, false, null);
     }
 
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
-    private void showUserPopup(User user, Spanned message, final JsonNode entities, final String msgid) {
+    private void showUserPopup(User user, final Spanned message, final JsonNode entities, final String msgid, boolean canEdit, final String raw_msg) {
         ArrayList<String> itemList = new ArrayList<String>();
         final String[] items;
         SpannableStringBuilder sb;
@@ -5037,6 +5043,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 itemList.add("Close Preview");
             }
             itemList.add("Copy Message");
+            if(canEdit) {
+                itemList.add("Edit Message…");
+                itemList.add("Delete Message");
+            }
         }
 
         if (msgid != null && this.msgid == null) {
@@ -5200,11 +5210,76 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else if (items[item].equals("Close Preview")) {
                     MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
                     if (mvf != null) {
-                        if(entities.has("id"))
+                        if (entities.has("id"))
                             mvf.hideFileId(entities.get("id").asText());
                         else
                             mvf.hideFileId(entities.get("url").asText());
                     }
+                } else if(items[item].equals("Delete Message")) {
+                    builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Delete Message");
+                    builder.setMessage("Are you sure you want to delete this message?");
+
+
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            NetworkConnection.getInstance().delete_message(buffer.getCid(), buffer.getName(), msgid, new NetworkConnection.IRCResultCallback() {
+                                @Override
+                                public void onIRCResult(IRCCloudJSONObject result) {
+                                    if(!result.getBoolean("success")) {
+                                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to delete message: " + result.toString());
+                                        Toast.makeText(MainActivity.this, "Unable to delete message, please try again.", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog = builder.create();
+                    dialog.setOwnerActivity(MainActivity.this);
+                    dialog.show();
+                } else if (items[item].equals("Edit Message…")) {
+                    view = getDialogTextPrompt();
+                    prompt = view.findViewById(R.id.prompt);
+                    input = view.findViewById(R.id.textInput);
+                    input.setText(raw_msg);
+                    prompt.setText("Edit Message");
+                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                    builder.setView(view);
+                    builder.setPositiveButton("Edit", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            NetworkConnection.getInstance().edit_message(buffer.getCid(), buffer.getName(), input.getText().toString(), msgid, new NetworkConnection.IRCResultCallback() {
+                                @Override
+                                public void onIRCResult(IRCCloudJSONObject result) {
+                                    if(!result.getBoolean("success")) {
+                                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to edit message: " + result.toString());
+                                        Toast.makeText(MainActivity.this, "Unable to edit message, please try again.", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog = builder.create();
+                    dialog.setOwnerActivity(MainActivity.this);
+                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    dialog.show();
                 } else if (items[item].equals("Whois…")) {
                     if(selected_user.ircserver != null && selected_user.ircserver.length() > 0)
                         conn.whois(buffer.getCid(), selected_user.nick, selected_user.ircserver, null);

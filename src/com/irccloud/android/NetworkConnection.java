@@ -30,6 +30,7 @@ import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
@@ -87,6 +88,7 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -219,6 +221,7 @@ public class NetworkConnection {
     public static final int EVENT_LOGEXPORTFINISHED = 54;
     public static final int EVENT_DISPLAYNAMECHANGE = 55;
     public static final int EVENT_AVATARCHANGE = 56;
+    public static final int EVENT_MESSAGECHANGE = 57;
 
     public static final int EVENT_BACKLOG_START = 100;
     public static final int EVENT_BACKLOG_END = 101;
@@ -252,6 +255,7 @@ public class NetworkConnection {
     public String globalMsg = null;
 
     private HashMap<Integer, OOBFetcher> oobTasks = new HashMap<Integer, OOBFetcher>();
+    private ArrayList<IRCCloudJSONObject> pendingEdits = new ArrayList<>();
 
     public synchronized static NetworkConnection getInstance() {
         if (instance == null) {
@@ -1356,6 +1360,33 @@ public class NetworkConnection {
         }
     }
 
+    public int edit_message(int cid, String to, String message, String msgid, IRCResultCallback callback) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("cid", cid);
+            o.put("to", to);
+            o.put("edit", message);
+            o.put("msgid", msgid);
+            return send("edit-message", o, callback);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
+    public int delete_message(int cid, String to, String msgid, IRCResultCallback callback) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("cid", cid);
+            o.put("to", to);
+            o.put("msgid", msgid);
+            return send("delete-message", o, callback);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
     public JSONObject postSay(int cid, String to, String message, String sk) throws IOException {
         if(to == null)
             to = "*";
@@ -2169,6 +2200,7 @@ public class NetworkConnection {
                 NotificationsList.getInstance().deleteOldNotifications();
                 NotificationsList.getInstance().pruneNotificationChannels();
                 mRecentConversations.prune();
+                process_pending_edits();
                 if (userInfo != null && userInfo.connections > 0 && (mServers.count() == 0 || mBuffers.count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
                     notifyHandlers(EVENT_BACKLOG_FAILED, null);
@@ -2784,6 +2816,15 @@ public class NetworkConnection {
             }
         });
 
+        //Message updates
+        put("empty_msg", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                pendingEdits.add(object);
+                process_pending_edits();
+            }
+        });
+
         //Various lists
         put("ban_list", new BroadcastParser(EVENT_BANLIST));
         put("accept_list", new BroadcastParser(EVENT_ACCEPTLIST));
@@ -2848,6 +2889,63 @@ public class NetworkConnection {
             }
         });
     }};
+
+    private synchronized void process_pending_edits() {
+        ArrayList<IRCCloudJSONObject> edits = pendingEdits;
+        pendingEdits = new ArrayList<>();
+
+        for(IRCCloudJSONObject o : edits) {
+            JsonNode entities = o.getJsonNode("entities");
+            if(entities != null) {
+                if (entities.has("delete")) {
+                    boolean found = false;
+                    String msgid = entities.get("delete").asText();
+                    Map<Long,Event> events = mEvents.getEventsForBuffer(o.bid());
+                    for(Event e : events.values()) {
+                        if(e.msgid != null && e.msgid.equals(msgid)) {
+                            mEvents.deleteEvent(e.eid, e.bid);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(found) {
+                        if(!backlog)
+                            notifyHandlers(EVENT_MESSAGECHANGE, o);
+                    } else {
+                        pendingEdits.add(o);
+                        Crashlytics.log(Log.INFO, TAG, "Queued delete for msgID " + msgid);
+                    }
+                } else if(entities.has("edit")) {
+                    boolean found = false;
+                    String msgid = entities.get("edit").asText();
+                    Map<Long,Event> events = mEvents.getEventsForBuffer(o.bid());
+                    for(Event e : events.values()) {
+                        if(e.msgid != null && e.msgid.equals(msgid) && o.eid() >= e.lastEditEID) {
+                            if(entities.has("edit_text") && entities.get("edit_text").asText().length() > 0) {
+                                e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
+                                if(e.msg.startsWith(" "))
+                                    e.msg = "&nbsp;" + e.msg.substring(1);
+                            }
+                            e.lastEditEID = o.eid();
+                            e.formatted = null;
+                            e.html = null;
+                            e.ready_for_display = false;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(found) {
+                        if(!backlog)
+                            notifyHandlers(EVENT_MESSAGECHANGE, o);
+                    } else {
+                        pendingEdits.add(o);
+                        Crashlytics.log(Log.INFO, TAG, "Queued edit for msgID " + msgid);
+                    }
+
+                }
+            }
+        }
+    }
 
     public synchronized void parse_object(IRCCloudJSONObject object) throws JSONException {
         cancel_idle_timer();
