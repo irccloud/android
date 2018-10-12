@@ -4930,7 +4930,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(s == null || !(s.isSlack() || s.getOrgId() > 0))
                 canEdit = false;
 
-            showUserPopup(user, ColorFormatter.html_to_spanned(timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)), null, msgid, canEdit, event.msg);
+            showUserPopup(user, ColorFormatter.html_to_spanned(timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)), null, msgid, canEdit, event);
         } else {
             showUserPopup(user, null, null, null, false, null);
         }
@@ -5012,7 +5012,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
-    private void showUserPopup(User user, final Spanned message, final JsonNode entities, final String msgid, boolean canEdit, final String raw_msg) {
+    private void showUserPopup(User user, final Spanned message, final JsonNode entities, final String msgid, boolean canEdit, final Event event) {
         ArrayList<String> itemList = new ArrayList<String>();
         final String[] items;
         SpannableStringBuilder sb;
@@ -5232,7 +5232,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            NetworkConnection.getInstance().delete_message(buffer.getCid(), buffer.getName(), msgid, new NetworkConnection.IRCResultCallback() {
+                            NetworkConnection.getInstance().delete_message(buffer.getCid(), buffer.getName(), event.msgid, new NetworkConnection.IRCResultCallback() {
                                 @Override
                                 public void onIRCResult(IRCCloudJSONObject result) {
                                     if(!result.getBoolean("success")) {
@@ -5251,14 +5251,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     view = getDialogTextPrompt();
                     prompt = view.findViewById(R.id.prompt);
                     input = view.findViewById(R.id.textInput);
-                    input.setText(raw_msg);
+                    input.setText(event.msg);
                     prompt.setText("Edit Message");
                     builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setView(view);
                     builder.setPositiveButton("Edit", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            NetworkConnection.getInstance().edit_message(buffer.getCid(), buffer.getName(), input.getText().toString(), msgid, new NetworkConnection.IRCResultCallback() {
+                            NetworkConnection.getInstance().edit_message(buffer.getCid(), buffer.getName(), input.getText().toString(), event.msgid, new NetworkConnection.IRCResultCallback() {
                                 @Override
                                 public void onIRCResult(IRCCloudJSONObject result) {
                                     if(!result.getBoolean("success")) {
