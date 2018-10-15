@@ -247,7 +247,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
         Server s = ServersList.getInstance().getServer(cid);
         if(s != null) {
             User self_user = UsersList.getInstance().getUser(bid, s.getNick());
-            canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
+            canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP) || self_user.mode.contains(s.MODE_HALFOP)));
         } else {
             canChangeMode = false;
         }
@@ -315,7 +315,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             case NetworkConnection.EVENT_USERCHANNELMODE:
                 Server s = ServersList.getInstance().getServer(cid);
                 User self_user = UsersList.getInstance().getUser(bid, s.getNick());
-                canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
+                canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP) || self_user.mode.contains(s.MODE_HALFOP)));
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
