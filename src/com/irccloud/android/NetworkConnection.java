@@ -2901,11 +2901,13 @@ public class NetworkConnection {
                     boolean found = false;
                     String msgid = entities.get("delete").asText();
                     Map<Long,Event> events = mEvents.getEventsForBuffer(o.bid());
-                    for(Event e : events.values()) {
-                        if(e.msgid != null && e.msgid.equals(msgid)) {
-                            mEvents.deleteEvent(e.eid, e.bid);
-                            found = true;
-                            break;
+                    if(events != null) {
+                        for (Event e : events.values()) {
+                            if (e.msgid != null && e.msgid.equals(msgid)) {
+                                mEvents.deleteEvent(e.eid, e.bid);
+                                found = true;
+                                break;
+                            }
                         }
                     }
                     if(found) {
@@ -2919,19 +2921,21 @@ public class NetworkConnection {
                     boolean found = false;
                     String msgid = entities.get("edit").asText();
                     Map<Long,Event> events = mEvents.getEventsForBuffer(o.bid());
-                    for(Event e : events.values()) {
-                        if(e.msgid != null && e.msgid.equals(msgid) && o.eid() >= e.lastEditEID) {
-                            if(entities.has("edit_text") && entities.get("edit_text").asText().length() > 0) {
-                                e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
-                                if(e.msg.startsWith(" "))
-                                    e.msg = "&nbsp;" + e.msg.substring(1);
+                    if(events != null) {
+                        for (Event e : events.values()) {
+                            if (e.msgid != null && e.msgid.equals(msgid) && o.eid() >= e.lastEditEID) {
+                                if (entities.has("edit_text") && entities.get("edit_text").asText().length() > 0) {
+                                    e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
+                                    if (e.msg.startsWith(" "))
+                                        e.msg = "&nbsp;" + e.msg.substring(1);
+                                }
+                                e.lastEditEID = o.eid();
+                                e.formatted = null;
+                                e.html = null;
+                                e.ready_for_display = false;
+                                found = true;
+                                break;
                             }
-                            e.lastEditEID = o.eid();
-                            e.formatted = null;
-                            e.html = null;
-                            e.ready_for_display = false;
-                            found = true;
-                            break;
                         }
                     }
                     if(found) {
