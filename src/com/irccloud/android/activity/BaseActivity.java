@@ -254,6 +254,12 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     }
 
     @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        finished = true;
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         IRCCloudApplication.getInstance().onResume(this);
