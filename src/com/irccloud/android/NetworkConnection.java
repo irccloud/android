@@ -222,6 +222,7 @@ public class NetworkConnection {
     public static final int EVENT_DISPLAYNAMECHANGE = 55;
     public static final int EVENT_AVATARCHANGE = 56;
     public static final int EVENT_MESSAGECHANGE = 57;
+    public static final int EVENT_WATCHSTATUS = 58;
 
     public static final int EVENT_BACKLOG_START = 100;
     public static final int EVENT_BACKLOG_END = 101;
@@ -2540,7 +2541,7 @@ public class NetworkConnection {
                 "unknown_umode", "bad_ping", "cap_raw", "rehashed_config", "knock", "bad_channel_mask", "kill_deny",
                 "chan_own_priv_needed", "not_for_halfops", "chan_forbidden", "starircd_welcome", "zurna_motd",
                 "ambiguous_error_message", "list_usage", "list_syntax", "who_syntax", "text", "admin_info",
-                "watch_status", "sqline_nick", "user_chghost", "loaded_module", "unloaded_module", "invite_notify" };
+                "sqline_nick", "user_chghost", "loaded_module", "unloaded_module", "invite_notify" };
         for (String event : msgs) {
             put(event, msg);
         }
@@ -2886,6 +2887,17 @@ public class NetworkConnection {
                 }
                 if (!backlog)
                     notifyHandlers(EVENT_CHANNELTOPICIS, object);
+            }
+        });
+        put("watch_status", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                object.setEid(System.currentTimeMillis() * 1000L);
+                Event e = mEvents.addEvent(object);
+                if (!backlog) {
+                    notifyHandlers(EVENT_WATCHSTATUS, object);
+                    notifyHandlers(EVENT_BUFFERMSG, e);
+                }
             }
         });
     }};

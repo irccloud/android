@@ -76,6 +76,10 @@ public class IRCCloudJSONObject {
         return eid;
     }
 
+    public void setEid(long e) {
+        eid = e;
+    }
+
     public String type() {
         if (type == null) {
             if (o.has("type"))

@@ -243,16 +243,21 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         return dialogTextPrompt;
     }
 
+    protected boolean finished = false;
+
     @Override
     protected void onPause() {
         super.onPause();
         IRCCloudApplication.getInstance().onPause(this);
+        if(isFinishing())
+            finished = true;
     }
 
     @Override
     public void onResume() {
         super.onResume();
         IRCCloudApplication.getInstance().onResume(this);
+        finished = false;
         File f = new File(getFilesDir(), LOG_FILENAME);
         if(f.exists()) {
             android.util.Log.d("IRCCloud", "Removing stale log file");

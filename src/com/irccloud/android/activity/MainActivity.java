@@ -3055,6 +3055,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 });
                 break;
+            case NetworkConnection.EVENT_WATCHSTATUS:
+                event = (IRCCloudJSONObject) obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(event.getString("watch_nick")).append(" ").append(event.getString("msg")).append(" (").append(event.getString("username")).append("@").append(event.getString("userhost")).append(")");
+                        if(!finished)
+                            Toast.makeText(MainActivity.this, sb.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
             case NetworkConnection.EVENT_ALERT:
                 event = (IRCCloudJSONObject) obj;
                 if(event.type().equals("help") || event.type().equals("stats")) {
@@ -3454,9 +3466,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
             case NetworkConnection.EVENT_AUTH_FAILED:
-                Intent i = new Intent(MainActivity.this, LoginActivity.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(i);
+                if(!finished) {
+                    Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(i);
+                }
                 finish();
                 break;
             case NetworkConnection.EVENT_TEMP_UNAVAILABLE:
