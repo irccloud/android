@@ -96,7 +96,7 @@ public class ImageList {
         }
         return url != null && url.matches(
             "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
-                "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
+                //"(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
                 "(^https?://(www\\.)?imgur\\.com/.*$)|(^https?://m\\.imgur\\.com/.*$)|" +
                 "(^https?://d\\.pr/i/.*)|(^https?://droplr\\.com/i/.*)|" +
                 "(^https?://cl\\.ly/.*)|" +
@@ -584,9 +584,9 @@ public class ImageList {
             } else if (lower.startsWith("flickr.com/") || lower.startsWith("www.flickr.com/")) {
                 new OEmbedTask(URL, listener).execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);
                 return;
-            } else if (lower.startsWith("instagram.com/") || lower.startsWith("www.instagram.com/") || lower.startsWith("instagr.am/") || lower.startsWith("www.instagr.am/")) {
+            /*} else if (lower.startsWith("instagram.com/") || lower.startsWith("www.instagram.com/") || lower.startsWith("instagr.am/") || lower.startsWith("www.instagr.am/")) {
                 new OEmbedTask(URL, listener).execute("https://api.instagram.com/oembed?url=" + url);
-                return;
+                return;*/
             } else if (lower.startsWith("cl.ly")) {
                 new ClLyTask(URL, listener).execute(url);
                 return;
