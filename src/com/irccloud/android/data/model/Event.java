@@ -130,6 +130,7 @@ public class Event {
     public int mention_offset;
     public boolean ready_for_display;
     public long lastEditEID;
+    public boolean edited;
 
     public Event() {
 

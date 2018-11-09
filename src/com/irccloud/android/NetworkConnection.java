@@ -2940,11 +2940,13 @@ public class NetworkConnection {
                                     e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
                                     if (e.msg.startsWith(" "))
                                         e.msg = "&nbsp;" + e.msg.substring(1);
-                                    e.lastEditEID = o.eid();
-                                    e.formatted = null;
-                                    e.html = null;
-                                    e.ready_for_display = false;
+                                    e.edited = true;
                                 }
+                                e.entities = entities;
+                                e.lastEditEID = o.eid();
+                                e.formatted = null;
+                                e.html = null;
+                                e.ready_for_display = false;
                                 found = true;
                                 break;
                             }
