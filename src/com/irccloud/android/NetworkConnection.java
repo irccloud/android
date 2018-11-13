@@ -1227,6 +1227,7 @@ public class NetworkConnection {
         mChannels.clear();
         mUsers.clear();
         mEvents.clear();
+        pendingEdits.clear();
         NotificationsList.getInstance().clear();
         userInfo = null;
         session = null;
@@ -1250,6 +1251,7 @@ public class NetworkConnection {
         mChannels.clear();
         mUsers.clear();
         mEvents.clear();
+        pendingEdits.clear();
         connect();
     }
 
@@ -1966,6 +1968,7 @@ public class NetworkConnection {
                     Log.d("IRCCloud", "Socket was not resumed");
                     NotificationsList.getInstance().clearLastSeenEIDs();
                     mEvents.clear();
+                    pendingEdits.clear();
                     if(streamId != null) {
                         Crashlytics.log(Log.WARN, "IRCCloud", "Unable to resume socket, requesting full OOB load");
                         highest_eid = 0;
@@ -2935,18 +2938,20 @@ public class NetworkConnection {
                     Map<Long,Event> events = mEvents.getEventsForBuffer(o.bid());
                     if(events != null) {
                         for (Event e : events.values()) {
-                            if (e.msgid != null && e.msgid.equals(msgid) && o.eid() >= e.lastEditEID) {
-                                if (entities.has("edit_text") && entities.get("edit_text").asText().length() > 0) {
-                                    e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
-                                    if (e.msg.startsWith(" "))
-                                        e.msg = "&nbsp;" + e.msg.substring(1);
-                                    e.edited = true;
+                            if (e.msgid != null && e.msgid.equals(msgid)) {
+                                if (o.eid() >= e.lastEditEID) {
+                                    if (entities.has("edit_text") && entities.get("edit_text").asText().length() > 0) {
+                                        e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
+                                        if (e.msg.startsWith(" "))
+                                            e.msg = "&nbsp;" + e.msg.substring(1);
+                                        e.edited = true;
+                                    }
+                                    e.entities = entities;
+                                    e.lastEditEID = o.eid();
+                                    e.formatted = null;
+                                    e.html = null;
+                                    e.ready_for_display = false;
                                 }
-                                e.entities = entities;
-                                e.lastEditEID = o.eid();
-                                e.formatted = null;
-                                e.html = null;
-                                e.ready_for_display = false;
                                 found = true;
                                 break;
                             }
