@@ -44,6 +44,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.android.gms.iid.InstanceID;
+import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.LogExportsList;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -3213,6 +3214,7 @@ public class NetworkConnection {
                     totalbuffers = 0;
                     currentBid = -1;
                     if (object != null && (int)object == -1) {
+                        IRCCloudDatabase.getInstance().beginTransaction();
                         mBuffers.invalidate();
                         mChannels.invalidate();
                         return;
@@ -3231,6 +3233,8 @@ public class NetworkConnection {
                         if(oobTasks.size() > 10)
                             break;
                     }
+                    if (bid == -1)
+                        IRCCloudDatabase.getInstance().endTransaction();
                     NotificationsList.getInstance().deleteOldNotifications();
                     NotificationsList.getInstance().pruneNotificationChannels();
                     if (bid != -1) {
@@ -3249,6 +3253,7 @@ public class NetworkConnection {
                     bid = ((OOBFetcher)object).getBid();
                     if (bid == -1) {
                         Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
+                        IRCCloudDatabase.getInstance().endTransaction();
                         streamId = null;
                         highest_eid = 0;
                         if (client != null)
