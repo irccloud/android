@@ -102,17 +102,21 @@ public class RecentConversationsList {
 
     public void prune() {
         List<RecentConversation> conversations = getConversations();
+        IRCCloudDatabase.getInstance().beginTransaction();
         for(RecentConversation c : conversations) {
             if(BuffersList.getInstance().getBuffer(c.getBid()) == null) {
                 IRCCloudDatabase.getInstance().RecentConversationsDao().delete(c);
             }
         }
+        IRCCloudDatabase.getInstance().endTransaction();
 
         conversations = getConversations();
+        IRCCloudDatabase.getInstance().beginTransaction();
         while(conversations.size() > 5) {
             RecentConversation last = conversations.get(conversations.size() - 1);
             conversations.remove(last);
             IRCCloudDatabase.getInstance().RecentConversationsDao().delete(last);
         }
+        IRCCloudDatabase.getInstance().endTransaction();
     }
 }
