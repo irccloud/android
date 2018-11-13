@@ -273,6 +273,7 @@ public class NotificationsList {
         }
 
         List<Notification> notifications = getNotifications();
+        ArrayList<Notification> oldNotifications = new ArrayList<>();
 
         for (Notification n : notifications) {
             long last_seen_eid = getLastSeenEid(n.getBid());
@@ -280,13 +281,18 @@ public class NotificationsList {
             if(b != null)
                 last_seen_eid = b.getLast_seen_eid();
             if (last_seen_eid == -1 || n.getEid() <= last_seen_eid) {
-                IRCCloudDatabase.getInstance().NotificationsDao().delete(n);
+                oldNotifications.add(n);
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.getBid());
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
                 changed = true;
             }
         }
+
         if (changed) {
+            IRCCloudDatabase.getInstance().beginTransaction();
+            IRCCloudDatabase.getInstance().NotificationsDao().delete(oldNotifications);
+            IRCCloudDatabase.getInstance().endTransaction();
+
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
             updateTeslaUnreadCount();
         }
