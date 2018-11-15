@@ -78,8 +78,8 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
         public String count;
         public int bg_color;
         public int heading_color;
-        public boolean away;
         public boolean last;
+        public User user;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -102,14 +102,14 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             data = items;
         }
 
-        public UserListEntry buildItem(int type, String text, String count, int bg_color, int heading_color, boolean away, boolean last) {
+        public UserListEntry buildItem(int type, String text, String count, int bg_color, int heading_color, User user, boolean last) {
             UserListEntry e = new UserListEntry();
             e.type = type;
             e.text = text;
             e.count = count;
             e.bg_color = bg_color;
             e.heading_color = heading_color;
-            e.away = away;
+            e.user = user;
             e.last = last;
             return e;
         }
@@ -140,6 +140,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             RowUserBinding row = holder.binding;
 
             row.setUser(e);
+            row.setAway(e.user != null && e.user.away > 0);
             row.getRoot().setOnLongClickListener(new OnItemLongClickListener(position));
             row.getRoot().setOnClickListener(new OnItemClickListener(position));
 
@@ -162,10 +163,10 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
 
     private void addUsersFromList(ArrayList<UserListEntry> entries, ArrayList<User> users, String heading, String symbol, int bg_color, int heading_color) {
         if (users.size() > 0 && symbol != null) {
-            entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0 ? symbol + String.valueOf(users.size()) : null, bg_color, heading_color, false, false));
+            entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0 ? symbol + String.valueOf(users.size()) : null, bg_color, heading_color, null, false));
             for (int i = 0; i < users.size(); i++) {
                 User user = users.get(i);
-                entries.add(adapter.buildItem(TYPE_USER, user.getDisplayName(), null, bg_color, heading_color, user.away > 0, bg_color != colorScheme.row_members_bg_drawable && i == users.size() - 1));
+                entries.add(adapter.buildItem(TYPE_USER, user.getDisplayName(), null, bg_color, heading_color, user, bg_color != colorScheme.row_members_bg_drawable && i == users.size() - 1));
             }
         }
     }
@@ -513,8 +514,16 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
                 }
                 break;
             case NetworkConnection.EVENT_AWAY:
-                if (((IRCCloudJSONObject) obj).cid() != cid)
-                    break;
+                if (((IRCCloudJSONObject) obj).cid() == cid) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (adapter != null)
+                                adapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+                break;
             case NetworkConnection.EVENT_JOIN:
             case NetworkConnection.EVENT_PART:
             case NetworkConnection.EVENT_QUIT:

@@ -21,6 +21,7 @@
         <import type="android.view.View"/>
         <import type="android.graphics.Typeface"/>
         <variable name="user" type="com.irccloud.android.fragment.UsersListFragment.UserListEntry"/>
+        <variable name="away" type="Boolean"/>
         <variable name="mono" type="Boolean"/>
     </data>
     <LinearLayout
@@ -45,7 +46,7 @@
             android:maxLines="1"
             android:typeface="@{ mono ? Typeface.MONOSPACE : Typeface.DEFAULT }"
             android:text="@{ user.text }"
-            android:textColor="@{ user.type == 0 ? user.heading_color : (user.away ? ColorScheme.getInstance().memberListAwayTextColor : ColorScheme.getInstance().memberListTextColor ) }"
+            android:textColor="@{ user.type == 0 ? user.heading_color : (away ? ColorScheme.getInstance().memberListAwayTextColor : ColorScheme.getInstance().memberListTextColor ) }"
             android:textSize="16sp" />
 
         <TextView
