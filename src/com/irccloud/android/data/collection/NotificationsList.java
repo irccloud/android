@@ -273,7 +273,7 @@ public class NotificationsList {
         }
 
         List<Notification> notifications = getNotifications();
-        ArrayList<Notification> oldNotifications = new ArrayList<>();
+        final ArrayList<Notification> oldNotifications = new ArrayList<>();
 
         for (Notification n : notifications) {
             long last_seen_eid = getLastSeenEid(n.getBid());
@@ -289,9 +289,12 @@ public class NotificationsList {
         }
 
         if (changed) {
-            IRCCloudDatabase.getInstance().beginTransaction();
-            IRCCloudDatabase.getInstance().NotificationsDao().delete(oldNotifications);
-            IRCCloudDatabase.getInstance().endTransaction();
+            IRCCloudDatabase.getInstance().runInTransaction(new Runnable() {
+                @Override
+                public void run() {
+                    IRCCloudDatabase.getInstance().NotificationsDao().delete(oldNotifications);
+                }
+            });
 
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
             updateTeslaUnreadCount();
