@@ -1264,7 +1264,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
 
-            if (text.startsWith(":") && text.length() > 1) {
+            if (text.startsWith(":") && text.length() > 2) {
                 String q = text.toLowerCase().substring(1);
                 for (String emocode : ColorFormatter.emojiMap.keySet()) {
                     if (emocode.startsWith(q)) {
