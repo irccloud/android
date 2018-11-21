@@ -3214,7 +3214,11 @@ public class NetworkConnection {
                     totalbuffers = 0;
                     currentBid = -1;
                     if (object != null && (int)object == -1) {
-                        IRCCloudDatabase.getInstance().beginTransaction();
+                        try {
+                            IRCCloudDatabase.getInstance().beginTransaction();
+                        } catch (IllegalStateException e) {
+
+                        }
                         mBuffers.invalidate();
                         mChannels.invalidate();
                         return;
@@ -3233,8 +3237,13 @@ public class NetworkConnection {
                         if(oobTasks.size() > 10)
                             break;
                     }
-                    if (bid == -1)
-                        IRCCloudDatabase.getInstance().endTransaction();
+                    if (bid == -1) {
+                        try {
+                            IRCCloudDatabase.getInstance().endTransaction();
+                        } catch (IllegalStateException e) {
+
+                        }
+                    }
                     NotificationsList.getInstance().deleteOldNotifications();
                     NotificationsList.getInstance().pruneNotificationChannels();
                     if (bid != -1) {
@@ -3253,7 +3262,11 @@ public class NetworkConnection {
                     bid = ((OOBFetcher)object).getBid();
                     if (bid == -1) {
                         Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
-                        IRCCloudDatabase.getInstance().endTransaction();
+                        try {
+                            IRCCloudDatabase.getInstance().endTransaction();
+                        } catch (IllegalStateException e) {
+
+                        }
                         streamId = null;
                         highest_eid = 0;
                         if (client != null)
