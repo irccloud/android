@@ -469,9 +469,10 @@ public class NotificationsList {
 
     public void createChannel(String id, String title, int importance, String group) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-        String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/" + R.raw.digit);
+        String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/raw/digit");
+        String uid = prefs.getString("uid", "");
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel c = new NotificationChannel(id, title, importance);
+            NotificationChannel c = new NotificationChannel(uid + id, title, importance);
             if(ringtone.length() > 0)
                 c.setSound(Uri.parse(ringtone), new AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
@@ -492,9 +493,10 @@ public class NotificationsList {
     private android.app.Notification buildNotification(String ticker, int cid, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, ArrayList<Notification> messages, NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
         createChannel(String.valueOf(bid), title, NotificationManagerCompat.IMPORTANCE_HIGH, String.valueOf(cid));
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-        String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/" + R.raw.digit);
+        String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/raw/digit");
+        String uid = prefs.getString("uid", "");
         int defaults = 0;
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(bid))
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), uid + String.valueOf(bid))
                 .setContentTitle(title + ((network != null && !network.equals(title)) ? (" (" + network + ")") : ""))
                 .setContentText(Html.fromHtml(text))
                 .setAutoCancel(true)
@@ -522,8 +524,6 @@ public class NotificationsList {
 
         if (prefs.getBoolean("notify_vibrate", true) && ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 2000)
             defaults |= android.app.Notification.DEFAULT_VIBRATE;
-        else
-            builder.setVibrate(new long[]{0L});
 
         builder.setDefaults(defaults);
         SharedPreferences.Editor editor = prefs.edit();
@@ -951,10 +951,16 @@ public class NotificationsList {
                 }
             }
 
+            String uid = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("uid", "uid");
             for (NotificationChannel c : nm.getNotificationChannels()) {
                 try {
-                    if (BuffersList.getInstance().getBuffer(Integer.valueOf(c.getId())) == null)
+                    if (BuffersList.getInstance().getBuffer(Integer.valueOf(c.getId().substring(uid.length()))) == null)
                         nm.deleteNotificationChannel(c.getId());
+                } catch(NumberFormatException e) {
+                }
+                try {
+                    if (Integer.valueOf(c.getId()) > 0)
+                        nm.deleteNotificationChannelGroup(c.getId());
                 } catch(NumberFormatException e) {
                 }
             }

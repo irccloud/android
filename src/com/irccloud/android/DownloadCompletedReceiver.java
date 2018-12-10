@@ -52,7 +52,7 @@ public class DownloadCompletedReceiver extends BroadcastReceiver {
 
                 NotificationsList.getInstance().createChannel("export_complete", "Download Completed", NotificationManagerCompat.IMPORTANCE_DEFAULT, null);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-                String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/" + R.raw.digit);
+                String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/raw/digit");
 
                 NotificationCompat.Builder notification = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), "export_complete")
                         .setContentTitle(e.getFile_name())

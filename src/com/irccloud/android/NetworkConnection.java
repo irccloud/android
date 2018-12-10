@@ -1214,6 +1214,7 @@ public class NetworkConnection {
         accrued = 0;
         highest_eid = -1;
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+        prefs.remove("uid");
         prefs.remove("name");
         prefs.remove("email");
         prefs.remove("highlights");
@@ -1230,6 +1231,7 @@ public class NetworkConnection {
         mEvents.clear();
         pendingEdits.clear();
         NotificationsList.getInstance().clear();
+        NotificationsList.getInstance().pruneNotificationChannels();
         userInfo = null;
         session = null;
         ImageList.getInstance().purge();
@@ -2020,6 +2022,7 @@ public class NetworkConnection {
                 Crashlytics.setUserIdentifier("uid" + userInfo.id);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
                 SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("uid", "uid" + userInfo.id);
                 editor.putString("name", userInfo.name);
                 editor.putString("email", userInfo.email);
                 editor.putString("highlights", userInfo.highlights);

@@ -1077,7 +1077,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
 
                 Ringtone r = new Ringtone();
                 r.title = "IRCCloud";
-                r.uri = "android.resource://" + getPackageName() + "/" + R.raw.digit;
+                r.uri = "android.resource://" + getPackageName() + "/raw/digit";
                 ringtones.add(r);
 
                 Collections.sort(ringtones, new Comparator<Ringtone>() {
@@ -1097,7 +1097,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 r.uri = "";
                 ringtones.add(1, r);
 
-                String notification_uri = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("notify_ringtone", "android.resource://" + getPackageName() + "/" + R.raw.digit);
+                String notification_uri = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("notify_ringtone", "android.resource://" + getPackageName() + "/raw/digit");
                 int i = 0;
                 int selection = 0;
                 String[] items = new String[ringtones.size()];

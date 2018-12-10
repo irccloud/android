@@ -727,7 +727,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 try {
                     String bugReport = "Briefly describe the issue below:\n\n\n\n\n" +
                         "===========\n" +
-                            ((NetworkConnection.getInstance().getUserInfo() != null) ? ("UID: " + NetworkConnection.getInstance().getUserInfo().id + "\n") : "") +
+                        "UID: " + PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("uid", "") + "\n" +
                         "App version: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + " (" + getPackageManager().getPackageInfo(getPackageName(), 0).versionCode + ")\n" +
                         "Device: " + Build.MODEL + "\n" +
                         "Android version: " + Build.VERSION.RELEASE + "\n" +
