@@ -23,25 +23,17 @@
 		    android:title="Notifications" android:key="notify_type"
 		    app:entryValues="@array/pref_notify_values"
 		    android:defaultValue="1" />
+		<SwitchPreference
+			android:key="notify_channels"
+			android:defaultValue="false"
+			android:summaryOn="Ringtone, vibration, and LED settings can be changed for individual channels and PMs"
+			android:summaryOff="Channels and PMs will use a single notification setting"
+			android:title="Per-channel notification settings"/>
 		<Preference
-			android:title="Notification Categories"
-			android:summary="Set ringtone, vibration, and LED settings for individual channels and PMs"
+			android:title="Notification Settings"
+			android:summary="Customize the ringtone, vibration, and LED settings for individual channels and PMs"
 			android:key="notification_channels"
 			/>
-		<Preference
-			android:key="notify_ringtone" android:title="Notification ringtone"
-			android:summary="Choose an alert ringtone"/>
-	    <SwitchPreference
-			android:key="notify_vibrate"
-			android:defaultValue="true"
-			android:summaryOn="Your device will vibrate\n(if available)"
-			android:summaryOff="Your device will not vibrate"
-			android:title="Vibration"/>
-        <com.irccloud.android.AppCompatListPreference app:entries="@array/pref_lights_names"
-            app:entryValues="@array/pref_lights_values"
-			android:key="notify_led_color"
-			android:defaultValue="1"
-			android:title="LED"/>
 		<SwitchPreference
 			android:key="notify_quickreply"
 			android:defaultValue="true"

@@ -296,10 +296,20 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         findPreference("imageviewer").setOnPreferenceChangeListener(imageviewertoggle);
         findPreference("imgur_account_username").setOnPreferenceClickListener(imgurClick);
         findPreference("theme").setOnPreferenceClickListener(themesClick);
-        findPreference("notify_ringtone").setOnPreferenceClickListener(ringtoneClick);
+        if(findPreference("notify_ringtone") != null)
+            findPreference("notify_ringtone").setOnPreferenceClickListener(ringtoneClick);
         findPreference("changes").setOnPreferenceClickListener(urlClick);
         findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
-        findPreference("notify_led_color").setOnPreferenceChangeListener(ledtoggle);
+        if(findPreference("notify_channels") != null)
+            findPreference("notify_channels").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    NotificationsList.getInstance().pruneNotificationChannels();
+                    return true;
+                }
+            });
+        if(findPreference("notify_led_color") != null)
+            findPreference("notify_led_color").setOnPreferenceChangeListener(ledtoggle);
         findPreference("photo_size").setOnPreferenceChangeListener(photosizetoggle);
 
         imgurPreference = findPreference("imgur_account_username");
@@ -430,16 +440,18 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     findPreference("notify_type").setSummary("Only while active");
                     break;
             }
-            switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_led_color", "1"))) {
-                case 0:
-                    findPreference("notify_led_color").setSummary("Disabled");
-                    break;
-                case 1:
-                    findPreference("notify_led_color").setSummary("Default Color");
-                    break;
-                case 2:
-                    findPreference("notify_led_color").setSummary("Blue");
-                    break;
+            if(findPreference("notify_led_color") != null) {
+                switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_led_color", "1"))) {
+                    case 0:
+                        findPreference("notify_led_color").setSummary("Disabled");
+                        break;
+                    case 1:
+                        findPreference("notify_led_color").setSummary("Default Color");
+                        break;
+                    case 2:
+                        findPreference("notify_led_color").setSummary("Blue");
+                        break;
+                }
             }
             switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("photo_size", "1024"))) {
                 case 512:
@@ -455,14 +467,16 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     findPreference("photo_size").setSummary("Original");
                     break;
             }
-            if (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1")) > 0) {
-                findPreference("notify_vibrate").setEnabled(true);
-                findPreference("notify_ringtone").setEnabled(true);
-                findPreference("notify_led_color").setEnabled(true);
-            } else {
-                findPreference("notify_vibrate").setEnabled(false);
-                findPreference("notify_ringtone").setEnabled(false);
-                findPreference("notify_led_color").setEnabled(false);
+            if(findPreference("notify_led_color") != null) {
+                if (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1")) > 0) {
+                    findPreference("notify_vibrate").setEnabled(true);
+                    findPreference("notify_ringtone").setEnabled(true);
+                    findPreference("notify_led_color").setEnabled(true);
+                } else {
+                    findPreference("notify_vibrate").setEnabled(false);
+                    findPreference("notify_ringtone").setEnabled(false);
+                    findPreference("notify_led_color").setEnabled(false);
+                }
             }
             if (findPreference("imgur_account_username") != null)
                 findPreference("imgur_account_username").setSummary(getSharedPreferences("prefs", 0).getString("imgur_account_username", null));
