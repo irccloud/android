@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.SQLException;
 import android.graphics.Bitmap;
 import android.media.AudioAttributes;
 import android.net.Uri;
@@ -54,7 +53,6 @@ import android.widget.RemoteViews;
 
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.ColorFormatter;
-import com.irccloud.android.DashClock;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -66,9 +64,6 @@ import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Notification_LastSeenEID;
 import com.irccloud.android.data.model.Notification_ServerNick;
 import com.irccloud.android.data.model.Server;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.net.URL;
 import java.net.URLEncoder;
@@ -184,7 +179,6 @@ public class NotificationsList {
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.getBid());
             }
-            IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         } catch (Exception e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
@@ -235,8 +229,6 @@ public class NotificationsList {
     public void dismiss(int bid, long eid) {
         Log.d("IRCCloud", "Dismiss bid" + bid + " eid"+eid);
         IRCCloudDatabase.getInstance().NotificationsDao().delete(bid, eid);
-        if (IRCCloudApplication.getInstance() != null)
-            IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         updateTeslaUnreadCount();
     }
 
@@ -296,7 +288,6 @@ public class NotificationsList {
                 }
             });
 
-            IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
             updateTeslaUnreadCount();
         }
 
@@ -317,7 +308,6 @@ public class NotificationsList {
 
         IRCCloudDatabase.getInstance().NotificationsDao().delete(bid);
         IRCCloudDatabase.getInstance().NotificationsDao().deleteLastSeenEID(bid);
-        IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         updateTeslaUnreadCount();
     }
 
@@ -359,7 +349,6 @@ public class NotificationsList {
         showMessageNotifications(mTicker);
         showOtherNotifications();
         mTicker = null;
-        IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         updateTeslaUnreadCount();
     }
 
@@ -711,23 +700,6 @@ public class NotificationsList {
         return builder.build();
     }
 
-    private void notifyPebble(String title, String body) {
-        JSONObject jsonData = new JSONObject();
-        try {
-            final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
-            jsonData.put("title", title);
-            jsonData.put("body", body);
-            final String notificationData = new JSONArray().put(jsonData).toString();
-
-            i.putExtra("messageType", "PEBBLE_ALERT");
-            i.putExtra("sender", "IRCCloud");
-            i.putExtra("notificationData", notificationData);
-            IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(i);
-        } catch (Exception e) {
-            NetworkConnection.printStackTraceToCrashlytics(e);
-        }
-    }
-
     private void showMessageNotifications(String ticker) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         String text = "";
@@ -837,23 +809,6 @@ public class NotificationsList {
                 if (!n.isShown()) {
                     n.setShown(true);
                     show = true;
-
-                    if (prefs.getBoolean("notify_pebble", false) && n.getNick() != null) {
-                        String pebbleTitle = n.getNetwork() + ":\n";
-                        String pebbleBody = "";
-                        if (n.getBuffer_type().equals("channel") && n.getChan() != null && n.getChan().length() > 0)
-                            pebbleTitle = n.getChan() + ":\n";
-
-                        if (n.getMessage_type().equals("buffer_me_msg"))
-                            pebbleBody = "— " + n.getMessage();
-                        else
-                            pebbleBody = n.getMessage();
-
-                        if (n.getChan() != null && n.getNick() != null && n.getNick().length() > 0)
-                            notifyPebble(n.getNick(), pebbleTitle + Html.fromHtml(pebbleBody).toString());
-                        else
-                            notifyPebble(n.getNetwork(), pebbleTitle + Html.fromHtml(pebbleBody).toString());
-                    }
                 }
                 messages.add(n);
                 eids[count++] = n.getEid();

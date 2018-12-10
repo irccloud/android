@@ -22,7 +22,7 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0-rc02'
+        classpath 'com.android.tools.build:gradle:3.2.1'
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -64,7 +64,7 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 28
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
     testBuildType 'debugTest'
 
     defaultConfig {
@@ -322,7 +322,7 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:1.0.0"
+    implementation "androidx.appcompat:appcompat:1.0.2"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.0.0"
     implementation "androidx.recyclerview:recyclerview:1.0.0"
@@ -336,7 +336,6 @@ dependencies {
     implementation "com.google.android.gms:play-services-identity:16.0.0"
     implementation "com.google.android.gms:play-services-ads:16.0.0"
     implementation "com.google.android.gms:play-services-gcm:16.0.0"
-    implementation 'com.google.android.apps.dashclock:dashclock-api:+'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.0.2'
     implementation 'com.commonsware.cwac:richedit:0.5.2'

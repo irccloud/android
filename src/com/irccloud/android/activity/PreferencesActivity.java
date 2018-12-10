@@ -17,9 +17,6 @@
 package com.irccloud.android.activity;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -27,8 +24,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -37,20 +32,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatCallback;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
@@ -58,7 +47,6 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -68,11 +56,9 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.Credential;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
@@ -80,7 +66,6 @@ import com.irccloud.android.AppCompatEditTextPreference;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
-import com.irccloud.android.DashClock;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -94,7 +79,6 @@ import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -231,14 +215,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         addPreferencesFromResource(R.xml.preferences_device);
         addPreferencesFromResource(R.xml.preferences_photos);
         addPreferencesFromResource(R.xml.preferences_notifications);
-        addPreferencesFromResource(R.xml.preferences_dashclock);
-        findPreference("dashclock_showmsgs").setOnPreferenceChangeListener(dashclocktoggle);
-        try {
-            int pebbleVersion = getPackageManager().getPackageInfo("com.getpebble.android", 0).versionCode;
-            if (pebbleVersion < 553 || Build.VERSION.SDK_INT < 18)
-                addPreferencesFromResource(R.xml.preferences_pebble);
-        } catch (Exception e) {
-        }
         if(BuildConfig.DEBUG) {
             //addPreferencesFromResource(R.xml.preferences_debug);
             /*findPreference("enable_cache").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -591,13 +567,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
     Preference.OnPreferenceChangeListener imageviewertoggle = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
             EventsList.getInstance().clearCaches();
-            return true;
-        }
-    };
-
-    Preference.OnPreferenceChangeListener dashclocktoggle = new Preference.OnPreferenceChangeListener() {
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
-            sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
             return true;
         }
     };

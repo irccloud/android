@@ -99,6 +99,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/legacy_multidex_aapt_derived_proguard_rules" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/legacy_multidex_main_dex_list" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/linked_res_for_bundle" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/lint_jar" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/merged_assets" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/merged_manifests" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/module_bundle" />
@@ -118,12 +119,13 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 28 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-adapters-3.2.1" level="project" />
     <orderEntry type="library" name="Gradle: androidx.slidingpanelayout:slidingpanelayout-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-livedata-2.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-tasks-16.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:crashlytics-core-2.6.1" level="project" />
     <orderEntry type="library" name="Gradle: androidx.cardview:cardview-1.0.0" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.appcompat:appcompat-1.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.appcompat:appcompat-1.0.2" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.material:material-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-api-phone-16.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-basement-16.0.1" level="project" />
@@ -143,14 +145,13 @@
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-identity-16.0.0" level="project" />
     <orderEntry type="library" name="Gradle: androidx.interpolator:interpolator-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: androidx.sqlite:sqlite-framework-2.0.0" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.vectordrawable:vectordrawable-1.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.vectordrawable:vectordrawable-1.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.commonsware.cwac:richedit-0.5.2" level="project" />
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:beta-1.2.7" level="project" />
     <orderEntry type="library" name="Gradle: io.fabric.sdk.android:fabric-1.4.2" level="project" />
     <orderEntry type="library" name="Gradle: androidx.room:room-common:2.0.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: org.solovyev.android.views:linear-layout-manager-0.5" level="project" />
     <orderEntry type="library" name="Gradle: androidx.asynclayoutinflater:asynclayoutinflater-1.0.0" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-common:3.2.0-rc02@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-base-16.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-auth-16.0.1" level="project" />
     <orderEntry type="library" name="Gradle: androidx.legacy:legacy-support-v4-1.0.0-rc01" level="project" />
@@ -167,20 +168,17 @@
     <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-livedata-core-2.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.crashlytics.sdk.android:crashlytics-2.9.1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-gass-16.0.0" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.core:core-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.damnhandy:handy-uri-templates:2.0.2@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.core:core-1.0.1" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-stats-16.0.1" level="project" />
     <orderEntry type="library" name="Gradle: androidx.media:media-1.0.0-rc01" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/sam/Projects/irccloud-android/libs/multiwindow-v1.3.2.jar:unspecified@jar" level="project" />
-    <orderEntry type="library" name="Gradle: com.google.android.apps.dashclock:dashclock-api:2.0.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-adapters-3.2.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: androidx.browser:browser-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.datatheorem.android.trustkit:trustkit-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: androidx.transition:transition-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: androidx.legacy:legacy-support-core-utils-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: androidx.sqlite:sqlite-2.0.0" level="project" />
     <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-common:2.0.0@jar" level="project" />
-    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-runtime-3.2.0-rc02" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:/Users/sam/Projects/irccloud-android/libs/sdk-v1.0.0.jar:unspecified@jar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.arch.core:core-common:2.0.0@jar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.viewpager:viewpager-1.0.0" level="project" />
@@ -189,9 +187,11 @@
     <orderEntry type="library" name="Gradle: com.vandalsoftware.android:dslv-0.6.3" level="project" />
     <orderEntry type="library" name="Gradle: androidx.legacy:legacy-support-core-ui-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: androidx.annotation:annotation:1.0.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-runtime-3.2.1" level="project" />
     <orderEntry type="library" name="Gradle: androidx.vectordrawable:vectordrawable-animated-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.theartofdev.edmodo:android-image-cropper-2.6.0" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okhttp3:okhttp:3.10.0@jar" level="project" />
+    <orderEntry type="library" name="Gradle: androidx.databinding:databinding-common:3.2.1@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.9.2@jar" level="project" />
     <orderEntry type="library" name="Gradle: androidx.loader:loader-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: androidx.customview:customview-1.0.0" level="project" />

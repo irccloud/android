@@ -42,6 +42,5 @@ public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {
             Crashlytics.log(Log.INFO, "IRCCloud", "Cancel bid" + bid);
             NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
         }
-        IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
     }
 }
