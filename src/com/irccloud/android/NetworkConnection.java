@@ -1406,6 +1406,34 @@ public class NetworkConnection {
         return null;
     }
 
+    public JSONObject postHeartbeat(int cid, int bid, long last_seen_eid, String sk) {
+        return postHeartbeat(bid, new Integer[]{cid}, new Integer[]{bid}, new Long[]{last_seen_eid}, sk);
+    }
+
+    public JSONObject postHeartbeat(int selectedBuffer, Integer cids[], Integer bids[], Long last_seen_eids[], String sk) {
+        try {
+            JSONObject heartbeat = new JSONObject();
+            for (int i = 0; i < cids.length; i++) {
+                JSONObject o;
+                if (heartbeat.has(String.valueOf(cids[i]))) {
+                    o = heartbeat.getJSONObject(String.valueOf(cids[i]));
+                } else {
+                    o = new JSONObject();
+                    heartbeat.put(String.valueOf(cids[i]), o);
+                }
+                o.put(String.valueOf(bids[i]), last_seen_eids[i]);
+            }
+
+            String postdata = "selectedBuffer=" + selectedBuffer + "&seenEids=" + URLEncoder.encode(heartbeat.toString(), "UTF-8") + "&session=" + sk;
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/heartbeat"), postdata, sk, null, null);
+            return new JSONObject(response);
+        } catch (Exception e) {
+            printStackTraceToCrashlytics(e);
+        }
+        return null;
+    }
+
+
     public int join(int cid, String channel, String key, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();

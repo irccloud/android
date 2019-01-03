@@ -379,11 +379,11 @@
         <receiver
             android:name=".NotificationDismissBroadcastReceiver"
             android:permission="${applicationId}.permission.BROADCAST">
-            <intent-filter>
-                <action android:name="${applicationId}.DISMISS_NOTIFICATION" />
+        </receiver>
 
-                <data android:scheme="irccloud-dismiss" />
-            </intent-filter>
+        <receiver
+            android:name=".MarkAsReadBroadcastReceiver"
+            android:permission="${applicationId}.permission.BROADCAST">
         </receiver>
 
         <meta-data

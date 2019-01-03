@@ -54,7 +54,9 @@ import android.widget.RemoteViews;
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.MarkAsReadBroadcastReceiver;
 import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.NotificationDismissBroadcastReceiver;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
 import com.irccloud.android.activity.QuickReplyActivity;
@@ -544,7 +546,7 @@ public class NotificationsList {
         i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
         i.putExtra("bid", bid);
         i.setData(Uri.parse("bid://" + bid));
-        Intent dismiss = new Intent(IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.DISMISS_NOTIFICATION));
+        Intent dismiss = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), NotificationDismissBroadcastReceiver.class);
         dismiss.setData(Uri.parse("irccloud-dismiss://" + bid));
         dismiss.putExtra("bid", bid);
         dismiss.putExtra("eids", eids);
@@ -693,6 +695,17 @@ public class NotificationsList {
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_action_reply, "Quick Reply", quickReplyIntent);
+        }
+
+        if (replyIntent != null) {
+            Intent markAsRead = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MarkAsReadBroadcastReceiver.class);
+            markAsRead.setData(Uri.parse("irccloud-markasread://" + bid));
+            markAsRead.putExtra("cid", cid);
+            markAsRead.putExtra("bid", bid);
+            markAsRead.putExtra("eids", eids);
+
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, markAsRead, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(0, "Mark As Read", pendingIntent);
         }
 
         if(otherAction != null) {
