@@ -97,7 +97,6 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
             try {
-                android.util.Log.e("IRCCloud", "Launching: " + intent);
                 context.startActivity(intent);
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
