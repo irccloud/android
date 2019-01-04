@@ -86,8 +86,6 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             builder.addMenuItem("Copy URL", PendingIntent.getBroadcast(context, 0, new Intent(context, ChromeCopyLinkBroadcastReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT));
             CustomTabsIntent intent = builder.build();
             intent.intent.setData(uri);
-            if(Build.VERSION.SDK_INT >= 22)
-                intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
             if (intent.startAnimationBundle != null) {
                 context.startActivity(intent.intent, intent.startAnimationBundle);
             } else {
@@ -98,9 +96,8 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             if(!uri.toString().startsWith("irccloud-"))
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
-            if(Build.VERSION.SDK_INT >= 22)
-                intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
             try {
+                android.util.Log.e("IRCCloud", "Launching: " + intent);
                 context.startActivity(intent);
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
