@@ -43,6 +43,8 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -81,6 +83,9 @@ public class IRCCloudApplication extends MultiDexApplication {
     public void onCreate() {
         instance = this;
         super.onCreate();
+        FirebaseApp.initializeApp(getApplicationContext(), new FirebaseOptions.Builder().setApiKey(BuildConfig.FIREBASE_API_KEY).
+                setApplicationId(BuildConfig.FIREBASE_APP_ID).
+                setGcmSenderId(BuildConfig.FCM_ID).build());
         TrustKit.initializeWithNetworkSecurityConfiguration(getApplicationContext(), R.xml.network_security_config);
         Fabric.with(this, new Crashlytics());
         Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");

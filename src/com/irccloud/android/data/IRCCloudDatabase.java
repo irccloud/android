@@ -16,7 +16,7 @@
 
 package com.irccloud.android.data;
 
-import com.irccloud.android.BackgroundTaskService;
+import com.irccloud.android.BackgroundTaskWorker;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.data.collection.LogExportsList;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -38,7 +38,7 @@ public abstract class IRCCloudDatabase extends RoomDatabase {
     public static final int VERSION = 10;
 
     public abstract RecentConversationsList.RecentConversationsDao RecentConversationsDao();
-    public abstract BackgroundTaskService.BackgroundTasksDao BackgroundTasksDao();
+    public abstract BackgroundTaskWorker.BackgroundTasksDao BackgroundTasksDao();
     public abstract LogExportsList.LogExportsDao LogExportsDao();
     public abstract NotificationsList.NotificationsDao NotificationsDao();
 

@@ -16,9 +16,6 @@
 
 package com.irccloud.android.activity;
 
-import android.Manifest;
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,11 +31,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.core.app.ActivityCompat;
+
 import androidx.fragment.app.FragmentActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.appcompat.app.AlertDialog;
-import android.text.method.LinkMovementMethod;
+
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -46,8 +43,6 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -55,6 +50,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.LoginEvent;
 import com.crashlytics.android.answers.SignUpEvent;
@@ -70,8 +66,11 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.irccloud.android.AsyncTaskEx;
-import com.irccloud.android.BackgroundTaskService;
+import com.irccloud.android.BackgroundTaskWorker;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
@@ -82,7 +81,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class LoginActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private View login = null;
@@ -817,8 +815,14 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                                 }
                             }
                         });
-                        if(BuildConfig.GCM_ID.length() > 0)
-                            BackgroundTaskService.registerGCM(LoginActivity.this);
+                        if(BuildConfig.FCM_ID.length() > 0) {
+                            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                                @Override
+                                public void onSuccess(InstanceIdResult instanceIdResult) {
+                                    BackgroundTaskWorker.registerGCM(instanceIdResult.getToken());
+                                }
+                            });
+                        }
                     } else {
                         startActivity(i);
                         finish();

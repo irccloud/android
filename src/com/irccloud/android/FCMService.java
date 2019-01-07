@@ -16,16 +16,15 @@
 
 package com.irccloud.android;
 
-import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.gms.gcm.GcmListenerService;
-import com.google.android.gms.iid.InstanceID;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -34,36 +33,43 @@ import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.Server;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-public class GCMService extends GcmListenerService {
+public class FCMService extends FirebaseMessagingService {
     @Override
-    public void onMessageReceived(String id, Bundle data) {
+    public void onNewToken(String s) {
+        super.onNewToken(s);
+        BackgroundTaskWorker.registerGCM(s);
+    }
+
+    @Override
+    public void onMessageReceived(RemoteMessage message) {
+        Map<String, String> data = message.getData();
+
         if(!data.containsKey("type"))
-            super.onMessageReceived(id, data);
+            super.onMessageReceived(message);
 
         if(NetworkConnection.getInstance().session == null || NetworkConnection.getInstance().session.length() == 0) {
-            Log.e("IRCCloud", "Got a GCM while logged out, deleting token");
+            Log.e("IRCCloud", "Got a FCM while logged out, deleting token");
             try {
-                InstanceID.getInstance(this).deleteInstanceID();
+                FirebaseInstanceId.getInstance().deleteInstanceId();
             } catch (Exception e) {
                 NetworkConnection.printStackTraceToCrashlytics(e);
             }
             return;
         }
 
-        //Log.d("IRCCloud", "GCM K/V pairs: " + data);
+        //Log.d("IRCCloud", "FCM K/V pairs: " + data);
         try {
             if(!NetworkConnection.getInstance().ready)
                 NetworkConnection.getInstance().load();
 
-            String type = data.getString("type");
-            if (type != null && type.equalsIgnoreCase("heartbeat_echo") && data.getString("seenEids") != null) {
+            String type = data.get("type");
+            if (type != null && type.equalsIgnoreCase("heartbeat_echo") && data.get("seenEids") != null) {
                 NetworkConnection conn = NetworkConnection.getInstance();
                 ObjectMapper mapper = new ObjectMapper();
-                JsonParser parser = mapper.getFactory().createParser(data.getString("seenEids"));
+                JsonParser parser = mapper.getFactory().createParser(data.get("seenEids"));
                 JsonNode seenEids = mapper.readTree(parser);
                 Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
                 while (iterator.hasNext()) {
@@ -91,9 +97,9 @@ public class GCMService extends GcmListenerService {
                 }
                 parser.close();
             } else {
-                int cid = Integer.valueOf(data.getString("cid"));
-                int bid = Integer.valueOf(data.getString("bid"));
-                long eid = Long.valueOf(data.getString("eid"));
+                int cid = Integer.valueOf(data.get("cid"));
+                int bid = Integer.valueOf(data.get("bid"));
+                long eid = Long.valueOf(data.get("eid"));
 
                 /*if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED) {
                     NetworkConnection.getInstance().notifier = true;
@@ -101,26 +107,26 @@ public class GCMService extends GcmListenerService {
                     //NetworkConnection.getInstance().request_backlog(cid, bid, 0);
                 }*/
 
-                String from = data.getString("from_nick");
-                String msg = data.getString("msg");
-                String chan = data.getString("chan");
+                String from = data.get("from_nick");
+                String msg = data.get("msg");
+                String chan = data.get("chan");
                 if(from == null && data.containsKey("nick"))
-                    from = data.getString("nick");
-                if(type.equals("channel_invite")) {
-                    chan = data.getString("channel");
+                    from = data.get("nick");
+                if(type != null && type.equals("channel_invite")) {
+                    chan = data.get("channel");
                 }
                 if (msg != null)
                     msg = ColorFormatter.strip(msg).toString();
                 if (chan == null)
                     chan = from;
-                String buffer_type = data.getString("buffer_type");
-                String server_name = data.getString("server_name");
+                String buffer_type = data.get("buffer_type");
+                String server_name = data.get("server_name");
                 if (server_name == null || server_name.length() == 0)
-                    server_name = data.getString("server_hostname");
+                    server_name = data.get("server_hostname");
 
                 Server s = ServersList.getInstance().getServer(cid);
                 if(s != null)
-                    s.setNick(data.getString("server_nick"));
+                    s.setNick(data.get("server_nick"));
 
                 String avatar_url = null;
 
@@ -129,18 +135,18 @@ public class GCMService extends GcmListenerService {
                     e.from = from;
                     e.msg = msg;
                     e.type = type;
-                    e.hostmask = data.getString("hostmask");
+                    e.hostmask = data.get("hostmask");
                     if (data.containsKey("avatar"))
-                        e.avatar = data.getString("avatar");
+                        e.avatar = data.get("avatar");
                     if (data.containsKey("avatar_url"))
-                        e.avatar_url = data.getString("avatar_url");
+                        e.avatar_url = data.get("avatar_url");
 
                     avatar_url = e.getAvatarURL(512);
                 }
 
                 NotificationsList.getInstance().addNotificationGroup(cid, server_name);
-                NotificationsList.getInstance().updateServerNick(cid, data.getString("server_nick"));
-                NotificationsList.getInstance().addNotification(cid, bid, eid, (from == null)?data.getString("server_hostname"):from, msg, chan, buffer_type, type, server_name, avatar_url);
+                NotificationsList.getInstance().updateServerNick(cid, data.get("server_nick"));
+                NotificationsList.getInstance().addNotification(cid, bid, eid, (from == null)?data.get("server_hostname"):from, msg, chan, buffer_type, type, server_name, avatar_url);
 
                 if (from == null || from.length() == 0)
                     NotificationsList.getInstance().showNotifications(server_name + ": " + msg);
@@ -158,7 +164,7 @@ public class GCMService extends GcmListenerService {
             }
         } catch (Exception e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
-            Log.w("IRCCloud", "Unable to parse GCM message");
+            Log.w("IRCCloud", "Unable to parse FCM message");
         }
     }
 }

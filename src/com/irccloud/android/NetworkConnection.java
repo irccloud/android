@@ -38,12 +38,11 @@ import android.webkit.CookieSyncManager;
 
 import com.codebutler.android_websockets.WebSocketClient;
 import com.crashlytics.android.Crashlytics;
-import com.damnhandy.uri.template.UriTemplate;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.android.gms.iid.InstanceID;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.LogExportsList;
@@ -71,44 +70,26 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.Proxy;
-import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.security.PrivateKey;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509ExtendedKeyManager;
-import javax.net.ssl.X509TrustManager;
 
 public class NetworkConnection {
     private static final String TAG = "IRCCloud";
@@ -1204,8 +1185,8 @@ public class NetworkConnection {
         streamId = null;
         disconnect();
         try {
-            if(BuildConfig.GCM_ID.length() > 0) {
-                BackgroundTaskService.unregisterGCM(IRCCloudApplication.getInstance().getApplicationContext());
+            if(BuildConfig.FCM_ID.length() > 0) {
+                BackgroundTaskWorker.unregisterGCM();
             }
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
@@ -2471,8 +2452,12 @@ public class NetworkConnection {
                                     if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                         show = false;
                                 }
-                                if (InstanceID.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).getId().length() > 0)
-                                    show = false;
+                                try {
+                                    if (IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_token", "").length() > 0)
+                                        show = false;
+                                } catch (Exception e) {
+                                    show = true;
+                                }
                                 if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
                                     String message = ColorFormatter.strip(event.msg).toString();
                                     String server_name = b.getServer().getName();

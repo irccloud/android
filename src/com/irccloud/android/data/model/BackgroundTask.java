@@ -24,11 +24,9 @@ import androidx.room.PrimaryKey;
 @Entity
 public class BackgroundTask {
     @Ignore
-    public static final int TYPE_GCM_REGISTER = 1;
+    public static final int TYPE_FCM_REGISTER = 1;
     @Ignore
-    public static final int TYPE_GCM_UNREGISTER = 2;
-    @Ignore
-    public static final int TYPE_BACKLOG_SYNC = 3;
+    public static final int TYPE_FCM_UNREGISTER = 2;
 
     @PrimaryKey
     @NonNull

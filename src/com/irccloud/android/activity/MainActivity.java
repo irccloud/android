@@ -47,7 +47,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import androidx.browser.customtabs.CustomTabsIntent;
+
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -112,8 +112,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -136,11 +134,12 @@ import com.crashlytics.android.answers.ShareEvent;
 import com.damnhandy.uri.template.UriTemplate;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
-import com.irccloud.android.BackgroundTaskService;
+import com.irccloud.android.BackgroundTaskWorker;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
@@ -220,7 +219,6 @@ import java.util.UUID;
 import javax.net.ssl.HttpsURLConnection;
 
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_FILE;
-import static com.irccloud.android.fragment.MessageViewFragment.ROW_MESSAGE;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_THUMBNAIL;
 
 public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler, IRCColorPickerFragment.OnColorPickedListener {
@@ -2055,7 +2053,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         if(NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
-            new GcmTask().execute((Void)null);
+            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                @Override
+                public void onSuccess(InstanceIdResult instanceIdResult) {
+                    GcmTask t = new GcmTask();
+                    t.token = instanceIdResult.getToken();
+                    t.execute((Void)null);
+                }
+            });
         }
         sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
     }
@@ -6882,15 +6887,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private TimeZoneReceiver timeZoneReceiver = new TimeZoneReceiver();
 
     private class GcmTask extends AsyncTask<Void, Void, Boolean> {
+        public String token;
 
         @Override
         protected Boolean doInBackground(Void... voids) {
             try {
-                Crashlytics.log(Log.INFO, "IRCCloud", "Registering for GCM");
-                String GCM_ID = BuildConfig.GCM_ID;
-                if(BuildConfig.ENTERPRISE && getSharedPreferences("prefs", 0).getString("host", BuildConfig.HOST).equals("api.irccloud.com"))
-                    GCM_ID = BuildConfig.GCM_ID_IRCCLOUD;
-                String token = InstanceID.getInstance(MainActivity.this).getToken(GCM_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE);
+                Crashlytics.log(Log.INFO, "IRCCloud", "Registering for FCM");
                 SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                 editor.putString("gcm_token", token);
                 editor.commit();
@@ -6911,8 +6913,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(result) {
                 Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully registered");
             } else {
-                Crashlytics.log(Log.ERROR, "IRCCloud", "GCM registration failed, scheduling background task");
-                BackgroundTaskService.registerGCM(MainActivity.this);
+                Crashlytics.log(Log.ERROR, "IRCCloud", "FCM registration failed, scheduling background task");
+                BackgroundTaskWorker.registerGCM(token);
             }
         }
     }

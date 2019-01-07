@@ -26,7 +26,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -58,7 +57,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.irccloud.android.BackgroundTaskService;
+import com.irccloud.android.BackgroundTaskWorker;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -72,15 +71,12 @@ import com.irccloud.android.data.collection.LogExportsList;
 import com.irccloud.android.data.model.LogExport;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
-import com.samsung.android.sdk.SsdkUnsupportedException;
 import com.samsung.android.sdk.multiwindow.SMultiWindow;
 import com.samsung.android.sdk.multiwindow.SMultiWindowActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 public class BaseActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     NetworkConnection conn;
@@ -167,7 +163,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     @Override
     protected void onStart() {
         super.onStart();
-        BackgroundTaskService.cancelBacklogSync(this);
         if (!mResolvingError) {
             mGoogleApiClient.connect();
         }
@@ -180,9 +175,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             super.onStop();
         } catch (IllegalStateException e) {
             //Android Support Library bug
-        }
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("background_sync", true)) {
-            BackgroundTaskService.scheduleBacklogSync(this);
         }
     }
 

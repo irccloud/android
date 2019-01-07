@@ -111,12 +111,16 @@ android {
             if (rootProject.file('private.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('private.properties')))
-                buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
+                buildConfigField "String", "FIREBASE_API_KEY", "\"" + props['FIREBASE_API_KEY'] + "\""
+                buildConfigField "String", "FIREBASE_APP_ID", "\"" + props['FIREBASE_APP_ID'] + "\""
+                buildConfigField "String", "FCM_ID", "\"" + props['FCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
-                buildConfigField "String", "GCM_ID", "\"\""
+                buildConfigField "String", "FIREBASE_API_KEY", "\"\""
+                buildConfigField "String", "FIREBASE_APP_ID", "\"\""
+                buildConfigField "String", "FCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
@@ -144,12 +148,16 @@ android {
             if (rootProject.file('private.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('private.properties')))
-                buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
+                buildConfigField "String", "FIREBASE_API_KEY", "\"" + props['FIREBASE_API_KEY'] + "\""
+                buildConfigField "String", "FIREBASE_APP_ID", "\"" + props['FIREBASE_APP_ID'] + "\""
+                buildConfigField "String", "FCM_ID", "\"" + props['FCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
-                buildConfigField "String", "GCM_ID", "\"\""
+                buildConfigField "String", "FIREBASE_API_KEY", "\"\""
+                buildConfigField "String", "FIREBASE_APP_ID", "\"\""
+                buildConfigField "String", "FCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
@@ -182,14 +190,16 @@ android {
             if (rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('enterprise.properties')))
-                buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
-                buildConfigField "String", "GCM_ID_IRCCLOUD", "\"" + props['GCM_ID_IRCCLOUD'] + "\""
+                buildConfigField "String", "FIREBASE_API_KEY", "\"" + props['FIREBASE_API_KEY'] + "\""
+                buildConfigField "String", "FIREBASE_APP_ID", "\"" + props['FIREBASE_APP_ID'] + "\""
+                buildConfigField "String", "FCM_ID", "\"" + props['FCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
-                buildConfigField "String", "GCM_ID", "\"\""
-                buildConfigField "String", "GCM_ID_IRCCLOUD", "\"\""
+                buildConfigField "String", "FIREBASE_API_KEY", "\"\""
+                buildConfigField "String", "FIREBASE_APP_ID", "\"\""
+                buildConfigField "String", "FCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
@@ -218,14 +228,16 @@ android {
             if (rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('enterprise.properties')))
-                buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
-                buildConfigField "String", "GCM_ID_IRCCLOUD", "\"" + props['GCM_ID_IRCCLOUD'] + "\""
+                buildConfigField "String", "FIREBASE_API_KEY", "\"" + props['FIREBASE_API_KEY'] + "\""
+                buildConfigField "String", "FIREBASE_APP_ID", "\"" + props['FIREBASE_APP_ID'] + "\""
+                buildConfigField "String", "FCM_ID", "\"" + props['FCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
-                buildConfigField "String", "GCM_ID", "\"\""
-                buildConfigField "String", "GCM_ID_IRCCLOUD", "\"\""
+                buildConfigField "String", "FIREBASE_API_KEY", "\"\""
+                buildConfigField "String", "FIREBASE_APP_ID", "\"\""
+                buildConfigField "String", "FCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
@@ -318,6 +330,7 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
+    implementation "android.arch.work:work-runtime:1.0.0-beta01"
     implementation "androidx.appcompat:appcompat:1.0.2"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.0.0"
@@ -331,7 +344,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:16.0.1"
     implementation "com.google.android.gms:play-services-identity:16.0.0"
     implementation "com.google.android.gms:play-services-ads:16.0.0"
-    implementation "com.google.android.gms:play-services-gcm:16.0.0"
+    implementation "com.google.firebase:firebase-messaging:17.3.4"
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.0.2'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
