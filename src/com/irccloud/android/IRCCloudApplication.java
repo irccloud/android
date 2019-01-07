@@ -83,9 +83,7 @@ public class IRCCloudApplication extends MultiDexApplication {
     public void onCreate() {
         instance = this;
         super.onCreate();
-        FirebaseApp.initializeApp(getApplicationContext(), new FirebaseOptions.Builder().setApiKey(BuildConfig.FIREBASE_API_KEY).
-                setApplicationId(BuildConfig.FIREBASE_APP_ID).
-                setGcmSenderId(BuildConfig.FCM_ID).build());
+        FirebaseApp.initializeApp(getApplicationContext());
         TrustKit.initializeWithNetworkSecurityConfiguration(getApplicationContext(), R.xml.network_security_config);
         Fabric.with(this, new Crashlytics());
         Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");

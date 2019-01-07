@@ -815,13 +815,15 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                                 }
                             }
                         });
-                        if(BuildConfig.FCM_ID.length() > 0) {
+                        try {
                             FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
                                 @Override
                                 public void onSuccess(InstanceIdResult instanceIdResult) {
                                     BackgroundTaskWorker.registerGCM(instanceIdResult.getToken());
                                 }
                             });
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     } else {
                         startActivity(i);

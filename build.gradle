@@ -68,7 +68,7 @@ android {
     testBuildType 'debugTest'
 
     defaultConfig {
-        versionCode 208
+        versionCode 209
         versionName "4.15"
         minSdkVersion 17
         targetSdkVersion 28
@@ -111,19 +111,19 @@ android {
             if (rootProject.file('private.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('private.properties')))
-                buildConfigField "String", "FIREBASE_API_KEY", "\"" + props['FIREBASE_API_KEY'] + "\""
-                buildConfigField "String", "FIREBASE_APP_ID", "\"" + props['FIREBASE_APP_ID'] + "\""
-                buildConfigField "String", "FCM_ID", "\"" + props['FCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
+                resValue "string", "google_app_id", "\"" + props['FIREBASE_APP_ID'] + "\""
+                resValue "string", "gcm_defaultSenderId", "\"" + props['FCM_ID'] + "\""
+                resValue "string", "google_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
             } else {
-                buildConfigField "String", "FIREBASE_API_KEY", "\"\""
-                buildConfigField "String", "FIREBASE_APP_ID", "\"\""
-                buildConfigField "String", "FCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
+                resValue "string", "google_app_id", ""
+                resValue "string", "gcm_defaultSenderId", ""
+                resValue "string", "google_api_key", ""
             }
             buildConfigField "String[]", "SSL_FPS", "{\"54A0A7A4EE83A09B71F867581627EB242BD2398EAAA1DC7AB4CCE26E6EED8EB8\", \"E68F27E003ED788159670B6A4C6C5328F1D1FDA81CB19CC8B816F9364684233B\"}"
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
@@ -148,19 +148,19 @@ android {
             if (rootProject.file('private.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('private.properties')))
-                buildConfigField "String", "FIREBASE_API_KEY", "\"" + props['FIREBASE_API_KEY'] + "\""
-                buildConfigField "String", "FIREBASE_APP_ID", "\"" + props['FIREBASE_APP_ID'] + "\""
-                buildConfigField "String", "FCM_ID", "\"" + props['FCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
+                resValue "string", "google_app_id", "\"" + props['FIREBASE_APP_ID'] + "\""
+                resValue "string", "gcm_defaultSenderId", "\"" + props['FCM_ID'] + "\""
+                resValue "string", "google_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
             } else {
-                buildConfigField "String", "FIREBASE_API_KEY", "\"\""
-                buildConfigField "String", "FIREBASE_APP_ID", "\"\""
-                buildConfigField "String", "FCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
+                resValue "string", "google_app_id", ""
+                resValue "string", "gcm_defaultSenderId", ""
+                resValue "string", "google_api_key", ""
             }
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
@@ -190,19 +190,19 @@ android {
             if (rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('enterprise.properties')))
-                buildConfigField "String", "FIREBASE_API_KEY", "\"" + props['FIREBASE_API_KEY'] + "\""
-                buildConfigField "String", "FIREBASE_APP_ID", "\"" + props['FIREBASE_APP_ID'] + "\""
-                buildConfigField "String", "FCM_ID", "\"" + props['FCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
+                resValue "string", "google_app_id", "\"" + props['FIREBASE_APP_ID'] + "\""
+                resValue "string", "gcm_defaultSenderId", "\"" + props['FCM_ID'] + "\""
+                resValue "string", "google_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
             } else {
-                buildConfigField "String", "FIREBASE_API_KEY", "\"\""
-                buildConfigField "String", "FIREBASE_APP_ID", "\"\""
-                buildConfigField "String", "FCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
+                resValue "string", "google_app_id", ""
+                resValue "string", "gcm_defaultSenderId", ""
+                resValue "string", "google_api_key", ""
             }
             buildConfigField "String[]", "SSL_FPS", "null"
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
@@ -228,19 +228,19 @@ android {
             if (rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('enterprise.properties')))
-                buildConfigField "String", "FIREBASE_API_KEY", "\"" + props['FIREBASE_API_KEY'] + "\""
-                buildConfigField "String", "FIREBASE_APP_ID", "\"" + props['FIREBASE_APP_ID'] + "\""
-                buildConfigField "String", "FCM_ID", "\"" + props['FCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
+                resValue "string", "google_app_id", "\"" + props['FIREBASE_APP_ID'] + "\""
+                resValue "string", "gcm_defaultSenderId", "\"" + props['FCM_ID'] + "\""
+                resValue "string", "google_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
             } else {
-                buildConfigField "String", "FIREBASE_API_KEY", "\"\""
-                buildConfigField "String", "FIREBASE_APP_ID", "\"\""
-                buildConfigField "String", "FCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
+                resValue "string", "google_app_id", ""
+                resValue "string", "gcm_defaultSenderId", ""
+                resValue "string", "google_api_key", ""
             }
             buildConfigField "String[]", "SSL_FPS", "null"
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"

@@ -480,11 +480,6 @@
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
             </intent-filter>
         </receiver>
-
-        <provider android:authorities="${applicationId}.firebaseinitprovider"
-            android:name="com.google.firebase.provider.FirebaseInitProvider"
-            android:exported="false"
-            tools:node="remove"/>
     </application>
 
 </manifest>

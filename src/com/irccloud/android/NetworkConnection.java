@@ -1185,7 +1185,7 @@ public class NetworkConnection {
         streamId = null;
         disconnect();
         try {
-            if(BuildConfig.FCM_ID.length() > 0) {
+            if(IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_id", "").length() > 0) {
                 BackgroundTaskWorker.unregisterGCM();
             }
         } catch (Exception e) {
