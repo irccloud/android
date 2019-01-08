@@ -206,7 +206,7 @@ public class ImageList {
                 gif = new GifDrawable(cacheFile(url).getAbsolutePath());
                 GIFs.put(MD5(url.toString()), gif);
             } catch (IOException e) {
-                e.printStackTrace();
+                failedURLs.add(MD5(url.toString()));
             }
         }
         return gif;

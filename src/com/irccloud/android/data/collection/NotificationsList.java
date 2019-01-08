@@ -37,6 +37,7 @@ import androidx.core.app.NotificationCompat.WearableExtender;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.Person;
 import androidx.core.app.RemoteInput;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -71,6 +72,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -447,7 +449,7 @@ public class NotificationsList {
                         action = null;
                     }
                     if(title != null && text != null)
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.getEid() / 1000), buildNotification(ticker, n.getCid(), n.getBid(), new long[]{n.getEid()}, title, text, 1, null, n.getNetwork(), null, action, AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, 400, false, false)));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.getEid() / 1000), buildNotification(ticker, n.getCid(), n.getBid(), new long[]{n.getEid()}, title, text, 1, null, n.getNetwork(), null, action, AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, 400, false, false), null));
                 }
             }
 
@@ -500,7 +502,7 @@ public class NotificationsList {
     }
 
     @SuppressLint("NewApi")
-    private android.app.Notification buildNotification(String ticker, int cid, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, ArrayList<Notification> messages, NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
+    private android.app.Notification buildNotification(String ticker, int cid, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, ArrayList<Notification> messages, NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground, HashMap<String, Bitmap> avatars) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/raw/digit");
         String uid = prefs.getString("uid", "");
@@ -515,13 +517,15 @@ public class NotificationsList {
                 .setTicker(ticker)
                 .setWhen(eids[0] / 1000)
                 .setSmallIcon(R.drawable.ic_stat_notify)
-                .setLargeIcon(largeIcon)
                 .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.ic_background))
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .setPriority(hasTouchWiz() ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_HIGH)
                 .setOnlyAlertOnce(false);
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            builder.setLargeIcon(largeIcon);
+        }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 2000) {
             if (ringtone.length() > 0)
                 builder.setSound(Uri.parse(ringtone));
@@ -560,20 +564,39 @@ public class NotificationsList {
         wearableExtender.setBackground(wearBackground);
         if(messages != null && messages.size() > 0) {
             StringBuilder weartext = new StringBuilder();
-            Person servernick = new Person.Builder().setName(getServerNick(messages.get(0).getCid())).build();
-            NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(servernick);
+            HashMap<String, Person> people = new HashMap<>();
+            String servernick = getServerNick(messages.get(0).getCid());
+            //TODO: Store the self avatar per connection and set it here
+            people.put(servernick, new Person.Builder().setName(servernick).build());
+
+            NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(people.get(servernick));
             style.setConversationTitle(title + ((network != null) ? (" (" + network + ")") : ""));
             style.setGroupConversation(true);
             for(Notification n : messages) {
                 if(n != null && n.getMessage() != null && n.getMessage().length() > 0) {
                     if (weartext.length() > 0)
                         weartext.append("<br/>");
+                    String nick = (n.getNick() != null) ? n.getNick() : servernick;
+                    Person p = people.get(nick);
+                    if(p == null) {
+                        if(avatars != null && avatars.containsKey(nick)) {
+                            p = new Person.Builder()
+                                    .setName(nick)
+                                    .setIcon(IconCompat.createWithBitmap(avatars.get(nick)))
+                                    .build();
+                        } else {
+                            p = new Person.Builder()
+                                    .setName(nick)
+                                    .build();
+                        }
+                        people.put(nick, p);
+                    }
                     if (n.getMessage_type().equals("buffer_me_msg")) {
-                        style.addMessage(Html.fromHtml(n.getMessage()).toString(), n.getEid() / 1000, "— " + ((n.getNick() == null) ? servernick : n.getNick()));
-                        weartext.append("<b>— ").append((n.getNick() == null) ? servernick.getName() : n.getNick()).append("</b> ").append(n.getMessage());
+                        style.addMessage(new NotificationCompat.MessagingStyle.Message(Html.fromHtml("— " + n.getMessage()).toString(), n.getEid() / 1000, p));
+                        weartext.append("<b>— ").append((n.getNick() == null) ? servernick : n.getNick()).append("</b> ").append(n.getMessage());
                     } else {
-                        style.addMessage(Html.fromHtml(n.getMessage()).toString(), n.getEid() / 1000, n.getNick());
-                        weartext.append("<b>&lt;").append((n.getNick() == null) ? servernick.getName() : n.getNick()).append("&gt;</b> ").append(n.getMessage());
+                        style.addMessage(new NotificationCompat.MessagingStyle.Message(Html.fromHtml(n.getMessage()).toString(), n.getEid() / 1000, p));
+                        weartext.append("<b>&lt;").append((n.getNick() == null) ? servernick : n.getNick()).append("&gt;</b> ").append(n.getMessage());
                     }
                 }
             }
@@ -723,7 +746,7 @@ public class NotificationsList {
         return builder.build();
     }
 
-    private void showMessageNotifications(String ticker) {
+    private synchronized void showMessageNotifications(String ticker) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         String text = "";
         final List<Notification> notifications = getMessageNotifications();
@@ -738,8 +761,11 @@ public class NotificationsList {
             int count = 0;
             long[] eids = new long[notifications.size()];
             ArrayList<Notification> messages = new ArrayList<>(notifications.size());
+            HashMap<String, Bitmap> avatars = new HashMap<>();
             Notification last = notifications.get(0);
             boolean show = false;
+            boolean downloading = false;
+            Bitmap avatar = null;
             for (Notification n : notifications) {
                 if (n.getBid() != lastbid) {
                     if (show) {
@@ -777,15 +803,13 @@ public class NotificationsList {
 
                         try {
                             Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.getMessage_type());
-                            Bitmap avatar = null;
                             Bitmap large_avatar = null;
-                            boolean downloading = false;
 
                             if(last.getAvatar_url() != null && last.getAvatar_url().length() > 0) {
                                 try {
                                     URL url = new URL(last.getAvatar_url());
-                                    avatar = large_avatar = ImageList.getInstance().getImage(url);
-                                    if(avatar == null) {
+                                    large_avatar = ImageList.getInstance().getImage(url);
+                                    if(large_avatar == null) {
                                         downloading = true;
                                         last.setShown(false);
                                         ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
@@ -800,11 +824,10 @@ public class NotificationsList {
                             }
 
                             if(!downloading) {
-                                if (avatar == null) {
-                                    avatar = AvatarsList.getInstance().getAvatar(last.getCid(), last.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                                if (large_avatar == null) {
                                     large_avatar = AvatarsList.getInstance().getAvatar(last.getCid(), last.getNick(), null).getBitmap(false, 512, false, false);
                                 }
-                                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.getCid(), lastbid, eids, title, body, count, replyIntent, last.getNetwork(), messages, null, avatar, large_avatar));
+                                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.getCid(), lastbid, eids, title, body, count, replyIntent, last.getNetwork(), messages, null, avatars.get(last.getNick()), large_avatar, avatars));
                             }
                         } catch (Exception e) {
                             Crashlytics.logException(e);
@@ -816,6 +839,7 @@ public class NotificationsList {
                     eids = new long[notifications.size()];
                     show = false;
                     messages.clear();
+                    avatars.clear();
                 }
 
                 if (text.length() > 0)
@@ -833,6 +857,34 @@ public class NotificationsList {
                     n.setShown(true);
                     show = true;
                 }
+
+                avatar = null;
+                if(n.getAvatar_url() != null && n.getAvatar_url().length() > 0) {
+                    try {
+                        URL url = new URL(n.getAvatar_url());
+                        avatar = ImageList.getInstance().getImage(url);
+                        if(avatar == null) {
+                            downloading = true;
+                            show = false;
+                            n.setShown(false);
+                            ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
+                                @Override
+                                public void onImageFetched(Bitmap image) {
+                                    showMessageNotifications(null);
+                                }
+                            });
+                        }
+                    } catch (Exception e1) {
+                    }
+                }
+
+                if(!downloading && avatar == null) {
+                    avatar = AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                }
+
+                if(avatar != null)
+                    avatars.put(n.getNick(), avatar);
+
                 messages.add(n);
                 eids[count++] = n.getEid();
                 if(n.getNick() != null)
@@ -872,15 +924,13 @@ public class NotificationsList {
 
                 try {
                     Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.getMessage_type());
-                    Bitmap avatar = null;
                     Bitmap large_avatar = null;
-                    boolean downloading = false;
 
                     if(last.getAvatar_url() != null && last.getAvatar_url().length() > 0) {
                         try {
                             URL url = new URL(last.getAvatar_url());
-                            avatar = large_avatar = ImageList.getInstance().getImage(url);
-                            if(avatar == null) {
+                            large_avatar = ImageList.getInstance().getImage(url);
+                            if(large_avatar == null) {
                                 downloading = true;
                                 last.setShown(false);
                                 ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
@@ -895,11 +945,10 @@ public class NotificationsList {
                     }
 
                     if(!downloading) {
-                        if (avatar == null) {
-                            avatar = AvatarsList.getInstance().getAvatar(last.getCid(), last.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                        if (large_avatar == null) {
                             large_avatar = AvatarsList.getInstance().getAvatar(last.getCid(), last.getNick(), null).getBitmap(false, 512, false, false);
                         }
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.getBid(), buildNotification(ticker, last.getCid(), last.getBid(), eids, title, body, count, replyIntent, last.getNetwork(), messages, null, avatar, large_avatar));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.getCid(), lastbid, eids, title, body, count, replyIntent, last.getNetwork(), messages, null, avatars.get(last.getNick()), large_avatar, avatars));
                     }
                 } catch (Exception e) {
                     Crashlytics.logException(e);
