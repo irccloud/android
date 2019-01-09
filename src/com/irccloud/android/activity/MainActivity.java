@@ -5688,6 +5688,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             shouldFadeIn = false;
         }
+        if (conn != null && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow())) {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+        }
     }
 
     @Override
