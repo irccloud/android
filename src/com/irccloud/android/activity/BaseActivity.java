@@ -377,74 +377,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     }
                 });
                 break;
-            case NetworkConnection.EVENT_INVALIDNICK:
-                o = (IRCCloudJSONObject) obj;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Server server = ServersList.getInstance().getServer(o.cid());
-                        AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
-                        View view = getDialogTextPrompt();
-                        TextView prompt = view.findViewById(R.id.prompt);
-                        final EditText nickinput = view.findViewById(R.id.textInput);
-                        nickinput.setText("");
-                        nickinput.setOnEditorActionListener(new OnEditorActionListener() {
-                            public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
-                                if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
-                                    try {
-                                        conn.say(o.cid(), null, "/nick " + nickinput.getText().toString(), null);
-                                    } catch (Exception e) {
-                                        // TODO Auto-generated catch block
-                                        NetworkConnection.printStackTraceToCrashlytics(e);
-                                    }
-                                    ((AlertDialog) nickinput.getTag()).dismiss();
-                                }
-                                return true;
-                            }
-                        });
-                        try {
-                            String message = o.has("invalid_nick") ? (o.getString("invalid_nick") + " is not a valid nickname, try again") : "Invalid nickname, try again";
-                            if (server != null && server.isupport != null && server.isupport.has("NICKLEN"))
-                                message += "\n(" + server.isupport.get("NICKLEN").asText() + " chars)";
-                            message += ".";
-                            prompt.setText(message);
-                        } catch (Exception e) {
-                            // TODO Auto-generated catch block
-                            NetworkConnection.printStackTraceToCrashlytics(e);
-                        }
-                        if(server != null)
-                            builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
-                        else
-                            builder.setTitle("Invalid Nickname");
-                        builder.setView(view);
-                        if(server != null)
-                            builder.setPositiveButton("Change Nickname", new OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    try {
-                                        conn.say(o.cid(), null, "/nick " + nickinput.getText().toString(), null);
-                                    } catch (Exception e) {
-                                        // TODO Auto-generated catch block
-                                        NetworkConnection.printStackTraceToCrashlytics(e);
-                                    }
-                                    dialog.dismiss();
-                                }
-                            });
-                        builder.setNegativeButton("Close", new OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                        AlertDialog dialog = builder.create();
-                        nickinput.setTag(dialog);
-                        dialog.setOwnerActivity(BaseActivity.this);
-                        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                        if(!isFinishing())
-                            dialog.show();
-                    }
-                });
-                break;
             case NetworkConnection.EVENT_ALERT:
                 try {
                     o = (IRCCloudJSONObject) obj;
@@ -607,7 +539,10 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             showAlert(o.cid(), "Metadata key subscription limit reached, keys after and including '" + o.getString("key") + "' are not subscribed");
                             break;
                         default:
-                            showAlert(o.cid(), o.getString("msg"));
+                            if(o.getString("message").equals("invalid_nick"))
+                                showAlert(-1, "Invalid nickname");
+                            else
+                                showAlert(o.cid(), o.getString("msg"));
                         }
                     } catch (Exception e2) {
                     NetworkConnection.printStackTraceToCrashlytics(e2);
@@ -620,29 +555,29 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
 
     protected void showAlert(int cid, final String msg) {
         final Server server = ServersList.getInstance().getServer(cid);
-        if (server != null)
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
+                if(server != null)
                     builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
-                    builder.setMessage(msg);
-                    builder.setNegativeButton("Ok", new OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            try {
-                                dialog.dismiss();
-                            } catch (IllegalArgumentException e) {
-                            }
+                builder.setMessage(msg);
+                builder.setNegativeButton("Ok", new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            dialog.dismiss();
+                        } catch (IllegalArgumentException e) {
                         }
-                    });
-                    if(!isFinishing()) {
-                        AlertDialog dialog = builder.create();
-                        dialog.setOwnerActivity(BaseActivity.this);
-                        dialog.show();
                     }
+                });
+                if (!isFinishing()) {
+                    AlertDialog dialog = builder.create();
+                    dialog.setOwnerActivity(BaseActivity.this);
+                    dialog.show();
                 }
-            });
+            }
+        });
     }
 
     @Override

@@ -176,7 +176,6 @@ public class NetworkConnection {
     public static final int EVENT_SETIGNORES = 27;
     public static final int EVENT_BADCHANNELKEY = 28;
     public static final int EVENT_OPENBUFFER = 29;
-    public static final int EVENT_INVALIDNICK = 30;
     public static final int EVENT_BANLIST = 31;
     public static final int EVENT_WHOLIST = 32;
     public static final int EVENT_WHOIS = 33;
@@ -2236,7 +2235,6 @@ public class NetworkConnection {
 
         //Misc. popup alerts
         put("bad_channel_key", new BroadcastParser(EVENT_BADCHANNELKEY));
-        put("invalid_nick", new BroadcastParser(EVENT_INVALIDNICK));
         final Parser alert = new BroadcastParser(EVENT_ALERT);
         String[] alerts = {"too_many_channels", "no_such_channel", "bad_channel_name",
                 "no_such_nick", "invalid_nick_change", "chan_privs_needed",
@@ -2258,7 +2256,7 @@ public class NetworkConnection {
                 "chan_open","knock_on_chan","knock_disabled","cannotknock","ownmode",
                 "nossl","redirect_error","invalid_flood","join_flood","metadata_limit",
                 "metadata_targetinvalid","metadata_nomatchingkey","metadata_keyinvalid",
-                "metadata_keynotset","metadata_keynopermission","metadata_toomanysubs"};
+                "metadata_keynotset","metadata_keynopermission","metadata_toomanysubs", "invalid_nick"};
         for (String event : alerts) {
             put(event, alert);
         }
@@ -3013,7 +3011,7 @@ public class NetworkConnection {
                 } else if(object.getString("message").equals("temp_unavailable")) {
                     notifyHandlers(EVENT_TEMP_UNAVAILABLE, object);
                 } else if(object.getString("message").equals("invalid_nick")) {
-                    notifyHandlers(EVENT_INVALIDNICK, object);
+                    notifyHandlers(EVENT_ALERT, object);
                 }
             }
             if (object.has("_reqid") && resultCallbacks.containsKey(object.getInt("_reqid"))) {

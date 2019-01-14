@@ -786,7 +786,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             case NetworkConnection.EVENT_SETIGNORES:
             case NetworkConnection.EVENT_BADCHANNELKEY:
             case NetworkConnection.EVENT_OPENBUFFER:
-            case NetworkConnection.EVENT_INVALIDNICK:
             case NetworkConnection.EVENT_BANLIST:
             case NetworkConnection.EVENT_WHOLIST:
             case NetworkConnection.EVENT_WHOIS:
