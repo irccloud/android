@@ -435,7 +435,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                             }
                             return;
                     }
-                    mExpandCids.delete(b.getCid());
                     mListener.onBufferSelected(b.getBid());
                 }
             });
