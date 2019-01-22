@@ -4642,10 +4642,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         itemList.add("Delete");
                     }
                     itemList.add("Edit Connection…");
-                    if (b.getArchived() > 0)
-                        itemList.add("Expand");
-                    else
-                        itemList.add("Collapse");
+                    if(!BuildConfig.ENTERPRISE) {
+                        if (b.getArchived() > 0)
+                            itemList.add("Expand");
+                        else
+                            itemList.add("Collapse");
+                    }
                 }
                 if (!b.isConsole()) {
                     if (b.getArchived() == 0)
