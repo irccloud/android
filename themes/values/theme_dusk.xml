@@ -89,6 +89,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dusk</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dusk</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dusk</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_dusk</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dusk</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dusk</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dusk</item>
@@ -179,6 +180,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dusk</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dusk</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dusk</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_dusk</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dusk</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dusk</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dusk</item>
@@ -269,6 +271,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dusk</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dusk</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dusk</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_dusk</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dusk</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dusk</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dusk</item>
@@ -359,6 +362,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dusk</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dusk</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dusk</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_dusk</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dusk</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dusk</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dusk</item>
@@ -449,6 +453,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dusk</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dusk</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dusk</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_dusk</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dusk</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dusk</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dusk</item>
@@ -506,6 +511,7 @@
 	<drawable name="serverBorderDrawable_dusk">@color/dusk_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_dusk">@color/dusk_text3</drawable>
 	<drawable name="selectedBorderDrawable_dusk">@color/dusk_text6</drawable>
+	<drawable name="collapsedBorderDrawable_dusk">@color/dusk_text9</drawable>
 	<drawable name="windowBackground_dusk">@color/dusk_background7</drawable>
 
 	<style name="duskEditText" parent="dusk">

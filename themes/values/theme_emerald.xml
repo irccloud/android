@@ -89,6 +89,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_emerald</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_emerald</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_emerald</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_emerald</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_emerald</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_emerald</item>
@@ -179,6 +180,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_emerald</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_emerald</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_emerald</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_emerald</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_emerald</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_emerald</item>
@@ -269,6 +271,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_emerald</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_emerald</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_emerald</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_emerald</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_emerald</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_emerald</item>
@@ -359,6 +362,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_emerald</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_emerald</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_emerald</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_emerald</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_emerald</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_emerald</item>
@@ -449,6 +453,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_emerald</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_emerald</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_emerald</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_emerald</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_emerald</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_emerald</item>
@@ -506,6 +511,7 @@
 	<drawable name="serverBorderDrawable_emerald">@color/emerald_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_emerald">@color/emerald_text3</drawable>
 	<drawable name="selectedBorderDrawable_emerald">@color/emerald_text6</drawable>
+	<drawable name="collapsedBorderDrawable_emerald">@color/emerald_text9</drawable>
 	<drawable name="windowBackground_emerald">@color/emerald_background7</drawable>
 
 	<style name="emeraldEditText" parent="emerald">

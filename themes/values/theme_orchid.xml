@@ -89,6 +89,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_orchid</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_orchid</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_orchid</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_orchid</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_orchid</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_orchid</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_orchid</item>
@@ -179,6 +180,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_orchid</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_orchid</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_orchid</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_orchid</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_orchid</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_orchid</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_orchid</item>
@@ -269,6 +271,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_orchid</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_orchid</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_orchid</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_orchid</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_orchid</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_orchid</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_orchid</item>
@@ -359,6 +362,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_orchid</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_orchid</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_orchid</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_orchid</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_orchid</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_orchid</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_orchid</item>
@@ -449,6 +453,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_orchid</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_orchid</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_orchid</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_orchid</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_orchid</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_orchid</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_orchid</item>
@@ -506,6 +511,7 @@
 	<drawable name="serverBorderDrawable_orchid">@color/orchid_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_orchid">@color/orchid_text3</drawable>
 	<drawable name="selectedBorderDrawable_orchid">@color/orchid_text6</drawable>
+	<drawable name="collapsedBorderDrawable_orchid">@color/orchid_text9</drawable>
 	<drawable name="windowBackground_orchid">@color/orchid_background7</drawable>
 
 	<style name="orchidEditText" parent="orchid">

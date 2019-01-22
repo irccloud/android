@@ -106,6 +106,7 @@ def theme(f, t, parent):
     f.write("\t\t<item name=\"bufferBorderDrawable\">@drawable/bufferBorderDrawable_" + themename + "</item>\n")
     f.write("\t\t<item name=\"serverBorderDrawable\">@drawable/serverBorderDrawable_" + themename + "</item>\n")
     f.write("\t\t<item name=\"selectedBorderDrawable\">@drawable/selectedBorderDrawable_" + themename + "</item>\n")
+    f.write("\t\t<item name=\"collapsedBorderDrawable\">@drawable/collapsedBorderDrawable_" + themename + "</item>\n")
     f.write("\t\t<item name=\"bufferBackgroundDrawable\">@drawable/row_buffer_bg_" + themename + "</item>\n")
     f.write("\t\t<item name=\"serverBackgroundDrawable\">@drawable/row_server_bg_" + themename + "</item>\n")
     f.write("\t\t<item name=\"selectedBackgroundDrawable\">@drawable/selectedBackgroundDrawable_" + themename + "</item>\n")
@@ -201,6 +202,7 @@ f.write("\t<drawable name=\"bufferBorderDrawable_" + themename + "\">@color/" + 
 f.write("\t<drawable name=\"serverBorderDrawable_" + themename + "\">@color/" + themename + "_border9</drawable>\n")
 f.write("\t<drawable name=\"selectedBackgroundDrawable_" + themename + "\">@color/" + themename + "_text3</drawable>\n")
 f.write("\t<drawable name=\"selectedBorderDrawable_" + themename + "\">@color/" + themename + "_text6</drawable>\n")
+f.write("\t<drawable name=\"collapsedBorderDrawable_" + themename + "\">@color/" + themename + "_text9</drawable>\n")
 f.write("\t<drawable name=\"windowBackground_" + themename + "\">@color/" + themename + "_background7</drawable>\n")
 
 f.write("""

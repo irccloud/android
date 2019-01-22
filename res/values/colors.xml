@@ -18,6 +18,7 @@
 
 <resources>
     <drawable name="row_unread_border">#1E72FF</drawable>
+    <color name="row_collapsed_border">?archivesHeadingTextColor</color>
     <color name="loginBackgroundColor">#4480FA</color>
     <color name="loginTopBackgroundColor">#0b2e60</color>
     <drawable name="actionbar_translucent">#66000000</drawable>

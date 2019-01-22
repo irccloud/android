@@ -4642,6 +4642,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         itemList.add("Delete");
                     }
                     itemList.add("Edit Connection…");
+                    if (b.getArchived() > 0)
+                        itemList.add("Expand");
+                    else
+                        itemList.add("Collapse");
                 }
                 if (!b.isConsole()) {
                     if (b.getArchived() == 0)
@@ -4883,6 +4887,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     SpamFragment spamFragment = new SpamFragment();
                     spamFragment.setCid(b.getCid());
                     spamFragment.show(getSupportFragmentManager(), "spam");
+                } else if (items[item].equals("Expand")) {
+                    conn.unarchiveBuffer(b.getCid(), b.getBid(), null);
+                } else if (items[item].equals("Collapse")) {
+                    conn.archiveBuffer(b.getCid(), b.getBid(), null);
                 }
             }
         });

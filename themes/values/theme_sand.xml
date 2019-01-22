@@ -89,6 +89,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_sand</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_sand</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_sand</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_sand</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_sand</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_sand</item>
@@ -179,6 +180,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_sand</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_sand</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_sand</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_sand</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_sand</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_sand</item>
@@ -269,6 +271,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_sand</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_sand</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_sand</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_sand</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_sand</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_sand</item>
@@ -359,6 +362,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_sand</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_sand</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_sand</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_sand</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_sand</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_sand</item>
@@ -449,6 +453,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_sand</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_sand</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_sand</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_sand</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_sand</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_sand</item>
@@ -506,6 +511,7 @@
 	<drawable name="serverBorderDrawable_sand">@color/sand_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_sand">@color/sand_text3</drawable>
 	<drawable name="selectedBorderDrawable_sand">@color/sand_text6</drawable>
+	<drawable name="collapsedBorderDrawable_sand">@color/sand_text9</drawable>
 	<drawable name="windowBackground_sand">@color/sand_background7</drawable>
 
 	<style name="sandEditText" parent="sand">

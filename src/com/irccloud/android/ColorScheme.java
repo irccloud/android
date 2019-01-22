@@ -278,6 +278,7 @@ public class ColorScheme {
         bufferBorderDrawable = resourceForAttribute(ctx, R.attr.bufferBorderDrawable);
         serverBorderDrawable = resourceForAttribute(ctx, R.attr.serverBorderDrawable);
         selectedBorderDrawable = resourceForAttribute(ctx, R.attr.selectedBorderDrawable);
+        collapsedBorderDrawable = resourceForAttribute(ctx, R.attr.collapsedBorderDrawable);
         bufferBackgroundDrawable = resourceForAttribute(ctx, R.attr.bufferBackgroundDrawable);
         serverBackgroundDrawable = resourceForAttribute(ctx, R.attr.serverBackgroundDrawable);
         selectedBackgroundDrawable = resourceForAttribute(ctx, R.attr.selectedBackgroundDrawable);
@@ -395,6 +396,7 @@ public class ColorScheme {
     public int bufferBorderDrawable;
     public int serverBorderDrawable;
     public int selectedBorderDrawable;
+    public int collapsedBorderDrawable;
     public int bufferBackgroundDrawable;
     public int serverBackgroundDrawable;
     public int selectedBackgroundDrawable;

@@ -89,6 +89,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_ash</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_ash</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_ash</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_ash</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_ash</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_ash</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_ash</item>
@@ -179,6 +180,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_ash</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_ash</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_ash</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_ash</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_ash</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_ash</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_ash</item>
@@ -269,6 +271,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_ash</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_ash</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_ash</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_ash</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_ash</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_ash</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_ash</item>
@@ -359,6 +362,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_ash</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_ash</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_ash</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_ash</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_ash</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_ash</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_ash</item>
@@ -449,6 +453,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_ash</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_ash</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_ash</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_ash</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_ash</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_ash</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_ash</item>
@@ -506,6 +511,7 @@
 	<drawable name="serverBorderDrawable_ash">@color/ash_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_ash">@color/ash_text3</drawable>
 	<drawable name="selectedBorderDrawable_ash">@color/ash_text6</drawable>
+	<drawable name="collapsedBorderDrawable_ash">@color/ash_text9</drawable>
 	<drawable name="windowBackground_ash">@color/ash_background7</drawable>
 
 	<style name="ashEditText" parent="ash">

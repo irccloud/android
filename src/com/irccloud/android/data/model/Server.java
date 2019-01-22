@@ -99,6 +99,7 @@ public class Server extends BaseObservable implements Comparable<Server> {
     public Ignore ignores = new Ignore();
     public int deferred_archives;
     private int isSlack = -1;
+    public Buffer collapsed;
 
     @Override
     public int compareTo(Server another) {

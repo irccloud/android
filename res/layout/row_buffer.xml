@@ -31,7 +31,7 @@
 		android:layout_height="wrap_content"
 		android:background="?buffersDrawerBackgroundDrawable"
 		android:descendantFocusability="blocksDescendants"
-		android:minHeight="@{ (buffer.isSpam) ? @dimen/spam_min_height : (( buffer.isGroupHeading ) ? @dimen/buffergroup_min_height : @dimen/buffer_min_height) }"
+		android:minHeight="@{ (buffer.isSpam) ? @dimen/spam_min_height : (( buffer.isGroupHeading ) ? @dimen/buffergroup_min_height : buffer.isCollapsed ? @dimen/collapsed_min_height : @dimen/buffer_min_height) }"
 		android:orientation="horizontal" >
 
 		<LinearLayout
@@ -75,7 +75,7 @@
 						android:paddingRight="6dp"
 						android:text='@{buffer.isConsole ? (server.emojiCompatName ?? server.hostname) : buffer.emojiCompatName}'
 						android:textColor="@{ (selected == buffer.bid || (buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader) ) ? buffer.selectedTextColor : buffer.textColor }"
-						android:typeface="@{( !readOnly &amp;&amp; (selected == buffer.bid || buffer.unread > 0)) ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT }"
+						android:typeface="@{( !readOnly &amp;&amp; !buffer.isCollapsed &amp;&amp; (selected == buffer.bid || buffer.unread > 0)) ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT }"
 						android:textSize="16sp" />
 					<TextView
 						android:layout_width="wrap_content"

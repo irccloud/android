@@ -46,10 +46,11 @@ public class Buffer extends BaseObservable {
     public static final String TYPE_ARCHIVES_HEADER = "archives_header";
     public static final String TYPE_JOIN_CHANNEL = "join_channel";
     public static final String TYPE_SPAM = "spam";
+    public static final String TYPE_COLLAPSED = "collapsed";
     public static final String DEFAULT_CHANTYPES = "#&!+";
 
     private enum Type {
-        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, SPAM, OTHER
+        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, SPAM, COLLAPSED, OTHER
     }
 
     private Server server = null;
@@ -253,6 +254,9 @@ public class Buffer extends BaseObservable {
             case TYPE_SPAM:
                 this.type_int = Type.SPAM;
                 break;
+            case TYPE_COLLAPSED:
+                this.type_int = Type.COLLAPSED;
+                break;
             default:
                 this.type_int = Type.OTHER;
                 break;
@@ -297,7 +301,7 @@ public class Buffer extends BaseObservable {
     }
 
     public int getArchived() {
-        return isConsole()?0:archived;
+        return archived;
     }
 
     public void setArchived(int archived) {
@@ -314,6 +318,15 @@ public class Buffer extends BaseObservable {
     @Bindable
     public boolean getIsSpam() {
         return isSpam();
+    }
+
+    public boolean isCollapsed() {
+        return type_int == Type.COLLAPSED;
+    }
+
+    @Bindable
+    public boolean getIsCollapsed() {
+        return isCollapsed();
     }
 
     public int getDeferred() {
@@ -467,12 +480,10 @@ public class Buffer extends BaseObservable {
 
     @Bindable
     public int getTextColor() {
-        if (type_int == Type.ARCHIVES_HEADER) {
+        if (type_int == Type.ARCHIVES_HEADER || type_int == Type.COLLAPSED) {
             return colorScheme.archivesHeadingTextColor;
         } else if (type_int == Type.JOIN_CHANNEL) {
             return R.color.row_label_join;
-        } else if (getArchived() == 1) {
-            return (type_int == Type.CHANNEL) ? colorScheme.archivedChannelTextColor : colorScheme.archivedBufferTextColor;
         } else if (isConsole()) {
             if(getServer() != null && getServer().isFailed())
                 return colorScheme.networkErrorColor;
@@ -480,6 +491,8 @@ public class Buffer extends BaseObservable {
                 return colorScheme.inactiveBufferTextColor;
             else
                 return colorScheme.bufferTextColor;
+        } else if (getArchived() == 1) {
+            return (type_int == Type.CHANNEL) ? colorScheme.archivedChannelTextColor : colorScheme.archivedBufferTextColor;
         } else if (isChannel() && !isJoined()) {
             return colorScheme.inactiveBufferTextColor;
         } else if (isSpam()) {
@@ -491,7 +504,9 @@ public class Buffer extends BaseObservable {
 
     @Bindable
     public String getIcon() {
-        if(isChannel()) {
+        if (type_int == Type.COLLAPSED) {
+            return (archived > 0) ? FontAwesome.PLUS_SQUARE_O : FontAwesome.MINUS_SQUARE_O;
+        } else if(isChannel()) {
             Channel c = ChannelsList.getInstance().getChannelForBuffer(bid);
             if(c != null && (c.hasMode("k") || (serverIsSlack && !isMPDM() && c.hasMode("s"))))
                 return FontAwesome.LOCK;
@@ -511,6 +526,8 @@ public class Buffer extends BaseObservable {
             return (getServer() != null && getServer().isFailed()) ? R.drawable.row_failed_bg : colorScheme.serverBackgroundDrawable;
         else if(type_int == Type.JOIN_CHANNEL)
             return colorScheme.bufferBackgroundDrawable;
+        else if(type_int == Type.COLLAPSED)
+            return colorScheme.bufferBackgroundDrawable;
         else if(type_int == Type.ARCHIVES_HEADER)
             return (getArchived() == 0)?colorScheme.bufferBackgroundDrawable:R.drawable.archived_bg_selected;
         else
@@ -521,6 +538,8 @@ public class Buffer extends BaseObservable {
     public int getSelectedBackgroundResource() {
         if(isConsole())
             return (getServer() != null && getServer().isFailed()) ? R.drawable.status_fail_bg : colorScheme.selectedBackgroundDrawable;
+        else if(type_int == Type.COLLAPSED)
+            return colorScheme.bufferBackgroundDrawable;
         else
             return colorScheme.selectedBackgroundDrawable;
     }
@@ -550,7 +569,7 @@ public class Buffer extends BaseObservable {
     }
 
     @Bindable
-    public int getUnreadColor() { return R.drawable.row_unread_border; }
+    public int getUnreadColor() { return isCollapsed() ? colorScheme.collapsedBorderDrawable : R.drawable.row_unread_border; }
 
     @Bindable
     public boolean getShowSpinner() {

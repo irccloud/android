@@ -110,6 +110,7 @@
     <attr name="bufferBorderDrawable" format="reference"/>
     <attr name="serverBorderDrawable" format="reference"/>
     <attr name="selectedBorderDrawable" format="reference"/>
+    <attr name="collapsedBorderDrawable" format="reference"/>
     <attr name="bufferBackgroundDrawable" format="reference"/>
     <attr name="serverBackgroundDrawable" format="reference"/>
     <attr name="selectedBackgroundDrawable" format="reference"/>

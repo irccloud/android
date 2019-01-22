@@ -81,6 +81,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dawn</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dawn</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dawn</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_dawn</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dawn</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dawn</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dawn</item>
@@ -430,6 +431,7 @@
 	<drawable name="serverBorderDrawable_dawn">#D9E7FF</drawable>
 	<drawable name="selectedBackgroundDrawable_dawn">#1E72FF</drawable>
 	<drawable name="selectedBorderDrawable_dawn">#3E0CFF</drawable>
+	<drawable name="collapsedBorderDrawable_dawn">#666</drawable>
 	<drawable name="windowBackground_dawn">#EEE</drawable>
 	<drawable name="bufferBackgroundDrawable_dawn">#D9E7FF</drawable>
 	<drawable name="serverBackgroundDrawable_dawn">#F2F7FC</drawable>

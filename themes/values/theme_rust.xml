@@ -89,6 +89,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_rust</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_rust</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_rust</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_rust</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_rust</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_rust</item>
@@ -179,6 +180,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_rust</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_rust</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_rust</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_rust</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_rust</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_rust</item>
@@ -269,6 +271,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_rust</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_rust</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_rust</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_rust</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_rust</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_rust</item>
@@ -359,6 +362,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_rust</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_rust</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_rust</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_rust</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_rust</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_rust</item>
@@ -449,6 +453,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_rust</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_rust</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_rust</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_rust</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_rust</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_rust</item>
@@ -506,6 +511,7 @@
 	<drawable name="serverBorderDrawable_rust">@color/rust_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_rust">@color/rust_text3</drawable>
 	<drawable name="selectedBorderDrawable_rust">@color/rust_text6</drawable>
+	<drawable name="collapsedBorderDrawable_rust">@color/rust_text9</drawable>
 	<drawable name="windowBackground_rust">@color/rust_background7</drawable>
 
 	<style name="rustEditText" parent="rust">

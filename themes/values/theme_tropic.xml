@@ -89,6 +89,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_tropic</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_tropic</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_tropic</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_tropic</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_tropic</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_tropic</item>
@@ -179,6 +180,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_tropic</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_tropic</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_tropic</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_tropic</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_tropic</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_tropic</item>
@@ -269,6 +271,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_tropic</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_tropic</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_tropic</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_tropic</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_tropic</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_tropic</item>
@@ -359,6 +362,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_tropic</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_tropic</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_tropic</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_tropic</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_tropic</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_tropic</item>
@@ -449,6 +453,7 @@
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
 		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_tropic</item>
 		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_tropic</item>
+		<item name="collapsedBorderDrawable">@drawable/collapsedBorderDrawable_tropic</item>
 		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_tropic</item>
 		<item name="serverBackgroundDrawable">@drawable/row_server_bg_tropic</item>
 		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_tropic</item>
@@ -506,6 +511,7 @@
 	<drawable name="serverBorderDrawable_tropic">@color/tropic_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_tropic">@color/tropic_text3</drawable>
 	<drawable name="selectedBorderDrawable_tropic">@color/tropic_text6</drawable>
+	<drawable name="collapsedBorderDrawable_tropic">@color/tropic_text9</drawable>
 	<drawable name="windowBackground_tropic">@color/tropic_background7</drawable>
 
 	<style name="tropicEditText" parent="tropic">

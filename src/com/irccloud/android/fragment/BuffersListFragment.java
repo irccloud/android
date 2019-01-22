@@ -39,6 +39,7 @@ import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -82,6 +83,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
     int lastFailurePosition = -1;
 
     SparseBooleanArray mExpandArchives = new SparseBooleanArray();
+    SparseBooleanArray mExpandCids = new SparseBooleanArray();
 
     private int selected_bid = -1;
 
@@ -114,7 +116,94 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             data = items;
         }
 
-        public void updateBuffer(Buffer b) {
+        public synchronized void updateCollapsed(Server s) {
+            ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffersForServer(s.getCid());
+            int collapsed_unread = 0;
+            int collapsed_highlights = 0;
+            for (Buffer b : buffers) {
+                if (b.getArchived() == 0 || b.isConsole()) {
+                    collapsed_unread += b.getUnread();
+                    collapsed_highlights += b.getHighlights();
+                }
+            }
+
+            s.collapsed.setUnread(collapsed_unread);
+            s.collapsed.setHighlights(collapsed_highlights);
+
+            int pos = 0;
+            for(int i = 0; i < data.size(); i++) {
+                Buffer b = data.get(i);
+                if(b.isCollapsed() && b.getCid() == s.getCid()) {
+                    pos = i;
+                    if(getActivity() != null) {
+                        final int p = pos;
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                notifyItemChanged(p);
+                            }
+                        });
+                    }
+                    break;
+                }
+            }
+
+            if(pos > 0) {
+                if(collapsed_unread > 0) {
+                    if (firstUnreadPosition == -1 || firstUnreadPosition > pos)
+                        firstUnreadPosition = pos;
+                    if (lastUnreadPosition == -1 || lastUnreadPosition < pos)
+                        lastUnreadPosition = pos;
+                } else {
+                    if (firstUnreadPosition == pos) {
+                        firstUnreadPosition = -1;
+                        for (int i = 0; i < data.size(); i++) {
+                            if (data.get(i).getUnread() > 0) {
+                                firstUnreadPosition = i;
+                                break;
+                            }
+                        }
+                    }
+                    if (lastUnreadPosition == pos) {
+                        lastUnreadPosition = -1;
+                        for (int i = pos; i >= 0; i--) {
+                            if (data.get(i).getUnread() > 0) {
+                                lastUnreadPosition = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (collapsed_highlights > 0) {
+                    if (firstHighlightPosition == -1 || firstHighlightPosition > pos)
+                        firstHighlightPosition = pos;
+                    if (lastHighlightPosition == -1 || lastHighlightPosition < pos)
+                        lastHighlightPosition = pos;
+                } else {
+                    if (firstHighlightPosition == pos) {
+                        firstHighlightPosition = -1;
+                        for (int i = 0; i < data.size(); i++) {
+                            if (data.get(i).getHighlights() > 0) {
+                                firstHighlightPosition = i;
+                                break;
+                            }
+                        }
+                    }
+                    if (lastHighlightPosition == pos) {
+                        lastHighlightPosition = -1;
+                        for (int i = pos; i >= 0; i--) {
+                            if (data.get(i).getHighlights() > 0) {
+                                lastHighlightPosition = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public synchronized void updateBuffer(Buffer b) {
             final int pos = positionForBid(b.getBid());
             if (pos >= 0 && data != null && pos < data.size()) {
                 Buffer e = data.get(pos);
@@ -336,7 +425,17 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                             spamFragment.setCid(b.getCid());
                             spamFragment.show(getActivity().getSupportFragmentManager(), "spam");
                             return;
+                        case Buffer.TYPE_COLLAPSED:
+                            if(b.getArchived() > 0) {
+                                mExpandCids.put(b.getCid(), true);
+                                NetworkConnection.getInstance().unarchiveBuffer(b.getCid(), b.getBid(), null);
+                            } else {
+                                mExpandCids.delete(b.getCid());
+                                NetworkConnection.getInstance().archiveBuffer(b.getCid(), b.getBid(), null);
+                            }
+                            return;
                     }
+                    mExpandCids.delete(b.getCid());
                     mListener.onBufferSelected(b.getBid());
                 }
             });
@@ -394,69 +493,108 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
                 int spamCount = 0;
                 int archiveCount = s.deferred_archives;
+                Buffer collapsed = null;
+                int collapsed_unread = 0;
+                int collapsed_highlights = 0;
+                int collapsed_row = 0;
                 ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffersForServer(s.getCid());
                 for (Buffer b : buffers) {
                     if (isCancelled())
                         return null;
 
-                    if (b.getArchived() == 0) {
-                        entries.add(b);
-                        if (b.getUnread() > 0 && firstUnreadPosition == -1)
-                            firstUnreadPosition = position;
-                        if (b.getUnread() > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
-                            lastUnreadPosition = position;
-                        if (b.getHighlights() > 0 && firstHighlightPosition == -1)
-                            firstHighlightPosition = position;
-                        if (b.getHighlights() > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
-                            lastHighlightPosition = position;
-                        if (b.isConsole() && s.isFailed() && firstFailurePosition == -1)
-                            firstFailurePosition = position;
-                        if (b.isConsole() && s.isFailed() && (lastFailurePosition == -1 || lastFailurePosition < position))
-                            lastFailurePosition = position;
-                        if(!readOnly && b.isConversation() && b.getUnread() > 0 && EventsList.getInstance().getSizeOfBuffer(b.getBid()) == 1)
-                            spamCount++;
-                        position++;
-                    } else {
+                    if (b.getArchived() == 0 || b.isConsole()) {
+                        if(collapsed != null && !mExpandCids.get(b.getCid(), false) && b.getBid() != selected_bid) {
+                            collapsed_unread += b.getUnread();
+                            collapsed_highlights += b.getHighlights();
+                        } else {
+                            entries.add(b);
+                            if (b.getUnread() > 0 && firstUnreadPosition == -1)
+                                firstUnreadPosition = position;
+                            if (b.getUnread() > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
+                                lastUnreadPosition = position;
+                            if (b.getHighlights() > 0 && firstHighlightPosition == -1)
+                                firstHighlightPosition = position;
+                            if (b.getHighlights() > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
+                                lastHighlightPosition = position;
+                            if (b.isConsole() && s.isFailed() && firstFailurePosition == -1)
+                                firstFailurePosition = position;
+                            if (b.isConsole() && s.isFailed() && (lastFailurePosition == -1 || lastFailurePosition < position))
+                                lastFailurePosition = position;
+                            if (!readOnly && b.isConversation() && b.getUnread() > 0 && EventsList.getInstance().getSizeOfBuffer(b.getBid()) == 1)
+                                spamCount++;
+                            position++;
+                        }
+
+                        if(!BuildConfig.ENTERPRISE) {
+                            if (b.isConsole() && (b.getArchived() == 1 || mExpandCids.get(s.getCid(), false))) {
+                                collapsed = new Buffer();
+                                collapsed.setCid(s.getCid());
+                                collapsed.setBid(b.getBid());
+                                collapsed.setName(mExpandCids.get(s.getCid(), false) ? "Collapse" : "Expand");
+                                collapsed.setArchived(b.getArchived());
+                                collapsed.setType(Buffer.TYPE_COLLAPSED);
+                                s.collapsed = collapsed;
+                                collapsed_row = position;
+                            }
+                        }
+                    } else if(!b.isConsole()) {
                         archiveCount++;
                     }
                 }
-                if (spamCount > 3) {
-                    Buffer spam = new Buffer();
-                    spam.setCid(s.getCid());
-                    spam.setName("Spam detected");
-                    spam.setType(Buffer.TYPE_SPAM);
-                    for(int i = 0; i < entries.size(); i++) {
-                        Buffer b = entries.get(i);
-                        if(b.getCid() == spam.getCid() && b.isConversation()) {
-                            entries.add(i, spam);
-                            break;
-                        }
-                    }
+                if(collapsed != null) {
+                    collapsed.setUnread(collapsed_unread);
+                    collapsed.setHighlights(collapsed_highlights);
+                    entries.add(collapsed_row, collapsed);
                     position++;
+
+                    if (collapsed_unread > 0 && firstUnreadPosition == -1)
+                        firstUnreadPosition = collapsed_row;
+                    if (collapsed_unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < collapsed_row))
+                        lastUnreadPosition = collapsed_row;
+                    if (collapsed_highlights > 0 && firstHighlightPosition == -1)
+                        firstHighlightPosition = collapsed_row;
+                    if (collapsed_highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < collapsed_row))
+                        lastHighlightPosition = collapsed_row;
                 }
-                if (archiveCount > 0) {
-                    Buffer header = new Buffer();
-                    header.setCid(s.getCid());
-                    header.setName("Archives");
-                    header.setType(Buffer.TYPE_ARCHIVES_HEADER);
-                    header.setArchived(mExpandArchives.get(s.getCid(), false) ? 1 : 0);
-                    entries.add(header);
-                    position++;
-                    if (mExpandArchives.get(s.getCid(), false)) {
-                        for (Buffer b : buffers) {
-                            if (b.getArchived() == 1) {
-                                entries.add(b);
-                                position++;
+                if (collapsed == null || mExpandCids.get(s.getCid(), false)) {
+                    if (spamCount > 3) {
+                        Buffer spam = new Buffer();
+                        spam.setCid(s.getCid());
+                        spam.setName("Spam detected");
+                        spam.setType(Buffer.TYPE_SPAM);
+                        for (int i = 0; i < entries.size(); i++) {
+                            Buffer b = entries.get(i);
+                            if (b.getCid() == spam.getCid() && b.isConversation()) {
+                                entries.add(i, spam);
+                                break;
+                            }
+                        }
+                        position++;
+                    }
+                    if (archiveCount > 0) {
+                        Buffer header = new Buffer();
+                        header.setCid(s.getCid());
+                        header.setName("Archives");
+                        header.setType(Buffer.TYPE_ARCHIVES_HEADER);
+                        header.setArchived(mExpandArchives.get(s.getCid(), false) ? 1 : 0);
+                        entries.add(header);
+                        position++;
+                        if (mExpandArchives.get(s.getCid(), false)) {
+                            for (Buffer b : buffers) {
+                                if (b.getArchived() == 1) {
+                                    entries.add(b);
+                                    position++;
+                                }
                             }
                         }
                     }
-                }
-                if (buffers.size() == 1 && s.getStatus().equals("connected_ready") && !readOnly && archiveCount == 0) {
-                    Buffer join = new Buffer();
-                    join.setCid(s.getCid());
-                    join.setName("Join a Channel");
-                    join.setType(Buffer.TYPE_JOIN_CHANNEL);
-                    entries.add(join);
+                    if (buffers.size() == 1 && s.getStatus().equals("connected_ready") && !readOnly && archiveCount == 0) {
+                        Buffer join = new Buffer();
+                        join.setCid(s.getCid());
+                        join.setName("Join a Channel");
+                        join.setType(Buffer.TYPE_JOIN_CHANNEL);
+                        entries.add(join);
+                    }
                 }
             }
 
@@ -725,9 +863,14 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 if (adapter != null) {
                     event = (Event) obj;
                     if (event.bid != selected_bid) {
-                        b = BuffersList.getInstance().getBuffer(event.bid);
-                        if (b != null && event.isImportant(b.getType()))
-                            adapter.updateBuffer(b);
+                        Server s = ServersList.getInstance().getServer(event.cid);
+                        if(s != null && s.collapsed != null && !mExpandCids.get(event.cid, false)) {
+                            adapter.updateCollapsed(s);
+                        } else {
+                            b = BuffersList.getInstance().getBuffer(event.bid);
+                            if (b != null && event.isImportant(b.getType()))
+                                adapter.updateBuffer(b);
+                        }
                     }
                 }
                 break;

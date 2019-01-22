@@ -30,6 +30,7 @@
     <integer name="max_input_lines">4</integer>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="collapsed_min_height">32dp</dimen>
     <dimen name="buffer_min_height">48dp</dimen>
     <dimen name="buffergroup_min_height">56dp</dimen>
     <dimen name="spam_min_height">64dp</dimen>
