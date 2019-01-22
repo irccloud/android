@@ -511,7 +511,7 @@
 	<drawable name="serverBorderDrawable_emerald">@color/emerald_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_emerald">@color/emerald_text3</drawable>
 	<drawable name="selectedBorderDrawable_emerald">@color/emerald_text6</drawable>
-	<drawable name="collapsedBorderDrawable_emerald">@color/emerald_text9</drawable>
+	<drawable name="collapsedBorderDrawable_emerald">@color/emerald_background2</drawable>
 	<drawable name="windowBackground_emerald">@color/emerald_background7</drawable>
 
 	<style name="emeraldEditText" parent="emerald">

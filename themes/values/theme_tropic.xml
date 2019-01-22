@@ -511,7 +511,7 @@
 	<drawable name="serverBorderDrawable_tropic">@color/tropic_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_tropic">@color/tropic_text3</drawable>
 	<drawable name="selectedBorderDrawable_tropic">@color/tropic_text6</drawable>
-	<drawable name="collapsedBorderDrawable_tropic">@color/tropic_text9</drawable>
+	<drawable name="collapsedBorderDrawable_tropic">@color/tropic_background2</drawable>
 	<drawable name="windowBackground_tropic">@color/tropic_background7</drawable>
 
 	<style name="tropicEditText" parent="tropic">

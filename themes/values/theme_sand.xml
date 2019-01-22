@@ -511,7 +511,7 @@
 	<drawable name="serverBorderDrawable_sand">@color/sand_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_sand">@color/sand_text3</drawable>
 	<drawable name="selectedBorderDrawable_sand">@color/sand_text6</drawable>
-	<drawable name="collapsedBorderDrawable_sand">@color/sand_text9</drawable>
+	<drawable name="collapsedBorderDrawable_sand">@color/sand_background2</drawable>
 	<drawable name="windowBackground_sand">@color/sand_background7</drawable>
 
 	<style name="sandEditText" parent="sand">

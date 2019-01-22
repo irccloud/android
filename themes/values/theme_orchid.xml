@@ -511,7 +511,7 @@
 	<drawable name="serverBorderDrawable_orchid">@color/orchid_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_orchid">@color/orchid_text3</drawable>
 	<drawable name="selectedBorderDrawable_orchid">@color/orchid_text6</drawable>
-	<drawable name="collapsedBorderDrawable_orchid">@color/orchid_text9</drawable>
+	<drawable name="collapsedBorderDrawable_orchid">@color/orchid_background2</drawable>
 	<drawable name="windowBackground_orchid">@color/orchid_background7</drawable>
 
 	<style name="orchidEditText" parent="orchid">

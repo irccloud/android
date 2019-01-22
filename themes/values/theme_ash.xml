@@ -511,7 +511,7 @@
 	<drawable name="serverBorderDrawable_ash">@color/ash_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_ash">@color/ash_text3</drawable>
 	<drawable name="selectedBorderDrawable_ash">@color/ash_text6</drawable>
-	<drawable name="collapsedBorderDrawable_ash">@color/ash_text9</drawable>
+	<drawable name="collapsedBorderDrawable_ash">@color/ash_background2</drawable>
 	<drawable name="windowBackground_ash">@color/ash_background7</drawable>
 
 	<style name="ashEditText" parent="ash">

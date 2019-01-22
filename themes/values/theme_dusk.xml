@@ -511,7 +511,7 @@
 	<drawable name="serverBorderDrawable_dusk">@color/dusk_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_dusk">@color/dusk_text3</drawable>
 	<drawable name="selectedBorderDrawable_dusk">@color/dusk_text6</drawable>
-	<drawable name="collapsedBorderDrawable_dusk">@color/dusk_text9</drawable>
+	<drawable name="collapsedBorderDrawable_dusk">@color/dusk_background2</drawable>
 	<drawable name="windowBackground_dusk">@color/dusk_background7</drawable>
 
 	<style name="duskEditText" parent="dusk">

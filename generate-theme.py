@@ -202,7 +202,7 @@ f.write("\t<drawable name=\"bufferBorderDrawable_" + themename + "\">@color/" + 
 f.write("\t<drawable name=\"serverBorderDrawable_" + themename + "\">@color/" + themename + "_border9</drawable>\n")
 f.write("\t<drawable name=\"selectedBackgroundDrawable_" + themename + "\">@color/" + themename + "_text3</drawable>\n")
 f.write("\t<drawable name=\"selectedBorderDrawable_" + themename + "\">@color/" + themename + "_text6</drawable>\n")
-f.write("\t<drawable name=\"collapsedBorderDrawable_" + themename + "\">@color/" + themename + "_text9</drawable>\n")
+f.write("\t<drawable name=\"collapsedBorderDrawable_" + themename + "\">@color/" + themename + "_background2</drawable>\n")
 f.write("\t<drawable name=\"windowBackground_" + themename + "\">@color/" + themename + "_background7</drawable>\n")
 
 f.write("""
