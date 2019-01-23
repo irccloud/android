@@ -2361,7 +2361,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     Toast.makeText(getActivity(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
                     SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
                     editor.putBoolean("mentionTip", true);
-                    editor.commit();
+                    editor.apply();
                 }
                 if (!backlog) {
                     int markerPos = adapter.getLastSeenEIDPosition();
