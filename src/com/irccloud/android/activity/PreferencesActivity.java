@@ -847,7 +847,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             editor.remove("imgur_refresh_token");
             editor.remove("imgur_token_type");
             editor.remove("imgur_expires_in");
-            editor.commit();
+            editor.apply();
             startActivity(new Intent(PreferencesActivity.this, ImgurAuthActivity.class));
             return false;
         }
@@ -1034,7 +1034,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this);
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString("theme", theme);
-                    editor.commit();
+                    editor.apply();
 
                     if(!ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme()))
                         recreate();
@@ -1144,7 +1144,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this);
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putString("notify_ringtone", ringtones.get(((AlertDialog) dialog).getListView().getCheckedItemPosition()).uri);
-                        editor.commit();
+                        editor.apply();
                     }
                 });
                 builder.setNegativeButton("Cancel", null);

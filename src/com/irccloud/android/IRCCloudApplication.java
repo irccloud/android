@@ -93,7 +93,7 @@ public class IRCCloudApplication extends MultiDexApplication {
             getApplicationContext().getDatabasePath(IRCCloudDatabase.NAME + ".db").delete();
             SharedPreferences.Editor editor = prefs.edit();
             editor.putInt("dbVersion", IRCCloudDatabase.VERSION);
-            editor.commit();
+            editor.apply();
         }
 
         if(Build.VERSION.SDK_INT >= 19)
@@ -131,14 +131,14 @@ public class IRCCloudApplication extends MultiDexApplication {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("notify_type", prefs.getBoolean("notify", true) ? "1" : "0");
             editor.remove("notify");
-            editor.commit();
+            editor.apply();
         }
 
         if (prefs.contains("files-wifionly")) {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("files-usemobiledata", !prefs.getBoolean("files-wifionly", false));
             editor.remove("files-wifionly");
-            editor.commit();
+            editor.apply();
         }
 
         if (prefs.contains("notify_sound")) {
@@ -146,7 +146,7 @@ public class IRCCloudApplication extends MultiDexApplication {
             if (!prefs.getBoolean("notify_sound", true))
                 editor.putString("notify_ringtone", "");
             editor.remove("notify_sound");
-            editor.commit();
+            editor.apply();
         }
 
         if (prefs.contains("notify_lights")) {
@@ -154,19 +154,19 @@ public class IRCCloudApplication extends MultiDexApplication {
             if (!prefs.getBoolean("notify_lights", true))
                 editor.putString("notify_led_color", "0");
             editor.remove("notify_lights");
-            editor.commit();
+            editor.apply();
         }
 
         if (prefs.contains("notify_ringtone") && prefs.getString("notify_ringtone", "").startsWith("android.resource://" + getPackageName() + "/")) {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("notify_ringtone", "android.resource://" + getPackageName() + "/raw/digit");
-            editor.commit();
+            editor.apply();
         }
 
         if (prefs.contains("acra.enable")) {
             SharedPreferences.Editor editor = prefs.edit();
             editor.remove("acra.enable");
-            editor.commit();
+            editor.apply();
         }
 
         if(prefs.contains("notifications_json")) {
@@ -175,7 +175,7 @@ public class IRCCloudApplication extends MultiDexApplication {
             editor.remove("networks_json");
             editor.remove("lastseeneids_json");
             editor.remove("dismissedeids_json");
-            editor.commit();
+            editor.apply();
         }
 
         prefs = getSharedPreferences("prefs", 0);
@@ -183,13 +183,13 @@ public class IRCCloudApplication extends MultiDexApplication {
             Crashlytics.log(Log.INFO, "IRCCloud", "Migrating path from session key");
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("path", "/websocket/" + prefs.getString("session_key", "").charAt(0));
-            editor.commit();
+            editor.apply();
         }
         if (prefs.contains("host") && prefs.getString("host", "").equals("www.irccloud.com")) {
             Crashlytics.log(Log.INFO, "IRCCloud", "Migrating host");
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("host", "api.irccloud.com");
-            editor.commit();
+            editor.apply();
         }
         if (prefs.contains("gcm_app_version")) {
             SharedPreferences.Editor editor = prefs.edit();
@@ -197,7 +197,7 @@ public class IRCCloudApplication extends MultiDexApplication {
             editor.remove("gcm_app_build");
             editor.remove("gcm_registered");
             editor.remove("gcm_reg_id");
-            editor.commit();
+            editor.apply();
         }
 
         NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);

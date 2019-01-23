@@ -4204,7 +4204,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Drag from the edge of the screen to quickly open and close the user list", Toast.LENGTH_LONG).show();
                         SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                         editor.putBoolean("userSwipeTip", true);
-                        editor.commit();
+                        editor.apply();
                     }
                 }
                 return true;
@@ -4560,7 +4560,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (!getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
             SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
             editor.putBoolean("mentionTip", true);
-            editor.commit();
+            editor.apply();
         }
 
         if (drawerLayout != null)
@@ -4675,6 +4675,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         else
                             itemList.add("Collapse");
                     }
+                    itemList.add("Send a Message…");
                 }
                 if (!b.isConsole()) {
                     if (b.getArchived() == 0)
@@ -4899,6 +4900,32 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             NetworkConnection.getInstance().say(b.getCid(), null, "/join " + input.getText().toString(), null);
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog = builder.create();
+                    dialog.setOwnerActivity(MainActivity.this);
+                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    dialog.show();
+                } else if (items[item].equals("Send a Message…")) {
+                    View view = getDialogTextPrompt();
+                    TextView prompt = view.findViewById(R.id.prompt);
+                    final EditText input = view.findViewById(R.id.textInput);
+                    input.setText("");
+                    prompt.setText("Which nick do you want to message?");
+                    builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                    builder.setView(view);
+                    builder.setPositiveButton("Message", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            NetworkConnection.getInstance().say(b.getCid(), null, "/query " + input.getText().toString(), null);
                             dialog.dismiss();
                         }
                     });
@@ -5354,7 +5381,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
                         SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                         editor.putBoolean("mentionTip", true);
-                        editor.commit();
+                        editor.apply();
                     }
                     onUserDoubleClicked(selected_user.nick);
                 } else if (items[item].equals("Invite to a channel…")) {
@@ -5981,7 +6008,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             String k = i.next();
                             prefs.putString("imgur_" + k, o.getString(k));
                         }
-                        prefs.commit();
+                        prefs.apply();
                         if (mImageUri != null) {
                             imgurTask = new ImgurUploadTask(mImageUri);
                             if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -6935,7 +6962,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 Crashlytics.log(Log.INFO, "IRCCloud", "Registering for FCM");
                 SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                 editor.putString("gcm_token", token);
-                editor.commit();
+                editor.apply();
                 if(token != null && token.length() > 0) {
                     JSONObject result = NetworkConnection.getInstance().registerGCM(token, NetworkConnection.getInstance().session);
                     if (result != null && result.has("success")) {

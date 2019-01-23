@@ -79,7 +79,7 @@ public class ImgurAuthActivity extends AppCompatActivity {
                             String param[] = arg.split("=");
                             prefs.putString("imgur_" + param[0], param[1]);
                         }
-                        prefs.commit();
+                        prefs.apply();
                         finish();
                         return true;
                     }

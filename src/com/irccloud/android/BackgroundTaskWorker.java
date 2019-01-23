@@ -267,7 +267,7 @@ public class BackgroundTaskWorker extends Worker {
                         Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully unregistered");
                         SharedPreferences.Editor e = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                         e.remove(session);
-                        e.commit();
+                        e.apply();
                         return Result.success();
                     } else {
                         Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to unregister device: " + result.toString());

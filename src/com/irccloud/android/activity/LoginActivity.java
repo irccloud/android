@@ -631,11 +631,11 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 editor.putString("session_key", NetworkConnection.getInstance().session);
                 editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                 editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
-                editor.commit();
+                editor.apply();
 
                 editor = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).edit();
                 editor.putBoolean("greeting_3.0", true);
-                editor.commit();
+                editor.apply();
 
                 final Intent i = new Intent(LoginActivity.this, MainActivity.class);
                 i.putExtra("nosplash", true);
@@ -722,7 +722,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             signupHint.setEnabled(false);
             SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
             editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
-            editor.commit();
+            editor.apply();
             loginBtn.setEnabled(false);
             signupBtn.setEnabled(false);
             if (name.getVisibility() == View.VISIBLE)
@@ -772,11 +772,11 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     }
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
-                    editor.commit();
+                    editor.apply();
 
                     editor = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).edit();
                     editor.putBoolean("greeting_3.0", true);
-                    editor.commit();
+                    editor.apply();
 
                     final Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     i.putExtra("nosplash", true);
@@ -1004,7 +1004,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     }
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
-                    editor.commit();
+                    editor.apply();
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     i.putExtra("nosplash", true);
                     if (getIntent() != null) {
@@ -1153,7 +1153,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
 
                     SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
-                    editor.commit();
+                    editor.apply();
 
                     if (result.getString("auth_mechanism").equals("internal")) {
                         loginSignupHint.getChildAt(1).setVisibility(View.VISIBLE);

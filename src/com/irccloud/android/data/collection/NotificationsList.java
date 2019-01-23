@@ -544,7 +544,7 @@ public class NotificationsList {
         builder.setDefaults(defaults);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong("lastNotificationTime", System.currentTimeMillis());
-        editor.commit();
+        editor.apply();
 
         Intent i = new Intent(Intent.ACTION_VIEW);
         i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));

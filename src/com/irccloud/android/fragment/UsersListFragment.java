@@ -483,7 +483,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
                                                     Toast.makeText(getActivity(), "Long-press a message to quickly interact with the sender", Toast.LENGTH_LONG).show();
                                                     SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
                                                     editor.putBoolean("longPressTip", true);
-                                                    editor.commit();
+                                                    editor.apply();
                                                 }
                                             }
                                         } catch (Exception e) {

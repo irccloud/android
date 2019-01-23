@@ -639,7 +639,7 @@ public class NetworkConnection {
                 config = o;
                 SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
                 prefs.putString("config", config.toString());
-                prefs.commit();
+                prefs.apply();
 
                 if(config.has("file_uri_template"))
                     file_uri_template = config.getString("file_uri_template");
@@ -1029,7 +1029,7 @@ public class NetworkConnection {
                     final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                     editor.remove("streamId");
                     editor.remove("highest_eid");
-                    editor.commit();
+                    editor.apply();
                     //Delete.tables(Server.class, Buffer.class, Channel.class);
                     notifyHandlers(EVENT_CONNECTIVITY, null);
                     if (disconnectSockerTimerTask != null)
@@ -1201,10 +1201,10 @@ public class NetworkConnection {
         prefs.remove("highlights");
         prefs.remove("theme");
         prefs.remove("monospace");
-        prefs.commit();
+        prefs.apply();
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         editor.clear();
-        editor.commit();
+        editor.apply();
         mServers.clear();
         mBuffers.clear();
         mChannels.clear();
@@ -1226,7 +1226,7 @@ public class NetworkConnection {
         editor.remove("userinfo");
         editor.remove("highest_eid");
         editor.remove("streamId");
-        editor.commit();
+        editor.apply();
         highest_eid = -1;
         streamId = null;
         disconnect();
@@ -2099,7 +2099,7 @@ public class NetworkConnection {
                     editor.putBoolean("inlineimages", false);
                     editor.putBoolean("avatar-images", false);
                 }
-                editor.commit();
+                editor.apply();
                 mEvents.clearCaches();
                 notifyHandlers(EVENT_USERINFO, userInfo);
             }
@@ -3008,7 +3008,7 @@ public class NetworkConnection {
                     }
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
-                    editor.commit();
+                    editor.apply();
                     connect();
                 } else if(object.getString("message").equals("temp_unavailable")) {
                     notifyHandlers(EVENT_TEMP_UNAVAILABLE, object);
