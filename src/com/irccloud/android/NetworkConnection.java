@@ -204,6 +204,7 @@ public class NetworkConnection {
     public static final int EVENT_AVATARCHANGE = 56;
     public static final int EVENT_MESSAGECHANGE = 57;
     public static final int EVENT_WATCHSTATUS = 58;
+    public static final int EVENT_TEXTLIST = 59;
 
     public static final int EVENT_BACKLOG_START = 100;
     public static final int EVENT_BACKLOG_END = 101;
@@ -2857,6 +2858,7 @@ public class NetworkConnection {
         put("ban_exception_list", new BroadcastParser(EVENT_BANEXCEPTIONLIST));
         put("invite_list", new BroadcastParser(EVENT_INVITELIST));
         put("channel_query", new BroadcastParser(EVENT_CHANNELQUERY));
+        put("text", new BroadcastParser(EVENT_TEXTLIST));
         put("who_special_response", new BroadcastParser(EVENT_WHOSPECIALRESPONSE));
         put("modules_list", new BroadcastParser(EVENT_MODULESLIST));
         put("links_response", new BroadcastParser(EVENT_LINKSRESPONSE));

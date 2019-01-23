@@ -2949,6 +2949,33 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 });
                 break;
+            case NetworkConnection.EVENT_TEXTLIST:
+                event = (IRCCloudJSONObject) obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        hide_keyboard();
+                        Bundle args = new Bundle();
+                        args.putString("text", event.getString("msg"));
+                        args.putString("title", event.getString("server"));
+                        TextListFragment textFragment = (TextListFragment) getSupportFragmentManager().findFragmentByTag("text");
+                        if (textFragment == null) {
+                            textFragment = new TextListFragment();
+                            textFragment.setArguments(args);
+                            try {
+                                textFragment.show(getSupportFragmentManager(), "text");
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
+                            }
+                        } else {
+                            args = textFragment.getArguments();
+                            args.putString("text", args.getString("text") + "\n" + event.getString("msg"));
+                            textFragment.refresh();
+                        }
+                        getSupportFragmentManager().executePendingTransactions();
+                    }
+                });
+                break;
             case NetworkConnection.EVENT_WHOSPECIALRESPONSE:
                 event = (IRCCloudJSONObject) obj;
                 runOnUiThread(new Runnable() {
