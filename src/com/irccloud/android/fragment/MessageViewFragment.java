@@ -659,7 +659,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 e.html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
                             e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
                             if (e.msg != null && e.msg.length() > 0)
-                                e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
+                                e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server);
                             if (e.from != null && e.from.length() > 0) {
                                 e.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from_nick, e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
                             }
@@ -796,7 +796,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     else
                         row.setBackgroundColor(e.bg_color);
                     if (e.contentDescription != null && e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
-                        row.setContentDescription("Message from " + e.from + " at " + e.timestamp + ": " + e.contentDescription);
+                        row.setContentDescription(TextUtils.concat("Message from " + e.from + " at " + e.timestamp + ": ", e.contentDescription));
                     }
                 }
 
@@ -949,9 +949,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                     }
                     holder.message.setText(formatted);
-                    if (e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
-                        holder.message.setContentDescription(e.from + ": " + e.contentDescription);
-                    }
                     holder.message.setTextSize(textSize);
                     if(e.code_block) {
                         int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());

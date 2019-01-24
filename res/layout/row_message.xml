@@ -67,6 +67,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
+                android:importantForAccessibility="no"
                 android:clickable="false" />
 
             <TextView
@@ -78,6 +79,7 @@
                 android:visibility="gone"
                 android:clickable="false"
                 android:ellipsize="end"
+                android:importantForAccessibility="no"
                 android:singleLine="true"/>
 
         </LinearLayout>
@@ -119,6 +121,7 @@
                 android:visibility="gone"/>
             <TextView
                 android:id="@+id/message"
+                android:importantForAccessibility="no"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="none"

@@ -104,7 +104,7 @@ public class Event {
 
     public int day = -1;
 
-    public String contentDescription;
+    public Spanned contentDescription;
 
     public JsonNode entities;
 
