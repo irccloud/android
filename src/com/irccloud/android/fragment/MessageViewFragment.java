@@ -126,6 +126,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
@@ -437,14 +438,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 int insert_pos = -1;
                 SimpleDateFormat formatter = null;
                 if (e.timestamp == null || e.timestamp.length() == 0) {
-                    formatter = new SimpleDateFormat("h:mm a");
+                    formatter = new SimpleDateFormat("h:mm a", Locale.US);
                     if (pref_24hr) {
                         if (pref_seconds)
-                            formatter = new SimpleDateFormat("HH:mm:ss");
+                            formatter = new SimpleDateFormat("HH:mm:ss", Locale.US);
                         else
-                            formatter = new SimpleDateFormat("HH:mm");
+                            formatter = new SimpleDateFormat("HH:mm", Locale.US);
                     } else if (pref_seconds) {
-                        formatter = new SimpleDateFormat("h:mm:ss a");
+                        formatter = new SimpleDateFormat("h:mm:ss a", Locale.US);
                     }
                     e.timestamp = formatter.format(calendar.getTime());
                 }
@@ -547,7 +548,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if (calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
                     if (formatter == null)
-                        formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
+                        formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.US);
                     else
                         formatter.applyPattern("EEEE, MMMM dd, yyyy");
                     Event d = new Event();

@@ -57,11 +57,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class QuickReplyActivity extends AppCompatActivity {
     int cid, bid;
     String to;
-    SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
+    SimpleDateFormat formatter = new SimpleDateFormat("h:mm a", Locale.US);
     CollapsedEventsList collapsedEventsList = new CollapsedEventsList();
     boolean nickColors;
     Server server;
@@ -243,11 +244,11 @@ public class QuickReplyActivity extends AppCompatActivity {
         nickColors = prefs.getBoolean("nick-colors", false);
         if (prefs.getBoolean("time-24hr", false)) {
             if (prefs.getBoolean("time-seconds", false))
-                formatter = new SimpleDateFormat("H:mm:ss");
+                formatter = new SimpleDateFormat("H:mm:ss", Locale.US);
             else
-                formatter = new SimpleDateFormat("H:mm");
+                formatter = new SimpleDateFormat("H:mm", Locale.US);
         } else if (prefs.getBoolean("time-seconds", false)) {
-            formatter = new SimpleDateFormat("h:mm:ss a");
+            formatter = new SimpleDateFormat("h:mm:ss a", Locale.US);
         }
         adapter.loadMessages(cid, bid);
 
