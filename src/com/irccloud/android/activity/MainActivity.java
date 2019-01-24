@@ -893,7 +893,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             } else {
                 toolbar.setNavigationIcon(upDrawable);
-                toolbar.setNavigationContentDescription("Show navigation drawer");
+                toolbar.setNavigationContentDescription("Channels list");
                 findViewById(R.id.BuffersListDocked).setVisibility(View.GONE);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
                 if (actionBar != null)
@@ -1736,12 +1736,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (highlights > 0) {
                     upDrawable.setColorFilter(highlightsFilter);
                     upDrawableFilter = highlightsFilter;
+                    ((Toolbar)findViewById(R.id.toolbar)).setNavigationContentDescription("Channel list. Unread highlights");
                 } else if (unread > 0) {
                     upDrawable.setColorFilter(unreadFilter);
                     upDrawableFilter = unreadFilter;
+                    ((Toolbar)findViewById(R.id.toolbar)).setNavigationContentDescription("Channel list. Unread messages");
                 } else {
                     upDrawable.setColorFilter(normalFilter);
                     upDrawableFilter = normalFilter;
+                    ((Toolbar)findViewById(R.id.toolbar)).setNavigationContentDescription("Channel list");
                 }
                 refreshUpIndicatorTask = null;
             }
@@ -3527,6 +3530,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                         public void run() {
                                             upDrawable.setColorFilter(highlightsFilter);
                                             upDrawableFilter = highlightsFilter;
+                                            ((Toolbar)findViewById(R.id.toolbar)).setNavigationContentDescription("Channel list. Unread highlights");
                                         }
                                     });
                                 } else if (upDrawableFilter.equals(normalFilter)) {
@@ -3565,6 +3569,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                         public void run() {
                                             upDrawable.setColorFilter(unreadFilter);
                                             upDrawableFilter = unreadFilter;
+                                            ((Toolbar)findViewById(R.id.toolbar)).setNavigationContentDescription("Channel list. Unread messages");
                                         }
                                     });
                                 }

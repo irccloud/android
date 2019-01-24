@@ -404,6 +404,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             else
                 row.setShowSpinner(!readOnly && b.getShowSpinner());
 
+            row.getRoot().setContentDescription(b.getContentDescription());
+
             row.getRoot().setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {

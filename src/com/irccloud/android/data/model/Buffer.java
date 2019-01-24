@@ -472,10 +472,24 @@ public class Buffer extends BaseObservable {
     }
 
     @Bindable public String getContentDescription() {
-        if(isConversation())
-            return "Conversation with " + getDisplayName();
+        String extra = "";
+        if(getUnread() > 0)
+            extra += ", unread";
+        if(getHighlights() > 0)
+            extra += ", " + getHighlights() + " highlights";
+
+        if(isConsole())
+            return "Network " + getServer().getName() + extra;
+        else if(isCollapsed() && archived > 0)
+            return "Collapsed network. Tap to expand" + extra;
+        else if(isCollapsed())
+            return "Expanded network. Tap to collapse" + extra;
+        else if(isConversation())
+            return "Conversation with " + getDisplayName() + extra;
+        else if(isChannel())
+            return "Channel " + normalizedName() + extra;
         else
-            return "Channel " + normalizedName();
+            return getName() + extra;
     }
 
     @Bindable

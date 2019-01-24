@@ -18,7 +18,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_userlist"
-        android:title="Users"
+        android:title="Channel members list"
         app:showAsAction="always"
         android:icon="@drawable/ic_action_users"></item>
 </menu>
