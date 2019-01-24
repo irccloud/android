@@ -854,6 +854,18 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
         IRCCloudJSONObject object;
         Event event;
         switch (what) {
+            case NetworkConnection.EVENT_BUFFERARCHIVED:
+                b = BuffersList.getInstance().getBuffer((int)obj);
+                if(b != null && b.isConsole())
+                    mExpandCids.delete(b.getCid());
+                if(getActivity() != null)
+                    getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        refresh();
+                    }
+                });
+                break;
             case NetworkConnection.EVENT_CHANNELMODE:
                 object = (IRCCloudJSONObject) obj;
                 b = BuffersList.getInstance().getBuffer(object.bid());
