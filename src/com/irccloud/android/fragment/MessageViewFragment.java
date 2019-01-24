@@ -797,7 +797,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     else
                         row.setBackgroundColor(e.bg_color);
                     if (e.contentDescription != null && e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
-                        row.setContentDescription(TextUtils.concat("Message from " + e.from + " at " + e.timestamp + ": ", e.contentDescription));
+                        row.setContentDescription(TextUtils.concat("Message from " + e.from + ": ", e.contentDescription, ", at " + e.timestamp));
                     }
                 }
 
