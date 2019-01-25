@@ -653,6 +653,10 @@ public class CollapsedEventsList {
     }
 
     public String getCollapsedMessage() {
+        return getCollapsedMessage(false);
+    }
+
+    public String getCollapsedMessage(boolean contentDescription) {
         if(ColorScheme.getInstance().theme != null) {
             collapsedNickColor = Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2);
         }
@@ -665,7 +669,8 @@ public class CollapsedEventsList {
             CollapsedEvent e = data.get(0);
             switch (e.type) {
                 case TYPE_NETSPLIT:
-                    message.append(e.msg.replace(" ", " ↮ "));
+                    if(!contentDescription)
+                        message.append(e.msg.replace(" ", " ↮ "));
                     break;
                 case TYPE_MODE:
                     message.append(formatNick(e.nick, e.display_name, e.target_mode, false, collapsedNickColor));
@@ -682,30 +687,37 @@ public class CollapsedEventsList {
                     }
                     break;
                 case TYPE_JOIN:
-                    colorArrow(message, "→ ");
+                    if(!contentDescription)
+                        colorArrow(message, "→ ");
                     message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" joined");
                     if (showChan)
                         message.append(" ").append(e.chan);
 
-                    if (server == null || !server.isSlack())
-                        message.append(" (").append(e.hostmask).append(")");
+                    if(!contentDescription) {
+                        if (server == null || !server.isSlack())
+                            message.append(" (").append(e.hostmask).append(")");
+                    }
                     break;
                 case TYPE_PART:
-                    colorArrow(message, "← ");
+                    if(!contentDescription)
+                        colorArrow(message, "← ");
                     message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" left");
                     if (showChan)
                         message.append(" ").append(e.chan);
-                    if (server == null || !server.isSlack())
-                        message.append(" (").append(e.hostmask).append(")");
+                    if(!contentDescription) {
+                        if (server == null || !server.isSlack())
+                            message.append(" (").append(e.hostmask).append(")");
+                    }
                     if (e.msg != null && e.msg.length() > 0)
                         message.append(": ").append(e.msg);
                     break;
                 case TYPE_QUIT:
-                    colorArrow(message, "⇐ ");
+                    if(!contentDescription)
+                        colorArrow(message, "⇐ ");
                     message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
-                    if (e.hostmask != null && (server == null || !server.isSlack())) {
+                    if (!contentDescription && e.hostmask != null && (server == null || !server.isSlack())) {
                         message.append(" quit (").append(e.hostmask).append(") ");
                     } else {
                         message.append(" quit");
@@ -717,18 +729,23 @@ public class CollapsedEventsList {
                     break;
                 case TYPE_NICKCHANGE:
                     message.append(e.old_nick);
-                    colorArrow(message, " → ");
+                    if(contentDescription)
+                        message.append(" changed nickname to ");
+                    else
+                        colorArrow(message, " → ");
                     message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor));
                     break;
                 case TYPE_POPIN:
-                    colorArrow(message, "↔ ");
+                    if(!contentDescription)
+                        colorArrow(message, "↔ ");
                     message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" popped in");
                     if (showChan)
                         message.append(" ").append(e.chan);
                     break;
                 case TYPE_POPOUT:
-                    colorArrow(message, "↔ ");
+                    if(!contentDescription)
+                        colorArrow(message, "↔ ");
                     message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor)).append(was(e));
                     message.append(" nipped out");
                     if (showChan)
@@ -770,13 +787,16 @@ public class CollapsedEventsList {
                             colorArrow(message, "mode: ");
                             break;
                         case TYPE_JOIN:
-                            colorArrow(message, "→ ");
+                            if(!contentDescription)
+                                colorArrow(message, "→ ");
                             break;
                         case TYPE_PART:
-                            colorArrow(message, "← ");
+                            if(!contentDescription)
+                                colorArrow(message, "← ");
                             break;
                         case TYPE_QUIT:
-                            colorArrow(message, "⇐ ");
+                            if(!contentDescription)
+                                colorArrow(message, "⇐ ");
                             break;
                         case TYPE_NICKCHANGE:
                             if (message.length() > 0)
@@ -784,7 +804,8 @@ public class CollapsedEventsList {
                             break;
                         case TYPE_POPIN:
                         case TYPE_POPOUT:
-                            colorArrow(message, "↔ ");
+                            if(!contentDescription)
+                                colorArrow(message, "↔ ");
                             break;
                         case TYPE_CONNECTIONSTATUS:
                             break;
@@ -793,11 +814,15 @@ public class CollapsedEventsList {
 
                 if (e.type == TYPE_NICKCHANGE) {
                     message.append(e.old_nick);
-                    colorArrow(message, " → ");
+                    if(contentDescription)
+                        message.append(" changed nickname to ");
+                    else
+                        colorArrow(message, " → ");
                     message.append(formatNick(e.nick, e.display_name, e.from_mode, false, collapsedNickColor));
                     message.append(was(e));
                 } else if (e.type == TYPE_NETSPLIT) {
-                    message.append(e.msg.replace(" ", " ↮ "));
+                    if(!contentDescription)
+                        message.append(e.msg.replace(" ", " ↮ "));
                 } else if (e.type == TYPE_CONNECTIONSTATUS) {
                     message.append(e.msg);
                     if (e.count > 1)

@@ -659,8 +659,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if(e.edited)
                                 e.html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
                             e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
-                            if (e.msg != null && e.msg.length() > 0)
+                            if (e.group_msg == null && e.msg != null && e.msg.length() > 0) {
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server);
+                            }
                             if (e.from != null && e.from.length() > 0) {
                                 e.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from_nick, e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
                             }
@@ -778,6 +779,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 row.setOnClickListener(new OnItemClickListener(position));
                 row.setOnLongClickListener(new OnItemLongClickListener(position));
+                row.setContentDescription(e.contentDescription);
 
                 if (e.html != null && e.formatted == null) {
                     adapter.format(e);
@@ -796,7 +798,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         row.setBackgroundDrawable(null);
                     else
                         row.setBackgroundColor(e.bg_color);
-                    if (e.contentDescription != null && e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
+                    if (e.contentDescription != null && e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0 && e.group_msg == null) {
                         row.setContentDescription(TextUtils.concat("Message from " + e.from + ": ", e.contentDescription, ", at " + e.timestamp));
                     }
                 }
@@ -974,6 +976,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 holder.expandable.setText(FontAwesome.MINUS_SQUARE_O);
                                 holder.expandable.setContentDescription("expanded");
                                 row.setBackgroundColor(colorScheme.collapsedHeadingBackgroundColor);
+                                row.setContentDescription(TextUtils.concat("Expanded events heading: ", e.contentDescription));
                             } else {
                                 holder.expandable.setText(FontAwesome.ANGLE_RIGHT);
                                 holder.expandable.setContentDescription("collapse");
@@ -982,6 +985,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         } else {
                             holder.expandable.setText(FontAwesome.PLUS_SQUARE_O);
                             holder.expandable.setContentDescription("expand");
+                            row.setContentDescription(TextUtils.concat("Collapsed events: ", e.contentDescription));
                         }
                         holder.expandable.setVisibility(View.VISIBLE);
                     } else {
@@ -1917,6 +1921,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         c.setServer(server);
                         c.addEvent(event);
                         msg = c.getCollapsedMessage();
+                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(c.getCollapsedMessage(true)), true, server);
                         if (!nextIsGrouped) {
                             String group_msg = collapsedEvents.getCollapsedMessage();
                             if (group_msg == null && type.equals("nickchange")) {
@@ -1935,9 +1940,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             heading.bid = event.bid;
                             heading.eid = currentCollapsedEid - 1;
                             heading.group_msg = group_msg;
+                            heading.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(collapsedEvents.getCollapsedMessage(true)), true, server);
                             heading.color = colorScheme.timestampColor;
                             heading.bg_color = colorScheme.contentBackgroundColor;
                             heading.linkify = false;
+                            heading.html = ColorFormatter.irc_to_html(group_msg);
+                            heading.formatted = ColorFormatter.html_to_spanned(heading.html);
                             adapter.addItem(currentCollapsedEid - 1, heading);
                             if (event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
                                 Event last = EventsList.getInstance().getEvent(lastCollapsedEid, buffer.getBid());
@@ -1951,8 +1959,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         msg = (nextIsGrouped && currentCollapsedEid != event.eid) ? "" : collapsedEvents.getCollapsedMessage();
                     }
 
+                    if (!expandedSectionEids.contains(currentCollapsedEid))
+                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(collapsedEvents.getCollapsedMessage(true)), true, server);
                     if (msg == null && type.equals("nickchange")) {
                         msg = event.old_nick + " → <b>" + event.nick + "</b>";
+                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(event.old_nick + " changed nickname to " + event.nick));
                     }
                     if (msg == null && type.equals("user_channel_mode")) {
                         if (event.from != null && event.from.length() > 0)
@@ -1960,6 +1971,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         else
                             msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                         currentCollapsedEid = eid;
+                        event.contentDescription = ColorFormatter.html_to_spanned(msg);
                     }
                     if (!expandedSectionEids.contains(currentCollapsedEid)) {
                         if (eid != currentCollapsedEid) {
