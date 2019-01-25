@@ -1295,6 +1295,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                             e.msg = e.msg.replace(" • ", "\n");
                         }
+                        row.setContentDescription("Image thumbnail: ");
                     } else {
                         String ext = "???";
 
@@ -1310,6 +1311,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.thumbnail.setVisibility(View.GONE);
                         holder.extension.setVisibility(View.VISIBLE);
                         holder.progress.setVisibility(View.GONE);
+                        row.setContentDescription("Uploaded file: ");
                     }
 
                     if(e.entities.has("name") && e.entities.get("name") != null && e.entities.get("name").asText().length() > 0) {
@@ -1320,6 +1322,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         holder.filename.setText(e.entities.get("name").asText());
                         holder.filename.setVisibility(View.VISIBLE);
+                        row.setContentDescription(TextUtils.concat(row.getContentDescription(), e.entities.get("name").asText(), " "));
                     } else {
                         holder.filename.setVisibility(View.GONE);
                     }
@@ -1337,6 +1340,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.metadata.setTextSize(textSize);
                         holder.metadata.setText(e.formatted);
                         holder.metadata.setVisibility(View.VISIBLE);
+                        if(e.formatted != null)
+                            row.setContentDescription(TextUtils.concat(row.getContentDescription(), e.formatted));
                     } else {
                         holder.metadata.setVisibility(View.GONE);
                     }
@@ -2761,7 +2766,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             TreeMap<Long, Event> evs = null;
             long time = System.currentTimeMillis();
             if (buffer != null)
-                evs = EventsList.getInstance().getEventsForBuffer(buffer.getBid());
+                evs = (TreeMap<Long, Event>)EventsList.getInstance().getEventsForBuffer(buffer.getBid()).clone();
             Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
             if (!isCancelled() && evs != null && evs.size() > 0) {
                 try {
