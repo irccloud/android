@@ -699,13 +699,17 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     break;
             }
             if (Integer.parseInt((String) newValue) > 0) {
-                findPreference("notify_vibrate").setEnabled(true);
-                findPreference("notify_ringtone").setEnabled(true);
-                findPreference("notify_led_color").setEnabled(true);
+                if(findPreference("notify_vibrate") != null) {
+                    findPreference("notify_vibrate").setEnabled(true);
+                    findPreference("notify_ringtone").setEnabled(true);
+                    findPreference("notify_led_color").setEnabled(true);
+                }
             } else {
-                findPreference("notify_vibrate").setEnabled(false);
-                findPreference("notify_ringtone").setEnabled(false);
-                findPreference("notify_led_color").setEnabled(false);
+                if(findPreference("notify_vibrate") != null) {
+                    findPreference("notify_vibrate").setEnabled(false);
+                    findPreference("notify_ringtone").setEnabled(false);
+                    findPreference("notify_led_color").setEnabled(false);
+                }
                 NotificationsList.getInstance().clear();
             }
             return true;
