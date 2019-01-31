@@ -1876,7 +1876,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if (type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode") || type.equals("socket_closed") || type.equals("connecting_cancelled") || type.equals("connecting_failed")) {
                     collapsedEvents.showChan = !buffer.isChannel();
-                    if (pref_hideJoinPart && !type.equals("socket_closed") && !type.equals("connecting_cancelled") && !type.equals("connecting_failed")) {
+                    if (pref_hideJoinPart && !type.equals("socket_closed") && !type.equals("connecting_cancelled") && !type.equals("connecting_failed") && !event.self) {
                         adapter.removeItem(event.eid);
                         if (!backlog)
                             adapter.notifyDataSetChanged();
