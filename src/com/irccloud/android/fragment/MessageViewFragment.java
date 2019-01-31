@@ -844,7 +844,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 }
                 if (e.row_type == ROW_SOCKETCLOSED) {
-                    if (e.msg != null && e.msg.length() > 0) {
+                    if ((e.msg != null && e.msg.length() > 0) || (e.group_msg != null && e.group_msg.length() > 0)) {
                         holder.timestamp.setVisibility(View.VISIBLE);
                         holder.message.setVisibility(View.VISIBLE);
                     } else {
@@ -1006,7 +1006,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if (holder.avatar != null) {
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)holder.avatar.getLayoutParams();
-                    if(pref_avatarsOff || pref_chatOneLine || (e.row_type == ROW_SOCKETCLOSED && (e.msg == null || e.msg.length() == 0))) {
+                    if(pref_avatarsOff || pref_chatOneLine || (e.row_type == ROW_SOCKETCLOSED && e.group_msg == null && (e.msg == null || e.msg.length() == 0))) {
                         holder.avatar.setImageBitmap(null);
                         lp.topMargin = lp.width = lp.height = 0;
                     } else {
