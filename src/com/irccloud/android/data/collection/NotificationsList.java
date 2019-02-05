@@ -1039,7 +1039,7 @@ public class NotificationsList {
                 }
 
                 if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_channels", false) && c.getId().startsWith("uid")) {
-                    nm.deleteNotificationChannelGroup(c.getId());
+                    nm.deleteNotificationChannel(c.getId());
                     if(c.getGroup() != null)
                         nm.deleteNotificationChannelGroup(c.getGroup());
                 }
