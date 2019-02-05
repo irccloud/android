@@ -89,6 +89,7 @@ public class ServersList {
         s.setHostname(hostname);
         s.setPort(port);
         s.setNick(nick);
+        s.setFrom(nick);
         s.setStatus(status);
         s.setSsl(ssl);
         s.setRealname(realname);
