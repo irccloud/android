@@ -2768,13 +2768,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (buffer != null)
                 evs = EventsList.getInstance().getEventsForBuffer(buffer.getBid());
 
-            try {
-                if (evs != null)
-                    evs = (TreeMap<Long, Event>) evs.clone();
-            } catch (Exception e) {
-
-            }
-
             Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
             if (!isCancelled() && evs != null && evs.size() > 0) {
                 try {
