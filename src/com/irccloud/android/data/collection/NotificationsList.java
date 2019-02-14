@@ -720,7 +720,7 @@ public class NotificationsList {
             builder.addAction(R.drawable.ic_action_reply, "Quick Reply", quickReplyIntent);
         }
 
-        if (replyIntent != null) {
+        /*if (replyIntent != null) {
             Intent markAsRead = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MarkAsReadBroadcastReceiver.class);
             markAsRead.setData(Uri.parse("irccloud-markasread://" + bid));
             markAsRead.putExtra("cid", cid);
@@ -729,7 +729,7 @@ public class NotificationsList {
 
             PendingIntent pendingIntent = PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, markAsRead, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(0, "Mark As Read", pendingIntent);
-        }
+        }*/
 
         if(otherAction != null) {
             int drawable = 0;
