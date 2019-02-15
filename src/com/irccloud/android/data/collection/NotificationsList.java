@@ -520,7 +520,6 @@ public class NotificationsList {
                 .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.ic_background))
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                .setPriority(hasTouchWiz() ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_HIGH)
                 .setOnlyAlertOnce(false);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
@@ -530,6 +529,8 @@ public class NotificationsList {
             if (ringtone.length() > 0)
                 builder.setSound(Uri.parse(ringtone));
         }
+        if (!hasTouchWiz() && Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+            builder.setPriority(NotificationCompat.PRIORITY_HIGH);
 
         int led_color = Integer.parseInt(prefs.getString("notify_led_color", "1"));
         if (led_color == 1) {
