@@ -18,7 +18,7 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">irccloud.com</domain>
-        <pin-set expiration="2019-03-21">
+        <pin-set expiration="2020-02-20">
             <pin digest="SHA-256">Y9mvm0exBk1JoQ57f9Vm28jKo5lFm/woKcVxrYxu80o=</pin>
             <pin digest="SHA-256">5kJvNEMw0KjrCAu7eXY5HZdvyCS13BbA0VJG1RSP91w=</pin>
         </pin-set>
