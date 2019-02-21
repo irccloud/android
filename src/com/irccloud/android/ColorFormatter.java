@@ -1851,6 +1851,9 @@ public class ColorFormatter {
         put("secret", "\u3299\uFE0F");
 
         put("like", "\uD83D\uDC4D");
+        put("thumbs_up", "\uD83D\uDC4D");
+        put("dislike", "\uD83D\uDC4E");
+        put("thumbs_down", "\uD83D\uDC4E");
         put("doge", "\uD83D\uDC15");
         put("aubergine", "\uD83C\uDF46");
         put("gust_of_wind", "\uD83D\uDCA8");
@@ -1934,6 +1937,12 @@ public class ColorFormatter {
         put("being_sick", "\uD83E\uDD2E");
         put("mind_blown", "\uD83E\uDD2F");
         put("lightning_bolt", "\u26A1");
+        put("confetti", "\uD83C\uDF8A");
+        put("rubbish", "\uD83D\uDDD1\uFE0F");
+        put("trash", "\uD83D\uDDD1\uFE0F");
+        put("garbage", "\uD83D\uDDD1\uFE0F");
+        put("bin", "\uD83D\uDDD1\uFE0F");
+        put("wastepaper_basket", "\uD83D\uDDD1\uFE0F");
     }};
 
     public static Pattern EMOJI = null;
