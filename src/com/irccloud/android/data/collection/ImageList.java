@@ -72,6 +72,7 @@ public class ImageList {
     private HashMap<String, Bitmap> images;
     private HashMap<String, GifDrawable> GIFs;
     private ArrayList<String> failedURLs;
+    private ArrayList<String> activeDownloads;
     private HashMap<String, ImageURLInfo> urlInfo;
     private HashMap<String, ArrayList<OnImageFetchedListener>> downloadListeners;
     private final BlockingQueue<Runnable> mWorkQueue = new LinkedBlockingQueue<>();
@@ -123,6 +124,7 @@ public class ImageList {
         failedURLs = new ArrayList<>();
         urlInfo = new HashMap<>();
         downloadListeners = new HashMap<>();
+        activeDownloads = new ArrayList<>();
     }
 
     public void clear() {
@@ -130,6 +132,7 @@ public class ImageList {
         GIFs.clear();
         mDownloadThreadPool.purge();
         downloadListeners.clear();
+        activeDownloads.clear();
     }
 
     public void clearFailures() {
@@ -175,7 +178,7 @@ public class ImageList {
     public boolean isFailedURL(String fileID, int width) {
         try {
             if(NetworkConnection.file_uri_template != null)
-                return isFailedURL(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).expand()));
+                return isFailedURL(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
         } catch (Exception e) {
         }
         return false;
@@ -243,7 +246,7 @@ public class ImageList {
         if(bitmap != null)
             return bitmap;
 
-        if(cacheFile(url).exists()) {
+        if(cacheFile(url).exists() && !activeDownloads.contains(url.toString())) {
             if(width > 0)
                 bitmap = loadScaledBitmap(cacheFile(url), width);
             else
@@ -348,8 +351,28 @@ public class ImageList {
     }
 
     public void fetchImage(final URL url, final int width, final OnImageFetchedListener listener, final long maxCacheAge) throws FileNotFoundException {
-        if(failedURLs.contains(MD5(url.toString())))
+        if(failedURLs.contains(MD5(url.toString()))) {
             throw new FileNotFoundException();
+        }
+
+        if (cacheFile(url).exists() && cacheFile(url).length() > 0) {
+            if(maxCacheAge == 0) {
+                try {
+                    Bitmap bitmap = getImage(url, width);
+                    if (bitmap == null)
+                        failedURLs.add(MD5(url.toString()));
+                    if(listener != null)
+                        listener.onImageFetched(bitmap);
+                } catch (IOException e) {
+                    failedURLs.add(MD5(url.toString()));
+                } catch (OutOfMemoryError e) {
+                    if(listener != null)
+                        listener.onImageFetched(null);
+                }
+            } else if(System.currentTimeMillis() - cacheFile(url).lastModified() < maxCacheAge) {
+                return;
+            }
+        }
 
         synchronized (downloadListeners) {
             if (downloadListeners.containsKey(url.toString())) {
@@ -368,22 +391,6 @@ public class ImageList {
             @Override
             public void run() {
                 try {
-                    if (cacheFile(url).exists() && cacheFile(url).length() > 0) {
-                        if(maxCacheAge == 0) {
-                            try {
-                                Bitmap bitmap = getImage(url, width);
-                                if (bitmap != null)
-                                    images.put(MD5(url.toString()), bitmap);
-                                else
-                                    failedURLs.add(MD5(url.toString()));
-                                notifyListeners(url, bitmap);
-                            } catch (OutOfMemoryError e) {
-                                notifyListeners(url, null);
-                            }
-                        } else if(System.currentTimeMillis() - cacheFile(url).lastModified() < maxCacheAge) {
-                            return;
-                        }
-                    }
                     HttpURLConnection conn;
 
                     Proxy proxy = null;
@@ -439,6 +446,7 @@ public class ImageList {
                     }
 
                     try {
+                        activeDownloads.add(url.toString());
                         if (conn.getResponseCode() == HttpURLConnection.HTTP_OK && conn.getInputStream() != null) {
                             InputStream is = conn.getInputStream();
                             OutputStream os = new FileOutputStream(cacheFile(url));
@@ -450,19 +458,23 @@ public class ImageList {
                             is.close();
                             os.close();
                             cacheFile(url).setLastModified(System.currentTimeMillis());
+                            activeDownloads.remove(url.toString());
 
                             Bitmap bitmap = getImage(url, width);
                             if (bitmap == null) {
                                 android.util.Log.e("IRCCloud", "Failed to load bitmap after download");
+                                cacheFile(url).delete();
                                 failedURLs.add(MD5(url.toString()));
                             }
                             notifyListeners(url, bitmap);
                         } else if(conn.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED) {
                             cacheFile(url).setLastModified(System.currentTimeMillis());
+                            activeDownloads.remove(url.toString());
                             if(maxCacheAge == 0) {
                                 Bitmap bitmap = getImage(url, width);
                                 if (bitmap == null) {
                                     android.util.Log.e("IRCCloud", "Failed to load bitmap after download");
+                                    cacheFile(url).delete();
                                     failedURLs.add(MD5(url.toString()));
                                 }
                                 notifyListeners(url, bitmap);
@@ -488,6 +500,7 @@ public class ImageList {
                     }
 
                     conn.disconnect();
+                    activeDownloads.remove(url.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
