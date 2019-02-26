@@ -67,7 +67,6 @@ import pl.droidsonroids.gif.GifDrawable;
 import static com.irccloud.android.NetworkConnection.printStackTraceToCrashlytics;
 
 public class ImageList {
-    private static java.security.MessageDigest md;
     private static ImageList instance = null;
     private HashMap<String, Bitmap> images;
     private HashMap<String, GifDrawable> GIFs;
@@ -252,43 +251,46 @@ public class ImageList {
             else
                 bitmap = BitmapFactory.decodeFile(cacheFile(url).getAbsolutePath());
 
-            ExifInterface exif = new ExifInterface(cacheFile(url).getPath());
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-            if(orientation > 1) {
-                Matrix matrix = new Matrix();
-                switch (orientation) {
-                    case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                        matrix.setScale(-1, 1);
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_180:
-                        matrix.setRotate(180);
-                        break;
-                    case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                        matrix.setRotate(180);
-                        matrix.postScale(-1, 1);
-                        break;
-                    case ExifInterface.ORIENTATION_TRANSPOSE:
-                        matrix.setRotate(90);
-                        matrix.postScale(-1, 1);
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_90:
-                        matrix.setRotate(90);
-                        break;
-                    case ExifInterface.ORIENTATION_TRANSVERSE:
-                        matrix.setRotate(-90);
-                        matrix.postScale(-1, 1);
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_270:
-                        matrix.setRotate(-90);
-                        break;
+            try {
+                ExifInterface exif = new ExifInterface(cacheFile(url).getPath());
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+                if (orientation > 1) {
+                    Matrix matrix = new Matrix();
+                    switch (orientation) {
+                        case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                            matrix.setScale(-1, 1);
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_180:
+                            matrix.setRotate(180);
+                            break;
+                        case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                            matrix.setRotate(180);
+                            matrix.postScale(-1, 1);
+                            break;
+                        case ExifInterface.ORIENTATION_TRANSPOSE:
+                            matrix.setRotate(90);
+                            matrix.postScale(-1, 1);
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_90:
+                            matrix.setRotate(90);
+                            break;
+                        case ExifInterface.ORIENTATION_TRANSVERSE:
+                            matrix.setRotate(-90);
+                            matrix.postScale(-1, 1);
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_270:
+                            matrix.setRotate(-90);
+                            break;
+                    }
+                    try {
+                        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                    } catch (OutOfMemoryError e) {
+                        Log.e("IRCCloud", "Out of memory rotating the photo");
+                    }
                 }
-                try {
-                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                } catch (OutOfMemoryError e) {
-                    Log.e("IRCCloud", "Out of memory rotating the photo");
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
             if (bitmap != null)
                 images.put(MD5(url.toString()), bitmap);
         }
@@ -535,8 +537,7 @@ public class ImageList {
 
     public static String MD5(String md5) {
         try {
-            if(md == null)
-                md = java.security.MessageDigest.getInstance("MD5");
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
             byte[] array = md.digest(md5.getBytes(Charset.forName("UTF-8")));
             StringBuilder sb = new StringBuilder();
             for (byte anArray : array) {

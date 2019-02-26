@@ -2293,6 +2293,7 @@ public class NetworkConnection {
                 String avatar_url = null;
                 if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
                     Event e = new Event();
+                    e.cid = server.getCid();
                     e.from = server.getNick();
                     e.type = "buffer_msg";
                     e.hostmask = server.getUsermask();
