@@ -2278,8 +2278,8 @@ public class NetworkConnection {
                         (object.has("avatars_supported") && !object.getString("avatars_supported").equals("undefined")) ? object.getInt("avatars_supported") : 0,
                         (object.has("slack") && !object.getString("slack").equals("undefined")) ? object.getInt("slack") : 0);
 
-                NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"));
-                NotificationsList.getInstance().addNotificationGroup(server.getCid(), server.getName() != null && server.getName().length() > 0 ? server.getName() : server.getHostname());
+                if(object.has("usermask") && object.getString("usermask").length() > 0)
+                    server.setUsermask(object.getString("usermask"));
 
                 if(object.has("deferred_archives"))
                     server.deferred_archives = object.getInt("deferred_archives");
@@ -2289,6 +2289,21 @@ public class NetworkConnection {
 
                 if(object.has("avatar_url"))
                     server.setAvatarURL(object.getString("avatar_url"));
+
+                String avatar_url = null;
+                if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
+                    Event e = new Event();
+                    e.from = server.getNick();
+                    e.type = "buffer_msg";
+                    e.hostmask = server.getUsermask();
+                    e.avatar = server.getAvatar();
+                    e.avatar_url = server.getAvatarURL();
+
+                    avatar_url = e.getAvatarURL(512);
+                }
+
+                NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"), avatar_url);
+                NotificationsList.getInstance().addNotificationGroup(server.getCid(), server.getName() != null && server.getName().length() > 0 ? server.getName() : server.getHostname());
 
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKESERVER, server);
@@ -2712,7 +2727,7 @@ public class NetworkConnection {
                     if (object.type().equals("you_nickchange")) {
                         if(mServers.getServer(object.cid()) != null)
                             mServers.getServer(object.cid()).setNick(object.getString("newnick"));
-                        NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("newnick"));
+                        NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("newnick"), mServers.getServer(object.cid()).getAvatarURL());
                     }
                     notifyHandlers(EVENT_NICKCHANGE, object);
                 }
@@ -3230,11 +3245,11 @@ public class NetworkConnection {
                     totalbuffers = 0;
                     currentBid = -1;
                     if (object != null && (int)object == -1) {
-                        try {
+                        /*try {
                             IRCCloudDatabase.getInstance().beginTransaction();
                         } catch (IllegalStateException e) {
 
-                        }
+                        }*/
                         mBuffers.invalidate();
                         mChannels.invalidate();
                         return;
@@ -3253,13 +3268,13 @@ public class NetworkConnection {
                         if(oobTasks.size() > 10)
                             break;
                     }
-                    if (bid == -1) {
+                    /*if (bid == -1) {
                         try {
                             IRCCloudDatabase.getInstance().endTransaction();
                         } catch (IllegalStateException e) {
 
                         }
-                    }
+                    }*/
                     NotificationsList.getInstance().deleteOldNotifications();
                     NotificationsList.getInstance().pruneNotificationChannels();
                     if (bid != -1) {
@@ -3278,11 +3293,11 @@ public class NetworkConnection {
                     bid = ((OOBFetcher)object).getBid();
                     if (bid == -1) {
                         Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
-                        try {
+                        /*try {
                             IRCCloudDatabase.getInstance().endTransaction();
                         } catch (IllegalStateException e) {
 
-                        }
+                        }*/
                         streamId = null;
                         highest_eid = 0;
                         if (client != null)

@@ -72,7 +72,7 @@ public class RemoteInputService extends IntentService {
                                 reply = "slapped";
                             }
                             if(intent.getIntExtra("bid", -1) != -1)
-                                NotificationsList.getInstance().addNotification(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis() * 1000, null, reply, intent.getStringExtra("chan"), intent.getStringExtra("buffer_type"), type, intent.getStringExtra("network"), null);
+                                NotificationsList.getInstance().addNotification(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis() * 1000, null, reply, intent.getStringExtra("chan"), intent.getStringExtra("buffer_type"), type, intent.getStringExtra("network"), NotificationsList.getInstance().getServerAvatarURL(intent.getIntExtra("cid", -1)));
                         }
                         NotificationsList.getInstance().showNotificationsNow();
                         RecentConversationsList.getInstance().updateConversation(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis());

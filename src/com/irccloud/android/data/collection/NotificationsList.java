@@ -224,10 +224,23 @@ public class NotificationsList {
     }
 
     public void updateServerNick(int cid, String nick) {
+        updateServerNick(cid, nick, getServerAvatarURL(cid));
+    }
+
+    public void updateServerNick(int cid, String nick, String avatar_url) {
         Notification_ServerNick n = new Notification_ServerNick();
         n.setCid(cid);
         n.setNick(nick);
+        n.setAvatar_url(avatar_url);
         IRCCloudDatabase.getInstance().NotificationsDao().insert(n);
+    }
+
+    public String getServerAvatarURL(int cid) {
+        Notification_ServerNick nick = IRCCloudDatabase.getInstance().NotificationsDao().getServerNick(cid);
+        if (nick != null)
+            return nick.getAvatar_url();
+        else
+            return null;
     }
 
     public void dismiss(int bid, long eid) {
@@ -567,12 +580,16 @@ public class NotificationsList {
             StringBuilder weartext = new StringBuilder();
             HashMap<String, Person> people = new HashMap<>();
             String servernick = getServerNick(messages.get(0).getCid());
-            //TODO: Store the self avatar per connection and set it here
-            people.put(servernick, new Person.Builder().setName(servernick).build());
+            if(avatars != null && avatars.containsKey(servernick)) {
+                people.put(servernick, new Person.Builder().setName(servernick).setIcon(IconCompat.createWithBitmap(avatars.get(servernick))).build());
+            } else {
+                people.put(servernick, new Person.Builder().setName(servernick).build());
+            }
 
             NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(people.get(servernick));
             style.setConversationTitle(title + ((network != null) ? (" (" + network + ")") : ""));
             style.setGroupConversation(true);
+
             for(Notification n : messages) {
                 if(n != null && n.getMessage() != null && n.getMessage().length() > 0) {
                     if (weartext.length() > 0)
@@ -602,17 +619,6 @@ public class NotificationsList {
                 }
             }
 
-            ArrayList<String> history = new ArrayList<>(messages.size());
-            for(int j = messages.size() - 1; j >= 0; j--) {
-                Notification n = messages.get(j);
-                if(n != null) {
-                    if(n.getNick() == null)
-                        history.add(Html.fromHtml(n.getMessage()).toString());
-                    else
-                        break;
-                }
-            }
-            builder.setRemoteInputHistory(history.toArray(new String[history.size()]));
             builder.setStyle(style);
 
             if(messages.size() > 1) {
@@ -826,7 +832,7 @@ public class NotificationsList {
 
                             if(!downloading) {
                                 if (large_avatar == null) {
-                                    large_avatar = AvatarsList.getInstance().getAvatar(last.getCid(), last.getNick(), null).getBitmap(false, 512, false, false);
+                                    large_avatar = AvatarsList.getInstance().getAvatar(last.getCid(), ((last.getNick() != null)? last.getNick() :getServerNick(last.getCid())), null).getBitmap(false, 512, false, false);
                                 }
                                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.getCid(), lastbid, eids, title, body, count, replyIntent, last.getNetwork(), messages, null, avatars.get(last.getNick()), large_avatar, avatars));
                             }
@@ -880,11 +886,11 @@ public class NotificationsList {
                 }
 
                 if(!downloading && avatar == null) {
-                    avatar = AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                    avatar = AvatarsList.getInstance().getAvatar(n.getCid(), ((n.getNick() != null)? n.getNick() :getServerNick(n.getCid())), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
                 }
 
                 if(avatar != null)
-                    avatars.put(n.getNick(), avatar);
+                    avatars.put(((n.getNick() != null)? n.getNick() :getServerNick(n.getCid())), avatar);
 
                 messages.add(n);
                 eids[count++] = n.getEid();
@@ -947,7 +953,7 @@ public class NotificationsList {
 
                     if(!downloading) {
                         if (large_avatar == null) {
-                            large_avatar = AvatarsList.getInstance().getAvatar(last.getCid(), last.getNick(), null).getBitmap(false, 512, false, false);
+                            large_avatar = AvatarsList.getInstance().getAvatar(last.getCid(), ((last.getNick() != null)? last.getNick() :getServerNick(last.getCid())), null).getBitmap(false, 512, false, false);
                         }
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.getCid(), lastbid, eids, title, body, count, replyIntent, last.getNetwork(), messages, null, avatars.get(last.getNick()), large_avatar, avatars));
                     }

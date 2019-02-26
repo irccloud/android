@@ -26,6 +26,8 @@ public class Notification_ServerNick {
 
     private String nick;
 
+    private String avatar_url;
+
     public int getCid() {
         return cid;
     }
@@ -40,6 +42,14 @@ public class Notification_ServerNick {
 
     public void setNick(String nick) {
         this.nick = nick;
+    }
+
+    public String getAvatar_url() {
+        return avatar_url;
+    }
+
+    public void setAvatar_url(String url) {
+        this.avatar_url = url;
     }
 
     @Override

@@ -132,6 +132,6 @@ public class Notification {
     }
 
     public String toString() {
-        return "{cid: " + getCid() + ", bid: " + getBid() + ", eid: " + getEid() + ", nick: " + getNick() + ", message: " + getMessage() + ", network: " + getNetwork() + ", chan: " + getChan() + ", message_type: " + getMessage_type() + " shown: " + isShown() + "}";
+        return "{cid: " + getCid() + ", bid: " + getBid() + ", eid: " + getEid() + ", nick: " + getNick() + ", message: " + getMessage() + ", network: " + getNetwork() + ", chan: " + getChan() + ", message_type: " + getMessage_type() + ", avatar_url: " + getAvatar_url() + " shown: " + isShown() + "}";
     }
 }

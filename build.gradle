@@ -68,7 +68,7 @@ android {
     testBuildType 'debugTest'
 
     defaultConfig {
-        versionCode 217
+        versionCode 218
         versionName "4.15"
         minSdkVersion 17
         targetSdkVersion 28

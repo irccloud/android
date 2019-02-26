@@ -182,6 +182,7 @@ public class Event {
                 " type: " + type +
                 " timestamp: " + timestamp +
                 " from: " + from +
+                " hostmask: " + hostmask +
                 " msg: " + msg +
                 " html: " + html +
                 " group_eid: " + group_eid +
