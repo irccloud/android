@@ -453,10 +453,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (e.group_msg != null && e.html == null)
                     e.html = e.group_msg;
 
-			/*if(e.html != null) {
-                e.html = ColorFormatter.irc_to_html(e.html);
-                e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
-			}*/
+                e.ready_for_display = true;
+                format(e);
 
                 if (e.day < 1) {
                     e.day = calendar.get(Calendar.DAY_OF_YEAR);
@@ -592,6 +590,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 for (int i = 0; i < data.size(); i++) {
                     if(data.get(i).eid == eid) {
+                        e.ready_for_display = true;
+                        format(e);
                         data.add(i, e);
                         break;
                     }
@@ -607,12 +607,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     e.day = calendar.get(Calendar.DAY_OF_YEAR);
                 }
                 if(data.size() == 0 || data.get(data.size() - 1).eid == eid) {
+                    e.ready_for_display = true;
+                    format(e);
                     data.add(e);
                     return;
                 }
 
                 for (int i = 0; i < data.size(); i++) {
                     if(data.get(i).eid == eid) {
+                        e.ready_for_display = true;
+                        format(e);
                         data.add(i+1, e);
                         break;
                     }
@@ -2458,6 +2462,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
         if(e.msg != null)
             e.html = e.msg = TextUtils.htmlEncode(e.msg);
+        e.ready_for_display = true;
+        adapter.format(e);
         adapter.insertBelow(parent.eid, e);
         if(!backlog) {
             runOnUiThread(new Runnable() {

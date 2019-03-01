@@ -177,22 +177,23 @@ public class Event {
     public String toString() {
         return "{" +
                 "cid: " + cid +
-                " bid: " + bid +
-                " eid: " + eid +
-                " type: " + type +
-                " timestamp: " + timestamp +
-                " from: " + from +
-                " hostmask: " + hostmask +
-                " msg: " + msg +
-                " html: " + html +
-                " group_eid: " + group_eid +
-                " group_msg: " + group_msg +
-                " pending: " + pending +
-                " self: " + self +
-                " header: " + header +
-                " avatar: " + avatar +
-                " avatar_url: " + avatar_url +
-                " getAvatarURL: " + getAvatarURL(72) +
+                ", bid: " + bid +
+                ", eid: " + eid +
+                ", type: " + type +
+                ", timestamp: " + timestamp +
+                ", from: " + from +
+                ", hostmask: " + hostmask +
+                ", msg: " + msg +
+                ", html: " + html +
+                ", formatted: " + formatted +
+                ", group_eid: " + group_eid +
+                ", group_msg: " + group_msg +
+                ", pending: " + pending +
+                ", self: " + self +
+                ", header: " + header +
+                ", avatar: " + avatar +
+                ", avatar_url: " + avatar_url +
+                ", getAvatarURL: " + getAvatarURL(72) +
                 "}";
     }
 
