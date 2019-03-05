@@ -539,7 +539,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             showAlert(o.cid(), "Metadata key subscription limit reached, keys after and including '" + o.getString("key") + "' are not subscribed");
                             break;
                         default:
-                            if(o.getString("message").equals("invalid_nick"))
+                            if(o.has("message") && o.getString("message").equals("invalid_nick"))
                                 showAlert(-1, "Invalid nickname");
                             else
                                 showAlert(o.cid(), o.getString("msg"));
