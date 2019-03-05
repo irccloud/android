@@ -68,8 +68,8 @@ android {
     testBuildType 'debugTest'
 
     defaultConfig {
-        versionCode 219
-        versionName "4.15"
+        versionCode 220
+        versionName "4.15.1"
         minSdkVersion 17
         targetSdkVersion 28
         multiDexEnabled true
@@ -330,7 +330,7 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
-    implementation "android.arch.work:work-runtime:1.0.0-rc01"
+    implementation "android.arch.work:work-runtime:1.0.0-rc02"
     implementation "androidx.appcompat:appcompat:1.0.2"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.0.0"
@@ -344,7 +344,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:16.0.1"
     implementation "com.google.android.gms:play-services-identity:16.0.0"
     implementation "com.google.android.gms:play-services-ads:16.0.0"
-    implementation "com.google.firebase:firebase-messaging:17.3.4"
+    implementation "com.google.firebase:firebase-messaging:17.4.0"
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.0.2'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
