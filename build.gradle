@@ -348,7 +348,7 @@ dependencies {
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.0.2'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.16'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation project(':android-websockets')
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
