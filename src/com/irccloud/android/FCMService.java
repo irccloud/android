@@ -130,19 +130,17 @@ public class FCMService extends FirebaseMessagingService {
 
                 String avatar_url = null;
 
-                if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
-                    Event e = new Event();
-                    e.from = from;
-                    e.msg = msg;
-                    e.type = type;
-                    e.hostmask = data.get("hostmask");
-                    if (data.containsKey("avatar"))
-                        e.avatar = data.get("avatar");
-                    if (data.containsKey("avatar_url"))
-                        e.avatar_url = data.get("avatar_url");
+                Event e = new Event();
+                e.from = from;
+                e.msg = msg;
+                e.type = type;
+                e.hostmask = data.get("hostmask");
+                if (data.containsKey("avatar"))
+                    e.avatar = data.get("avatar");
+                if (data.containsKey("avatar_url"))
+                    e.avatar_url = data.get("avatar_url");
 
-                    avatar_url = e.getAvatarURL(512);
-                }
+                avatar_url = e.getAvatarURL(512);
 
                 NotificationsList.getInstance().addNotificationGroup(cid, server_name);
                 NotificationsList.getInstance().updateServerNick(cid, data.get("server_nick"));

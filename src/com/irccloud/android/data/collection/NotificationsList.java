@@ -236,11 +236,12 @@ public class NotificationsList {
     }
 
     public String getServerAvatarURL(int cid) {
-        Notification_ServerNick nick = IRCCloudDatabase.getInstance().NotificationsDao().getServerNick(cid);
-        if (nick != null)
-            return nick.getAvatar_url();
-        else
-            return null;
+        if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatars-off", false) && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
+            Notification_ServerNick nick = IRCCloudDatabase.getInstance().NotificationsDao().getServerNick(cid);
+            if (nick != null)
+                return nick.getAvatar_url();
+        }
+        return null;
     }
 
     public void dismiss(int bid, long eid) {
@@ -757,6 +758,8 @@ public class NotificationsList {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         String text = "";
         final List<Notification> notifications = getMessageNotifications();
+        boolean pref_avatarsOff = !prefs.getBoolean("avatars-off", true);
+        boolean pref_avatarImages = prefs.getBoolean("avatar-images", false);
 
         int notify_type = Integer.parseInt(prefs.getString("notify_type", "1"));
         boolean notify = false;
@@ -812,21 +815,23 @@ public class NotificationsList {
                             Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.getMessage_type());
                             Bitmap large_avatar = null;
 
-                            if(last.getAvatar_url() != null && last.getAvatar_url().length() > 0) {
-                                try {
-                                    URL url = new URL(last.getAvatar_url());
-                                    large_avatar = ImageList.getInstance().getImage(url);
-                                    if(large_avatar == null) {
-                                        downloading = true;
-                                        last.setShown(false);
-                                        ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
-                                            @Override
-                                            public void onImageFetched(Bitmap image) {
-                                                showMessageNotifications(null);
-                                            }
-                                        });
+                            if(!pref_avatarsOff && pref_avatarImages) {
+                                if (last.getAvatar_url() != null && last.getAvatar_url().length() > 0) {
+                                    try {
+                                        URL url = new URL(last.getAvatar_url());
+                                        large_avatar = ImageList.getInstance().getImage(url);
+                                        if (large_avatar == null) {
+                                            downloading = true;
+                                            last.setShown(false);
+                                            ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
+                                                @Override
+                                                public void onImageFetched(Bitmap image) {
+                                                    showMessageNotifications(null);
+                                                }
+                                            });
+                                        }
+                                    } catch (Exception e1) {
                                     }
-                                } catch (Exception e1) {
                                 }
                             }
 
@@ -866,22 +871,24 @@ public class NotificationsList {
                 }
 
                 avatar = null;
-                if(n.getAvatar_url() != null && n.getAvatar_url().length() > 0) {
-                    try {
-                        URL url = new URL(n.getAvatar_url());
-                        avatar = ImageList.getInstance().getImage(url);
-                        if(avatar == null) {
-                            downloading = true;
-                            show = false;
-                            n.setShown(false);
-                            ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
-                                @Override
-                                public void onImageFetched(Bitmap image) {
-                                    showMessageNotifications(null);
-                                }
-                            });
+                if(!pref_avatarsOff && pref_avatarImages) {
+                    if (n.getAvatar_url() != null && n.getAvatar_url().length() > 0) {
+                        try {
+                            URL url = new URL(n.getAvatar_url());
+                            avatar = ImageList.getInstance().getImage(url);
+                            if (avatar == null) {
+                                downloading = true;
+                                show = false;
+                                n.setShown(false);
+                                ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
+                                    @Override
+                                    public void onImageFetched(Bitmap image) {
+                                        showMessageNotifications(null);
+                                    }
+                                });
+                            }
+                        } catch (Exception e1) {
                         }
-                    } catch (Exception e1) {
                     }
                 }
 
@@ -933,21 +940,23 @@ public class NotificationsList {
                     Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.getMessage_type());
                     Bitmap large_avatar = null;
 
-                    if(last.getAvatar_url() != null && last.getAvatar_url().length() > 0) {
-                        try {
-                            URL url = new URL(last.getAvatar_url());
-                            large_avatar = ImageList.getInstance().getImage(url);
-                            if(large_avatar == null) {
-                                downloading = true;
-                                last.setShown(false);
-                                ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
-                                    @Override
-                                    public void onImageFetched(Bitmap image) {
-                                        showMessageNotifications(null);
-                                    }
-                                });
+                    if(!pref_avatarsOff && pref_avatarImages) {
+                        if (last.getAvatar_url() != null && last.getAvatar_url().length() > 0) {
+                            try {
+                                URL url = new URL(last.getAvatar_url());
+                                large_avatar = ImageList.getInstance().getImage(url);
+                                if (large_avatar == null) {
+                                    downloading = true;
+                                    last.setShown(false);
+                                    ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
+                                        @Override
+                                        public void onImageFetched(Bitmap image) {
+                                            showMessageNotifications(null);
+                                        }
+                                    });
+                                }
+                            } catch (Exception e1) {
                             }
-                        } catch (Exception e1) {
                         }
                     }
 
