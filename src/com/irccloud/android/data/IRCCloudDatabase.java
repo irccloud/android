@@ -37,7 +37,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 @Database(entities = {RecentConversation.class, BackgroundTask.class, LogExport.class, Notification.class, Notification_LastSeenEID.class, Notification_ServerNick.class}, version = IRCCloudDatabase.VERSION, exportSchema = false)
 public abstract class IRCCloudDatabase extends RoomDatabase {
     public static final String NAME = "irccloud";
-    public static final int VERSION = 11;
+    public static final int VERSION = 12;
 
     public abstract RecentConversationsList.RecentConversationsDao RecentConversationsDao();
     public abstract BackgroundTaskWorker.BackgroundTasksDao BackgroundTasksDao();
@@ -51,13 +51,20 @@ public abstract class IRCCloudDatabase extends RoomDatabase {
         }
     };
 
+    private static final Migration MIGRATION_11_12 = new Migration(11, 12) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE Notification_ServerNick ADD COLUMN isSlack INTEGER DEFAULT 0 NOT NULL");
+        }
+    };
+
     private static IRCCloudDatabase sInstance;
     public static IRCCloudDatabase getInstance() {
         if (sInstance == null) {
             synchronized (IRCCloudDatabase.class) {
                 if (sInstance == null) {
                     sInstance = Room.databaseBuilder(IRCCloudApplication.getInstance().getApplicationContext(), IRCCloudDatabase.class, NAME)
-                            .addMigrations(MIGRATION_10_11)
+                            .addMigrations(MIGRATION_10_11,MIGRATION_11_12)
                             .fallbackToDestructiveMigration()
                             .allowMainThreadQueries()
                             .build();;

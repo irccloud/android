@@ -140,7 +140,7 @@ public class FCMService extends FirebaseMessagingService {
                 if (data.containsKey("avatar_url"))
                     e.avatar_url = data.get("avatar_url");
 
-                avatar_url = e.getAvatarURL(512);
+                avatar_url = e.getAvatarURL(512, buffer_type != null && buffer_type.equals("channel"), NotificationsList.getInstance().getServerIsSlack(cid));
 
                 NotificationsList.getInstance().addNotificationGroup(cid, server_name);
                 NotificationsList.getInstance().updateServerNick(cid, data.get("server_nick"));

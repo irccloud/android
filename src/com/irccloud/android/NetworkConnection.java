@@ -2303,7 +2303,7 @@ public class NetworkConnection {
                     avatar_url = e.getAvatarURL(512);
                 }
 
-                NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"), avatar_url);
+                NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"), avatar_url, server.isSlack());
                 NotificationsList.getInstance().addNotificationGroup(server.getCid(), server.getName() != null && server.getName().length() > 0 ? server.getName() : server.getHostname());
 
                 if (!backlog) {
@@ -2728,7 +2728,7 @@ public class NetworkConnection {
                     if (object.type().equals("you_nickchange")) {
                         if(mServers.getServer(object.cid()) != null)
                             mServers.getServer(object.cid()).setNick(object.getString("newnick"));
-                        NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("newnick"), mServers.getServer(object.cid()).getAvatarURL());
+                        NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("newnick"), mServers.getServer(object.cid()).getAvatarURL(), mServers.getServer(object.cid()).isSlack());
                     }
                     notifyHandlers(EVENT_NICKCHANGE, object);
                 }

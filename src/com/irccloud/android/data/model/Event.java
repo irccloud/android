@@ -26,6 +26,7 @@ import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ImageList;
+import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.ServersList;
 
 import org.json.JSONObject;
@@ -266,6 +267,12 @@ public class Event {
     }
 
     public String getAvatarURL(int size) {
+        Server s = ServersList.getInstance().getServer(cid);
+        Buffer b = BuffersList.getInstance().getBuffer(bid);
+        return getAvatarURL(size, b != null && b.isChannel(), s != null && s.isSlack());
+    }
+
+    public String getAvatarURL(int size, boolean isChannel, boolean isSlack) {
         boolean isIRCCloudAvatar = false;
         if(!BuildConfig.ENTERPRISE && isMessage() && size != cachedAvatarSize) {
             cachedAvatarURL = null;
@@ -294,15 +301,15 @@ public class Event {
                     }
                 }
             }
-            if (cachedAvatarURL != null && avatar == null && !isIRCCloudAvatar && !ServersList.getInstance().getServer(cid).isSlack()) {
+
+            if (cachedAvatarURL != null && avatar == null && !isIRCCloudAvatar && !isSlack) {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-                Buffer buffer = BuffersList.getInstance().getBuffer(bid);
                 boolean pref_inlineImages = false;
 
                 try {
                     if (prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
                         JSONObject inlineImagesMap = null;
-                        if (buffer.isChannel()) {
+                        if (isChannel) {
                             if (prefs.has("channel-inlineimages-disable"))
                                 inlineImagesMap = prefs.getJSONObject("channel-inlineimages-disable");
                         } else {
@@ -310,10 +317,10 @@ public class Event {
                                 inlineImagesMap = prefs.getJSONObject("buffer-inlineimages-disable");
                         }
 
-                        pref_inlineImages = !(inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
+                        pref_inlineImages = !(inlineImagesMap != null && inlineImagesMap.has(String.valueOf(bid)) && inlineImagesMap.getBoolean(String.valueOf(bid)));
                     } else {
                         JSONObject inlineImagesMap = null;
-                        if (buffer.isChannel()) {
+                        if (isChannel) {
                             if (prefs.has("channel-inlineimages"))
                                 inlineImagesMap = prefs.getJSONObject("channel-inlineimages");
                         } else {
@@ -321,7 +328,7 @@ public class Event {
                                 inlineImagesMap = prefs.getJSONObject("buffer-inlineimages");
                         }
 
-                        pref_inlineImages = (inlineImagesMap != null && inlineImagesMap.has(String.valueOf(buffer.getBid())) && inlineImagesMap.getBoolean(String.valueOf(buffer.getBid())));
+                        pref_inlineImages = (inlineImagesMap != null && inlineImagesMap.has(String.valueOf(bid)) && inlineImagesMap.getBoolean(String.valueOf(bid)));
                     }
                 } catch (Exception e) {
                     NetworkConnection.printStackTraceToCrashlytics(e);

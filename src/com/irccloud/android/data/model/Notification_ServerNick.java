@@ -28,6 +28,8 @@ public class Notification_ServerNick {
 
     private String avatar_url;
 
+    private boolean isSlack;
+
     public int getCid() {
         return cid;
     }
@@ -50,6 +52,14 @@ public class Notification_ServerNick {
 
     public void setAvatar_url(String url) {
         this.avatar_url = url;
+    }
+
+    public boolean getIsSlack() {
+        return isSlack;
+    }
+
+    public void setIsSlack(boolean isSlack) {
+        this.isSlack = isSlack;
     }
 
     @Override
