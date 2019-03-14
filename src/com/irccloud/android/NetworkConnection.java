@@ -1075,7 +1075,7 @@ public class NetworkConnection {
             @Override
             public void onDisconnect(int code, String reason) {
                 if (client != null && client.getListener() == this) {
-                    Crashlytics.log(Log.DEBUG, TAG, "WebSocket disconnected");
+                    Crashlytics.log(Log.DEBUG, TAG, "WebSocket disconnected: " + code + " " + reason);
                     try {
                         if (wifiLock.isHeld())
                             wifiLock.release();
