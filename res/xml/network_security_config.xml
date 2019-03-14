@@ -21,6 +21,7 @@
         <pin-set expiration="2020-02-20">
             <pin digest="SHA-256">Y9mvm0exBk1JoQ57f9Vm28jKo5lFm/woKcVxrYxu80o=</pin>
             <pin digest="SHA-256">5kJvNEMw0KjrCAu7eXY5HZdvyCS13BbA0VJG1RSP91w=</pin>
+            <pin digest="SHA-256">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>
         </pin-set>
         <trustkit-config enforcePinning="true"/>
     </domain-config>
