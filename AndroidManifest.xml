@@ -64,6 +64,7 @@
         android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/dawn"
+        android:extractNativeLibs="true"
         android:largeHeap="true">
         <meta-data
             android:name="com.samsung.android.sdk.multiwindow.enable"
