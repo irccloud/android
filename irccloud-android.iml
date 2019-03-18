@@ -207,5 +207,7 @@
     <orderEntry type="library" name="Gradle: androidx.lifecycle:lifecycle-process:2.0.0@aar" level="project" />
     <orderEntry type="module" module-name="android-websockets" />
     <orderEntry type="module" module-name="android-websockets" />
+    <orderEntry type="module" module-name="android-websockets" />
+    <orderEntry type="module" module-name="android-websockets" />
   </component>
 </module>

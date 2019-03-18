@@ -1170,7 +1170,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         sb.append(": ");
                         sb.append(TextUtils.join(", ", e.reply_nicks));
                         holder.replyCount.setText(sb.toString());
-                        holder.replyCount.setTextColor(0x66ffffff);
+                        holder.replyCount.setTextColor(ColorScheme.getInstance().isDarkTheme ? 0x66ffffff : 0x66000000);
                         holder.replyCountContainer.setVisibility(View.VISIBLE);
                         holder.replyCountContainer.setOnClickListener(new OnClickListener() {
                             @Override
