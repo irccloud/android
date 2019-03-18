@@ -3046,7 +3046,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 JSONObject replyCollapseMap = null;
                 if (buffer.isChannel()) {
-                    if (prefs.has("channel-hideJoinPart"))
+                    if (prefs.has("channel-reply-collapse"))
                         replyCollapseMap = prefs.getJSONObject("channel-reply-collapse");
                 } else {
                     if (prefs.has("buffer-reply-collapse"))
