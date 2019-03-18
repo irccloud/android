@@ -136,6 +136,7 @@ android {
             resValue "string", "IRCCLOUD_SCHEME", "irccloud"
             resValue "color", "ic_background", "#527dff"
             buildConfigField "String", "GCM_ID_IRCCLOUD", "\"\""
+            buildConfigField "boolean", "MOCK_DATA", "false"
 
             minifyEnabled false
             shrinkResources false
@@ -172,6 +173,7 @@ android {
             resValue "string", "IRCCLOUD_SCHEME", "irccloud"
             resValue "color", "ic_background", "#527dff"
             buildConfigField "String", "GCM_ID_IRCCLOUD", "\"\""
+            buildConfigField "boolean", "MOCK_DATA", "false"
 
             if (rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release
@@ -214,6 +216,7 @@ android {
             resValue "string", "app_name", "IRCEnterprise"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud-enterprise"
             resValue "color", "ic_background", "#404040"
+            buildConfigField "boolean", "MOCK_DATA", "false"
 
             signingConfig signingConfigs.debug
             minifyEnabled false
@@ -252,6 +255,7 @@ android {
             resValue "string", "app_name", "IRCEnterprise"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud-enterprise"
             resValue "color", "ic_background", "#404040"
+            buildConfigField "boolean", "MOCK_DATA", "false"
 
             if (rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release
@@ -259,6 +263,35 @@ android {
             minifyEnabled true
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+        }
+
+        mockdata.initWith(debug)
+        mockdata {
+            applicationIdSuffix ".mockdata"
+            versionNameSuffix "-" + getRevision()
+            buildConfigField "String", "HOST", "\"\""
+            buildConfigField "boolean", "ENTERPRISE", "false"
+            buildConfigField "String", "IMGUR_KEY", "\"\""
+            buildConfigField "String", "IMGUR_SECRET", "\"\""
+            resValue "string", "google_app_id", ""
+            resValue "string", "gcm_defaultSenderId", ""
+            resValue "string", "google_api_key", ""
+            buildConfigField "String[]", "SSL_FPS", "null"
+            resValue "string", "IMAGE_SCHEME", "irccloud-mock-image"
+            resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-mock-images"
+            resValue "string", "VIDEO_SCHEME", "irccloud-mock-video"
+            resValue "string", "VIDEO_SCHEME_SECURE", "irccloud-mock-videos"
+            resValue "string", "PASTE_SCHEME", "irccloud-mock-paste"
+            resValue "string", "ACTION_REPLY", "com.irccloud.android.mock.ACTION_REPLY"
+            resValue "string", "app_name", "IRCCloud"
+            resValue "string", "IRCCLOUD_SCHEME", "irccloud-mock"
+            resValue "color", "ic_background", "#527dff"
+            buildConfigField "boolean", "MOCK_DATA", "true"
+
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+            debuggable true
         }
 
         debugTest.initWith(debug)

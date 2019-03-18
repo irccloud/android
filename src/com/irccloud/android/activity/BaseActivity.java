@@ -58,6 +58,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.irccloud.android.BackgroundTaskWorker;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -263,7 +264,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         }
         new ImageListPruneTask().execute((Void)null);
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
-        if (session.length() > 0) {
+        if (session.length() > 0 || BuildConfig.MOCK_DATA) {
             if(conn.notifier) {
                 Crashlytics.log(Log.INFO, "IRCCloud", "Upgrading notifier websocket");
                 conn.upgrade();

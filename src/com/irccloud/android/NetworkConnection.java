@@ -394,6 +394,8 @@ public class NetworkConnection {
         String userinfojson = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("userinfo", null);
         if(userinfojson != null)
             userInfo = new UserInfo(new IRCCloudJSONObject(userinfojson));
+        else if(BuildConfig.MOCK_DATA)
+            userInfo = new UserInfo();
 
         useragent = "IRCCloud" + version + " (" + android.os.Build.MODEL + "; " + Locale.getDefault().getCountry().toLowerCase() + "; "
                 + "Android " + android.os.Build.VERSION.RELEASE;
@@ -913,7 +915,8 @@ public class NetworkConnection {
 
         if (session.length() == 0) {
             Crashlytics.log(Log.INFO, TAG, "Session key not set");
-            state = STATE_DISCONNECTED;
+            state = BuildConfig.MOCK_DATA ? STATE_CONNECTED : STATE_DISCONNECTED;
+            notifyHandlers(EVENT_CONNECTIVITY, null);
             return;
         }
 
@@ -1240,7 +1243,7 @@ public class NetworkConnection {
     }
 
     private int send(String method, JSONObject params, IRCResultCallback callback) {
-        if (client == null || (state != STATE_CONNECTED && !method.equals("auth")))
+        if (client == null || (state != STATE_CONNECTED && !method.equals("auth")) || BuildConfig.MOCK_DATA)
             return -1;
         synchronized (resultCallbacks) {
             try {
@@ -1902,6 +1905,19 @@ public class NetworkConnection {
         }
     }
 
+    public void request_mock_data() {
+        try {
+            OOBFetcher task = new OOBFetcher(new URL("https://www.irccloud.com/test/bufferview.json"), -1);
+            synchronized (oobTasks) {
+                oobTasks.put(-1, task);
+                if(oobTasks.size() == 1)
+                    task.connect();
+            }
+        } catch (MalformedURLException e) {
+            printStackTraceToCrashlytics(e);
+        }
+    }
+
     public void upgrade() {
         if (disconnectSockerTimerTask != null)
             disconnectSockerTimerTask.cancel();
@@ -1918,7 +1934,7 @@ public class NetworkConnection {
     public void schedule_idle_timer() {
         if (idleTimerTask != null)
             idleTimerTask.cancel();
-        if (idle_interval <= 0)
+        if (idle_interval <= 0 || BuildConfig.MOCK_DATA)
             return;
 
         try {
@@ -2267,7 +2283,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 String away = object.getString("away");
-                if (getUserInfo() != null && getUserInfo().auto_away && away.equals("Auto-away"))
+                if (getUserInfo() != null && getUserInfo().auto_away && away != null && away.equals("Auto-away"))
                     away = "";
 
                 Server server = mServers.createServer(object.cid(), object.getString("name"), object.getString("hostname"),
@@ -2602,17 +2618,19 @@ public class NetworkConnection {
                     set_by = topic.get("server").asText();
                 Channel channel = mChannels.createChannel(object.cid(), object.bid(), object.getString("chan"),
                         (topic == null || topic.get("text").isNull()) ? "" : topic.get("text").asText(),
-                        topic == null ? 0 : topic.get("time").asLong(),
+                        (topic == null || !topic.has("time")) ? 0 : topic.get("time").asLong(),
                         set_by, object.getString("channel_type"),
                         object.getLong("timestamp"));
                 mChannels.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
                 mChannels.updateURL(object.bid(), object.getString("url"));
                 mUsers.deleteUsersForBuffer(object.bid());
                 JsonNode users = object.getJsonNode("members");
-                Iterator<JsonNode> iterator = users.elements();
-                while(iterator.hasNext()) {
-                    JsonNode user = iterator.next();
-                    User u = mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("ircserver").asText(), user.get("away").asBoolean() ? 1 : 0, user.hasNonNull("display_name")?user.get("display_name").asText():null,false);
+                if(users != null) {
+                    Iterator<JsonNode> iterator = users.elements();
+                    while (iterator.hasNext()) {
+                        JsonNode user = iterator.next();
+                        User u = mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.has("mode") ? user.get("mode").asText() : "", user.has("ircserver") ? user.get("ircserver").asText() : "", (user.has("away") && user.get("away").asBoolean()) ? 1 : 0, user.hasNonNull("display_name") ? user.get("display_name").asText() : null, false);
+                    }
                 }
                 mBuffers.dirty = true;
                 if (!backlog)
@@ -3106,6 +3124,9 @@ public class NetworkConnection {
     }
 
     public String fetch(URL url, String postdata, String sk, String token, HashMap<String, String>headers) throws Exception {
+        if(BuildConfig.MOCK_DATA)
+            return null;
+
         HttpURLConnection conn = null;
 
         Proxy proxy = null;
@@ -3362,6 +3383,9 @@ public class NetworkConnection {
         public String highlights;
         public boolean uploads_disabled;
         public String avatar;
+
+        public UserInfo() {
+        }
 
         public UserInfo(IRCCloudJSONObject object) {
             SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();

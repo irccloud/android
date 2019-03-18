@@ -873,6 +873,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         ImageView img = findViewById(R.id.drop_target_icon);
         img.getDrawable().mutate().setColorFilter(0xFFFFFFFF, PorterDuff.Mode.SRC_ATOP);
+
+        if(BuildConfig.MOCK_DATA)
+            conn.request_mock_data();
     }
 
     @Override

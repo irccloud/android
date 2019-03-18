@@ -111,7 +111,7 @@ public class ChannelsList {
 
     public synchronized void updateMode(int bid, String mode, JsonNode ops, boolean init) {
         Channel c = getChannelForBuffer(bid);
-        if (c != null) {
+        if (c != null && ops != null) {
             c.key = false;
             Iterator<JsonNode> iterator = ops.get("add").elements();
             while(iterator.hasNext()) {

@@ -83,6 +83,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.ColorScheme;
@@ -2397,6 +2398,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         String fileID = entity.get("id").asText();
                         if(!hiddenFileIDs.contains(fileID)) {
                             JsonNode properties = filePropsCache.get(fileID);
+                            if(BuildConfig.MOCK_DATA) {
+                                JSONObject o = new JSONObject(entity.toString());
+                                o.remove("id");
+                                o.put("thumbnail", "https://www.irccloud.com/static/test/" + o.getString("filename"));
+                                properties = new ObjectMapper().readValue(o.toString(), JsonNode.class);;
+                            }
 
                             if (properties != null) {
                                 insertEntity(adapter, event, properties, backlog);
@@ -3060,6 +3067,29 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             } catch (JSONException e1) {
                 NetworkConnection.printStackTraceToCrashlytics(e1);
             }
+        }
+
+        if(BuildConfig.MOCK_DATA) {
+            pref_24hr = false;
+            pref_seconds = false;
+            pref_trackUnread = true;
+            pref_timeLeft = false;
+            pref_nickColors = true;
+            pref_hideJoinPart = false;
+            pref_expandJoinPart = false;
+            pref_avatarsOff = false;
+            pref_chatOneLine = false;
+            pref_norealname = false;
+            pref_compact = false;
+            pref_disableLargeEmoji = false;
+            pref_disableInlineFiles = false;
+            pref_disableCodeSpan = false;
+            pref_disableCodeBlock = false;
+            pref_disableQuote = false;
+            pref_inlineImages = true;
+            pref_avatarImages = true;
+            pref_mentionColors = true;
+            pref_replyCollapse = false;
         }
         synchronized (adapterLock) {
             if (getActivity() != null)
