@@ -4979,6 +4979,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (user == null && from != null && event.hostmask != null) {
             user = new User();
             user.nick = event.from_nick;
+            if(user.nick == null)
+                user.nick = from;
             user.display_name = from;
             user.hostmask = event.hostmask;
             user.mode = "";
