@@ -68,8 +68,8 @@ android {
     testBuildType 'debugTest'
 
     defaultConfig {
-        versionCode 223
-        versionName "4.15.4"
+        versionCode 224
+        versionName "4.16"
         minSdkVersion 17
         targetSdkVersion 28
         multiDexEnabled true
@@ -377,7 +377,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:16.0.1"
     implementation "com.google.android.gms:play-services-identity:16.0.0"
     implementation "com.google.android.gms:play-services-ads:16.0.0"
-    implementation "com.google.firebase:firebase-messaging:17.4.0"
+    implementation "com.google.firebase:firebase-messaging:17.5.0"
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.0.2'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
