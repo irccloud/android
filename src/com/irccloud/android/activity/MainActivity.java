@@ -3526,7 +3526,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (e.bid != buffer.getBid() && upDrawable != null) {
                             Buffer buf = BuffersList.getInstance().getBuffer(e.bid);
                             if (e.isImportant(buf.getType())) {
-                                if (!upDrawableFilter.equals(highlightsFilter) && (e.highlight || buf.isConversation())) {
+                                if (!upDrawableFilter.equals(highlightsFilter) && !buf.isMuted() && (e.highlight || buf.isConversation())) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {

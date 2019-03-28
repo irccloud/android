@@ -235,6 +235,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_avatarImages = false;
     private boolean pref_replyCollapse = false;
     private boolean pref_mentionColors = false;
+    private boolean pref_muted = false;
 
     private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
@@ -533,7 +534,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     insert_pos = data.size() - 1;
                 }
 
-                if (eid > buffer.getLast_seen_eid() && e.highlight)
+                if (eid > buffer.getLast_seen_eid() && e.highlight && !pref_muted)
                     unseenHighlightPositions.add(insert_pos);
 
                 if (eid < min_eid || min_eid == 0)
@@ -2349,7 +2350,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (newMsgTime == 0)
                             newMsgTime = System.currentTimeMillis();
                         newMsgs++;
-                        if (event.highlight)
+                        if (event.highlight && !pref_muted)
                             newHighlights++;
                         update_unread();
                         adapter.insertLastSeenEIDMarker();
@@ -2884,7 +2885,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         break;
 
                                     if (e.isImportant(buffer.getType())) {
-                                        if (e.highlight)
+                                        if (e.highlight && !pref_muted)
                                             newHighlights++;
                                         else
                                             newMsgs++;
@@ -2951,6 +2952,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_inlineImages = false;
         pref_avatarImages = false;
         pref_mentionColors = false;
+        pref_muted = false;
         buffer_usermask = null;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
@@ -3061,6 +3063,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 pref_replyCollapse = (prefs.has("reply-collapse") && prefs.get("reply-collapse") instanceof Boolean && prefs.getBoolean("reply-collapse")) || (replyCollapseMap != null && replyCollapseMap.has(String.valueOf(buffer.getBid())) && replyCollapseMap.getBoolean(String.valueOf(buffer.getBid())));
+
+                String pref_type = buffer.isChannel() ? "channel" : "buffer";
+                pref_muted = (prefs.has("notifications-mute") && prefs.get("notifications-mute") instanceof Boolean && prefs.getBoolean("notifications-mute"));
+                if (prefs.has(pref_type + "-notifications-mute")) {
+                    JSONObject notifyMuteMap = prefs.getJSONObject(pref_type + "-notifications-mute");
+                    if (notifyMuteMap.has(String.valueOf(buffer.getBid())) && notifyMuteMap.getBoolean(String.valueOf(buffer.getBid())))
+                        pref_muted = true;
+                }
+                if (prefs.has(pref_type + "-notifications-mute-disable")) {
+                    JSONObject notifyMuteMap = prefs.getJSONObject(pref_type + "-notifications-mute-disable");
+                    if (notifyMuteMap.has(String.valueOf(buffer.getBid())) && notifyMuteMap.getBoolean(String.valueOf(buffer.getBid())))
+                        pref_muted = false;
+                }
 
                 if(msgid != null && msgid.length() > 0)
                     pref_replyCollapse = false;

@@ -51,6 +51,7 @@ public class BufferOptionsFragment extends DialogFragment {
     private SwitchCompat inlineImages;
     private SwitchCompat replyCollapse;
     private SwitchCompat expandDisco;
+    private SwitchCompat muted;
     private int cid;
     private int bid;
     private String type;
@@ -105,6 +106,8 @@ public class BufferOptionsFragment extends DialogFragment {
                     prefs = updatePref(prefs, !unread.isChecked(), pref_type + "-enableTrackUnread");
                     prefs = updatePref(prefs, readOnSelect.isChecked(), pref_type + "-disableReadOnSelect");
                     prefs = updatePref(prefs, !readOnSelect.isChecked(), pref_type + "-enableReadOnSelect");
+                    prefs = updatePref(prefs, !muted.isChecked(), pref_type + "-notifications-mute");
+                    prefs = updatePref(prefs, muted.isChecked(), pref_type + "-notifications-mute-disable");
                     if (type.equals("console")) {
                         prefs = updatePref(prefs, expandDisco.isChecked(), pref_type + "-expandDisco");
                     } else {
@@ -138,6 +141,19 @@ public class BufferOptionsFragment extends DialogFragment {
     public void onResume() {
         super.onResume();
         try {
+            notifyAll.setChecked(false);
+            joinpart.setChecked(true);
+            unread.setChecked(true);
+            members.setChecked(true);
+            collapse.setChecked(true);
+            autosuggest.setChecked(true);
+            readOnSelect.setChecked(false);
+            inlineFiles.setChecked(true);
+            inlineImages.setChecked(false);
+            replyCollapse.setChecked(false);
+            expandDisco.setChecked(true);
+            muted.setChecked(false);
+
             if (NetworkConnection.getInstance().getUserInfo() != null) {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
                 if (prefs != null) {
@@ -195,6 +211,18 @@ public class BufferOptionsFragment extends DialogFragment {
                             enabled = false;
                     }
                     notifyAll.setChecked(enabled);
+                    enabled = (prefs.has("notifications-mute") && prefs.get("notifications-mute") instanceof Boolean && prefs.getBoolean("notifications-mute"));
+                    if (prefs.has(pref_type + "-notifications-mute")) {
+                        JSONObject notifyMuteMap = prefs.getJSONObject(pref_type + "-notifications-mute");
+                        if (notifyMuteMap.has(String.valueOf(bid)) && notifyMuteMap.getBoolean(String.valueOf(bid)))
+                            enabled = true;
+                    }
+                    if (prefs.has(pref_type + "-notifications-mute-disable")) {
+                        JSONObject notifyMuteMap = prefs.getJSONObject(pref_type + "-notifications-mute-disable");
+                        if (notifyMuteMap.has(String.valueOf(bid)) && notifyMuteMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
+                    }
+                    muted.setChecked(enabled);
                     if (prefs.has(pref_type + "-disableAutoSuggest")) {
                         JSONObject suggestMap = prefs.getJSONObject(pref_type + "-disableAutoSuggest");
                         if (suggestMap.has(String.valueOf(bid)) && suggestMap.getBoolean(String.valueOf(bid)))
@@ -253,31 +281,7 @@ public class BufferOptionsFragment extends DialogFragment {
                             expandDisco.setChecked(false);
                         else
                             expandDisco.setChecked(true);
-                    } else {
-                        notifyAll.setChecked(false);
-                        joinpart.setChecked(true);
-                        unread.setChecked(true);
-                        members.setChecked(true);
-                        collapse.setChecked(true);
-                        autosuggest.setChecked(true);
-                        readOnSelect.setChecked(false);
-                        inlineFiles.setChecked(true);
-                        inlineImages.setChecked(false);
-                        replyCollapse.setChecked(false);
-                        expandDisco.setChecked(true);
                     }
-                } else {
-                    notifyAll.setChecked(false);
-                    joinpart.setChecked(true);
-                    unread.setChecked(true);
-                    members.setChecked(true);
-                    collapse.setChecked(true);
-                    autosuggest.setChecked(true);
-                    readOnSelect.setChecked(false);
-                    inlineFiles.setChecked(true);
-                    inlineImages.setChecked(false);
-                    replyCollapse.setChecked(false);
-                    expandDisco.setChecked(true);
                 }
             }
             if (!getActivity().getResources().getBoolean(R.bool.isTablet))
@@ -298,6 +302,7 @@ public class BufferOptionsFragment extends DialogFragment {
         members = v.findViewById(R.id.members);
         unread = v.findViewById(R.id.unread);
         notifyAll = v.findViewById(R.id.notifyAll);
+        muted = v.findViewById(R.id.muted);
         joinpart = v.findViewById(R.id.joinpart);
         collapse = v.findViewById(R.id.collapse);
         replyCollapse = v.findViewById(R.id.replyCollapse);

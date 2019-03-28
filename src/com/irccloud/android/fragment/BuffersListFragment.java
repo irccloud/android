@@ -52,6 +52,8 @@ import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.databinding.RowBufferBinding;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -207,6 +209,24 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             final int pos = positionForBid(b.getBid());
             if (pos >= 0 && data != null && pos < data.size()) {
                 Buffer e = data.get(pos);
+                try {
+                    JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                    String pref_type = b.isChannel() ? "channel" : "buffer";
+                    boolean muted = (prefs.has("notifications-mute") && prefs.get("notifications-mute") instanceof Boolean && prefs.getBoolean("notifications-mute"));
+                    if (prefs.has(pref_type + "-notifications-mute")) {
+                        JSONObject notifyMuteMap = prefs.getJSONObject(pref_type + "-notifications-mute");
+                        if (notifyMuteMap.has(String.valueOf(b.getBid())) && notifyMuteMap.getBoolean(String.valueOf(b.getBid())))
+                            muted = true;
+                    }
+                    if (prefs.has(pref_type + "-notifications-mute-disable")) {
+                        JSONObject notifyMuteMap = prefs.getJSONObject(pref_type + "-notifications-mute-disable");
+                        if (notifyMuteMap.has(String.valueOf(b.getBid())) && notifyMuteMap.getBoolean(String.valueOf(b.getBid())))
+                            muted = false;
+                    }
+                    b.setMuted(muted);
+                } catch (Exception e1) {
+
+                }
                 if(getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -463,6 +483,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 return null;
             }
 
+            JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
             SparseArray<Server> serversArray = ServersList.getInstance().getServers();
             ArrayList<Server> servers = new ArrayList<>();
 
@@ -502,6 +523,24 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 for (Buffer b : buffers) {
                     if (isCancelled())
                         return null;
+
+                    try {
+                        String pref_type = b.isChannel() ? "channel" : "buffer";
+                        boolean muted = (prefs.has("notifications-mute") && prefs.get("notifications-mute") instanceof Boolean && prefs.getBoolean("notifications-mute"));
+                        if (prefs.has(pref_type + "-notifications-mute")) {
+                            JSONObject notifyMuteMap = prefs.getJSONObject(pref_type + "-notifications-mute");
+                            if (notifyMuteMap.has(String.valueOf(b.getBid())) && notifyMuteMap.getBoolean(String.valueOf(b.getBid())))
+                                muted = true;
+                        }
+                        if (prefs.has(pref_type + "-notifications-mute-disable")) {
+                            JSONObject notifyMuteMap = prefs.getJSONObject(pref_type + "-notifications-mute-disable");
+                            if (notifyMuteMap.has(String.valueOf(b.getBid())) && notifyMuteMap.getBoolean(String.valueOf(b.getBid())))
+                                muted = false;
+                        }
+                        b.setMuted(muted);
+                    } catch (Exception e) {
+
+                    }
 
                     if (b.getArchived() == 0 || b.isConsole()) {
                         if(collapsed != null && !mExpandCids.get(b.getCid(), false) && b.getBid() != selected_bid) {

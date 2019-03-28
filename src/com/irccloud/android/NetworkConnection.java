@@ -2478,9 +2478,15 @@ public class NetworkConnection {
                             if (!backlog) {
                                 JSONObject bufferDisabledMap = null;
                                 boolean show = true;
-                                if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
-                                    bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
+                                String pref_type = b.isChannel() ? "channel" : "buffer";
+                                if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has(pref_type + "-disableTrackUnread")) {
+                                    bufferDisabledMap = userInfo.prefs.getJSONObject(pref_type + "-disableTrackUnread");
                                     if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
+                                        show = false;
+                                }
+                                if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has(pref_type + "-notifications-mute")) {
+                                    JSONObject bufferMutedMap = userInfo.prefs.getJSONObject(pref_type + "-notifications-mute");
+                                    if (bufferMutedMap != null && bufferMutedMap.has(String.valueOf(b.getBid())) && bufferMutedMap.getBoolean(String.valueOf(b.getBid())))
                                         show = false;
                                 }
                                 try {

@@ -108,6 +108,8 @@ public class Buffer extends BaseObservable {
     private boolean serverIsSlack;
     private int isMPDM = -1;
 
+    private boolean muted;
+
     public String toString() {
         return "{cid:" + getCid() + ", bid:" + getBid() + ", name: " + getName() + ", type: " + getType() + ", archived: " + getArchived() + "}";
     }
@@ -441,16 +443,24 @@ public class Buffer extends BaseObservable {
 
     @Bindable
     public int getHighlights() {
-        return highlights;
+        return muted ? 0 : highlights;
     }
 
     @Bindable
     public String getHighlightsString() {
-        return String.valueOf(highlights);
+        return String.valueOf(getHighlights());
     }
 
     public void setHighlights(int highlights) {
         this.highlights = highlights;
+    }
+
+    public boolean isMuted() {
+        return muted;
+    }
+
+    public void setMuted(boolean muted) {
+        this.muted = muted;
     }
 
     public int getValid() {

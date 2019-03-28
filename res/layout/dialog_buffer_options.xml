@@ -56,6 +56,13 @@
             android:textSize="16sp" />
 
         <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/muted"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Mute notifications"
+            android:textSize="16sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/joinpart"
             android:layout_width="match_parent"
             android:layout_height="48dp"
