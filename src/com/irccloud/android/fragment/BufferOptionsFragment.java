@@ -40,17 +40,21 @@ import com.irccloud.android.R;
 import org.json.JSONException;
 import org.json.JSONObject;@SuppressLint("ValidFragment")
 public class BufferOptionsFragment extends DialogFragment {
-    SwitchCompat unread;
-    SwitchCompat joinpart;
-    SwitchCompat collapse;
-    SwitchCompat expandDisco;
-    SwitchCompat readOnSelect;
-    SwitchCompat inlineFiles;
-    SwitchCompat inlineImages;
-    SwitchCompat replyCollapse;
-    int cid;
-    int bid;
-    String type;
+    private SwitchCompat members;
+    private SwitchCompat unread;
+    private SwitchCompat joinpart;
+    private SwitchCompat collapse;
+    private SwitchCompat notifyAll;
+    private SwitchCompat autosuggest;
+    private SwitchCompat readOnSelect;
+    private SwitchCompat inlineFiles;
+    private SwitchCompat inlineImages;
+    private SwitchCompat replyCollapse;
+    private SwitchCompat expandDisco;
+    private int cid;
+    private int bid;
+    private String type;
+    private String pref_type;
 
     public BufferOptionsFragment() {
         cid = bid = -1;
@@ -61,6 +65,10 @@ public class BufferOptionsFragment extends DialogFragment {
         this.cid = cid;
         this.bid = bid;
         this.type = type;
+        if(type.equals("channel"))
+            pref_type = "channel";
+        else
+            pref_type = "buffer";
     }
 
     public JSONObject updatePref(JSONObject prefs, boolean checked, String key) throws JSONException {
@@ -93,21 +101,27 @@ public class BufferOptionsFragment extends DialogFragment {
                         prefs = new JSONObject();
                     }
 
-                    prefs = updatePref(prefs, unread.isChecked(), "buffer-disableTrackUnread");
-                    prefs = updatePref(prefs, !unread.isChecked(), "buffer-enableTrackUnread");
-                    prefs = updatePref(prefs, readOnSelect.isChecked(), "buffer-disableReadOnSelect");
-                    prefs = updatePref(prefs, !readOnSelect.isChecked(), "buffer-enableReadOnSelect");
-                    if (!type.equalsIgnoreCase("console")) {
-                        prefs = updatePref(prefs, joinpart.isChecked(), "buffer-hideJoinPart");
-                        prefs = updatePref(prefs, collapse.isChecked(), "buffer-expandJoinPart");
-                        prefs = updatePref(prefs, !collapse.isChecked(), "buffer-collapseJoinPart");
-                        prefs = updatePref(prefs, inlineFiles.isChecked(), "buffer-files-disableinline");
-                        prefs = updatePref(prefs, !replyCollapse.isChecked(), "buffer-reply-collapse");
+                    prefs = updatePref(prefs, unread.isChecked(), pref_type + "-disableTrackUnread");
+                    prefs = updatePref(prefs, !unread.isChecked(), pref_type + "-enableTrackUnread");
+                    prefs = updatePref(prefs, readOnSelect.isChecked(), pref_type + "-disableReadOnSelect");
+                    prefs = updatePref(prefs, !readOnSelect.isChecked(), pref_type + "-enableReadOnSelect");
+                    if (type.equals("console")) {
+                        prefs = updatePref(prefs, expandDisco.isChecked(), pref_type + "-expandDisco");
                     } else {
-                        prefs = updatePref(prefs, expandDisco.isChecked(), "buffer-expandDisco");
+                        if(type.equals("channel")) {
+                            prefs = updatePref(prefs, members.isChecked(), pref_type + "-hiddenMembers");
+                            prefs = updatePref(prefs, notifyAll.isChecked(), pref_type + "-notifications-all-disable");
+                            prefs = updatePref(prefs, !notifyAll.isChecked(), pref_type + "-notifications-all");
+                            prefs = updatePref(prefs, autosuggest.isChecked(), pref_type + "-disableAutoSuggest");
+                        }
+                        prefs = updatePref(prefs, joinpart.isChecked(), pref_type + "-hideJoinPart");
+                        prefs = updatePref(prefs, collapse.isChecked(), pref_type + "-expandJoinPart");
+                        prefs = updatePref(prefs, !collapse.isChecked(), pref_type + "-collapseJoinPart");
+                        prefs = updatePref(prefs, inlineFiles.isChecked(), pref_type + "-files-disableinline");
+                        prefs = updatePref(prefs, !replyCollapse.isChecked(), pref_type + "-reply-collapse");
+                        prefs = updatePref(prefs, inlineImages.isChecked(), pref_type + "-inlineimages-disable");
+                        prefs = updatePref(prefs, !inlineImages.isChecked(), pref_type + "-inlineimages");
                     }
-                    prefs = updatePref(prefs, inlineImages.isChecked(), "buffer-inlineimages-disable");
-                    prefs = updatePref(prefs, !inlineImages.isChecked(), "buffer-inlineimages");
                     NetworkConnection.getInstance().set_prefs(prefs.toString(), null);
                 } else {
                     Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
@@ -127,8 +141,8 @@ public class BufferOptionsFragment extends DialogFragment {
             if (NetworkConnection.getInstance().getUserInfo() != null) {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
                 if (prefs != null) {
-                    if (prefs.has("buffer-hideJoinPart")) {
-                        JSONObject hiddenMap = prefs.getJSONObject("buffer-hideJoinPart");
+                    if (prefs.has(pref_type + "-hideJoinPart")) {
+                        JSONObject hiddenMap = prefs.getJSONObject(pref_type + "-hideJoinPart");
                         if (hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
                             joinpart.setChecked(false);
                         else
@@ -137,40 +151,61 @@ public class BufferOptionsFragment extends DialogFragment {
                         joinpart.setChecked(true);
                     }
                     boolean enabled = !(prefs.has("disableTrackUnread") && prefs.get("disableTrackUnread") instanceof Boolean && prefs.getBoolean("disableTrackUnread"));
-                    if (prefs.has("buffer-disableTrackUnread")) {
-                        JSONObject unreadMap = prefs.getJSONObject("buffer-disableTrackUnread");
+                    if (prefs.has(pref_type + "-disableTrackUnread")) {
+                        JSONObject unreadMap = prefs.getJSONObject(pref_type + "-disableTrackUnread");
                         if (unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))
                             enabled = false;
                     }
-                    if (prefs.has("buffer-enableTrackUnread")) {
-                        JSONObject unreadMap = prefs.getJSONObject("buffer-enableTrackUnread");
+                    if (prefs.has(pref_type + "-enableTrackUnread")) {
+                        JSONObject unreadMap = prefs.getJSONObject(pref_type + "-enableTrackUnread");
                         if (unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))
                             enabled = true;
                     }
                     unread.setChecked(enabled);
+                    if (prefs.has(pref_type + "-hiddenMembers")) {
+                        JSONObject membersMap = prefs.getJSONObject(pref_type + "-hiddenMembers");
+                        if (membersMap.has(String.valueOf(bid)) && membersMap.getBoolean(String.valueOf(bid)))
+                            members.setChecked(false);
+                        else
+                            members.setChecked(true);
+                    } else {
+                        members.setChecked(true);
+                    }
                     enabled = (prefs.has("expandJoinPart") && prefs.get("expandJoinPart") instanceof Boolean && prefs.getBoolean("expandJoinPart"));
-                    if (prefs.has("buffer-expandJoinPart")) {
-                        JSONObject expandMap = prefs.getJSONObject("buffer-expandJoinPart");
+                    if (prefs.has(pref_type + "-expandJoinPart")) {
+                        JSONObject expandMap = prefs.getJSONObject(pref_type + "-expandJoinPart");
                         if (expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
                             enabled = true;
                     }
-                    if (prefs.has("buffer-collapseJoinPart")) {
-                        JSONObject collapseMap = prefs.getJSONObject("buffer-collapseJoinPart");
+                    if (prefs.has(pref_type + "-collapseJoinPart")) {
+                        JSONObject collapseMap = prefs.getJSONObject(pref_type + "-collapseJoinPart");
                         if (collapseMap.has(String.valueOf(bid)) && collapseMap.getBoolean(String.valueOf(bid)))
                             enabled = false;
                     }
-                    collapse.setChecked(enabled);
-                    if (prefs.has("buffer-expandDisco")) {
-                        JSONObject expandMap = prefs.getJSONObject("buffer-expandDisco");
-                        if (expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
-                            expandDisco.setChecked(false);
-                        else
-                            expandDisco.setChecked(true);
-                    } else {
-                        expandDisco.setChecked(true);
+                    collapse.setChecked(!enabled);
+                    enabled = (prefs.has("notifications-all") && prefs.get("notifications-all") instanceof Boolean && prefs.getBoolean("notifications-all"));
+                    if (prefs.has(pref_type + "-notifications-all")) {
+                        JSONObject notifyAllMap = prefs.getJSONObject(pref_type + "-notifications-all");
+                        if (notifyAllMap.has(String.valueOf(bid)) && notifyAllMap.getBoolean(String.valueOf(bid)))
+                            enabled = true;
                     }
-                    if (prefs.has("buffer-files-disableinline")) {
-                        JSONObject inlineMap = prefs.getJSONObject("buffer-files-disableinline");
+                    if (prefs.has(pref_type + "-notifications-all-disable")) {
+                        JSONObject notifyAllMap = prefs.getJSONObject(pref_type + "-notifications-all-disable");
+                        if (notifyAllMap.has(String.valueOf(bid)) && notifyAllMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
+                    }
+                    notifyAll.setChecked(enabled);
+                    if (prefs.has(pref_type + "-disableAutoSuggest")) {
+                        JSONObject suggestMap = prefs.getJSONObject(pref_type + "-disableAutoSuggest");
+                        if (suggestMap.has(String.valueOf(bid)) && suggestMap.getBoolean(String.valueOf(bid)))
+                            autosuggest.setChecked(false);
+                        else
+                            autosuggest.setChecked(true);
+                    } else {
+                        autosuggest.setChecked(true);
+                    }
+                    if (prefs.has(pref_type + "-files-disableinline")) {
+                        JSONObject inlineMap = prefs.getJSONObject(pref_type + "-files-disableinline");
                         if (inlineMap.has(String.valueOf(bid)) && inlineMap.getBoolean(String.valueOf(bid)))
                             inlineFiles.setChecked(false);
                         else
@@ -178,58 +213,78 @@ public class BufferOptionsFragment extends DialogFragment {
                     } else {
                         inlineFiles.setChecked(true);
                     }
-                    enabled = (prefs.has("enableReadOnSelect") && prefs.get("enableReadOnSelect") instanceof Boolean && prefs.getBoolean("enableReadOnSelect"));
-                    if (prefs.has("buffer-enableReadOnSelect")) {
-                        JSONObject readOnSelectMap = prefs.getJSONObject("buffer-enableReadOnSelect");
+                    enabled = prefs.has("enableReadOnSelect") && prefs.get("enableReadOnSelect") instanceof Boolean && prefs.getBoolean("enableReadOnSelect");
+                    if (prefs.has(pref_type + "-enableReadOnSelect")) {
+                        JSONObject readOnSelectMap = prefs.getJSONObject(pref_type + "-enableReadOnSelect");
                         if (readOnSelectMap.has(String.valueOf(bid)) && readOnSelectMap.getBoolean(String.valueOf(bid)))
                             enabled = true;
                     }
-                    if (prefs.has("buffer-disableReadOnSelect")) {
-                        JSONObject readOnSelectMap = prefs.getJSONObject("buffer-disableReadOnSelect");
+                    if (prefs.has(pref_type + "-disableReadOnSelect")) {
+                        JSONObject readOnSelectMap = prefs.getJSONObject(pref_type + "-disableReadOnSelect");
                         if (readOnSelectMap.has(String.valueOf(bid)) && readOnSelectMap.getBoolean(String.valueOf(bid)))
                             enabled = false;
                     }
                     readOnSelect.setChecked(enabled);
                     if(prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
                         JSONObject inlineImagesMap = null;
-                        if (prefs.has("buffer-inlineimages-disable"))
-                            inlineImagesMap = prefs.getJSONObject("buffer-inlineimages-disable");
+                        if (prefs.has(pref_type + "-inlineimages-disable"))
+                            inlineImagesMap = prefs.getJSONObject(pref_type + "-inlineimages-disable");
 
                         inlineImages.setChecked(!(inlineImagesMap != null && inlineImagesMap.has(String.valueOf(bid)) && inlineImagesMap.getBoolean(String.valueOf(bid))));
                     } else {
                         JSONObject inlineImagesMap = null;
-                        if (prefs.has("buffer-inlineimages"))
-                            inlineImagesMap = prefs.getJSONObject("buffer-inlineimages");
+                        if (prefs.has(pref_type + "-inlineimages"))
+                            inlineImagesMap = prefs.getJSONObject(pref_type + "-inlineimages");
 
                         inlineImages.setChecked((inlineImagesMap != null && inlineImagesMap.has(String.valueOf(bid)) && inlineImagesMap.getBoolean(String.valueOf(bid))));
                     }
-                    if (prefs.has("buffer-reply-collapse")) {
-                        JSONObject collapseMap = prefs.getJSONObject("buffer-reply-collapse");
+                    if (prefs.has(pref_type + "-reply-collapse")) {
+                        JSONObject collapseMap = prefs.getJSONObject(pref_type + "-reply-collapse");
                         if (collapseMap.has(String.valueOf(bid)) && collapseMap.getBoolean(String.valueOf(bid)))
-                            replyCollapse.setChecked(false);
-                        else
                             replyCollapse.setChecked(true);
+                        else
+                            replyCollapse.setChecked(false);
                     } else {
-                        replyCollapse.setChecked(true);
+                        replyCollapse.setChecked(false);
+                    }
+                    if (prefs.has(pref_type + "-expandDisco")) {
+                        JSONObject expandMap = prefs.getJSONObject(pref_type + "-expandDisco");
+                        if (expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
+                            expandDisco.setChecked(false);
+                        else
+                            expandDisco.setChecked(true);
+                    } else {
+                        notifyAll.setChecked(false);
+                        joinpart.setChecked(true);
+                        unread.setChecked(true);
+                        members.setChecked(true);
+                        collapse.setChecked(true);
+                        autosuggest.setChecked(true);
+                        readOnSelect.setChecked(false);
+                        inlineFiles.setChecked(true);
+                        inlineImages.setChecked(false);
+                        replyCollapse.setChecked(false);
+                        expandDisco.setChecked(true);
                     }
                 } else {
+                    notifyAll.setChecked(false);
                     joinpart.setChecked(true);
                     unread.setChecked(true);
+                    members.setChecked(true);
                     collapse.setChecked(true);
-                    expandDisco.setChecked(true);
+                    autosuggest.setChecked(true);
                     readOnSelect.setChecked(false);
                     inlineFiles.setChecked(true);
                     inlineImages.setChecked(false);
                     replyCollapse.setChecked(false);
+                    expandDisco.setChecked(true);
                 }
             }
+            if (!getActivity().getResources().getBoolean(R.bool.isTablet))
+                members.setVisibility(View.GONE);
         } catch (JSONException e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
-        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && getActivity() != null && ((ActivityManager)(getActivity().getSystemService(Context.ACTIVITY_SERVICE))).isLowRamDevice()) {
-            inlineFiles.setVisibility(View.GONE);
-            inlineImages.setVisibility(View.GONE);
-        }*/
     }
 
     @Override
@@ -239,11 +294,14 @@ public class BufferOptionsFragment extends DialogFragment {
             return null;
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.dialog_buffer_options, null);
+        expandDisco = v.findViewById(R.id.expandDisco);
+        members = v.findViewById(R.id.members);
         unread = v.findViewById(R.id.unread);
+        notifyAll = v.findViewById(R.id.notifyAll);
         joinpart = v.findViewById(R.id.joinpart);
         collapse = v.findViewById(R.id.collapse);
         replyCollapse = v.findViewById(R.id.replyCollapse);
-        expandDisco = v.findViewById(R.id.expandDisco);
+        autosuggest = v.findViewById(R.id.autosuggest);
         readOnSelect = v.findViewById(R.id.readOnSelect);
         inlineFiles = v.findViewById(R.id.inlineFiles);
         inlineImages = v.findViewById(R.id.inlineImages);
@@ -281,9 +339,16 @@ public class BufferOptionsFragment extends DialogFragment {
             bid = savedInstanceState.getInt("bid");
             cid = savedInstanceState.getInt("cid");
             type = savedInstanceState.getString("type");
+            if(type.equals("channel"))
+                pref_type = "channel";
+            else
+                pref_type = "buffer";
         }
 
-        if (type != null && type.equalsIgnoreCase("console")) {
+        if (type != null && type.equals("console")) {
+            notifyAll.setVisibility(View.GONE);
+            members.setVisibility(View.GONE);
+            autosuggest.setVisibility(View.GONE);
             joinpart.setVisibility(View.GONE);
             collapse.setVisibility(View.GONE);
             inlineFiles.setVisibility(View.GONE);
@@ -291,6 +356,11 @@ public class BufferOptionsFragment extends DialogFragment {
             replyCollapse.setVisibility(View.GONE);
         } else {
             expandDisco.setVisibility(View.GONE);
+            if(type.equals("conversation")) {
+                notifyAll.setVisibility(View.GONE);
+                members.setVisibility(View.GONE);
+                autosuggest.setVisibility(View.GONE);
+            }
         }
 
         return new AlertDialog.Builder(ctx)

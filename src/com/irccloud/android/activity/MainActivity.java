@@ -171,7 +171,6 @@ import com.irccloud.android.fragment.BufferOptionsFragment;
 import com.irccloud.android.fragment.BuffersListFragment;
 import com.irccloud.android.fragment.ChannelListFragment;
 import com.irccloud.android.fragment.ChannelModeListFragment;
-import com.irccloud.android.fragment.ChannelOptionsFragment;
 import com.irccloud.android.fragment.EditConnectionFragment;
 import com.irccloud.android.fragment.IRCColorPickerFragment;
 import com.irccloud.android.fragment.IgnoreListFragment;
@@ -4191,10 +4190,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case R.id.menu_add_network:
                 addNetwork();
                 break;
-            case R.id.menu_channel_options:
-                ChannelOptionsFragment newFragment = new ChannelOptionsFragment(buffer.getCid(), buffer.getBid());
-                newFragment.show(getSupportFragmentManager(), "channeloptions");
-                break;
             case R.id.menu_buffer_options:
                 BufferOptionsFragment bufferFragment = new BufferOptionsFragment(buffer.getCid(), buffer.getBid(), buffer.getType());
                 bufferFragment.show(getSupportFragmentManager(), "bufferoptions");
@@ -4741,13 +4736,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else if (items[item].equals("Disconnect")) {
                     conn.disconnect(b.getCid(), null, null);
                 } else if (items[item].equals("Display Options…")) {
-                    if (b.isChannel()) {
-                        ChannelOptionsFragment newFragment = new ChannelOptionsFragment(b.getCid(), b.getBid());
-                        newFragment.show(getSupportFragmentManager(), "channeloptions");
-                    } else {
-                        BufferOptionsFragment newFragment = new BufferOptionsFragment(b.getCid(), b.getBid(), b.getType());
-                        newFragment.show(getSupportFragmentManager(), "bufferoptions");
-                    }
+                    BufferOptionsFragment newFragment = new BufferOptionsFragment(b.getCid(), b.getBid(), b.getType());
+                    newFragment.show(getSupportFragmentManager(), "bufferoptions");
                 } else if (items[item].equals("Edit Connection…")) {
                     if (!getResources().getBoolean(R.bool.isTablet)) {
                         Intent i = new Intent(MainActivity.this, EditConnectionActivity.class);
