@@ -2776,6 +2776,40 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 });
                 break;
+            case NetworkConnection.EVENT_CHANFILTERLIST:
+                event = (IRCCloudJSONObject) obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (event != null && event.cid() == buffer.getCid()) {
+                            hide_keyboard();
+                            Bundle args = new Bundle();
+                            args.putInt("cid", event.cid());
+                            Buffer b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("channel"));
+                            if(b != null)
+                                args.putInt("bid", b.getBid());
+                            args.putString("mode", "g");
+                            args.putString("placeholder", "Empty filter pattern list.");
+                            args.putString("mask", "pattern");
+                            args.putString("list", "list");
+                            args.putString("title", "Channel filter list for " + event.getString("channel"));
+                            args.putString("event", event.toString());
+                            ChannelModeListFragment channelModeList = (ChannelModeListFragment) getSupportFragmentManager().findFragmentByTag("chanfilterlist");
+                            if (channelModeList == null) {
+                                channelModeList = new ChannelModeListFragment();
+                                channelModeList.setArguments(args);
+                                try {
+                                    channelModeList.show(getSupportFragmentManager(), "chanfilterlist");
+                                } catch (IllegalStateException e) {
+                                    //App lost focus already
+                                }
+                            } else {
+                                channelModeList.setArguments(args);
+                            }
+                        }
+                    }
+                });
+                break;
             case NetworkConnection.EVENT_INVITELIST:
                 event = (IRCCloudJSONObject) obj;
                 runOnUiThread(new Runnable() {

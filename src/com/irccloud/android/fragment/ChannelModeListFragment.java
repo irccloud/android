@@ -116,6 +116,9 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             if(node.has("usermask") && node.get("usermask") != null && node.get("usermask").asText() != null)
                 row.setSetBy("Set " + DateUtils.getRelativeTimeSpanString(node.get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
                     + " by " + node.get("usermask").asText());
+            else if(node.has("author") && node.get("author") != null && node.get("author").asText() != null)
+                row.setSetBy("Set " + DateUtils.getRelativeTimeSpanString(node.get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
+                        + " by " + node.get("author").asText());
             else
                 row.setSetBy("");
             if (canChangeMode) {
@@ -196,8 +199,13 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             View view = inflater.inflate(R.layout.dialog_textprompt, null);
             TextView prompt = view.findViewById(R.id.prompt);
             final EditText input = view.findViewById(R.id.textInput);
-            input.setHint("nickname!user@host.name");
-            prompt.setText("Add this hostmask");
+            if(event.getString("type").equals("chanfilter_list")) {
+                input.setHint("\\*key\\*word\\*");
+                prompt.setText("Add this pattern");
+            } else {
+                input.setHint("nickname!user@host.name");
+                prompt.setText("Add this hostmask");
+            }
             builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
             builder.setView(view);
             builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
