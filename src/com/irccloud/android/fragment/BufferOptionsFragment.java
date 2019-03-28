@@ -33,6 +33,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -367,6 +368,9 @@ public class BufferOptionsFragment extends DialogFragment {
                 autosuggest.setVisibility(View.GONE);
             }
         }
+
+        if(BuildConfig.ENTERPRISE)
+            muted.setVisibility(View.GONE);
 
         return new AlertDialog.Builder(ctx)
                 .setTitle("Display Options")
