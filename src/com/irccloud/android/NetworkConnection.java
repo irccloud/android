@@ -2051,7 +2051,7 @@ public class NetworkConnection {
                 editor.putString("email", userInfo.email);
                 editor.putString("highlights", userInfo.highlights);
                 editor.putBoolean("autoaway", userInfo.auto_away);
-                if (userInfo.prefs != null) {
+                if (userInfo.prefs != null && !BuildConfig.MOCK_DATA) {
                     editor.putBoolean("time-24hr", userInfo.prefs.has("time-24hr") && userInfo.prefs.get("time-24hr") instanceof Boolean && userInfo.prefs.getBoolean("time-24hr"));
                     editor.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.get("time-seconds") instanceof Boolean && userInfo.prefs.getBoolean("time-seconds"));
                     editor.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.get("mode-showsymbol") instanceof Boolean && userInfo.prefs.getBoolean("mode-showsymbol"));

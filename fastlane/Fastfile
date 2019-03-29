@@ -37,17 +37,17 @@ platform :android do
   lane :screenshots do
     json_key = "./key.json"
     
-    gradle(task: "clean")
-    build_android_app(
-      task: 'assemble',
-      build_type: 'Mockdata'
-    )
-    build_android_app(
-      task: 'assemble',
-      build_type: 'AndroidTest'
-    )
+#    gradle(task: "clean")
+#    build_android_app(
+#      task: 'assemble',
+#      build_type: 'Mockdata'
+#    )
+#    build_android_app(
+#      task: 'assemble',
+#      build_type: 'AndroidTest'
+#    )
 
-    sh("../start-emulators.sh")
+    sh("../start-emulator.sh Nexus_S_API_O")
 
     capture_android_screenshots(
       clear_previous_screenshots: true,
@@ -86,7 +86,11 @@ platform :android do
       device_type: "phone",
       specific_device: "emulator-5580"
     )
+    
+    sh("../start-emulator.sh Nexus_7_API_O")
+    
     capture_android_screenshots(
+      clear_previous_screenshots: true,
       skip_open_summary: true,
       app_apk_path: "build/outputs/apk/mockdata/irccloud-android-mockdata.apk",
       tests_apk_path: "build/outputs/apk/androidTest/mockdata/irccloud-android-mockdata-androidTest.apk",
@@ -96,7 +100,7 @@ platform :android do
       use_tests_in_classes: ["com.irccloud.android.test.Screenshots"],
       launch_arguments: ["theme dawn"],
       device_type: "sevenInch",
-      specific_device: "emulator-5582"
+      specific_device: "emulator-5580"
     )
     capture_android_screenshots(
       skip_open_summary: true,
@@ -108,7 +112,7 @@ platform :android do
       use_tests_in_classes: ["com.irccloud.android.test.Screenshots"],
       launch_arguments: ["theme dusk"],
       device_type: "sevenInch",
-      specific_device: "emulator-5582"
+      specific_device: "emulator-5580"
     )
     capture_android_screenshots(
       skip_open_summary: true,
@@ -120,9 +124,13 @@ platform :android do
       use_tests_in_classes: ["com.irccloud.android.test.Screenshots"],
       launch_arguments: ["theme midnight"],
       device_type: "sevenInch",
-      specific_device: "emulator-5582"
+      specific_device: "emulator-5580"
     )
+    
+    sh("../start-emulator.sh Nexus_10_API_O")
+    
     capture_android_screenshots(
+      clear_previous_screenshots: true,
       skip_open_summary: true,
       app_apk_path: "build/outputs/apk/mockdata/irccloud-android-mockdata.apk",
       tests_apk_path: "build/outputs/apk/androidTest/mockdata/irccloud-android-mockdata-androidTest.apk",
@@ -132,7 +140,7 @@ platform :android do
       use_tests_in_classes: ["com.irccloud.android.test.Screenshots"],
       launch_arguments: ["theme dawn"],
       device_type: "tenInch",
-      specific_device: "emulator-5584"
+      specific_device: "emulator-5580"
     )
     capture_android_screenshots(
       skip_open_summary: true,
@@ -144,7 +152,7 @@ platform :android do
       use_tests_in_classes: ["com.irccloud.android.test.Screenshots"],
       launch_arguments: ["theme dusk"],
       device_type: "tenInch",
-      specific_device: "emulator-5584"
+      specific_device: "emulator-5580"
     )
     capture_android_screenshots(
       app_apk_path: "build/outputs/apk/mockdata/irccloud-android-mockdata.apk",
@@ -155,10 +163,9 @@ platform :android do
       use_tests_in_classes: ["com.irccloud.android.test.Screenshots"],
       launch_arguments: ["theme midnight"],
       device_type: "tenInch",
-      specific_device: "emulator-5584"
+      specific_device: "emulator-5580"
     )
+    
     sh("adb -s emulator-5580 emu kill")
-    sh("adb -s emulator-5582 emu kill")
-    sh("adb -s emulator-5584 emu kill")
   end
 end
