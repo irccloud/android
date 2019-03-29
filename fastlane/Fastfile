@@ -37,15 +37,15 @@ platform :android do
   lane :screenshots do
     json_key = "./key.json"
     
-#    gradle(task: "clean")
-#    build_android_app(
-#      task: 'assemble',
-#      build_type: 'Mockdata'
-#    )
-#    build_android_app(
-#      task: 'assemble',
-#      build_type: 'AndroidTest'
-#    )
+    gradle(task: "clean")
+    build_android_app(
+      task: 'assemble',
+      build_type: 'Mockdata'
+    )
+    build_android_app(
+      task: 'assemble',
+      build_type: 'AndroidTest'
+    )
 
     sh("../start-emulator.sh Nexus_S_API_O")
 
