@@ -16,8 +16,6 @@
 
 package com.irccloud.android.test;
 
-import android.test.AndroidTestCase;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,7 +23,9 @@ import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.Server;
 
-public class CollapsedEventsTests extends AndroidTestCase {
+import junit.framework.TestCase;
+
+public class CollapsedEventsTests extends TestCase {
     private long eid = 1;
 
     private void addMode(CollapsedEventsList list, String mode, String nick, String from) {
@@ -146,176 +146,176 @@ public class CollapsedEventsTests extends AndroidTestCase {
 
     public void testJoin() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null, null);
 		assertEquals("→ sam joined (sam@example.net)", list.getCollapsedMessage());
 	}
 	
 	public void testPart() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null, null, null);
 		assertEquals("← sam left (sam@example.net)", list.getCollapsedMessage());
 	}
 	
 	public void testQuit() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, "Quit: leaving", null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, "Quit: leaving", null, null);
 		assertEquals("⇐ sam quit (sam@example.net) Quit: leaving", list.getCollapsedMessage());
 	}
 
     public void testQuit2() {
         CollapsedEventsList list = new CollapsedEventsList();
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, "*.net *.split", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, "*.net *.split", null, null);
         assertEquals("⇐ sam quit (sam@example.net) *.net *.split", list.getCollapsedMessage());
     }
 
     public void testNickChange() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null, null);
 		assertEquals("sam_ → sam", list.getCollapsedMessage());
 	}
 
     public void testNickChangeQuit() {
         CollapsedEventsList list = new CollapsedEventsList();
-        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam_", "sam", "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam_", null, "sam@example.net", null, "Bye!", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam_", "sam", "sam@example.net", null, null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam_", null, "sam@example.net", null, "Bye!", null, null);
         assertEquals("⇐ sam_ (was sam) quit (sam@example.net) Bye!", list.getCollapsedMessage());
     }
 
     public void testJoinQuit() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null, null);
 		assertEquals("↔ sam popped in", list.getCollapsedMessage());
 	}
 
     public void testJoinQuitJoin() {
         CollapsedEventsList list = new CollapsedEventsList();
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null, null);
         assertEquals("→ sam joined (sam@example.net)", list.getCollapsedMessage());
     }
 
     public void testJoinJoin() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "james", null, "james@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "james", null, "james@example.net", null, null, null, null, null);
 		assertEquals("→ sam and james joined", list.getCollapsedMessage());
 	}
 
     public void testJoinJoinJoin() {
         CollapsedEventsList list = new CollapsedEventsList();
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "james", null, "james@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "RJ", null, "RJ@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "james", null, "james@example.net", null, null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "RJ", null, "RJ@example.net", null, null, null, null, null);
         assertEquals("→ sam, james, and RJ joined", list.getCollapsedMessage());
     }
 
     public void testJoinQuit2() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "james", null, "james@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "james", null, "james@example.net", null, null, null, null, null);
 		assertEquals("→ sam joined ⇐ james quit", list.getCollapsedMessage());
 	}
 
 	public void testJoinPart() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null, null);
 		assertEquals("↔ sam popped in", list.getCollapsedMessage());
 	}
 
 	public void testJoinPart2() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "james", null, "james@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "james", null, "james@example.net", null, null, null, null);
 		assertEquals("→ sam joined ← james left", list.getCollapsedMessage());
 	}
 
 	public void testQuitJoin() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null);
 		assertEquals("↔ sam nipped out", list.getCollapsedMessage());
 	}
 
 	public void testPartJoin() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null);
 		assertEquals("↔ sam nipped out", list.getCollapsedMessage());
 	}
 
 	public void testJoinNickchange() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
 		assertEquals("→ sam (was sam_) joined (sam@example.net)", list.getCollapsedMessage());
 	}
 
 	public void testQuitJoinNickchange() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam_", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam_", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
 		assertEquals("↔ sam (was sam_) nipped out", list.getCollapsedMessage());
 	}
 
 	public void testQuitJoinNickchange2() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
 		assertEquals("↔ sam nipped out", list.getCollapsedMessage());
 	}
 
 	public void testQuitJoinMode() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null);
         addMode(list, "o", "sam", "ChanServ");
 		assertEquals("↔ \u0004BA1719\u0002•\u000F sam (opped) nipped out", list.getCollapsedMessage());
 	}
 
 	public void testQuitJoinModeNickPart() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam_", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam_", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null, null);
         addMode(list, "o", "sam_", "ChanServ");
-		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null, null);
 		assertEquals("← \u0004BA1719\u0002•\u000F sam (was sam_; opped) left", list.getCollapsedMessage());
 	}
 
 	public void testNickchangeNickchange() {
 		CollapsedEventsList list = new CollapsedEventsList();
-        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "james", "james_old", "james@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "james", "james_old", "james@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
 		assertEquals("james_old → james, sam_ → sam", list.getCollapsedMessage());
 	}
 
 	public void testJoinQuitNickchange() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
 		assertEquals("↔ sam (was sam_) nipped out", list.getCollapsedMessage());
 	}
 
     public void testJoinQuitNickchange2() {
         CollapsedEventsList list = new CollapsedEventsList();
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
         assertEquals("↔ sam (was sam_) nipped out", list.getCollapsedMessage());
     }
 
@@ -336,20 +336,20 @@ public class CollapsedEventsTests extends AndroidTestCase {
     public void testModeNickchange() {
 		CollapsedEventsList list = new CollapsedEventsList();
         addMode(list, "o", "james", "ChanServ");
-		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null, null);
 		assertEquals("mode: \u0004BA1719\u0002•\u000F james (opped) • sam_ → sam", list.getCollapsedMessage());
 	}
 	
 	public void testJoinMode() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null);
         addMode(list, "o", "sam", "ChanServ");
 		assertEquals("→ \u0004BA1719\u0002•\u000F sam (opped) joined", list.getCollapsedMessage());
 	}
 
     public void testJoinModeMode() {
         CollapsedEventsList list = new CollapsedEventsList();
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null);
         addMode(list, "o", "sam", "ChanServ");
         addMode(list, "q", "sam", "ChanServ");
         assertEquals("→ \u0004E7AA00\u0002•\u000F sam (promoted to owner, opped) joined", list.getCollapsedMessage());
@@ -358,15 +358,15 @@ public class CollapsedEventsTests extends AndroidTestCase {
     public void testModeJoinPart() {
 		CollapsedEventsList list = new CollapsedEventsList();
         addMode(list, "o", "james", "ChanServ");
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null, null);
 		assertEquals("mode: \u0004BA1719\u0002•\u000F james (opped) ↔ sam popped in", list.getCollapsedMessage());
 	}
 	
 	public void testJoinNickchangeModeModeMode() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "james", "james_old", "james@example.net", null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null);
+		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "james", "james_old", "james@example.net", null, null, null, null);
         removeMode(list, "o", "james", "ChanServ");
         addMode(list, "v", "RJ", "ChanServ");
         addMode(list, "v", "james", "ChanServ");
@@ -376,71 +376,71 @@ public class CollapsedEventsTests extends AndroidTestCase {
     public void testMultiChannelJoin() {
         CollapsedEventsList list = new CollapsedEventsList();
         list.showChan = true;
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test3");
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test3", null);
         assertEquals("→ sam joined #test1, #test2, and #test3", list.getCollapsedMessage());
     }
 
     public void testMultiChannelNickChangeQuitJoin() {
         CollapsedEventsList list = new CollapsedEventsList();
         list.showChan = true;
-        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_old", "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2");
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_old", "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2", null);
         assertEquals("↔ sam (was sam_old) nipped out #test1 and #test2", list.getCollapsedMessage());
     }
 
     public void testMultiChannelPopIn1() {
         CollapsedEventsList list = new CollapsedEventsList();
         list.showChan = true;
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test3");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, "#test1");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, "#test2");
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test3", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, "#test1", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, "#test2", null);
         assertEquals("→ sam joined #test3 ↔ sam popped in #test1 and #test2", list.getCollapsedMessage());
     }
 
     public void testMultiChannelPopIn2() {
         CollapsedEventsList list = new CollapsedEventsList();
         list.showChan = true;
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test3");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test2", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test3", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
         assertEquals("↔ sam popped in #test1, #test2, and #test3", list.getCollapsedMessage());
     }
 
     public void testMultiChannelQuit() {
         CollapsedEventsList list = new CollapsedEventsList();
         list.showChan = true;
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1");
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test1", null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null, null);
         assertEquals("⇐ sam quit (sam@example.net) ", list.getCollapsedMessage());
     }
 
     public void testNetSplit() {
         CollapsedEventsList list = new CollapsedEventsList();
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, "irc.example.net irc2.example.net", null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "james", null, "james@example.net", null, "irc.example.net irc2.example.net", null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "RJ", null, "RJ@example.net", null, "irc3.example.net irc2.example.net", null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "russ", null, "russ@example.net", null, "fake.net fake.net", null);
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, "irc.example.net irc2.example.net", null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "james", null, "james@example.net", null, "irc.example.net irc2.example.net", null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "RJ", null, "RJ@example.net", null, "irc3.example.net irc2.example.net", null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "russ", null, "russ@example.net", null, "fake.net fake.net", null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null, null);
         assertEquals("irc.example.net ↮ irc2.example.net and irc3.example.net ↮ irc2.example.net ⇐ james, RJ, and russ quit ↔ sam nipped out", list.getCollapsedMessage());
     }
 
     public void testChanServJoin() {
         CollapsedEventsList list = new CollapsedEventsList();
-        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "ChanServ", null, "ChanServ@services.", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "ChanServ", null, "ChanServ@services.", null, null, null, null);
         addMode(list, "o", "ChanServ", null);
         assertEquals("→ \u0004BA1719\u0002•\u000F ChanServ (opped) joined", list.getCollapsedMessage());
     }

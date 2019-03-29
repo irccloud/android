@@ -16,18 +16,13 @@
 
 package com.irccloud.android.test;
 
-import android.test.AndroidTestCase;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
-import com.irccloud.android.data.collection.ServersList;
-import com.irccloud.android.data.model.Server;
+
+import junit.framework.TestCase;
 
 import java.util.ArrayList;
 
-public class MessageTypeTests extends AndroidTestCase {
+public class MessageTypeTests extends TestCase {
 
 	public void testMessageTypes() {
         //JSON.stringify(Object.keys(cbv().scroll.log.lineRenderer.messageHandlers))

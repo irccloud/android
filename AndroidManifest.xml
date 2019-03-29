@@ -42,6 +42,7 @@
         android:name="android.permission.READ_PHONE_STATE"
         tools:node="remove" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" tools:ignore="ProtectedPermissions" />
 
     <supports-screens
         android:anyDensity="true"

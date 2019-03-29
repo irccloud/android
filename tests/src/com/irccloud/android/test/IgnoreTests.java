@@ -16,20 +16,20 @@
 
 package com.irccloud.android.test;
 
-import android.test.AndroidTestCase;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Server;
 
-public class IgnoreTests extends AndroidTestCase {
+import junit.framework.TestCase;
+
+public class IgnoreTests extends TestCase {
 
 	public void testNoNickWithDot() {
         ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!users.1@host.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"", null, 0, 0, 0);
 
 		Ignore ignore = s.ignores;
 
@@ -47,7 +47,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoNick() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!username@host.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"", null, 0, 0, 0);
 
 		Ignore ignore = s.ignores;
 
@@ -65,7 +65,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoNickIdentUsername() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
         ignores.add("*!~username@host.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"", null, 0, 0, 0);
 
 		Ignore ignore = s.ignores;
 
@@ -83,7 +83,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoHost() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!users.1@*");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"", null, 0, 0, 0);
 
 		Ignore ignore = s.ignores;
 
@@ -101,7 +101,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testJustHost() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("host.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"", null, 0, 0, 0);
 
 		Ignore ignore = s.ignores;
 
@@ -119,7 +119,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testPartialWildcard1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*sam!*users.1@*.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"", null, 0, 0, 0);
 
 		Ignore ignore = s.ignores;
 
@@ -137,7 +137,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testPartialWildcard2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*a*!*users.1@*.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -155,7 +155,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testPartialWildcard3() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*users.1@*.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -173,7 +173,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testPartialWildcard4() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!user*@*.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -191,7 +191,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoNickNoUsername1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*@host.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -209,7 +209,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoNickNoUsername2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*@host.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -227,7 +227,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testJustNick() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -245,7 +245,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testFull1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!users.1@host.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -263,7 +263,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testFull2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("Sam!Users.1@HOST.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -281,7 +281,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoNickNoHost() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!users.1@*");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -299,7 +299,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoUsername1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*@host.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -317,7 +317,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoUsername2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!host.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -335,7 +335,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoUsername3() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -353,7 +353,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoUsername4() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*o*.local");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -371,7 +371,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoUsername5() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!host.*");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -389,7 +389,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoUsernameOrHost1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*@*");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -407,7 +407,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testNoUsernameOrHost2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -425,7 +425,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testUsernameAlone() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!~username");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -443,7 +443,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testAllWildcards1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*@*");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -461,7 +461,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testAllWildcards2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -479,7 +479,7 @@ public class IgnoreTests extends AndroidTestCase {
 	public void testAllWildcards3() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 
@@ -499,7 +499,7 @@ public class IgnoreTests extends AndroidTestCase {
         ignores.add("(sam)");
         ignores.add("{sam}");
         ignores.add("[sam]");
-        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"");
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,"","","","",null,"",ignores,0,"",null,0,0,0);
 
 		Ignore ignore = s.ignores;
 

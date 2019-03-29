@@ -16,15 +16,15 @@
 
 package com.irccloud.android.test;
 
-import android.test.AndroidTestCase;
-
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Notification;
 
+import junit.framework.TestCase;
+
 import java.util.List;
 
-public class NotificationsTests extends AndroidTestCase {
+public class NotificationsTests extends TestCase {
 
 	public void testAdd() {
 		BuffersList b = BuffersList.getInstance();
@@ -34,7 +34,7 @@ public class NotificationsTests extends AndroidTestCase {
 		NotificationsList n = NotificationsList.getInstance();
 		n.clear();
 
-		n.addNotification(1, 1, 2, "sam", "test", "sam", "conversation", "buffer_msg", "TestNetwork");
+		n.addNotification(1, 1, 2, "sam", "test", "sam", "conversation", "buffer_msg", "TestNetwork", null);
 		
 		List<Notification> notifications = n.getMessageNotifications();
 		assertEquals(1, notifications.size());
@@ -63,7 +63,7 @@ public class NotificationsTests extends AndroidTestCase {
 		NotificationsList n = NotificationsList.getInstance();
 		n.clear();
 
-		n.addNotification(1, 1, 2, "sam", "test", "sam", "conversation", "buffer_msg", "TestNetwork");
+		n.addNotification(1, 1, 2, "sam", "test", "sam", "conversation", "buffer_msg", "TestNetwork", null);
 		assertEquals(1, n.getMessageNotifications().size());
 		
 		//last_seen_eid is less than the notification's eid
@@ -78,7 +78,7 @@ public class NotificationsTests extends AndroidTestCase {
 		assertEquals(0, n.getMessageNotifications().size());
 
 		//Attempt to insert an already-seen eid
-		n.addNotification(1, 1, 2, "sam", "test", "sam", "conversation", "buffer_msg", "TestNetwork");
+		n.addNotification(1, 1, 2, "sam", "test", "sam", "conversation", "buffer_msg", "TestNetwork", null);
 		assertEquals(0, n.getMessageNotifications().size());
 
 		n.clear();
@@ -94,7 +94,7 @@ public class NotificationsTests extends AndroidTestCase {
 		NotificationsList n = NotificationsList.getInstance();
 		n.clear();
 
-		n.addNotification(1, 1, 2, "sam", "test", "sam", "conversation", "buffer_msg", "TestNetwork");
+		n.addNotification(1, 1, 2, "sam", "test", "sam", "conversation", "buffer_msg", "TestNetwork", null);
 		assertEquals(1, n.getMessageNotifications().size());
 
 		//Dismiss the notification

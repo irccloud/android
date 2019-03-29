@@ -65,17 +65,17 @@ def getRevision = { ->
 android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
-    testBuildType 'debugTest'
+    testBuildType "mockdata"
 
     defaultConfig {
         versionCode 224
         versionName "4.16"
-        minSdkVersion 17
+        minSdkVersion 18
         targetSdkVersion 28
         multiDexEnabled true
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
-        testInstrumentationRunner "android.test.InstrumentationTestRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         resConfigs "en"
         vectorDrawables.useSupportLibrary = true
@@ -265,8 +265,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
 
-        mockdata.initWith(debug)
+        mockdata
         mockdata {
+            initWith debug
+
             applicationIdSuffix ".mockdata"
             versionNameSuffix "-" + getRevision()
             buildConfigField "String", "HOST", "\"\""
@@ -293,12 +295,6 @@ android {
             shrinkResources false
             debuggable true
         }
-
-        debugTest.initWith(debug)
-        debugTest {
-            minifyEnabled false
-            shrinkResources false
-        }
     }
 
     sourceSets {
@@ -307,18 +303,13 @@ android {
         main.resources.srcDirs = ['src']
         main.aidl.srcDirs = ['src']
         main.renderscript.srcDirs = ['src']
-        enterprisedebug.res.srcDirs = ['enterprise-res', 'themes']
-        enterpriserelease.res.srcDirs = ['enterprise-res', 'themes']
         main.res.srcDirs = ['res', 'themes']
         main.assets.srcDirs = ['assets']
-        debug.java.srcDirs = ['release-src']
-        enterprisedebug.java.srcDirs = ['debug-src']
-        release.java.srcDirs = ['release-src']
-        enterpriserelease.java.srcDirs = ['release-src']
-        debugTest.java.srcDirs = ['release-src']
+        enterprisedebug.res.srcDirs = ['enterprise-res', 'themes']
+        enterpriserelease.res.srcDirs = ['enterprise-res', 'themes']
+        mockdata.manifest.srcFile 'AndroidManifestMock.xml'
 
         androidTest {
-            manifest.srcFile 'tests/AndroidManifest.xml'
             java.srcDirs = ['tests/src']
             res.srcDirs = ['tests/res']
             assets.srcDirs = ['tests/assets']
@@ -393,4 +384,8 @@ dependencies {
         transitive = true
     }
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    androidTestImplementation 'androidx.test:runner:1.1.1'
+    androidTestImplementation 'androidx.test:rules:1.1.1'
+    androidTestImplementation 'tools.fastlane:screengrab:1.2.0'
 }

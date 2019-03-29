@@ -1,0 +1,9 @@
+Chat on IRC from anywhere, and never miss a message.
+
+• Stay connected when you're on the move. No need to rely on constant data access, we keep your IRC connection running on our servers.
+• Your entire chat history is fully synced to the cloud so you can catch up at your leisure.
+• Get push notifications for mentions and private messages.
+• Upload and share files straight from your device.
+• View and reply to highlights and private messages on Android Wear, Android Auto, Pebble, and Sony LiveView.
+
+Join our #feedback channel on irc.irccloud.com for feedback and suggestions so we can improve the app. You can also email us on team@irccloud.com or find us on Twitter @irccloud
