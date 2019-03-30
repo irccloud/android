@@ -1015,7 +1015,7 @@ public class NotificationsList {
     public void updateTeslaUnreadCount() {
         try {
             IRCCloudApplication.getInstance().getApplicationContext().getPackageManager().getPackageInfo("com.teslacoilsw.notifier", PackageManager.GET_META_DATA);
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (Exception e) {
             return;
         }
 
