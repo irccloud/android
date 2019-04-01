@@ -82,7 +82,7 @@ platform :android do
       tests_package_name: "com.irccloud.android.test",
       test_instrumentation_runner: "androidx.test.runner.AndroidJUnitRunner",
       use_tests_in_classes: ["com.irccloud.android.test.Screenshots"],
-      launch_arguments: ["theme midnight"],
+      launch_arguments: ["theme ash"],
       device_type: "phone",
       specific_device: "emulator-5580"
     )
@@ -122,7 +122,7 @@ platform :android do
       tests_package_name: "com.irccloud.android.test",
       test_instrumentation_runner: "androidx.test.runner.AndroidJUnitRunner",
       use_tests_in_classes: ["com.irccloud.android.test.Screenshots"],
-      launch_arguments: ["theme midnight"],
+      launch_arguments: ["theme ash"],
       device_type: "sevenInch",
       specific_device: "emulator-5580"
     )
@@ -161,7 +161,7 @@ platform :android do
       tests_package_name: "com.irccloud.android.test",
       test_instrumentation_runner: "androidx.test.runner.AndroidJUnitRunner",
       use_tests_in_classes: ["com.irccloud.android.test.Screenshots"],
-      launch_arguments: ["theme midnight"],
+      launch_arguments: ["theme ash"],
       device_type: "tenInch",
       specific_device: "emulator-5580"
     )

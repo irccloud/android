@@ -411,7 +411,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         IRCCloudApplication.getInstance().onResume(this);
 
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
-        if (session != null && session.length() > 0) {
+        if ((session != null && session.length() > 0) || BuildConfig.MOCK_DATA) {
             if (conn.getUserInfo() != null)
                 findPreference("name").setSummary(conn.getUserInfo().name);
             else

@@ -7,6 +7,7 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 
 import com.irccloud.android.activity.MainActivity;
+import com.irccloud.android.data.collection.ImageList;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,9 +45,15 @@ public class Screenshots {
         Context context = getInstrumentation().getTargetContext();
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         editor.putString("theme", theme);
+        editor.putBoolean("monospace", theme.equals("ash"));
         editor.commit();
 
         Screengrab.setDefaultScreenshotStrategy(new UiAutomatorScreenshotStrategy());
+
+        SystemClock.sleep(5000);
+
+        ImageList.getInstance().purge();
+        ImageList.getInstance().clearFailures();
 
         activityRule.getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -54,6 +61,7 @@ public class Screenshots {
                 activityRule.getActivity().recreate();
             }
         });
+        SystemClock.sleep(5000);
     }
 
     @Test
@@ -65,36 +73,32 @@ public class Screenshots {
 
         }
         SystemClock.sleep(5000);
-        device.findObject(new UiSelector().className("com.irccloud.android.IRCEditText").enabled(false));
+        device.findObject(new UiSelector().className("com.irccloud.android.IRCEditText").focused(false));
         Screengrab.screenshot("messages-portrait-" + theme);
-        try {
-            device.findObject(new UiSelector().description("Channel list")).click();
-            SystemClock.sleep(5000);
-            Screengrab.screenshot("menu-portrait-" + theme);
-            device.pressBack();
-        } catch (Exception e) {
+        if(theme.equals("dawn")) {
+            try {
+                device.findObject(new UiSelector().description("Channel members list")).click();
+                SystemClock.sleep(5000);
+                Screengrab.screenshot("members-portrait-" + theme);
+                device.pressBack();
+            } catch (Exception e) {
 
-        }
-        try {
-            device.findObject(new UiSelector().description("Channel members list")).click();
-            SystemClock.sleep(5000);
-            Screengrab.screenshot("members-portrait-" + theme);
-            device.pressBack();
-        } catch (Exception e) {
-
+            }
         }
     }
 
     @Test
     public void testTakeScreenshotsLandscape() {
-        UiDevice device = UiDevice.getInstance(getInstrumentation());
-        try {
-            device.setOrientationLeft();
-        } catch (Exception e) {
+        if(theme.equals("dawn")) {
+            UiDevice device = UiDevice.getInstance(getInstrumentation());
+            try {
+                device.setOrientationLeft();
+            } catch (Exception e) {
 
+            }
+            SystemClock.sleep(5000);
+            device.findObject(new UiSelector().className("com.irccloud.android.IRCEditText").enabled(false));
+            Screengrab.screenshot("messages-landscape-" + theme);
         }
-        SystemClock.sleep(5000);
-        device.findObject(new UiSelector().className("com.irccloud.android.IRCEditText").enabled(false));
-        Screengrab.screenshot("messages-landscape-" + theme);
     }
 }

@@ -2037,7 +2037,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(fileUploadTask.metadataDialog == null && !fileUploadTask.filenameSet && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
                 fileUploadTask.show_dialog();
         }
-        messageTxt.setEnabled(buffer != null);
+        messageTxt.setEnabled(buffer != null && !BuildConfig.MOCK_DATA);
 
         if(pastebinResult != null) {
             String text = "";
@@ -5749,7 +5749,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
         update_suggestions(false);
-        messageTxt.setEnabled(buffer != null);
+        messageTxt.setEnabled(buffer != null && !BuildConfig.MOCK_DATA);
         if(server != null && server.isSlack()) {
             messageTxt.setCustomSelectionActionModeCallback(null);
             findViewById(R.id.formatBtn).setVisibility(View.GONE);
