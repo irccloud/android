@@ -2062,6 +2062,7 @@ public class NetworkConnection {
                     editor.putBoolean("hideJoinPart", !(userInfo.prefs.has("hideJoinPart") && userInfo.prefs.get("hideJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("hideJoinPart")));
                     editor.putBoolean("expandJoinPart", !(userInfo.prefs.has("expandJoinPart") && userInfo.prefs.get("expandJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("expandJoinPart")));
                     editor.putBoolean("notifications_all", (userInfo.prefs.has("notifications-all") && userInfo.prefs.get("notifications-all") instanceof Boolean && userInfo.prefs.getBoolean("notifications-all")));
+                    editor.putBoolean("notifications_mute", (userInfo.prefs.has("notifications-mute") && userInfo.prefs.get("notifications-mute") instanceof Boolean && userInfo.prefs.getBoolean("notifications-mute")));
                     editor.putBoolean("disableTrackUnread", !(userInfo.prefs.has("disableTrackUnread") && userInfo.prefs.get("disableTrackUnread") instanceof Boolean && userInfo.prefs.getBoolean("disableTrackUnread")));
                     editor.putBoolean("enableReadOnSelect", (userInfo.prefs.has("enableReadOnSelect") && userInfo.prefs.get("enableReadOnSelect") instanceof Boolean && userInfo.prefs.getBoolean("enableReadOnSelect")));
                     editor.putBoolean("ascii-compact", (userInfo.prefs.has("ascii-compact") && userInfo.prefs.get("ascii-compact") instanceof Boolean && userInfo.prefs.getBoolean("ascii-compact")));

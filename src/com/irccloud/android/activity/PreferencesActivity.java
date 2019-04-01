@@ -271,6 +271,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         findPreference("hideJoinPart").setOnPreferenceChangeListener(prefstoggle);
         findPreference("expandJoinPart").setOnPreferenceChangeListener(prefstoggle);
         findPreference("notifications_all").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("notifications_mute").setOnPreferenceChangeListener(prefstoggle);
         findPreference("disableTrackUnread").setOnPreferenceChangeListener(prefstoggle);
         findPreference("enableReadOnSelect").setOnPreferenceChangeListener(prefstoggle);
         findPreference("ascii-compact").setOnPreferenceChangeListener(prefstoggle);
@@ -667,6 +668,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     prefs.put("font", ((Boolean)newValue)?"mono":"sans");
                 else if(preference.getKey().equals("notifications_all"))
                     prefs.put("notifications-all", newValue);
+                else if(preference.getKey().equals("notifications_mute"))
+                    prefs.put("notifications-mute", newValue);
                 else
                     prefs.put(preference.getKey(), newValue);
 
