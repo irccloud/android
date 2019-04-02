@@ -331,6 +331,10 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 c.removePreference(findPreference("public_avatar"));
                 c.removePreference(findPreference("avatars_faq"));
             }
+            if(findPreference("notifications_mute") != null) {
+                PreferenceCategory c = (PreferenceCategory) findPreference("notifications");
+                c.removePreference(findPreference("notifications_mute"));
+            }
             PreferenceCategory c = (PreferenceCategory) findPreference("message");
             c.removePreference(findPreference("avatar-images"));
         }

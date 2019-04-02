@@ -18,7 +18,7 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceCategory android:title="Notifications">
+	<PreferenceCategory android:title="Notifications" android:key="notifications">
 	    <com.irccloud.android.AppCompatListPreference app:entries="@array/pref_notify_names"
 		    android:title="Notifications" android:key="notify_type"
 		    app:entryValues="@array/pref_notify_values"

@@ -223,7 +223,7 @@ public class WhoisFragment extends DialogFragment {
             } else {
                 name.setText("");
             }
-            mask.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(event.getString("user_username"))) + "@" + ColorFormatter.irc_to_html(TextUtils.htmlEncode(event.getString("user_host")))));
+            mask.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(event.getString("user_mask")))));
             if (event.has("actual_host"))
                 mask.setText(mask.getText() + "/" + event.getString("actual_host"));
             if(event.has("server_addr") && event.getString("server_addr") != null && event.getString("server_addr").length() > 0) {
