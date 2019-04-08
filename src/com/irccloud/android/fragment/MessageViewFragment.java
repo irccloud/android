@@ -1932,8 +1932,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         c.setServer(server);
                         c.addEvent(event);
                         msg = c.getCollapsedMessage();
-                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(c.getCollapsedMessage(true)), true, server);
                         if (!nextIsGrouped) {
+                            event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(c.getCollapsedMessage(true)), true, server);
                             String group_msg = collapsedEvents.getCollapsedMessage();
                             if (group_msg == null && type.equals("nickchange")) {
                                 group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
@@ -1970,7 +1970,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         msg = (nextIsGrouped && currentCollapsedEid != event.eid) ? "" : collapsedEvents.getCollapsedMessage();
                     }
 
-                    if (!expandedSectionEids.contains(currentCollapsedEid))
+                    if (!nextIsGrouped && !expandedSectionEids.contains(currentCollapsedEid))
                         event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(collapsedEvents.getCollapsedMessage(true)), true, server);
                     if (msg == null && type.equals("nickchange")) {
                         msg = event.old_nick + " → <b>" + event.nick + "</b>";
