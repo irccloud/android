@@ -53,6 +53,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.text.style.MetricAffectingSpan;
+import android.text.style.URLSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -684,6 +685,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
                         } catch (Exception ex) {
                             ex.printStackTrace();
+                        }
+                    }
+                    if(e.formatted != null && e.entities != null && NetworkConnection.file_uri_template != null && e.entities.has("files")) {
+                        UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
+                        String file_url_prefix = template.expand().toLowerCase();
+                        URLSpan[] urls = e.formatted.getSpans(0, e.formatted.length(), URLSpan.class);
+                        for(URLSpan url : urls) {
+                            for (JsonNode file : e.entities.get("files")) {
+                                if(url.getURL().toLowerCase().startsWith(file_url_prefix) && url.getURL().contains(file.get("id").asText())) {
+                                    IRCCloudLinkMovementMethod.addFileID(url.getURL(), file.get("id").asText());
+                                }
+                            }
                         }
                     }
                 }
@@ -2931,6 +2944,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     private synchronized void refresh(MessageAdapter adapter, TreeMap<Long, Event> events) {
         ImageList.getInstance().clear();
+        IRCCloudLinkMovementMethod.clearFileIDs();
         msgids.clear();
         earliest_eid = 0;
         pref_24hr = false;

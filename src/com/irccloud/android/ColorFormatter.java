@@ -2324,25 +2324,7 @@ public class ColorFormatter {
                         if (lower.contains("?"))
                             lower = lower.substring(0, lower.indexOf("?"));
 
-                        boolean isImageEnt = false;
-                        if (entities != null && entities.has("files")) {
-                            if (NetworkConnection.file_uri_template != null) {
-                                UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
-                                for (JsonNode file : entities.get("files")) {
-                                    String file_url = template.set("id", file.get("id").asText()).expand();
-                                    String u = file_url.toLowerCase();
-                                    String extension = file.hasNonNull("extension")?file.get("extension").asText():("." + file.get("mime_type").asText().substring(6));
-                                    isImageEnt = ((lower.equals(u) || lower.startsWith(u + "/")) && file.get("mime_type").asText().startsWith("image/"));
-                                    if (isImageEnt) {
-                                        if(!lower.endsWith(extension.toLowerCase()))
-                                            url = template.set("name", file.get("id").asText() + extension).expand();
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (isImageEnt || ImageList.isImageURL(lower)) {
+                        if (ImageList.isImageURL(lower)) {
                             if (lower.startsWith("http://"))
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url.substring(7);
                             else if (lower.startsWith("https://"))
@@ -2355,28 +2337,7 @@ public class ColorFormatter {
                         if (lower.contains("?"))
                             lower = lower.substring(0, lower.indexOf("?"));
 
-                        boolean isVideoEnt = false;
-                        if (entities != null && entities.has("files")) {
-                            if (NetworkConnection.file_uri_template != null) {
-                                UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
-                                for (JsonNode file : entities.get("files")) {
-                                    String file_url = template.set("id", file.get("id").asText()).expand();
-                                    String u = file_url.toLowerCase();
-                                    String mime = file.get("mime_type").asText();
-                                    isVideoEnt = ((lower.equals(u) || lower.startsWith(u + "/")) && (
-                                            mime.equals("video/mp4") ||
-                                                    mime.equals("video/webm") ||
-                                                    mime.equals("video/3gpp")
-                                    ));
-                                    if (isVideoEnt) {
-                                        url = file_url;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (isVideoEnt || lower.matches("(^.*/.*\\.3gpp?)|(^.*/.*\\.mp4$)|(^.*/.*\\.m4v$)|(^.*/.*\\.webm$)")) {
+                        if (lower.matches("(^.*/.*\\.3gpp?)|(^.*/.*\\.mp4$)|(^.*/.*\\.m4v$)|(^.*/.*\\.webm$)")) {
                             if (lower.startsWith("http://"))
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME) + "://" + url.substring(7);
                             else if (lower.startsWith("https://"))
@@ -2391,9 +2352,9 @@ public class ColorFormatter {
                                 String paste_url = template.set("id", paste.get("id").asText()).expand();
                                 if (url.startsWith(paste_url)) {
                                     if (url.toLowerCase().startsWith("http://"))
-                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(7) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean() ? "1" : "0");
+                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(7) + "?id=" + paste.get("id").asText();
                                     else
-                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(8) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean() ? "1" : "0");
+                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(8) + "?id=" + paste.get("id").asText();
                                 }
                             }
                         }

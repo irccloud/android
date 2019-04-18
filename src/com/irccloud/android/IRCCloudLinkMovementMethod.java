@@ -21,30 +21,139 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Browser;
 import androidx.browser.customtabs.CustomTabsIntent;
 import android.text.Layout;
+import android.text.NoCopySpan;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.samsung.android.sdk.multiwindow.SMultiWindowActivity;
+import com.damnhandy.uri.template.UriTemplate;
+import com.irccloud.android.data.collection.ImageList;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 
 public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
     private static IRCCloudLinkMovementMethod instance = null;
+    private static HashMap<String, String> file_ids = new HashMap<>();
+
+    private static class FetchFileIDTask extends AsyncTaskEx<String, Void, JSONObject> {
+        public Uri original_url;
+        public Context context;
+
+        @Override
+        protected JSONObject doInBackground(String... params) {
+            if(!isCancelled()) {
+                try {
+                    Thread.sleep(1000);
+                    return NetworkConnection.getInstance().fetchJSON("https://" + NetworkConnection.IRCCLOUD_HOST + "/file/json/" + params[0]);
+                } catch (Exception e) {
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject result) {
+            if(!isCancelled()) {
+                try {
+                    if (result != null && result.has("mime_type")) {
+                        UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
+                        template.set("id", result.getString("id"));
+                        String mime_type = result.getString("mime_type");
+                        String extension = result.has("extension") ? result.getString("extension") : null;
+                        if(extension == null || extension.length() == 0)
+                            extension = "." + mime_type.substring(mime_type.indexOf("/") + 1);
+
+                        String name = result.has("name") ? result.getString("name") : "";
+                        if(!name.toLowerCase().endsWith(extension.toLowerCase()))
+                            name = result.getString("id") +  extension;
+
+                        template.set("name", name);
+
+                        if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
+                            if(ImageList.isImageURL(template.expand())) {
+                                original_url = Uri.parse(IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + template.expand().substring(4));
+                            }
+                        }
+
+                        if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("videoviewer", true)) {
+                            if(mime_type.equals("video/mp4") || mime_type.equals("video/webm") || mime_type.equals("video/3gpp") || name.toLowerCase().matches("(^.*/.*\\.3gpp?)|(^.*/.*\\.mp4$)|(^.*/.*\\.m4v$)|(^.*/.*\\.webm$)")) {
+                                original_url = Uri.parse(IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME) + template.expand().substring(4));
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                launchBrowser(original_url, context);
+            }
+        }
+    }
+
 
     public synchronized static IRCCloudLinkMovementMethod getInstance() {
         if (instance == null)
             instance = new IRCCloudLinkMovementMethod();
         return instance;
+    }
+
+    @Override
+    protected boolean handleMovementKey(TextView widget, Spannable buffer, int keyCode, int movementMetaState, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+                if (KeyEvent.metaStateHasNoModifiers(movementMetaState)) {
+                    if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                        Layout layout = widget.getLayout();
+                        int padding = widget.getTotalPaddingTop() + widget.getTotalPaddingBottom();
+                        int areaTop = widget.getScrollY();
+                        int areaBot = areaTop + widget.getHeight() - padding;
+                        int lineTop = layout.getLineForVertical(areaTop);
+                        int lineBot = layout.getLineForVertical(areaBot);
+                        int first = layout.getLineStart(lineTop);
+                        int last = layout.getLineEnd(lineBot);
+                        int a = Selection.getSelectionStart(buffer);
+                        int b = Selection.getSelectionEnd(buffer);
+                        int selStart = Math.min(a, b);
+                        int selEnd = Math.max(a, b);
+                        if (selStart < 0) {
+                            if (buffer.getSpanStart(FROM_BELOW) >= 0) {
+                                selStart = selEnd = buffer.length();
+                            }
+                        }
+                        if (selStart > last)
+                            selStart = selEnd = Integer.MAX_VALUE;
+                        if (selEnd < first)
+                            selStart = selEnd = -1;
+
+                        if (selStart == selEnd) {
+                            return false;
+                        }
+                        URLSpan[] links = buffer.getSpans(selStart, selEnd, URLSpan.class);
+                        if (links.length != 1) {
+                            return false;
+                        }
+
+                        launchURI(Uri.parse(links[0].getURL()), widget.getContext());
+
+                        return true;
+                    }
+                }
+                break;
+        }
+        return super.handleMovementKey(widget, buffer, keyCode, movementMetaState, event);
     }
 
     @Override
@@ -78,8 +187,28 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
         return false;
     }
 
+    public static void clearFileIDs() {
+        file_ids.clear();
+    }
+
+    public static void addFileID(String url, String file_id) {
+        file_ids.put(url, file_id);
+    }
+
     public static void launchURI(Uri uri, Context context) {
-        if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 && uri.getScheme().startsWith("http") && CustomTabsHelper.getPackageNameToUse(context) != null) {
+        if(file_ids.containsKey(uri.toString())) {
+            FetchFileIDTask task = new FetchFileIDTask();
+            task.original_url = uri;
+            task.context = context;
+            task.execute(file_ids.get(uri.toString()));
+            return;
+        }
+
+        launchBrowser(uri, context);
+    }
+
+    private static void launchBrowser(Uri uri, Context context) {
+        if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false) && uri.getScheme().startsWith("http") && CustomTabsHelper.getPackageNameToUse(context) != null) {
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
             builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
             builder.addDefaultShareMenuItem();
@@ -103,4 +232,6 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             }
         }
     }
+
+    private static Object FROM_BELOW = new NoCopySpan.Concrete();
 }
