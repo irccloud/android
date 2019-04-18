@@ -605,7 +605,7 @@ public class NetworkConnection {
 
     public JSONObject fetchJSON(String url) throws IOException {
         try {
-            String response = fetch(new URL(url), null, null, null, null);
+            String response = fetch(new URL(url), null, session, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);

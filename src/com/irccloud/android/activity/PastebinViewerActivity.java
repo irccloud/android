@@ -62,10 +62,13 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
+import com.irccloud.android.data.model.Pastebin;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PastebinViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
     private class FetchPastebinTask extends AsyncTaskEx<Void, Void, String> {
@@ -85,6 +88,19 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         protected String doInBackground(Void... params) {
             if(!isCancelled()) {
                 try {
+                    Pattern p = Pattern.compile("/pastebin/([^/.&?]+)");
+                    Matcher m = p.matcher(url);
+
+                    if(m.find()) {
+                        Pastebin pb = Pastebin.fetch(m.group(1));
+                        if(pb != null) {
+                            if(url.contains("?"))
+                                url += "&";
+                            else
+                                url += "?";
+                            url += "own_paste=" + (pb.isOwn_paste() ? "1" : "0");
+                        }
+                    }
                     Thread.sleep(1000);
                     return NetworkConnection.getInstance().fetch(new URL(url), null, null, null, null);
                 } catch (Exception e) {
