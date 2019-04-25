@@ -5373,7 +5373,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     view = getDialogTextPrompt();
                     prompt = view.findViewById(R.id.prompt);
                     input = view.findViewById(R.id.textInput);
-                    input.setText(event.msg);
+                    input.setText(Html.fromHtml(event.msg, Html.FROM_HTML_MODE_COMPACT));
                     prompt.setText("Edit Message");
                     builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setView(view);
