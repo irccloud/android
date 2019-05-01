@@ -68,8 +68,8 @@ android {
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 226
-        versionName "4.16.1"
+        versionCode 227
+        versionName "4.17"
         minSdkVersion 17
         targetSdkVersion 28
         multiDexEnabled true
