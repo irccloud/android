@@ -2071,6 +2071,7 @@ public class NetworkConnection {
                     editor.putBoolean("chat-nocodespan", !(userInfo.prefs.has("chat-nocodespan") && userInfo.prefs.get("chat-nocodespan") instanceof Boolean && userInfo.prefs.getBoolean("chat-nocodespan")));
                     editor.putBoolean("chat-nocodeblock", !(userInfo.prefs.has("chat-nocodeblock") && userInfo.prefs.get("chat-nocodeblock") instanceof Boolean && userInfo.prefs.getBoolean("chat-nocodeblock")));
                     editor.putBoolean("chat-noquote", !(userInfo.prefs.has("chat-noquote") && userInfo.prefs.get("chat-noquote") instanceof Boolean && userInfo.prefs.getBoolean("chat-noquote")));
+                    editor.putBoolean("chat-nocolor", !(userInfo.prefs.has("chat-nocolor") && userInfo.prefs.get("chat-nocolor") instanceof Boolean && userInfo.prefs.getBoolean("chat-nocolor")));
                     editor.putBoolean("inlineimages", (userInfo.prefs.has("inlineimages") && userInfo.prefs.get("inlineimages") instanceof Boolean && userInfo.prefs.getBoolean("inlineimages")));
                     if(userInfo.prefs.has("theme") && !prefs.contains("theme"))
                         editor.putString("theme", userInfo.prefs.getString("theme"));
@@ -2112,6 +2113,7 @@ public class NetworkConnection {
                     editor.putBoolean("chat-nocodespan", true);
                     editor.putBoolean("chat-nocodeblock", true);
                     editor.putBoolean("chat-noquote", true);
+                    editor.putBoolean("chat-nocolor", true);
                     editor.putBoolean("inlineimages", false);
                     editor.putBoolean("avatar-images", false);
                 }

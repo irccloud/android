@@ -237,6 +237,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_replyCollapse = false;
     private boolean pref_mentionColors = false;
     private boolean pref_muted = false;
+    private boolean pref_noColor = false;
 
     private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
@@ -2018,7 +2019,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     currentCollapsedEid = -1;
                     lastCollapsedEid = -1;
                     collapsedEvents.clear();
-                    String msg = event.msg;
+                    String msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
                     if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                         msg = "<large>" + msg + "</large>";
 
@@ -2072,7 +2073,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 event.html = event.msg + " by the server <b>" + event.server + "</b>";
                             break;
                         case "buffer_me_msg":
-                            msg = event.msg;
+                            msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
                             if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                                 msg = "<large>" + msg + "</large>";
                             event.html = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
@@ -2083,7 +2084,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.code_block = false;
                             event.mention_offset = type.equals("notice")?5:0;
                             event.color = ColorScheme.getInstance().messageTextColor;
-                            msg = event.msg;
+                            msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
                             if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                                 msg = "<large>" + msg + "</large>";
 
@@ -2234,7 +2235,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             else
                                 event.html += " kicked by the server \u0004" + collapsedNickColor + event.nick + "\u000f";
                             if (event.msg != null && event.msg.length() > 0 && !event.msg.equals(event.nick))
-                                event.html += ": " + event.msg;
+                                event.html += ": " + (pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg);
                             break;
                         case "callerid":
                             event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false) + "</b> (" + event.hostmask + ") " + event.msg + " Tap to accept.";
@@ -2967,6 +2968,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_avatarImages = false;
         pref_mentionColors = false;
         pref_muted = false;
+        pref_noColor = false;
         buffer_usermask = null;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
@@ -3091,6 +3093,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         pref_muted = false;
                 }
 
+                pref_noColor = (prefs.has("chat-nocolor") && prefs.get("chat-nocolor") instanceof Boolean && prefs.getBoolean("chat-nocolor"));
+                if (prefs.has(pref_type + "-chat-nocolor")) {
+                    JSONObject noColorMap = prefs.getJSONObject(pref_type + "-chat-nocolor");
+                    if (noColorMap.has(String.valueOf(buffer.getBid())) && noColorMap.getBoolean(String.valueOf(buffer.getBid())))
+                        pref_noColor = true;
+                }
+                if (prefs.has(pref_type + "-chat-color")) {
+                    JSONObject colorMap = prefs.getJSONObject(pref_type + "-chat-color");
+                    if (colorMap.has(String.valueOf(buffer.getBid())) && colorMap.getBoolean(String.valueOf(buffer.getBid())))
+                        pref_noColor = false;
+                }
+
                 if(msgid != null && msgid.length() > 0)
                     pref_replyCollapse = false;
             } catch (JSONException e1) {
@@ -3127,6 +3141,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (conn.getReconnectTimestamp() == 0)
                 conn.cancel_idle_timer(); //This may take a while...
             collapsedEvents.clear();
+            collapsedEvents.noColor = pref_noColor;
             currentCollapsedEid = -1;
             lastCollapsedDay = -1;
 

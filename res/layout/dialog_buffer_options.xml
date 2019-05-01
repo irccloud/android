@@ -110,5 +110,12 @@
             android:layout_height="48dp"
             android:text="Embed external media"
             android:textSize="16sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/formatColors"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Format colours"
+            android:textSize="16sp" />
     </LinearLayout>
 </ScrollView>

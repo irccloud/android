@@ -2921,4 +2921,76 @@ public class ColorFormatter {
 
         return builder.toString();
     }
+
+    public static String strip_colors(String msg) {
+        if (msg == null)
+            return "";
+
+        int pos = 0;
+        StringBuilder builder = new StringBuilder(msg);
+
+        try {
+            while (pos < builder.length()) {
+                if (builder.charAt(pos) == 0x03 || builder.charAt(pos) == 0x04) { //Color
+                    boolean rgb = (builder.charAt(pos) == 4);
+                    int count = 0;
+                    String new_fg = "", new_bg = "";
+                    builder.deleteCharAt(pos);
+                    if (pos < builder.length()) {
+                        while (pos + count < builder.length() && (
+                                (builder.charAt(pos + count) >= '0' && builder.charAt(pos + count) <= '9') ||
+                                        rgb && ((builder.charAt(pos + count) >= 'a' && builder.charAt(pos + count) <= 'f') ||
+                                                (builder.charAt(pos + count) >= 'A' && builder.charAt(pos + count) <= 'F')))) {
+                            if ((++count == 2 && !rgb) || count == 6)
+                                break;
+                        }
+                        if (count > 0) {
+                            if (count < 3 && !rgb) {
+                                try {
+                                    int col = Integer.parseInt(builder.substring(pos, pos + count));
+                                    if (col > COLOR_MAP.length) {
+                                        count--;
+                                    }
+                                } catch (NumberFormatException e) {
+                                }
+                            }
+                            builder.delete(pos, pos + count);
+                        }
+                        if (pos < builder.length() && builder.charAt(pos) == ',') {
+                            builder.deleteCharAt(pos);
+                            count = 0;
+                            while (pos + count < builder.length() && (
+                                    (builder.charAt(pos + count) >= '0' && builder.charAt(pos + count) <= '9') ||
+                                            rgb && ((builder.charAt(pos + count) >= 'a' && builder.charAt(pos + count) <= 'f') ||
+                                                    (builder.charAt(pos + count) >= 'A' && builder.charAt(pos + count) <= 'F')))) {
+                                if ((++count == 2 && !rgb) || count == 6)
+                                    break;
+                            }
+                            if (count > 0) {
+                                if (count < 3 && !rgb) {
+                                    try {
+                                        int col = Integer.parseInt(builder.substring(pos, pos + count));
+                                        if (col > COLOR_MAP.length) {
+                                            count--;
+                                        }
+                                    } catch (NumberFormatException e) {
+                                    }
+                                }
+                                builder.delete(pos, pos + count);
+                            } else {
+                                builder.insert(pos, ",");
+                            }
+                        }
+                    }
+                } else {
+                    pos++;
+                }
+            }
+        } catch (Exception e) {
+            Crashlytics.logException(e);
+            NetworkConnection.printStackTraceToCrashlytics(e);
+        }
+
+        return builder.toString();
+    }
 }

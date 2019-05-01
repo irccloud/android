@@ -53,6 +53,7 @@ public class BufferOptionsFragment extends DialogFragment {
     private SwitchCompat replyCollapse;
     private SwitchCompat expandDisco;
     private SwitchCompat muted;
+    private SwitchCompat formatColors;
     private int cid;
     private int bid;
     private String type;
@@ -109,6 +110,8 @@ public class BufferOptionsFragment extends DialogFragment {
                     prefs = updatePref(prefs, !readOnSelect.isChecked(), pref_type + "-enableReadOnSelect");
                     prefs = updatePref(prefs, !muted.isChecked(), pref_type + "-notifications-mute");
                     prefs = updatePref(prefs, muted.isChecked(), pref_type + "-notifications-mute-disable");
+                    prefs = updatePref(prefs, !formatColors.isChecked(), pref_type + "-chat-color");
+                    prefs = updatePref(prefs, formatColors.isChecked(), pref_type + "-chat-nocolor");
                     if (type.equals("console")) {
                         prefs = updatePref(prefs, expandDisco.isChecked(), pref_type + "-expandDisco");
                     } else {
@@ -154,6 +157,7 @@ public class BufferOptionsFragment extends DialogFragment {
             replyCollapse.setChecked(false);
             expandDisco.setChecked(true);
             muted.setChecked(false);
+            formatColors.setChecked(true);
 
             if (NetworkConnection.getInstance().getUserInfo() != null) {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -283,6 +287,18 @@ public class BufferOptionsFragment extends DialogFragment {
                         else
                             expandDisco.setChecked(true);
                     }
+                    enabled = (prefs.has("chat-nocolor") && prefs.get("chat-nocolor") instanceof Boolean && prefs.getBoolean("chat-nocolor"));
+                    if (prefs.has(pref_type + "-chat-color")) {
+                        JSONObject chatColorMap = prefs.getJSONObject(pref_type + "-chat-color");
+                        if (chatColorMap.has(String.valueOf(bid)) && chatColorMap.getBoolean(String.valueOf(bid)))
+                            enabled = true;
+                    }
+                    if (prefs.has(pref_type + "-chat-nocolor")) {
+                        JSONObject chatNoColorMap = prefs.getJSONObject(pref_type + "-chat-nocolor");
+                        if (chatNoColorMap.has(String.valueOf(bid)) && chatNoColorMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
+                    }
+                    formatColors.setChecked(enabled);
                 }
             }
             if (!getActivity().getResources().getBoolean(R.bool.isTablet))
@@ -310,6 +326,7 @@ public class BufferOptionsFragment extends DialogFragment {
         autosuggest = v.findViewById(R.id.autosuggest);
         readOnSelect = v.findViewById(R.id.readOnSelect);
         inlineFiles = v.findViewById(R.id.inlineFiles);
+        formatColors = v.findViewById(R.id.formatColors);
         inlineImages = v.findViewById(R.id.inlineImages);
         inlineImages.setOnClickListener(new View.OnClickListener() {
             @Override

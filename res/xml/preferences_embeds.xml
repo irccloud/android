@@ -46,6 +46,10 @@
 			android:summaryOff="Thumbnails will only be downloaded while connected to Wi-Fi"
 			android:title="Download thumbnails over mobile data"/>
 		<SwitchPreference
+			android:key="chat-nocolor"
+			android:defaultValue="true"
+			android:title="Format colours"/>
+		<SwitchPreference
 			android:key="chat-nocodespan"
 			android:defaultValue="false"
 			android:title="Format inline code"

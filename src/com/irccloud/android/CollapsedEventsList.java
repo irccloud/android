@@ -58,6 +58,7 @@ public class CollapsedEventsList {
     public static final int MODE_COUNT = 12;
 
     public boolean showChan = false;
+    public boolean noColor = false;
 
     private String collapsedNickColor = null;
 
@@ -711,7 +712,7 @@ public class CollapsedEventsList {
                             message.append(" (").append(e.hostmask).append(")");
                     }
                     if (e.msg != null && e.msg.length() > 0)
-                        message.append(": ").append(e.msg);
+                        message.append(": ").append(noColor ? ColorFormatter.strip_colors(e.msg) : e.msg);
                     break;
                 case TYPE_QUIT:
                     if(!contentDescription)
@@ -725,7 +726,7 @@ public class CollapsedEventsList {
                             message.append(": ");
                     }
                     if (e.msg != null && e.msg.length() > 0)
-                        message.append(e.msg);
+                        message.append(noColor ? ColorFormatter.strip_colors(e.msg) : e.msg);
                     break;
                 case TYPE_NICKCHANGE:
                     message.append(e.old_nick);
