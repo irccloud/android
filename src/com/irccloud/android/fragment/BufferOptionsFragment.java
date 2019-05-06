@@ -287,7 +287,7 @@ public class BufferOptionsFragment extends DialogFragment {
                         else
                             expandDisco.setChecked(true);
                     }
-                    enabled = (prefs.has("chat-nocolor") && prefs.get("chat-nocolor") instanceof Boolean && prefs.getBoolean("chat-nocolor"));
+                    enabled = !(prefs.has("chat-nocolor") && prefs.get("chat-nocolor") instanceof Boolean && prefs.getBoolean("chat-nocolor"));
                     if (prefs.has(pref_type + "-chat-color")) {
                         JSONObject chatColorMap = prefs.getJSONObject(pref_type + "-chat-color");
                         if (chatColorMap.has(String.valueOf(bid)) && chatColorMap.getBoolean(String.valueOf(bid)))
