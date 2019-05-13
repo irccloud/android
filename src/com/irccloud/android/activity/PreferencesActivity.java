@@ -980,6 +980,9 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
 
             final RadioGroup group = v.findViewById(R.id.radioGroup);
             switch(ColorScheme.getUserTheme()) {
+                case "system_default":
+                    group.check(R.id.system_default);
+                    break;
                 case "dawn":
                     group.check(R.id.dawn);
                     break;
@@ -1014,6 +1017,9 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 public void onClick(DialogInterface dialog, int which) {
                     String theme = ColorScheme.getUserTheme();
                     switch(group.getCheckedRadioButtonId()) {
+                        case R.id.system_default:
+                            theme = "system_default";
+                            break;
                         case R.id.dawn:
                             theme = "dawn";
                             break;

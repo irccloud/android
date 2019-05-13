@@ -18,9 +18,12 @@ package com.irccloud.android;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
+
+import androidx.core.os.BuildCompat;
 
 public class ColorScheme {
     private static ColorScheme instance = new ColorScheme();
@@ -30,7 +33,7 @@ public class ColorScheme {
     }
 
     public static String getUserTheme() {
-        return PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("theme", "dawn");
+        return PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("theme", "system_default");
     }
 
     public static int getIRCColor(int color, boolean background) {
@@ -65,8 +68,13 @@ public class ColorScheme {
             case "midnight":
                 return actionbar?R.style.midnight:R.style.midnightNoActionBar;
             default:
-                return actionbar?R.style.dawn:R.style.dawnNoActionBar;
+                return getSystemDarkMode()?(actionbar?R.style.midnight:R.style.midnightNoActionBar):(actionbar?R.style.dawn:R.style.dawnNoActionBar);
         }
+    }
+
+    public static boolean getSystemDarkMode() {
+        int currentNightMode = IRCCloudApplication.getInstance().getApplicationContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
     public static int getDialogTheme(String theme) {
@@ -90,7 +98,7 @@ public class ColorScheme {
             case "midnight":
                 return R.style.midnightDialog;
             default:
-                return R.style.dawnDialog;
+                return getSystemDarkMode()?R.style.midnightDialog:R.style.dawnDialog;
         }
     }
 
@@ -115,7 +123,7 @@ public class ColorScheme {
             case "midnight":
                 return R.style.midnightDialogWhenLarge;
             default:
-                return R.style.dawnDialogWhenLarge;
+                return getSystemDarkMode()?R.style.midnightDialogWhenLarge:R.style.dawnDialogWhenLarge;
         }
     }
 

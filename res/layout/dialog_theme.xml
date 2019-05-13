@@ -31,6 +31,20 @@
             android:layout_height="wrap_content"
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
+            android:text="System Default"
+            android:layout_marginTop="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:background="?attr/selectableItemBackground"
+            android:id="@+id/system_default"/>
+
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Dawn"
             android:layout_marginTop="8dp"
             android:paddingTop="8dp"

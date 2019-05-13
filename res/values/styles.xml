@@ -16,6 +16,7 @@
 
 <resources>
     <style name="LoginTheme" parent="Theme.AppCompat.Light">
+        <item name="android:forceDarkAllowed">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowBackground">@color/loginBackgroundColor</item>

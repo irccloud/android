@@ -267,7 +267,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO = 5;
     private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT = 6;
 
-    private String theme;
+    private int theme;
 
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
@@ -500,8 +500,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        theme = ColorScheme.getUserTheme();
-        setTheme(ColorScheme.getTheme(theme, false));
+        theme = ColorScheme.getTheme(ColorScheme.getUserTheme(), false);
+        setTheme(theme);
         suggestionsTimer = new Timer("suggestions-timer");
         countdownTimer = new Timer("messsage-countdown-timer");
 
@@ -1909,12 +1909,26 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if(theme != ColorScheme.getTheme(ColorScheme.getUserTheme(), false)) {
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme configuration changed");
+            theme = ColorScheme.getTheme(ColorScheme.getUserTheme(), true);
+            setTheme(theme);
+            ColorScheme.getInstance().setThemeFromContext(this, ColorScheme.getUserTheme());
+            EventsList.getInstance().clearCaches();
+            AvatarsList.getInstance().clear();
+            recreate();
+        }
+    }
+
     @SuppressLint("NewApi")
     @Override
     public void onResume() {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
 
-        if(!theme.equals(ColorScheme.getUserTheme())) {
+        if(theme != ColorScheme.getTheme(ColorScheme.getUserTheme(), false)) {
             super.onResume();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
             drawerLayout.postDelayed(new Runnable() {
