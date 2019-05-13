@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2015 IRCCloud, Ltd.
+  ~ Copyright (c) 2019 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,6 +15,13 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <bool name="directShare">true</bool>
-</resources>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <share-target android:targetClass="com.irccloud.android.activity.ShareChooserActivity">
+        <data android:mimeType="application/*" />
+        <data android:mimeType="audio/*" />
+        <data android:mimeType="image/*" />
+        <data android:mimeType="text/*" />
+        <data android:mimeType="video/*" />
+        <category android:name="com.irccloud.android.SHARE_TARGET" />
+    </share-target>
+</shortcuts>

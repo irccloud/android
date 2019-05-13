@@ -17,5 +17,4 @@
 
 <resources>
     <bool name="isTablet">false</bool>
-    <bool name="directShare">false</bool>
 </resources>

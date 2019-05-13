@@ -2235,6 +2235,7 @@ public class NetworkConnection {
                 NotificationsList.getInstance().deleteOldNotifications();
                 NotificationsList.getInstance().pruneNotificationChannels();
                 mRecentConversations.prune();
+                mRecentConversations.publishShortcuts();
                 process_pending_edits();
                 if (userInfo != null && userInfo.connections > 0 && (mServers.count() == 0 || mBuffers.count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
@@ -2559,10 +2560,6 @@ public class NetworkConnection {
                     mEvents.clearPendingEvents(event.bid);
                 }
 
-                if(event.self) {
-                    mRecentConversations.updateConversation(event.cid, event.bid, event.eid / 1000);
-                }
-
                 if(b != null && b.isConversation() && b.getName().equalsIgnoreCase(event.from) && event.isMessage()) {
                     String avatar = event.getAvatarURL(512);
                     mRecentConversations.updateAvatar(event.cid, event.bid, avatar);
@@ -2575,6 +2572,12 @@ public class NetworkConnection {
                         }
                     } catch (Exception e) {
                     }
+                }
+
+                if(event.self) {
+                    mRecentConversations.updateConversation(event.cid, event.bid, event.eid / 1000);
+                    if(!backlog)
+                        mRecentConversations.publishShortcuts();
                 }
 
                 if (!backlog) {

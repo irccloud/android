@@ -355,7 +355,8 @@ tasks.whenTaskAdded { task ->
 
 dependencies {
     implementation 'android.arch.work:work-runtime:1.0.1'
-    implementation "androidx.appcompat:appcompat:1.0.2"
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha05'
+    implementation 'androidx.sharetarget:sharetarget:1.0.0-alpha01'
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.0.0"
     implementation "androidx.recyclerview:recyclerview:1.0.0"

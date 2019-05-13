@@ -137,6 +137,9 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
             if(getIntent() != null && getIntent().hasExtra("bid")) {
                 onBufferSelected(getIntent().getIntExtra("bid", -1));
             }
+            if(getIntent() != null && getIntent().hasExtra(/*Intent.EXTRA_SHORTCUT_ID*/"android.intent.extra.shortcut.ID")) {
+                onBufferSelected(Integer.valueOf(getIntent().getStringExtra(/*Intent.EXTRA_SHORTCUT_ID*/"android.intent.extra.shortcut.ID")));
+            }
         } else {
             Toast.makeText(this, "You must login to the IRCCloud app before sharing", Toast.LENGTH_SHORT).show();
             finish();

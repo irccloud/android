@@ -102,6 +102,9 @@
             android:theme="@style/LaunchTheme"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:configChanges="uiMode">
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -409,6 +412,10 @@
             android:name=".activity.ShareChooserActivity"
             android:excludeFromRecents="true"
             android:theme="@style/dawnDialog">
+            <meta-data
+                android:name="android.service.chooser.chooser_target_service"
+                android:value="androidx.sharetarget.ChooserTargetServiceCompat" />
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -425,10 +432,6 @@
                 <data android:mimeType="text/*" />
                 <data android:mimeType="video/*" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.service.chooser.chooser_target_service"
-                android:value=".ConversationChooserTargetService" />
         </activity>
         <activity
             android:name=".activity.QuickReplyActivity"
@@ -450,16 +453,6 @@
             android:value="${CRASHLYTICS_KEY}" />
 
         <!-- <service android:name=".CrashlyticsLeakService" /> -->
-
-        <service
-            android:name=".ConversationChooserTargetService"
-            android:enabled="@bool/directShare"
-            android:label="@string/app_name"
-            android:permission="android.permission.BIND_CHOOSER_TARGET_SERVICE">
-            <intent-filter>
-                <action android:name="android.service.chooser.ChooserTargetService" />
-            </intent-filter>
-        </service>
 
         <provider
             android:name="androidx.core.content.FileProvider"

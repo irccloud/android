@@ -16,12 +16,34 @@
 
 package com.irccloud.android.data.collection;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.ShortcutManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Icon;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.service.chooser.ChooserTarget;
+import android.util.TypedValue;
+
+import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.data.IRCCloudDatabase;
+import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.RecentConversation;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
+import androidx.core.app.Person;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -61,6 +83,7 @@ public class RecentConversationsList {
 
     public void clear() {
         IRCCloudDatabase.getInstance().RecentConversationsDao().clear();
+        ShortcutManagerCompat.removeAllDynamicShortcuts(IRCCloudApplication.getInstance().getApplicationContext());
     }
 
     public List<RecentConversation> getConversations() {
@@ -118,5 +141,62 @@ public class RecentConversationsList {
             IRCCloudDatabase.getInstance().RecentConversationsDao().delete(last);
         }
         IRCCloudDatabase.getInstance().endTransaction();
+    }
+
+    public void publishShortcuts() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            IconCompat channelIcon = Build.VERSION.SDK_INT < Build.VERSION_CODES.O ?
+                    IconCompat.createWithBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false)) :
+                    IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false));
+
+            HashSet<String> categories = new HashSet<>();
+            categories.add("com.irccloud.android.SHARE_TARGET");
+
+            ArrayList<ShortcutInfoCompat> shortcuts = new ArrayList<>();
+            List<RecentConversation> conversations = getConversations();
+            for(RecentConversation c : conversations) {
+                Buffer b = BuffersList.getInstance().getBuffer(c.getBid());
+                if(b == null) {
+                    BuffersList.getInstance().createBuffer(c.getBid(), c.getCid(), 0, 0, c.getName(), c.getType(), 0, 1, 0, 0);
+                    b = BuffersList.getInstance().getBuffer(c.getBid());
+                }
+                IconCompat avatar = null;
+                if(b.isConversation()) {
+                    try {
+                        if (c.getAvatar_url() != null && c.getAvatar_url().length() > 0 && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
+                            Bitmap bitmap = ImageList.getInstance().getImage(new URL(c.getAvatar_url()));
+                            if (bitmap != null)
+                                avatar = IconCompat.createWithBitmap(bitmap);
+                        }
+                    } catch (Exception e) {
+                    }
+
+                    if(avatar == null) {
+                        avatar = (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ?
+                                IconCompat.createWithBitmap(AvatarsList.getInstance().getAvatar(c.getCid(), c.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()))) :
+                                IconCompat.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.getCid(), c.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false))
+                        );
+                    }
+                }
+
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+
+                ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(c.getBid()))
+                        .setShortLabel(c.getName())
+                        .setIcon(c.getType().equals("channel")?channelIcon:avatar)
+                        .setIntent(i)
+                        .setLongLived()
+                        .setCategories(categories);
+
+                if(b.isConversation())
+                    builder.setPerson(new Person.Builder().setName(b.getDisplayName()).build());
+
+                shortcuts.add(builder.build());
+            }
+
+            ShortcutManagerCompat.removeAllDynamicShortcuts(IRCCloudApplication.getInstance().getApplicationContext());
+            ShortcutManagerCompat.addDynamicShortcuts(IRCCloudApplication.getInstance().getApplicationContext(), shortcuts);
+        }
     }
 }
