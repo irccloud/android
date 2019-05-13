@@ -116,6 +116,11 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.view.textclassifier.ConversationAction;
+import android.view.textclassifier.ConversationActions;
+import android.view.textclassifier.TextClassificationManager;
+import android.view.textclassifier.TextClassifier;
+import android.view.textclassifier.TextLinks;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -218,6 +223,7 @@ import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import static android.view.textclassifier.TextLinks.APPLY_STRATEGY_IGNORE;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_FILE;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_THUMBNAIL;
 

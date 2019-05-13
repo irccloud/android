@@ -16,6 +16,7 @@
 
 package com.irccloud.android;
 
+import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -39,6 +40,9 @@ import android.text.util.Linkify.MatchFilter;
 import android.text.util.Linkify.TransformFilter;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.textclassifier.TextClassificationManager;
+import android.view.textclassifier.TextClassifier;
+import android.view.textclassifier.TextLinks;
 
 import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
@@ -57,6 +61,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2418,6 +2423,20 @@ public class ColorFormatter {
             });
         }
 
+        if(linkify && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            try {
+                TextClassifier tc = IRCCloudApplication.getInstance().getSystemService(TextClassificationManager.class).getTextClassifier();
+                tc.generateLinks(new TextLinks.Request.Builder(output).build()).apply(output, TextLinks.APPLY_STRATEGY_IGNORE, new Function<TextLinks.TextLink, TextLinks.TextLinkSpan>() {
+                    @Override
+                    public TextLinks.TextLinkSpan apply(TextLinks.TextLink textLink) {
+                        return new TextLinkSpanNoUnderline(textLink);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         URLSpan[] spans = output.getSpans(0, output.length(), URLSpan.class);
         for (URLSpan span : spans) {
             int start = output.getSpanStart(span);
@@ -2528,6 +2547,20 @@ public class ColorFormatter {
     public static class URLSpanNoUnderline extends URLSpan {
         public URLSpanNoUnderline(String url) {
             super(url);
+        }
+
+        @Override
+        public void updateDrawState(TextPaint ds) {
+            boolean keepUnderline = ds.isUnderlineText();
+            super.updateDrawState(ds);
+            ds.setUnderlineText(keepUnderline);
+        }
+    }
+
+    @TargetApi(28)
+    public static class TextLinkSpanNoUnderline extends TextLinks.TextLinkSpan {
+        public TextLinkSpanNoUnderline(TextLinks.TextLink textLink) {
+            super(textLink);
         }
 
         @Override

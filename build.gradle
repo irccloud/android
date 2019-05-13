@@ -63,7 +63,7 @@ def getRevision = { ->
 }
 
 android {
-    compileSdkVersion 'android-Q'
+    compileSdkVersion "android-Q"
     buildToolsVersion '29.0.0 rc3'
     testBuildType "mockdata"
 
@@ -71,7 +71,7 @@ android {
         versionCode 228
         versionName "4.17.1"
         minSdkVersion 17
-        targetSdkVersion 28
+        targetSdkVersion "Q"
         multiDexEnabled true
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"

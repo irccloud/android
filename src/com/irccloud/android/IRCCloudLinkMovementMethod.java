@@ -29,6 +29,7 @@ import android.text.NoCopySpan;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -141,12 +142,15 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
                         if (selStart == selEnd) {
                             return false;
                         }
-                        URLSpan[] links = buffer.getSpans(selStart, selEnd, URLSpan.class);
+                        ClickableSpan[] links = buffer.getSpans(selStart, selEnd, ClickableSpan.class);
                         if (links.length != 1) {
                             return false;
                         }
 
-                        launchURI(Uri.parse(links[0].getURL()), widget.getContext());
+                        if(links[0] instanceof URLSpan)
+                            launchURI(Uri.parse(((URLSpan)links[0]).getURL()), widget.getContext());
+                        else
+                            links[0].onClick(widget);
 
                         return true;
                     }
@@ -170,14 +174,15 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             Layout layout = widget.getLayout();
             int line = layout.getLineForVertical(y);
             int off = layout.getOffsetForHorizontal(line, x);
-            URLSpan[] link = buffer.getSpans(off, off, URLSpan.class);
-            if (link.length != 0) {
+            ClickableSpan[] links = buffer.getSpans(off, off, ClickableSpan.class);
+            if (links.length != 0) {
                 if (action == MotionEvent.ACTION_UP) {
-                    Uri uri = Uri.parse(link[0].getURL());
-                    Context context = widget.getContext();
-                    launchURI(uri, context);
+                    if(links[0] instanceof URLSpan)
+                        launchURI(Uri.parse(((URLSpan)links[0]).getURL()), widget.getContext());
+                    else
+                        links[0].onClick(widget);
                 } else {
-                    Selection.setSelection(buffer, buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]));
+                    Selection.setSelection(buffer, buffer.getSpanStart(links[0]), buffer.getSpanEnd(links[0]));
                 }
                 return true;
             } else {
