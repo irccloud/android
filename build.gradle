@@ -22,7 +22,7 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.0'
+        classpath 'com.android.tools.build:gradle:3.5.0-beta01'
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -63,8 +63,8 @@ def getRevision = { ->
 }
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 'android-Q'
+    buildToolsVersion '29.0.0 rc3'
     testBuildType "mockdata"
 
     defaultConfig {
@@ -354,7 +354,7 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
-    implementation "android.arch.work:work-runtime:1.0.0"
+    implementation 'android.arch.work:work-runtime:1.0.1'
     implementation "androidx.appcompat:appcompat:1.0.2"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.0.0"
@@ -367,20 +367,20 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:16.1.0"
     implementation "com.google.android.gms:play-services-auth:16.0.1"
     implementation "com.google.android.gms:play-services-identity:16.0.0"
-    implementation "com.google.android.gms:play-services-ads:16.0.0"
-    implementation "com.google.firebase:firebase-messaging:17.5.0"
+    implementation 'com.google.android.gms:play-services-ads:16.0.0'
+    implementation 'com.google.firebase:firebase-messaging:18.0.0'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
-    implementation 'com.damnhandy:handy-uri-templates:2.0.2'
+    implementation 'com.damnhandy:handy-uri-templates:2.1.7'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.16'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation project(':android-websockets')
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
     implementation 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     implementation 'com.datatheorem.android.trustkit:trustkit:1.0.0'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.6.0'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.8@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.10.0@aar') {
         transitive = true
     }
     implementation fileTree(include: ['*.jar'], dir: 'libs')
