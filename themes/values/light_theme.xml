@@ -16,6 +16,7 @@
 
 <resources>
     <style name="LightAppTheme" parent="Theme.AppCompat.Light">
+        <item name="android:forceDarkAllowed">false</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
         <item name="android:actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:windowBackground">?windowBackgroundDrawable</item>
@@ -83,6 +84,7 @@
     </style>
 
     <style name="LightAppDialogWhenLargeTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="android:forceDarkAllowed">false</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
@@ -151,6 +153,7 @@
     </style>
 
     <style name="LightAppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:forceDarkAllowed">false</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
         <item name="android:actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:windowBackground">?windowBackgroundDrawable</item>
@@ -218,6 +221,7 @@
     </style>
 
     <style name="LightAppDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:forceDarkAllowed">false</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
@@ -238,6 +242,7 @@
     </style>
 
     <style name="LightAppAlertTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:forceDarkAllowed">false</item>
         <item name="android:windowBackground">?dialogBackgroundDrawable</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
