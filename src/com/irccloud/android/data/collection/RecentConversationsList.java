@@ -145,9 +145,8 @@ public class RecentConversationsList {
 
     public void publishShortcuts() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            IconCompat channelIcon = Build.VERSION.SDK_INT < Build.VERSION_CODES.O ?
-                    IconCompat.createWithBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false)) :
-                    IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false));
+            int MAX_SHORTCUTS = ShortcutManagerCompat.getMaxShortcutCountPerActivity(IRCCloudApplication.getInstance().getApplicationContext());
+            IconCompat channelIcon = IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false));
 
             HashSet<String> categories = new HashSet<>();
             categories.add("com.irccloud.android.SHARE_TARGET");
@@ -172,10 +171,7 @@ public class RecentConversationsList {
                     }
 
                     if(avatar == null) {
-                        avatar = (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ?
-                                IconCompat.createWithBitmap(AvatarsList.getInstance().getAvatar(c.getCid(), c.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 72, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()))) :
-                                IconCompat.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.getCid(), c.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false))
-                        );
+                        avatar = IconCompat.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.getCid(), c.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false));
                     }
                 }
 
@@ -193,7 +189,12 @@ public class RecentConversationsList {
                     builder.setPerson(new Person.Builder().setName(b.getDisplayName()).build());
 
                 shortcuts.add(builder.build());
+
+                if(shortcuts.size() >= MAX_SHORTCUTS)
+                    break;
             }
+
+            android.util.Log.d("IRCCloud", "Publishing shortcuts: " + shortcuts);
 
             ShortcutManagerCompat.removeAllDynamicShortcuts(IRCCloudApplication.getInstance().getApplicationContext());
             ShortcutManagerCompat.addDynamicShortcuts(IRCCloudApplication.getInstance().getApplicationContext(), shortcuts);

@@ -32,6 +32,7 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -2561,11 +2562,11 @@ public class NetworkConnection {
                 }
 
                 if(b != null && b.isConversation() && b.getName().equalsIgnoreCase(event.from) && event.isMessage()) {
-                    String avatar = event.getAvatarURL(512);
+                    String avatar = event.getAvatarURL((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()));
                     mRecentConversations.updateAvatar(event.cid, event.bid, avatar);
                     try {
                         if(avatar != null && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", true)) {
-                            URL url = new URL(event.getAvatarURL(512));
+                            URL url = new URL(event.getAvatarURL((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics())));
                             if (!ImageList.getInstance().cacheFile(url).exists()) {
                                 ImageList.getInstance().fetchImage(url, null);
                             }

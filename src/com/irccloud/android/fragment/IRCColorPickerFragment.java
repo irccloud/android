@@ -84,7 +84,8 @@ public class IRCColorPickerFragment extends Fragment {
     @Override
     public void setArguments(Bundle args) {
         super.setArguments(args);
-        mBackground = args.getBoolean(ARG_BACKGROUND);
+        if(args != null)
+            mBackground = args.getBoolean(ARG_BACKGROUND);
         updateColors();
     }
 

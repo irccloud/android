@@ -1749,6 +1749,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @Override
     public void setArguments(Bundle args) {
         ready = false;
+        if(args == null)
+            return;
         if (heartbeatTask != null)
             heartbeatTask.cancel(true);
         heartbeatTask = null;
