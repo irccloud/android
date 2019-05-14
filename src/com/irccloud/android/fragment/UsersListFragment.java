@@ -366,11 +366,14 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
 
     @Override
     public void setArguments(Bundle args) {
-        if(args.getInt("bid", 0) != bid && recyclerView != null)
-            recyclerView.scrollToPosition(0);
-        cid = args.getInt("cid", 0);
-        bid = args.getInt("bid", 0);
-        channel = args.getString("name");
+        if(args != null) {
+            if (args.getInt("bid", 0) != bid && recyclerView != null)
+                recyclerView.scrollToPosition(0);
+            cid = args.getInt("cid", 0);
+            bid = args.getInt("bid", 0);
+            channel = args.getString("name");
+        }
+
         if (tapTimer == null)
             tapTimer = new Timer("users-tap-timer");
 

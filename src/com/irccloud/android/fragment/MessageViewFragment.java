@@ -1757,16 +1757,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         tapTimerTask = null;
         if(tapTimer == null)
             tapTimer = new Timer("message-tap-timer");
-        if (buffer != null && buffer.getBid() != args.getInt("bid", -1) && adapter != null)
+        if (buffer != null && args != null && buffer.getBid() != args.getInt("bid", -1) && adapter != null)
             adapter.clearLastSeenEIDMarker();
-        buffer = BuffersList.getInstance().getBuffer(args.getInt("bid", -1));
+        if(args != null)
+            buffer = BuffersList.getInstance().getBuffer(args.getInt("bid", -1));
         if (buffer != null) {
             server = buffer.getServer();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: switched to bid: " + buffer.getBid());
         } else {
             Crashlytics.log(Log.WARN, "IRCCloud", "MessageViewFragment: couldn't find buffer to switch to");
         }
-        msgid = args.getString("msgid");
+        if(args != null)
+            msgid = args.getString("msgid");
         requestingBacklog = false;
         avgInsertTime = 0;
         newMsgs = 0;
@@ -1812,7 +1814,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (refreshTask != null)
                 refreshTask.cancel(true);
             refreshTask = new RefreshTask();
-            if (args.getBoolean("fade")) {
+            if (args != null && args.getBoolean("fade")) {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: Loading message contents in the background");
                 refreshTask.execute((Void) null);
             } else {
