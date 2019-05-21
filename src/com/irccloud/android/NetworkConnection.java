@@ -1097,6 +1097,9 @@ public class NetworkConnection {
                         oobTasks.clear();
                     }
 
+                    if(highest_eid <= 0)
+                        streamId = null;
+                    
                     ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo ni = cm.getActiveNetworkInfo();
                     if (state == STATE_DISCONNECTING || ni == null || !ni.isConnected())
