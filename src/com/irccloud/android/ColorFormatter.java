@@ -2019,6 +2019,49 @@ public class ColorFormatter {
         put("wastepaper_basket", "🗑️");
     }};
 
+    public static Pattern EMOJI = null;
+
+    public static final HashMap<String, String> conversionMap = new HashMap<String, String>() {{
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            put("\uD83C\uDDEF\uD83C\uDDF5", "\uDBB9\uDCE5"); // JP
+            put("\uD83C\uDDF0\uD83C\uDDF7", "\uDBB9\uDCEE"); // KR
+            put("\uD83C\uDDE9\uD83C\uDDEA", "\uDBB9\uDCE8"); // DE
+            put("\uD83C\uDDE8\uD83C\uDDF3", "\uDBB9\uDCED"); // CN
+            put("\uD83C\uDDFA\uD83C\uDDF8", "\uDBB9\uDCE6"); // US
+            put("\uD83C\uDDEB\uD83C\uDDF7", "\uDBB9\uDCE7"); // FR
+            put("\uD83C\uDDEA\uD83C\uDDF8", "\uDBB9\uDCEB"); // ES
+            put("\uD83C\uDDEE\uD83C\uDDF9", "\uDBB9\uDCE9"); // IT
+            put("\uD83C\uDDF7\uD83C\uDDFA", "\uDBB9\uDCEC"); // RU
+            put("\uD83C\uDDEC\uD83C\uDDE7", "\uDBB9\uDCEA"); // GB
+        }
+        put("\u0030\u20E3", "\uDBBA\uDC37"); // ZERO
+        put("\u0031\u20E3", "\uDBBA\uDC2E"); // ONE
+        put("\u0032\u20E3", "\uDBBA\uDC2F"); // TWO
+        put("\u0033\u20E3", "\uDBBA\uDC30"); // THREE
+        put("\u0034\u20E3", "\uDBBA\uDC31"); // FOUR
+        put("\u0035\u20E3", "\uDBBA\uDC32"); // FIVE
+        put("\u0036\u20E3", "\uDBBA\uDC33"); // SIX
+        put("\u0037\u20E3", "\uDBBA\uDC34"); // SEVEN
+        put("\u0038\u20E3", "\uDBBA\uDC35"); // EIGHT
+        put("\u0039\u20E3", "\uDBBA\uDC36"); // NINE
+        put("\u0023\u20E3", "\uDBBA\uDC2C"); // HASH
+        put("\u0030\uFE0F\u20E3", "\uDBBA\uDC37"); // ZERO
+        put("\u0031\uFE0F\u20E3", "\uDBBA\uDC2E"); // ONE
+        put("\u0032\uFE0F\u20E3", "\uDBBA\uDC2F"); // TWO
+        put("\u0033\uFE0F\u20E3", "\uDBBA\uDC30"); // THREE
+        put("\u0034\uFE0F\u20E3", "\uDBBA\uDC31"); // FOUR
+        put("\u0035\uFE0F\u20E3", "\uDBBA\uDC32"); // FIVE
+        put("\u0036\uFE0F\u20E3", "\uDBBA\uDC33"); // SIX
+        put("\u0037\uFE0F\u20E3", "\uDBBA\uDC34"); // SEVEN
+        put("\u0038\uFE0F\u20E3", "\uDBBA\uDC35"); // EIGHT
+        put("\u0039\uFE0F\u20E3", "\uDBBA\uDC36"); // NINE
+        put("\u0023\uFE0F\u20E3", "\uDBBA\uDC2C"); // HASH
+        put("\u24C2\uFE0F", "\u24c2"); // M
+        put("\u2139\uFE0F", "\u2139"); // INFORMATION_SOURCE
+        put("\u3297\uFE0F", "\u3297"); // CONGRATULATIONS
+        put("\u3299\uFE0F", "\u3299"); // SECRET
+    }};
+
     public static final HashMap<String, String> quotes = new HashMap<String, String>() {{
         put("\"", "\"");
         put("'", "'");
