@@ -23,6 +23,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -327,7 +329,54 @@ public class NetworkConnection {
         }
     };
 
-    BroadcastReceiver dataSaverListener = new BroadcastReceiver() {
+    @TargetApi(21)
+    private ConnectivityManager.NetworkCallback connectivityCallback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
+            super.onCapabilitiesChanged(network, networkCapabilities);
+
+            if(networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                if (state == STATE_CONNECTED || state == STATE_CONNECTING) {
+                    Crashlytics.log(Log.INFO, TAG, "A VPN has connected, reconnecting websocket");
+                    cancel_idle_timer();
+                    reconnect_timestamp = 0;
+                    try {
+                        state = STATE_DISCONNECTING;
+                        client.disconnect();
+                        state = STATE_DISCONNECTED;
+                        notifyHandlers(EVENT_CONNECTIVITY, null);
+                    } catch (Exception e) {
+                    }
+                }
+            }
+
+            Crashlytics.log(Log.INFO, TAG, "Connectivity changed, connected: " + networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
+
+            if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0 && !notifier) {
+                Crashlytics.log(Log.INFO, TAG, "Network became available, reconnecting");
+                if (idleTimerTask != null)
+                    idleTimerTask.cancel();
+                connect();
+            }
+        }
+
+        @Override
+        public void onLost(Network network) {
+            super.onLost(network);
+            Crashlytics.log(Log.INFO, TAG, "Network lost, disconnecting");
+            cancel_idle_timer();
+            reconnect_timestamp = 0;
+            try {
+                state = STATE_DISCONNECTING;
+                client.disconnect();
+                state = STATE_DISCONNECTED;
+                notifyHandlers(EVENT_CONNECTIVITY, null);
+            } catch (Exception e) {
+            }
+        }
+    };
+
+    private BroadcastReceiver dataSaverListener = new BroadcastReceiver() {
         @TargetApi(24)
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -789,13 +838,17 @@ public class NetworkConnection {
     @TargetApi(24)
     public void registerForConnectivity() {
         try {
-            IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                intentFilter = new IntentFilter();
+                IntentFilter intentFilter = new IntentFilter();
                 intentFilter.addAction(ConnectivityManager.ACTION_RESTRICT_BACKGROUND_CHANGED);
                 IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(dataSaverListener, intentFilter);
+
+                ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                cm.registerDefaultNetworkCallback(connectivityCallback);
+            } else {
+                IntentFilter intentFilter = new IntentFilter();
+                intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+                IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
             }
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
@@ -804,7 +857,12 @@ public class NetworkConnection {
 
     public void unregisterForConnectivity() {
         try {
-            IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                cm.unregisterNetworkCallback(connectivityCallback);
+            } else {
+                IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
+            }
         } catch (IllegalArgumentException e) {
             //The broadcast receiver hasn't been registered yet
         }
