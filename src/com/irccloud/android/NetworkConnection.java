@@ -3026,6 +3026,28 @@ public class NetworkConnection {
         });
     }};
 
+    //https://stackoverflow.com/a/11459962
+    private static JsonNode mergeJsonNode(JsonNode mainNode, JsonNode updateNode) {
+        Iterator<String> fieldNames = updateNode.fieldNames();
+        while (fieldNames.hasNext()) {
+            String fieldName = fieldNames.next();
+            JsonNode jsonNode = mainNode.get(fieldName);
+            // if field exists and is an embedded object
+            if (jsonNode != null && jsonNode.isObject()) {
+                mergeJsonNode(jsonNode, updateNode.get(fieldName));
+            }
+            else {
+                if (mainNode instanceof ObjectNode) {
+                    // Overwrite field
+                    JsonNode value = updateNode.get(fieldName);
+                    ((ObjectNode) mainNode).put(fieldName, value);
+                }
+            }
+        }
+
+        return mainNode;
+    }
+
     private synchronized void process_pending_edits() {
         ArrayList<IRCCloudJSONObject> edits = pendingEdits;
         pendingEdits = new ArrayList<>();
@@ -3067,7 +3089,11 @@ public class NetworkConnection {
                                             e.msg = "&nbsp;" + e.msg.substring(1);
                                         e.edited = true;
                                     }
-                                    e.entities = entities;
+                                    if(e.entities != null) {
+                                        mergeJsonNode(e.entities, entities);
+                                    } else {
+                                        e.entities = entities;
+                                    }
                                     e.lastEditEID = o.eid();
                                     e.formatted = null;
                                     e.html = null;
