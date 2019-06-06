@@ -195,8 +195,6 @@ public class RecentConversationsList {
                     break;
             }
 
-            android.util.Log.d("IRCCloud", "Publishing shortcuts: " + shortcuts);
-
             ShortcutManagerCompat.removeAllDynamicShortcuts(IRCCloudApplication.getInstance().getApplicationContext());
             ShortcutManagerCompat.addDynamicShortcuts(IRCCloudApplication.getInstance().getApplicationContext(), shortcuts);
         }
