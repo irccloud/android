@@ -177,6 +177,7 @@ public class RecentConversationsList {
 
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+                i.putExtra("bid", b.getBid());
 
                 ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(c.getBid()))
                         .setShortLabel(c.getName())
