@@ -492,7 +492,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             if (findPreference("image_service") != null)
                 findPreference("image_service").setSummary(PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud"));
             if(findPreference("theme") != null) {
-                String theme = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("theme", "system_default");
+                String theme = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("theme", ColorScheme.defaultTheme());
                 if(theme.equals("system_default"))
                     theme = getResources().getString(R.string.theme_system_default);
                 findPreference("theme").setSummary(theme);
@@ -986,7 +986,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             ((RadioButton) v.findViewById(R.id.midnight)).setCompoundDrawables(null, null, d, null);
 
             final RadioGroup group = v.findViewById(R.id.radioGroup);
-            switch(PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("theme", "system_default")) {
+            switch(PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("theme", ColorScheme.defaultTheme())) {
                 case "system_default":
                     group.check(R.id.system_default);
                     break;

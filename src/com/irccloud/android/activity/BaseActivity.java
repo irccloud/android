@@ -109,7 +109,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         boolean themeChanged = false;
-        String theme = PreferenceManager.getDefaultSharedPreferences(this).getString("theme", "system_default");
+        String theme = PreferenceManager.getDefaultSharedPreferences(this).getString("theme", ColorScheme.defaultTheme());
         if(theme.equals("system_default"))
             AppCompatDelegate.setDefaultNightMode((Build.VERSION.SDK_INT < 29) ? AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY : AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         else if(theme.equals("dawn"))
