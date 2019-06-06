@@ -31,14 +31,14 @@
             android:layout_height="wrap_content"
             android:button="@null"
             android:drawableRight="@drawable/btn_radio_material"
-            android:text="@string/theme_system_default"
+            android:text="@string/theme_auto"
             android:layout_marginTop="8dp"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:background="?attr/selectableItemBackground"
-            android:id="@+id/system_default"/>
+            android:id="@+id/auto"/>
 
         <RadioButton
             android:layout_width="match_parent"

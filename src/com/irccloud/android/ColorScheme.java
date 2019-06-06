@@ -35,7 +35,7 @@ public class ColorScheme {
 
     public static String getUserTheme() {
         String theme = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("theme", ColorScheme.defaultTheme());
-        if(theme.equals("system_default"))
+        if(theme.equals("auto"))
             return getSystemDarkMode() ? "midnight" : "dawn";
         return theme;
     }
@@ -87,7 +87,7 @@ public class ColorScheme {
     }
 
     public static String defaultTheme() {
-        return Build.VERSION.SDK_INT >= 29 ? "system_default" : "dawn";
+        return Build.VERSION.SDK_INT >= 29 ? "auto" : "dawn";
     }
 
     public static int getDialogTheme(String theme) {

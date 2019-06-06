@@ -493,8 +493,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 findPreference("image_service").setSummary(PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud"));
             if(findPreference("theme") != null) {
                 String theme = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("theme", ColorScheme.defaultTheme());
-                if(theme.equals("system_default"))
-                    theme = getResources().getString(R.string.theme_system_default);
+                if(theme.equals("auto"))
+                    theme = getResources().getString(R.string.theme_auto);
                 findPreference("theme").setSummary(theme);
             }
             if(findPreference("chat-oneline") != null) {
@@ -987,8 +987,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
 
             final RadioGroup group = v.findViewById(R.id.radioGroup);
             switch(PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("theme", ColorScheme.defaultTheme())) {
-                case "system_default":
-                    group.check(R.id.system_default);
+                case "auto":
+                    group.check(R.id.auto);
                     break;
                 case "dawn":
                     group.check(R.id.dawn);
@@ -1024,8 +1024,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 public void onClick(DialogInterface dialog, int which) {
                     String theme = ColorScheme.getUserTheme();
                     switch(group.getCheckedRadioButtonId()) {
-                        case R.id.system_default:
-                            theme = "system_default";
+                        case R.id.auto:
+                            theme = "auto";
                             break;
                         case R.id.dawn:
                             theme = "dawn";
