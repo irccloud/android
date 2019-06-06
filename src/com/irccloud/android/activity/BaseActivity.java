@@ -17,10 +17,12 @@
 package com.irccloud.android.activity;
 
 import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -31,8 +33,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.FileProvider;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -92,11 +97,27 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     private SMultiWindow mMultiWindow = null;
     private SMultiWindowActivity mMultiWindowActivity = null;
 
+    private BroadcastReceiver powerSaverListener = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(!ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme()))
+                recreate();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         boolean themeChanged = false;
-        String theme = ColorScheme.getUserTheme();
+        String theme = PreferenceManager.getDefaultSharedPreferences(this).getString("theme", "system_default");
+        if(theme.equals("system_default"))
+            AppCompatDelegate.setDefaultNightMode((Build.VERSION.SDK_INT < 29) ? AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY : AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        else if(theme.equals("dawn"))
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+
+        theme = ColorScheme.getUserTheme();
         if(ColorScheme.getInstance().theme == null || !ColorScheme.getInstance().theme.equals(theme)) {
             themeChanged = true;
         }
@@ -145,6 +166,12 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             mMultiWindow = null;
             mMultiWindowActivity = null;
         }
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
+            registerReceiver(powerSaverListener, intentFilter);
+        }
     }
 
     @Override
@@ -153,6 +180,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if (conn != null) {
             conn.removeHandler(this);
         }
+        unregisterReceiver(powerSaverListener);
     }
 
     public boolean isMultiWindow() {

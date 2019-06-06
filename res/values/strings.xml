@@ -60,6 +60,7 @@
     <string name="title_activity_exports">Download Logs</string>
     <string name="title_activity_avatars">Avatars</string>
     <string name="leak_canary_display_activity_label">IRCCloud Leaks</string>
+    <string name="theme_system_default">Set by Battery Saver</string>
     <string name="licenses">IRCCloud\
 Copyright &#169; 2018 IRCCloud, Ltd.\
 \

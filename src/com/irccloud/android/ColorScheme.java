@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
 
@@ -33,7 +34,10 @@ public class ColorScheme {
     }
 
     public static String getUserTheme() {
-        return PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("theme", "system_default");
+        String theme = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("theme", "system_default");
+        if(theme.equals("system_default"))
+            return getSystemDarkMode() ? "midnight" : "dawn";
+        return theme;
     }
 
     public static int getIRCColor(int color, boolean background) {
@@ -73,8 +77,13 @@ public class ColorScheme {
     }
 
     public static boolean getSystemDarkMode() {
-        int currentNightMode = IRCCloudApplication.getInstance().getApplicationContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+        if(Build.VERSION.SDK_INT < 29) {
+            PowerManager pm = (PowerManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.POWER_SERVICE);
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && pm.isPowerSaveMode();
+        } else {
+            int currentNightMode = IRCCloudApplication.getInstance().getApplicationContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+        }
     }
 
     public static int getDialogTheme(String theme) {

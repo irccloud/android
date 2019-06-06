@@ -64,7 +64,7 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 29
-    buildToolsVersion '29.0.0 rc3'
+    buildToolsVersion '29.0.0'
     testBuildType "mockdata"
 
     defaultConfig {

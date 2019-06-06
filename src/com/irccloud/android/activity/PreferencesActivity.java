@@ -488,8 +488,12 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 findPreference("imgur_account_username").setSummary(getSharedPreferences("prefs", 0).getString("imgur_account_username", null));
             if (findPreference("image_service") != null)
                 findPreference("image_service").setSummary(PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud"));
-            if(findPreference("theme") != null)
-                findPreference("theme").setSummary(ColorScheme.getUserTheme());
+            if(findPreference("theme") != null) {
+                String theme = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("theme", "system_default");
+                if(theme.equals("system_default"))
+                    theme = getResources().getString(R.string.theme_system_default);
+                findPreference("theme").setSummary(theme);
+            }
             if(findPreference("chat-oneline") != null) {
                 if(((SwitchPreference) findPreference("chat-oneline")).isChecked()) {
                     if(((SwitchPreference) findPreference("avatars-off")).isChecked()) {
@@ -979,7 +983,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             ((RadioButton) v.findViewById(R.id.midnight)).setCompoundDrawables(null, null, d, null);
 
             final RadioGroup group = v.findViewById(R.id.radioGroup);
-            switch(ColorScheme.getUserTheme()) {
+            switch(PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("theme", "system_default")) {
                 case "system_default":
                     group.check(R.id.system_default);
                     break;

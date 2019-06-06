@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
-            android:text="System Default"
+            android:text="@string/theme_system_default"
             android:layout_marginTop="8dp"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
