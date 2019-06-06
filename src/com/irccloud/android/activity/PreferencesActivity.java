@@ -25,6 +25,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
@@ -41,6 +42,8 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.drawable.DrawableCompat;
+
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.TypedValue;
@@ -947,39 +950,39 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             View v = getLayoutInflater().inflate(R.layout.dialog_theme, null);
 
             Drawable d = ((RadioButton)v.findViewById(R.id.dawn)).getCompoundDrawables()[2].mutate();
-            d.setColorFilter(getResources().getColor(R.color.dawn_theme_preview), PorterDuff.Mode.SRC_ATOP);
+            d.setColorFilter(getResources().getColor(R.color.dawn_theme_preview), PorterDuff.Mode.SRC_IN);
             ((RadioButton)v.findViewById(R.id.dawn)).setCompoundDrawables(null, null, d, null);
 
             d = ((RadioButton)v.findViewById(R.id.dusk)).getCompoundDrawables()[2].mutate();
-            d.setColorFilter(getResources().getColor(R.color.dusk_background0), PorterDuff.Mode.SRC_ATOP);
+            d.setColorFilter(getResources().getColor(R.color.dusk_background0), PorterDuff.Mode.SRC_IN);
             ((RadioButton)v.findViewById(R.id.dusk)).setCompoundDrawables(null, null, d, null);
 
             d = ((RadioButton)v.findViewById(R.id.tropic)).getCompoundDrawables()[2].mutate();
-            d.setColorFilter(getResources().getColor(R.color.tropic_background0), PorterDuff.Mode.SRC_ATOP);
+            d.setColorFilter(getResources().getColor(R.color.tropic_background0), PorterDuff.Mode.SRC_IN);
             ((RadioButton)v.findViewById(R.id.tropic)).setCompoundDrawables(null, null, d, null);
 
             d = ((RadioButton)v.findViewById(R.id.emerald)).getCompoundDrawables()[2].mutate();
-            d.setColorFilter(getResources().getColor(R.color.emerald_background0), PorterDuff.Mode.SRC_ATOP);
+            d.setColorFilter(getResources().getColor(R.color.emerald_background0), PorterDuff.Mode.SRC_IN);
             ((RadioButton)v.findViewById(R.id.emerald)).setCompoundDrawables(null, null, d, null);
 
             d = ((RadioButton)v.findViewById(R.id.sand)).getCompoundDrawables()[2].mutate();
-            d.setColorFilter(getResources().getColor(R.color.sand_background0), PorterDuff.Mode.SRC_ATOP);
+            d.setColorFilter(getResources().getColor(R.color.sand_background0), PorterDuff.Mode.SRC_IN);
             ((RadioButton)v.findViewById(R.id.sand)).setCompoundDrawables(null, null, d, null);
 
             d = ((RadioButton)v.findViewById(R.id.rust)).getCompoundDrawables()[2].mutate();
-            d.setColorFilter(getResources().getColor(R.color.rust_background0), PorterDuff.Mode.SRC_ATOP);
+            d.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.rust_background0), PorterDuff.Mode.SRC_IN));
             ((RadioButton)v.findViewById(R.id.rust)).setCompoundDrawables(null, null, d, null);
 
             d = ((RadioButton)v.findViewById(R.id.orchid)).getCompoundDrawables()[2].mutate();
-            d.setColorFilter(getResources().getColor(R.color.orchid_background0), PorterDuff.Mode.SRC_ATOP);
+            d.setColorFilter(getResources().getColor(R.color.orchid_background0), PorterDuff.Mode.SRC_IN);
             ((RadioButton)v.findViewById(R.id.orchid)).setCompoundDrawables(null, null, d, null);
 
             d = ((RadioButton)v.findViewById(R.id.ash)).getCompoundDrawables()[2].mutate();
-            d.setColorFilter(getResources().getColor(R.color.ash_background0), PorterDuff.Mode.SRC_ATOP);
+            d.setColorFilter(getResources().getColor(R.color.ash_background0), PorterDuff.Mode.SRC_IN);
             ((RadioButton)v.findViewById(R.id.ash)).setCompoundDrawables(null, null, d, null);
 
             d = ((RadioButton) v.findViewById(R.id.midnight)).getCompoundDrawables()[2].mutate();
-            d.setColorFilter(getResources().getColor(R.color.midnight_black), PorterDuff.Mode.SRC_ATOP);
+            d.setColorFilter(getResources().getColor(R.color.midnight_black), PorterDuff.Mode.SRC_IN);
             ((RadioButton) v.findViewById(R.id.midnight)).setCompoundDrawables(null, null, d, null);
 
             final RadioGroup group = v.findViewById(R.id.radioGroup);
