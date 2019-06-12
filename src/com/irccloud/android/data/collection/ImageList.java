@@ -293,6 +293,8 @@ public class ImageList {
             }
             if (bitmap != null)
                 images.put(MD5(url.toString()), bitmap);
+            else
+                cacheFile(url).delete();
         }
         return bitmap;
     }

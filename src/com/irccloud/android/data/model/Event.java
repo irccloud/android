@@ -287,6 +287,8 @@ public class Event {
             } else if (NetworkConnection.avatar_redirect_uri_template != null) {
                 if (hostmask != null && hostmask.length() > 0 && hostmask.contains("@")) {
                     String ident = hostmask.substring(0, hostmask.indexOf("@"));
+                    if(ident.startsWith("~"))
+                        ident = ident.substring(1);
                     if (ident.startsWith("uid") || ident.startsWith("sid")) {
                         ident = ident.substring(3);
                         try {
