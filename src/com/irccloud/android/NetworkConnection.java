@@ -329,52 +329,7 @@ public class NetworkConnection {
         }
     };
 
-    @TargetApi(21)
-    private ConnectivityManager.NetworkCallback connectivityCallback = new ConnectivityManager.NetworkCallback() {
-        @Override
-        public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
-            super.onCapabilitiesChanged(network, networkCapabilities);
-
-            if(networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
-                if (state == STATE_CONNECTED || state == STATE_CONNECTING) {
-                    Crashlytics.log(Log.INFO, TAG, "A VPN has connected, reconnecting websocket");
-                    cancel_idle_timer();
-                    reconnect_timestamp = 0;
-                    try {
-                        state = STATE_DISCONNECTING;
-                        client.disconnect();
-                        state = STATE_DISCONNECTED;
-                        notifyHandlers(EVENT_CONNECTIVITY, null);
-                    } catch (Exception e) {
-                    }
-                }
-            }
-
-            Crashlytics.log(Log.INFO, TAG, "Connectivity changed, connected: " + networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
-
-            if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0 && !notifier) {
-                Crashlytics.log(Log.INFO, TAG, "Network became available, reconnecting");
-                if (idleTimerTask != null)
-                    idleTimerTask.cancel();
-                connect();
-            }
-        }
-
-        @Override
-        public void onLost(Network network) {
-            super.onLost(network);
-            Crashlytics.log(Log.INFO, TAG, "Network lost, disconnecting");
-            cancel_idle_timer();
-            reconnect_timestamp = 0;
-            try {
-                state = STATE_DISCONNECTING;
-                client.disconnect();
-                state = STATE_DISCONNECTED;
-                notifyHandlers(EVENT_CONNECTIVITY, null);
-            } catch (Exception e) {
-            }
-        }
-    };
+    private ConnectivityManager.NetworkCallback connectivityCallback;
 
     private BroadcastReceiver dataSaverListener = new BroadcastReceiver() {
         @TargetApi(24)
@@ -412,6 +367,54 @@ public class NetworkConnection {
             if (ni != null)
                 network_type = ni.getTypeName();
         } catch (Exception e) {
+        }
+
+        if(Build.VERSION.SDK_INT >= 21) {
+             connectivityCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
+                    super.onCapabilitiesChanged(network, networkCapabilities);
+
+                    if(networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                        if (state == STATE_CONNECTED || state == STATE_CONNECTING) {
+                            Crashlytics.log(Log.INFO, TAG, "A VPN has connected, reconnecting websocket");
+                            cancel_idle_timer();
+                            reconnect_timestamp = 0;
+                            try {
+                                state = STATE_DISCONNECTING;
+                                client.disconnect();
+                                state = STATE_DISCONNECTED;
+                                notifyHandlers(EVENT_CONNECTIVITY, null);
+                            } catch (Exception e) {
+                            }
+                        }
+                    }
+
+                    Crashlytics.log(Log.INFO, TAG, "Connectivity changed, connected: " + networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
+
+                    if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0 && !notifier) {
+                        Crashlytics.log(Log.INFO, TAG, "Network became available, reconnecting");
+                        if (idleTimerTask != null)
+                            idleTimerTask.cancel();
+                        connect();
+                    }
+                }
+
+                @Override
+                public void onLost(Network network) {
+                    super.onLost(network);
+                    Crashlytics.log(Log.INFO, TAG, "Network lost, disconnecting");
+                    cancel_idle_timer();
+                    reconnect_timestamp = 0;
+                    try {
+                        state = STATE_DISCONNECTING;
+                        client.disconnect();
+                        state = STATE_DISCONNECTED;
+                        notifyHandlers(EVENT_CONNECTIVITY, null);
+                    } catch (Exception e) {
+                    }
+                }
+            };
         }
 
         try {

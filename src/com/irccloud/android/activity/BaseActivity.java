@@ -180,7 +180,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if (conn != null) {
             conn.removeHandler(this);
         }
-        unregisterReceiver(powerSaverListener);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            unregisterReceiver(powerSaverListener);
     }
 
     public boolean isMultiWindow() {
