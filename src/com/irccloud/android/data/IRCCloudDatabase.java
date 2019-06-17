@@ -66,8 +66,9 @@ public abstract class IRCCloudDatabase extends RoomDatabase {
                     sInstance = Room.databaseBuilder(IRCCloudApplication.getInstance().getApplicationContext(), IRCCloudDatabase.class, NAME)
                             .addMigrations(MIGRATION_10_11,MIGRATION_11_12)
                             .fallbackToDestructiveMigration()
+                            .fallbackToDestructiveMigrationOnDowngrade()
                             .allowMainThreadQueries()
-                            .build();;
+                            .build();
                 }
             }
         }
