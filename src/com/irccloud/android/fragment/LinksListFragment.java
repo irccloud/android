@@ -134,19 +134,21 @@ public class LinksListFragment extends DialogFragment {
 
     @Override
     public void setArguments(Bundle args) {
-        try {
-            event = mapper.readValue(args.getString("event"), JsonNode.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (getActivity() != null && event != null && recyclerView != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    adapter = new LinksAdapter();
-                    recyclerView.setAdapter(adapter);
-                }
-            });
+        if(args != null) {
+            try {
+                event = mapper.readValue(args.getString("event"), JsonNode.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (getActivity() != null && event != null && recyclerView != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter = new LinksAdapter();
+                        recyclerView.setAdapter(adapter);
+                    }
+                });
+            }
         }
     }
 }

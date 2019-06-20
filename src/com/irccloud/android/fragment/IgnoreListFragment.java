@@ -202,23 +202,25 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
 
     @Override
     public void setArguments(Bundle args) {
-        cid = args.getInt("cid", 0);
-        if (getActivity() != null && cid > 0 && recyclerView != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ignores = ServersList.getInstance().getServer(cid).raw_ignores;
-                    adapter = new IgnoresAdapter();
-                    recyclerView.setAdapter(adapter);
-                    if(adapter.getItemCount() > 0) {
-                        empty.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                    } else {
-                        empty.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
+        if(args != null) {
+            cid = args.getInt("cid", 0);
+            if (getActivity() != null && cid > 0 && recyclerView != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ignores = ServersList.getInstance().getServer(cid).raw_ignores;
+                        adapter = new IgnoresAdapter();
+                        recyclerView.setAdapter(adapter);
+                        if (adapter.getItemCount() > 0) {
+                            empty.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        } else {
+                            empty.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 

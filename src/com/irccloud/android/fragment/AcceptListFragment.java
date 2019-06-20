@@ -200,28 +200,30 @@ public class AcceptListFragment extends DialogFragment {
 
     @Override
     public void setArguments(Bundle args) {
-        cid = args.getInt("cid", 0);
-        event = new IRCCloudJSONObject(args.getString("event"));
-        acceptList = event.getJsonNode("nicks");
-        if (getActivity() != null && cid > 0 && recyclerView != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (adapter == null) {
-                        adapter = new AcceptListAdapter();
-                        recyclerView.setAdapter(adapter);
-                    } else {
-                        adapter.notifyDataSetChanged();
+        if (args != null) {
+            cid = args.getInt("cid", 0);
+            event = new IRCCloudJSONObject(args.getString("event"));
+            acceptList = event.getJsonNode("nicks");
+            if (getActivity() != null && cid > 0 && recyclerView != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (adapter == null) {
+                            adapter = new AcceptListAdapter();
+                            recyclerView.setAdapter(adapter);
+                        } else {
+                            adapter.notifyDataSetChanged();
+                        }
+                        if (adapter.getItemCount() > 0) {
+                            empty.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        } else {
+                            empty.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        }
                     }
-                    if(adapter.getItemCount() > 0) {
-                        empty.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                    } else {
-                        empty.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
-                    }
-                }
-            });
+                });
+            }
         }
     }
 

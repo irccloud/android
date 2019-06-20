@@ -135,27 +135,29 @@ public class NamesListFragment extends DialogFragment {
 
     @Override
     public void setArguments(Bundle args) {
-        event = new IRCCloudJSONObject(args.getString("event"));
-        users = event.getJsonNode("members");
-        if (getActivity() != null && recyclerView != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (adapter == null) {
-                        adapter = new UsersAdapter();
-                        recyclerView.setAdapter(adapter);
-                    } else {
-                        adapter.notifyDataSetChanged();
+        if(args != null) {
+            event = new IRCCloudJSONObject(args.getString("event"));
+            users = event.getJsonNode("members");
+            if (getActivity() != null && recyclerView != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (adapter == null) {
+                            adapter = new UsersAdapter();
+                            recyclerView.setAdapter(adapter);
+                        } else {
+                            adapter.notifyDataSetChanged();
+                        }
+                        if (adapter.getItemCount() > 0) {
+                            empty.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        } else {
+                            empty.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        }
                     }
-                    if(adapter.getItemCount() > 0) {
-                        empty.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                    } else {
-                        empty.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
-                    }
-                }
-            });
+                });
+            }
         }
     }
 

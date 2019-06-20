@@ -149,7 +149,8 @@ public class WhoisFragment extends DialogFragment {
 
     @Override
     public void setArguments(Bundle args) {
-        event = new IRCCloudJSONObject(args.getString("event"));
+        if(args != null)
+            event = new IRCCloudJSONObject(args.getString("event"));
     }
 
     private String format_duration(long duration) {

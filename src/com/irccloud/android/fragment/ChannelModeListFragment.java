@@ -243,41 +243,43 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
 
     @Override
     public void setArguments(Bundle args) {
-        cid = args.getInt("cid", -1);
-        bid = args.getInt("bid", -1);
-        event = new IRCCloudJSONObject(args.getString("event"));
-        list = args.getString("list");
-        mask = args.getString("mask");
-        placeholder = args.getString("placeholder");
-        title = args.getString("title");
-        mode = args.getString("mode");
-        data = event.getJsonNode(list);
-        Server s = ServersList.getInstance().getServer(cid);
-        if(s != null) {
-            User self_user = UsersList.getInstance().getUser(bid, s.getNick());
-            canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP) || self_user.mode.contains(s.MODE_HALFOP)));
-        } else {
-            canChangeMode = false;
-        }
-        if (getActivity() != null && cid > 0 && recyclerView != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (adapter == null) {
-                        adapter = new Adapter();
-                        recyclerView.setAdapter(adapter);
-                    } else {
-                        adapter.notifyDataSetChanged();
+        if(args != null) {
+            cid = args.getInt("cid", -1);
+            bid = args.getInt("bid", -1);
+            event = new IRCCloudJSONObject(args.getString("event"));
+            list = args.getString("list");
+            mask = args.getString("mask");
+            placeholder = args.getString("placeholder");
+            title = args.getString("title");
+            mode = args.getString("mode");
+            data = event.getJsonNode(list);
+            Server s = ServersList.getInstance().getServer(cid);
+            if (s != null) {
+                User self_user = UsersList.getInstance().getUser(bid, s.getNick());
+                canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP) || self_user.mode.contains(s.MODE_HALFOP)));
+            } else {
+                canChangeMode = false;
+            }
+            if (getActivity() != null && cid > 0 && recyclerView != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (adapter == null) {
+                            adapter = new Adapter();
+                            recyclerView.setAdapter(adapter);
+                        } else {
+                            adapter.notifyDataSetChanged();
+                        }
+                        if (adapter.getItemCount() > 0) {
+                            empty.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        } else {
+                            empty.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        }
                     }
-                    if(adapter.getItemCount() > 0) {
-                        empty.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                    } else {
-                        empty.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
-                    }
-                }
-            });
+                });
+            }
         }
     }
 

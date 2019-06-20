@@ -161,23 +161,25 @@ public class ChannelListFragment extends DialogFragment implements NetworkConnec
 
     @Override
     public void setArguments(Bundle args) {
-        server = ServersList.getInstance().getServer(args.getInt("cid", -1));
-        channels = null;
-        if (recyclerView != null && getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    getDialog().setTitle("List of channels on " + server.getHostname());
-                    if(adapter.getItemCount() > 0) {
-                        empty.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                    } else {
-                        empty.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
+        if(args != null) {
+            server = ServersList.getInstance().getServer(args.getInt("cid", -1));
+            channels = null;
+            if (recyclerView != null && getActivity() != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getDialog().setTitle("List of channels on " + server.getHostname());
+                        if (adapter.getItemCount() > 0) {
+                            empty.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        } else {
+                            empty.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        }
+                        adapter.notifyDataSetChanged();
                     }
-                    adapter.notifyDataSetChanged();
-                }
-            });
+                });
+            }
         }
     }
 

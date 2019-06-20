@@ -163,29 +163,31 @@ public class WhoWasFragment extends DialogFragment {
 
     @Override
     public void setArguments(Bundle args) {
-        event = new IRCCloudJSONObject(args.getString("event"));
-        title = args.getString("title");
-        data = event.getJsonNode("lines");
+        if(args != null) {
+            event = new IRCCloudJSONObject(args.getString("event"));
+            title = args.getString("title");
+            data = event.getJsonNode("lines");
 
-        if (getActivity() != null && recyclerView != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (adapter == null) {
-                        adapter = new Adapter();
-                        recyclerView.setAdapter(adapter);
-                    } else {
-                        adapter.notifyDataSetChanged();
+            if (getActivity() != null && recyclerView != null) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (adapter == null) {
+                            adapter = new Adapter();
+                            recyclerView.setAdapter(adapter);
+                        } else {
+                            adapter.notifyDataSetChanged();
+                        }
+                        if (adapter.getItemCount() > 0) {
+                            empty.setVisibility(View.GONE);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        } else {
+                            empty.setVisibility(View.VISIBLE);
+                            recyclerView.setVisibility(View.GONE);
+                        }
                     }
-                    if(adapter.getItemCount() > 0) {
-                        empty.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                    } else {
-                        empty.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
-                    }
-                }
-            });
+                });
+            }
         }
     }
 
