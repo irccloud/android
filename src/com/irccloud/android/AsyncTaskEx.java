@@ -16,6 +16,7 @@
 package com.irccloud.android;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 
@@ -410,6 +411,10 @@ public abstract class AsyncTaskEx<Params, Progress, Result> {
     }
 
     private static class InternalHandler extends Handler {
+        public InternalHandler() {
+            super(Looper.getMainLooper());
+        }
+
         @SuppressWarnings({"rawtypes", "unchecked"})
         @Override
         public void handleMessage(Message msg) {
