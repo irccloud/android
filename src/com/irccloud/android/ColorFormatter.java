@@ -2088,6 +2088,8 @@ public class ColorFormatter {
 
     public static Pattern HTML_ENTITY = Pattern.compile("&[^\\s;]+;");
 
+    private static TextClassifier tc;
+
     public static void init() {
         if(sourceSansPro == null)
             sourceSansPro = ResourcesCompat.getFont(IRCCloudApplication.getInstance().getApplicationContext(), R.font.sourcesansproregular);
@@ -2142,6 +2144,10 @@ public class ColorFormatter {
             IS_EMOJI = Pattern.compile(sb.toString().replace(":)|","").replace("*", "\\*"));
 
             Crashlytics.log(Log.INFO, "IRCCloud", "Compiled :emocode: regex from " + emojiMap.size() + " keys in " + (System.currentTimeMillis() - start) + "ms");
+        }
+
+        if(tc == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            tc = IRCCloudApplication.getInstance().getSystemService(TextClassificationManager.class).getTextClassifier();
         }
     }
 
@@ -2497,9 +2503,8 @@ public class ColorFormatter {
             });
         }
 
-        if(linkify && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if(linkify && tc != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             try {
-                TextClassifier tc = IRCCloudApplication.getInstance().getSystemService(TextClassificationManager.class).getTextClassifier();
                 tc.generateLinks(new TextLinks.Request.Builder(output).build()).apply(output, TextLinks.APPLY_STRATEGY_IGNORE, new Function<TextLinks.TextLink, TextLinks.TextLinkSpan>() {
                     @Override
                     public TextLinks.TextLinkSpan apply(TextLinks.TextLink textLink) {

@@ -458,7 +458,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     e.html = e.group_msg;
 
                 e.ready_for_display = true;
-                format(e);
 
                 if (e.day < 1) {
                     e.day = calendar.get(Calendar.DAY_OF_YEAR);
@@ -661,6 +660,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         public void format(Event e) {
             if (e != null && e.ready_for_display) {
                 synchronized (formatLock) {
+                    if (e.formatted_nick == null && e.from != null && e.from.length() > 0) {
+                        e.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from_nick, e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
+                    }
+                    if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
+                        e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
+                    }
                     if (e.html != null && e.formatted == null) {
                         try {
                             e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0));
@@ -669,12 +674,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
                             if (e.group_msg == null && e.msg != null && e.msg.length() > 0) {
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server);
-                            }
-                            if (e.from != null && e.from.length() > 0) {
-                                e.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from_nick, e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
-                            }
-                            if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
-                                e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
                             }
                             if(e.formatted != null && !pref_disableQuote && e.type.equals("buffer_msg") && ColorFormatter.is_blockquote(e.formatted.toString())) {
                                 e.formatted = (Spanned)e.formatted.subSequence(1, e.formatted.length());
@@ -801,15 +800,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 row.setOnLongClickListener(new OnItemLongClickListener(position));
                 row.setContentDescription(e.contentDescription);
 
-                if (e.html != null && e.formatted == null) {
-                    adapter.format(e);
-                }
-
-                if (e.formatted_nick == null && e.from != null && e.from.length() > 0) {
-                    adapter.format(e);
-                }
-
-                if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
+                if ((e.html != null && e.formatted == null) || (e.formatted_nick == null && e.from != null && e.from.length() > 0) || (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0)) {
                     adapter.format(e);
                 }
 
@@ -2037,14 +2028,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         event.mention_offset = event.html.length() - event.msg.length();
                     if(event.type.equals("channel_topic") && event.msg.startsWith("set the topic: "))
                         event.mention_offset += 15;
-
-                    if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
-                        event.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
-                    }
-
-                    if (event.formatted_realname == null && event.from_realname != null && event.from_realname.length() > 0) {
-                        event.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(event.from_realname)), true, null);
-                    }
                 }
 
                 String collapsedNickColor = Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2);
@@ -2123,7 +2106,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         if(strippedSpace)
                                             e.mention_offset--;
                                         e.ready_for_display = true;
-                                        messageAdapter.format(e);
+                                        if(!backlog)
+                                            messageAdapter.format(e);
                                         messageAdapter.insertBelow(eid, e);
                                     } else {
                                         msg = lastChunk;
@@ -2146,7 +2130,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         e.parent_eid = eid;
                                         e.mention_offset = -(m.start() + 3);
                                         e.ready_for_display = true;
-                                        messageAdapter.format(e);
+                                        if(!backlog)
+                                            messageAdapter.format(e);
                                         messageAdapter.insertBelow(eid, e);
                                     }
 
@@ -2288,7 +2273,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 event.ready_for_display = true;
-                messageAdapter.format(event);
+                if(!backlog)
+                    messageAdapter.format(event);
                 messageAdapter.addItem(eid, event);
 
                 if(!event.pending && pref_inlineImages && event.type.equals("buffer_msg") && event.msg.length() > 0 && event.row_type != ROW_THUMBNAIL) {
@@ -2489,7 +2475,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if(e.msg != null)
             e.html = e.msg = TextUtils.htmlEncode(e.msg);
         e.ready_for_display = true;
-        messageAdapter.format(e);
+        if(!backlog)
+            messageAdapter.format(e);
         messageAdapter.insertBelow(parent.eid, e);
         if(!backlog) {
             runOnUiThread(new Runnable() {
@@ -2947,6 +2934,23 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
+    private class FormatTask extends AsyncTaskEx<Void, Void, Void> {
+        private MessageAdapter adapter;
+        private TreeMap<Long, Event> events;
+
+        public FormatTask(MessageAdapter adapter, TreeMap<Long, Event> events) {
+            this.adapter = adapter;
+            this.events = events;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            for(Event e : events.values())
+                adapter.format(e);
+            return null;
+        }
+    }
+
     private synchronized void refresh(MessageAdapter adapter, TreeMap<Long, Event> events) {
         ImageList.getInstance().clear();
         IRCCloudLinkMovementMethod.clearFileIDs();
@@ -3223,6 +3227,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
             });
         }
+
+        new FormatTask(adapter, events).execute((Void)null);
     }
 
     private void update_top_unread(int first) {
