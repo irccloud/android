@@ -2083,6 +2083,8 @@ public class NetworkConnection {
                 state = STATE_CONNECTED;
                 mBuffers.invalidate();
                 mChannels.invalidate();
+                ImageList.getInstance().clear();
+                ImageList.getInstance().clearFailures();
                 notifyHandlers(EVENT_CONNECTIVITY, null);
             }
         });

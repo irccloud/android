@@ -132,6 +132,7 @@ public class ImageList {
         mDownloadThreadPool.purge();
         downloadListeners.clear();
         activeDownloads.clear();
+        urlInfo.clear();
     }
 
     public void clearFailures() {
