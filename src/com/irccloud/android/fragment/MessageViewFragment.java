@@ -3082,7 +3082,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     pref_expandJoinPart = (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid())));
                 }
 
-                JSONObject disableFilesMap = null;
+                /*JSONObject disableFilesMap = null;
                 if (buffer.isChannel()) {
                     if (prefs.has("channel-files-disableinline"))
                         disableFilesMap = prefs.getJSONObject("channel-files-disableinline");
@@ -3092,6 +3092,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 pref_disableInlineFiles = ((prefs.has("files-disableinline") && prefs.get("files-disableinline") instanceof Boolean && prefs.getBoolean("files-disableinline")) || (disableFilesMap != null && disableFilesMap.has(String.valueOf(buffer.getBid())) && disableFilesMap.getBoolean(String.valueOf(buffer.getBid()))));
+*/
 
                 if(prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
                     JSONObject inlineImagesMap = null;
@@ -3157,6 +3158,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     JSONObject colorMap = prefs.getJSONObject(pref_type + "-chat-color");
                     if (colorMap.has(String.valueOf(buffer.getBid())) && colorMap.getBoolean(String.valueOf(buffer.getBid())))
                         pref_noColor = false;
+                }
+
+                pref_disableInlineFiles = (prefs.has("files-disableinline") && prefs.get("files-disableinline") instanceof Boolean && prefs.getBoolean("files-disableinline"));
+                if (prefs.has(pref_type + "-files-disableinline")) {
+                    JSONObject noInlineMap = prefs.getJSONObject(pref_type + "-files-disableinline");
+                    if (noInlineMap.has(String.valueOf(buffer.getBid())) && noInlineMap.getBoolean(String.valueOf(buffer.getBid())))
+                        pref_disableInlineFiles = true;
+                }
+                if (prefs.has(pref_type + "-files-enableinline")) {
+                    JSONObject inlineMap = prefs.getJSONObject(pref_type + "-files-enableinline");
+                    if (inlineMap.has(String.valueOf(buffer.getBid())) && inlineMap.getBoolean(String.valueOf(buffer.getBid())))
+                        pref_disableInlineFiles = false;
                 }
 
                 if(msgid != null && msgid.length() > 0)

@@ -125,6 +125,7 @@ public class BufferOptionsFragment extends DialogFragment {
                         prefs = updatePref(prefs, collapse.isChecked(), pref_type + "-expandJoinPart");
                         prefs = updatePref(prefs, !collapse.isChecked(), pref_type + "-collapseJoinPart");
                         prefs = updatePref(prefs, inlineFiles.isChecked(), pref_type + "-files-disableinline");
+                        prefs = updatePref(prefs, !inlineFiles.isChecked(), pref_type + "-files-enableinline");
                         prefs = updatePref(prefs, !replyCollapse.isChecked(), pref_type + "-reply-collapse");
                         prefs = updatePref(prefs, inlineImages.isChecked(), pref_type + "-inlineimages-disable");
                         prefs = updatePref(prefs, !inlineImages.isChecked(), pref_type + "-inlineimages");
@@ -237,15 +238,6 @@ public class BufferOptionsFragment extends DialogFragment {
                     } else {
                         autosuggest.setChecked(true);
                     }
-                    if (prefs.has(pref_type + "-files-disableinline")) {
-                        JSONObject inlineMap = prefs.getJSONObject(pref_type + "-files-disableinline");
-                        if (inlineMap.has(String.valueOf(bid)) && inlineMap.getBoolean(String.valueOf(bid)))
-                            inlineFiles.setChecked(false);
-                        else
-                            inlineFiles.setChecked(true);
-                    } else {
-                        inlineFiles.setChecked(true);
-                    }
                     enabled = prefs.has("enableReadOnSelect") && prefs.get("enableReadOnSelect") instanceof Boolean && prefs.getBoolean("enableReadOnSelect");
                     if (prefs.has(pref_type + "-enableReadOnSelect")) {
                         JSONObject readOnSelectMap = prefs.getJSONObject(pref_type + "-enableReadOnSelect");
@@ -258,6 +250,18 @@ public class BufferOptionsFragment extends DialogFragment {
                             enabled = false;
                     }
                     readOnSelect.setChecked(enabled);
+                    enabled = (prefs.has("files-disableinline") && prefs.get("files-disableinline") instanceof Boolean && prefs.getBoolean("files-disableinline"));
+                    if (prefs.has(pref_type + "-files-disableinline")) {
+                        JSONObject noInlineMap = prefs.getJSONObject(pref_type + "-files-disableinline");
+                        if (noInlineMap.has(String.valueOf(bid)) && noInlineMap.getBoolean(String.valueOf(bid)))
+                            enabled = true;
+                    }
+                    if (prefs.has(pref_type + "-files-enableinline")) {
+                        JSONObject inlineMap = prefs.getJSONObject(pref_type + "-files-enableinline");
+                        if (inlineMap.has(String.valueOf(bid)) && inlineMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
+                    }
+                    inlineFiles.setChecked(!enabled);
                     if(prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
                         JSONObject inlineImagesMap = null;
                         if (prefs.has(pref_type + "-inlineimages-disable"))
