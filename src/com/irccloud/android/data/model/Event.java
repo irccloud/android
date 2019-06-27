@@ -93,6 +93,8 @@ public class Event {
 
     public boolean linkify = true;
 
+    public boolean linkified;
+
     public String target_mode;
 
     public int reqid;

@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import androidx.emoji.text.EmojiCompat;
 import androidx.core.content.res.ResourcesCompat;
@@ -2344,10 +2345,38 @@ public class ColorFormatter {
                 output.setSpan(new ForegroundColorSpan(ColorScheme.getInstance().collapsedRowNickColor), m.position, m.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
+        if (linkify) {
+            linkify(output, server, entities);
+        }
+
+        for(int i = 0; i < output.length() - 1; i++) {
+            char ch = output.charAt(i);
+            if(((ch == '←' || ch == '→' || ch == '⇐' || ch == '↔' || ch == '↮') && output.charAt(i+1) != 0xFE0F) || ch == 0x202f) {
+                output.setSpan(new TypefaceSpan(sourceSansPro), i, i+1, 0);
+            }
+        }
+
+        Typeface csFont = IRCCloudApplication.getInstance().getCsFont();
+        if(csFont != null) {
+            Matcher matcher = Pattern.compile("comic sans", Pattern.CASE_INSENSITIVE).matcher(output);
+            while (matcher.find()) {
+                output.setSpan(new TypefaceSpan(csFont), matcher.start(), matcher.end(), 0);
+            }
+        }
+
+        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
+            return (Spanned)EmojiCompat.get().process(output);
+        else
+            return output;
+    }
+
+    public static void linkify(final Spannable output, final Server server, final JsonNode entities) {
+        if(output == null)
+            return;
+
         String chanTypes = Buffer.DEFAULT_CHANTYPES;
         if (server != null && server.CHANTYPES != null && server.CHANTYPES.length() > 0)
             chanTypes = server.CHANTYPES;
-
         final String pattern = "\\B([" + chanTypes + "]([^\ufe0e\ufe0f\u20e3<>\",\\s][^<>\",\\s]*))";
 
         MatchFilter noOverlapFilter = new MatchFilter() {
@@ -2357,130 +2386,127 @@ public class ColorFormatter {
             }
         };
 
-        if (linkify) {
-            Linkify.addLinks(output, WEB_URL, null, new MatchFilter() {
-                public final boolean acceptMatch(CharSequence s, int start, int end) {
-                    if (start >= 6 && s.subSequence(start - 6, end).toString().toLowerCase().startsWith("irc://"))
-                        return false;
-                    if (start >= 7 && s.subSequence(start - 7, end).toString().toLowerCase().startsWith("ircs://"))
-                        return false;
-                    if (start >= 1 && s.subSequence(start - 1, end).toString().matches(pattern))
-                        return false;
-                    if(s.subSequence(start, end).toString().matches("[0-9\\.]+"))
-                        return false;
-                    return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
+        Linkify.addLinks(output, WEB_URL, null, new MatchFilter() {
+            public final boolean acceptMatch(CharSequence s, int start, int end) {
+                if (start >= 6 && s.subSequence(start - 6, end).toString().toLowerCase().startsWith("irc://"))
+                    return false;
+                if (start >= 7 && s.subSequence(start - 7, end).toString().toLowerCase().startsWith("ircs://"))
+                    return false;
+                if (start >= 1 && s.subSequence(start - 1, end).toString().matches(pattern))
+                    return false;
+                if(s.subSequence(start, end).toString().matches("[0-9\\.]+"))
+                    return false;
+                return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
+            }
+        }, new TransformFilter() {
+            @Override
+            public String transformUrl(Matcher match, String url) {
+                if (!url.contains("://")) {
+                    if (url.toLowerCase().startsWith("irc."))
+                        url = "irc://" + url;
+                    else
+                        url = "http://" + url;
+                } else {
+                    String protocol = url.toLowerCase().substring(0, url.indexOf("://"));
+                    url = protocol + url.substring(protocol.length());
                 }
-            }, new TransformFilter() {
-                @Override
-                public String transformUrl(Matcher match, String url) {
-                    if (!url.contains("://")) {
-                        if (url.toLowerCase().startsWith("irc."))
-                            url = "irc://" + url;
-                        else
-                            url = "http://" + url;
-                    } else {
-                        String protocol = url.toLowerCase().substring(0, url.indexOf("://"));
-                        url = protocol + url.substring(protocol.length());
-                    }
 
-                    char last = url.charAt(url.length() - 1);
-                    if (isPunctuation(last)) {
+                char last = url.charAt(url.length() - 1);
+                if (isPunctuation(last)) {
+                    url = url.substring(0, url.length() - 1);
+                    last = url.charAt(url.length() - 1);
+                }
+
+                if (quotes.containsKey(String.valueOf(last))) {
+                    char open = quotes.get(String.valueOf(last)).charAt(0);
+                    int countOpen = 0, countClose = 0;
+                    for (int i = 0; i < url.length(); i++) {
+                        char c = url.charAt(i);
+                        if (c == open)
+                            countOpen++;
+                        else if (c == last)
+                            countClose++;
+                    }
+                    if (countOpen != countClose) {
                         url = url.substring(0, url.length() - 1);
-                        last = url.charAt(url.length() - 1);
                     }
+                }
 
-                    if (quotes.containsKey(String.valueOf(last))) {
-                        char open = quotes.get(String.valueOf(last)).charAt(0);
-                        int countOpen = 0, countClose = 0;
-                        for (int i = 0; i < url.length(); i++) {
-                            char c = url.charAt(i);
-                            if (c == open)
-                                countOpen++;
-                            else if (c == last)
-                                countClose++;
-                        }
-                        if (countOpen != countClose) {
-                            url = url.substring(0, url.length() - 1);
-                        }
+                if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
+                    String lower = url.toLowerCase();
+                    if (lower.contains("?"))
+                        lower = lower.substring(0, lower.indexOf("?"));
+
+                    if (ImageList.isImageURL(lower)) {
+                        if (lower.startsWith("http://"))
+                            return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url.substring(7);
+                        else if (lower.startsWith("https://"))
+                            return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + url.substring(8);
                     }
+                }
 
-                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
-                        String lower = url.toLowerCase();
-                        if (lower.contains("?"))
-                            lower = lower.substring(0, lower.indexOf("?"));
+                if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("videoviewer", true)) {
+                    String lower = url.toLowerCase();
+                    if (lower.contains("?"))
+                        lower = lower.substring(0, lower.indexOf("?"));
 
-                        if (ImageList.isImageURL(lower)) {
-                            if (lower.startsWith("http://"))
-                                return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url.substring(7);
-                            else if (lower.startsWith("https://"))
-                                return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + url.substring(8);
-                        }
+                    if (lower.matches("(^.*/.*\\.3gpp?)|(^.*/.*\\.mp4$)|(^.*/.*\\.m4v$)|(^.*/.*\\.webm$)")) {
+                        if (lower.startsWith("http://"))
+                            return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME) + "://" + url.substring(7);
+                        else if (lower.startsWith("https://"))
+                            return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME_SECURE) + "://" + url.substring(8);
                     }
+                }
 
-                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("videoviewer", true)) {
-                        String lower = url.toLowerCase();
-                        if (lower.contains("?"))
-                            lower = lower.substring(0, lower.indexOf("?"));
-
-                        if (lower.matches("(^.*/.*\\.3gpp?)|(^.*/.*\\.mp4$)|(^.*/.*\\.m4v$)|(^.*/.*\\.webm$)")) {
-                            if (lower.startsWith("http://"))
-                                return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME) + "://" + url.substring(7);
-                            else if (lower.startsWith("https://"))
-                                return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME_SECURE) + "://" + url.substring(8);
-                        }
-                    }
-
-                    if (entities != null && entities.has("pastes")) {
-                        if (NetworkConnection.pastebin_uri_template != null) {
-                            UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.pastebin_uri_template);
-                            for (JsonNode paste : entities.get("pastes")) {
-                                String paste_url = template.set("id", paste.get("id").asText()).expand();
-                                if (url.startsWith(paste_url)) {
-                                    if (url.toLowerCase().startsWith("http://"))
-                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(7) + "?id=" + paste.get("id").asText();
-                                    else
-                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(8) + "?id=" + paste.get("id").asText();
-                                }
+                if (entities != null && entities.has("pastes")) {
+                    if (NetworkConnection.pastebin_uri_template != null) {
+                        UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.pastebin_uri_template);
+                        for (JsonNode paste : entities.get("pastes")) {
+                            String paste_url = template.set("id", paste.get("id").asText()).expand();
+                            if (url.startsWith(paste_url)) {
+                                if (url.toLowerCase().startsWith("http://"))
+                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(7) + "?id=" + paste.get("id").asText();
+                                else
+                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(8) + "?id=" + paste.get("id").asText();
                             }
                         }
                     }
-                    return url;
                 }
-            });
-            Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:", noOverlapFilter, null);
-            Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\",\\s]+"), null, noOverlapFilter, new TransformFilter() {
-                public final String transformUrl(final Matcher match, String url) {
-                    char last = url.charAt(url.length() - 1);
-                    if (isPunctuation(last)) {
+                return url;
+            }
+        });
+        Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:", noOverlapFilter, null);
+        Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\",\\s]+"), null, noOverlapFilter, new TransformFilter() {
+            public final String transformUrl(final Matcher match, String url) {
+                char last = url.charAt(url.length() - 1);
+                if (isPunctuation(last)) {
+                    url = url.substring(0, url.length() - 1);
+                    last = url.charAt(url.length() - 1);
+                }
+
+                if (quotes.containsKey(String.valueOf(last))) {
+                    char open = quotes.get(String.valueOf(last)).charAt(0);
+                    int countOpen = 0, countClose = 0;
+                    for (int i = 0; i < url.length(); i++) {
+                        char c = url.charAt(i);
+                        if (c == open)
+                            countOpen++;
+                        else if (c == last)
+                            countClose++;
+                    }
+                    if (countOpen != countClose) {
                         url = url.substring(0, url.length() - 1);
-                        last = url.charAt(url.length() - 1);
                     }
-
-                    if (quotes.containsKey(String.valueOf(last))) {
-                        char open = quotes.get(String.valueOf(last)).charAt(0);
-                        int countOpen = 0, countClose = 0;
-                        for (int i = 0; i < url.length(); i++) {
-                            char c = url.charAt(i);
-                            if (c == open)
-                                countOpen++;
-                            else if (c == last)
-                                countClose++;
-                        }
-                        if (countOpen != countClose) {
-                            url = url.substring(0, url.length() - 1);
-                        }
-                    }
-
-                    return url.replace("#", "%23");
                 }
-            });
-            Linkify.addLinks(output, Pattern.compile("spotify:([a-zA-Z0-9:]+)"), null, noOverlapFilter, new TransformFilter() {
-                public final String transformUrl(final Matcher match, String url) {
-                    return "https://open.spotify.com/" + url.substring(8).replace(":", "/");
-                }
-            });
 
-        }
+                return url.replace("#", "%23");
+            }
+        });
+        Linkify.addLinks(output, Pattern.compile("spotify:([a-zA-Z0-9:]+)"), null, noOverlapFilter, new TransformFilter() {
+            public final String transformUrl(final Matcher match, String url) {
+                return "https://open.spotify.com/" + url.substring(8).replace(":", "/");
+            }
+        });
         if (server != null) {
             Linkify.addLinks(output, Pattern.compile(pattern), null, new MatchFilter() {
                 public final boolean acceptMatch(CharSequence s, int start, int end) {
@@ -2503,7 +2529,7 @@ public class ColorFormatter {
             });
         }
 
-        if(linkify && tc != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if(tc != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             try {
                 tc.generateLinks(new TextLinks.Request.Builder(output).build()).apply(output, TextLinks.APPLY_STRATEGY_IGNORE, new Function<TextLinks.TextLink, TextLinks.TextLinkSpan>() {
                     @Override
@@ -2545,26 +2571,6 @@ public class ColorFormatter {
             span = new URLSpanNoUnderline(span.getURL());
             output.setSpan(span, start, end, 0);
         }
-
-        for(int i = 0; i < output.length() - 1; i++) {
-            char ch = output.charAt(i);
-            if(((ch == '←' || ch == '→' || ch == '⇐' || ch == '↔' || ch == '↮') && output.charAt(i+1) != 0xFE0F) || ch == 0x202f) {
-                output.setSpan(new TypefaceSpan(sourceSansPro), i, i+1, 0);
-            }
-        }
-
-        Typeface csFont = IRCCloudApplication.getInstance().getCsFont();
-        if(csFont != null) {
-            Matcher matcher = Pattern.compile("comic sans", Pattern.CASE_INSENSITIVE).matcher(output);
-            while (matcher.find()) {
-                output.setSpan(new TypefaceSpan(csFont), matcher.start(), matcher.end(), 0);
-            }
-        }
-
-        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
-            return (Spanned)EmojiCompat.get().process(output);
-        else
-            return output;
     }
 
     public static Typeface sourceSansPro;

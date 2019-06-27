@@ -1214,6 +1214,7 @@ public class EventsList {
                         e.formatted = null;
                         e.formatted_nick = null;
                         e.formatted_realname = null;
+                        e.linkified = false;
                         synchronized (eventStringBuilder) {
                             Formatter f = formatterMap.get(e.type);
                             if (f != null)

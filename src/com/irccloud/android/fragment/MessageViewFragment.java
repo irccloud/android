@@ -17,30 +17,21 @@
 package com.irccloud.android.fragment;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Network;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.Browser;
-import androidx.annotation.NonNull;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.fragment.app.ListFragment;
 import androidx.core.content.res.ResourcesCompat;
@@ -49,10 +40,8 @@ import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
-import android.text.style.MetricAffectingSpan;
 import android.text.style.URLSpan;
 import android.util.Log;
 import android.util.TypedValue;
@@ -62,12 +51,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
@@ -658,22 +643,26 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
 
         public void format(Event e) {
+            format(e, true);
+        }
+
+        public void format(Event e, boolean linkify) {
             if (e != null && e.ready_for_display) {
                 synchronized (formatLock) {
                     if (e.formatted_nick == null && e.from != null && e.from.length() > 0) {
                         e.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from_nick, e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
                     }
                     if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
-                        e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
+                        e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), false, null);
                     }
                     if (e.html != null && e.formatted == null) {
                         try {
                             e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0));
                             if(e.edited)
                                 e.html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
-                            e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
+                            e.formatted = ColorFormatter.html_to_spanned(e.html, false, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
                             if (e.group_msg == null && e.msg != null && e.msg.length() > 0) {
-                                e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server);
+                                e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), false, server);
                             }
                             if(e.formatted != null && !pref_disableQuote && e.type.equals("buffer_msg") && ColorFormatter.is_blockquote(e.formatted.toString())) {
                                 e.formatted = (Spanned)e.formatted.subSequence(1, e.formatted.length());
@@ -686,19 +675,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
+                        e.linkified = false;
                     }
-                    if(e.formatted != null && e.entities != null && NetworkConnection.file_uri_template != null && e.entities.has("files")) {
-                        UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
-                        String file_url_prefix = template.expand().toLowerCase();
-                        URLSpan[] urls = e.formatted.getSpans(0, e.formatted.length(), URLSpan.class);
-                        for(URLSpan url : urls) {
-                            for (JsonNode file : e.entities.get("files")) {
-                                if(url.getURL().toLowerCase().startsWith(file_url_prefix) && url.getURL().contains(file.get("id").asText())) {
-                                    IRCCloudLinkMovementMethod.addFileID(url.getURL(), file.get("id").asText());
-                                }
-                            }
-                        }
-                    }
+                }
+
+                if(linkify && !e.linkified) {
+                    new LinkifyTask(e).execute((Void)null);
                 }
             }
         }
@@ -2945,8 +2927,72 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected Void doInBackground(Void... params) {
-            for(Event e : events.values())
-                adapter.format(e);
+            for(int i = adapter.getCount() - 1; i >= 0; i--) {
+                Event e = (Event)adapter.getItem(i);
+                adapter.format(e, false);
+                new LinkifyTask(e).doInBackground((Void)null);
+            }
+            return null;
+        }
+    }
+
+    private class LinkifyTask extends AsyncTaskEx<Void, Void, Void> {
+        private Event e;
+
+        public LinkifyTask(Event event) {
+            e = event;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if(!e.linkified) {
+                if (e.formatted != null && e.linkify) {
+                    ColorFormatter.linkify((Spannable) e.formatted, server, e.entities);
+                    ColorFormatter.linkify((Spannable) e.contentDescription, server, e.entities);
+                }
+
+                if (e.formatted_realname != null) {
+                    ColorFormatter.linkify((Spannable) e.formatted_realname, server, e.entities);
+                }
+
+                if (precomputedTextParams != null && e.formatted != null)
+                    e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
+            }
+            e.linkified = true;
+
+            if(e.formatted != null && e.entities != null && NetworkConnection.file_uri_template != null && e.entities.has("files")) {
+                UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
+                String file_url_prefix = template.expand().toLowerCase();
+                URLSpan[] urls = e.formatted.getSpans(0, e.formatted.length(), URLSpan.class);
+                for(URLSpan url : urls) {
+                    for (JsonNode file : e.entities.get("files")) {
+                        if(url.getURL().toLowerCase().startsWith(file_url_prefix) && url.getURL().contains(file.get("id").asText())) {
+                            IRCCloudLinkMovementMethod.addFileID(url.getURL(), file.get("id").asText());
+                        }
+                    }
+                }
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ListView listView = getListView();
+                    if(listView.getAdapter() != null && listView.getAdapter().getCount() > 0) {
+                        try {
+                            int first = listView.getFirstVisiblePosition();
+                            int last = listView.getLastVisiblePosition();
+
+                            for (int j = first; j <= last; j++) {
+                                if (e == listView.getAdapter().getItem(j)) {
+                                    View view = listView.getChildAt(j - first);
+                                    listView.getAdapter().getView(j, view, listView);
+                                }
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                }
+            });
             return null;
         }
     }
