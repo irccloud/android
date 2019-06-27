@@ -2081,6 +2081,8 @@ public class NetworkConnection {
                 if (object.has("accrued"))
                     accrued = object.getInt("accrued");
                 state = STATE_CONNECTED;
+                mBuffers.invalidate();
+                mChannels.invalidate();
                 notifyHandlers(EVENT_CONNECTIVITY, null);
             }
         });
@@ -3369,16 +3371,6 @@ public class NetworkConnection {
                     numbuffers = 0;
                     totalbuffers = 0;
                     currentBid = -1;
-                    if (object != null && (int)object == -1) {
-                        /*try {
-                            IRCCloudDatabase.getInstance().beginTransaction();
-                        } catch (IllegalStateException e) {
-
-                        }*/
-                        mBuffers.invalidate();
-                        mChannels.invalidate();
-                        return;
-                    }
                     break;
                 case EVENT_OOB_END:
                     backlog = false;
@@ -3393,13 +3385,6 @@ public class NetworkConnection {
                         if(oobTasks.size() > 10)
                             break;
                     }
-                    /*if (bid == -1) {
-                        try {
-                            IRCCloudDatabase.getInstance().endTransaction();
-                        } catch (IllegalStateException e) {
-
-                        }
-                    }*/
                     NotificationsList.getInstance().deleteOldNotifications();
                     NotificationsList.getInstance().pruneNotificationChannels();
                     if (bid != -1) {

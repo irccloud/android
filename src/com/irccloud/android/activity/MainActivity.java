@@ -4240,7 +4240,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 addNetwork();
                 break;
             case R.id.menu_buffer_options:
-                BufferOptionsFragment bufferFragment = new BufferOptionsFragment(buffer.getCid(), buffer.getBid(), buffer.getType());
+                final BufferOptionsFragment bufferFragment = new BufferOptionsFragment(buffer.getCid(), buffer.getBid(), buffer.getType());
                 bufferFragment.show(getSupportFragmentManager(), "bufferoptions");
                 break;
             case R.id.menu_userlist:
@@ -4314,7 +4314,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (buffer.isConsole()) {
                             NetworkConnection.getInstance().deleteServer(buffer.getCid(), null);
                         } else {
-                            NetworkConnection.getInstance().deleteBuffer(buffer.getCid(), buffer.getBid(), null);
+                            NetworkConnection.getInstance().deleteBuffer(buffer.getCid(), buffer.getBid(), new NetworkConnection.IRCResultCallback() {
+                                @Override
+                                public void onIRCResult(IRCCloudJSONObject result) {
+                                    if(result.getBoolean("success")) {
+                                        BuffersList.getInstance().deleteAllDataForBuffer(buffer.getBid());
+                                        BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+                                        BuffersListFragment blf2 = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersListDocked);
+
+                                        if(blf != null)
+                                            blf.refresh();
+
+                                        if(blf2 != null)
+                                            blf2.refresh();
+                                    }
+                                }
+                            });
                         }
                         dialog.dismiss();
                     }
@@ -4846,7 +4861,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             if (b.isConsole()) {
                                 NetworkConnection.getInstance().deleteServer(b.getCid(), null);
                             } else {
-                                NetworkConnection.getInstance().deleteBuffer(b.getCid(), b.getBid(), null);
+                                NetworkConnection.getInstance().deleteBuffer(b.getCid(), b.getBid(), new NetworkConnection.IRCResultCallback() {
+                                    @Override
+                                    public void onIRCResult(IRCCloudJSONObject result) {
+                                        if(result.getBoolean("success")) {
+                                            BuffersList.getInstance().deleteAllDataForBuffer(b.getBid());
+                                            BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+                                            BuffersListFragment blf2 = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersListDocked);
+
+                                            if(blf != null)
+                                                blf.refresh();
+
+                                            if(blf2 != null)
+                                                blf2.refresh();
+                                        }
+                                    }
+                                });
                             }
                             dialog.dismiss();
                         }
