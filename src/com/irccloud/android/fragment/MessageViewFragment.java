@@ -1962,7 +1962,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
 
                     if (!nextIsGrouped && !expandedSectionEids.contains(currentCollapsedEid))
-                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(collapsedEvents.getCollapsedMessage(true)), true, server);
+                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(collapsedEvents.getCollapsedMessage(true)), false, server);
                     if (msg == null && type.equals("nickchange")) {
                         msg = event.old_nick + " → <b>" + event.nick + "</b>";
                         event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(event.old_nick + " changed nickname to " + event.nick));
@@ -2949,6 +2949,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (!e.linkified) {
                     if (e.formatted != null && e.linkify) {
                         ColorFormatter.linkify((Spannable) e.formatted, server, e.entities);
+                    }
+
+                    if (e.contentDescription != null && e.linkify) {
                         ColorFormatter.linkify((Spannable) e.contentDescription, server, e.entities);
                     }
 
