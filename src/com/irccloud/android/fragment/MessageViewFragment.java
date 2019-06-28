@@ -670,8 +670,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             } else {
                                 e.quoted = false;
                             }
-                            if(precomputedTextParams != null && e.formatted != null)
-                                e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }
@@ -681,6 +679,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(linkify && !e.linkified) {
                     new LinkifyTask(e).execute((Void)null);
+                } else if (precomputedTextParams != null && e.formatted != null) {
+                    e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
                 }
             }
         }
@@ -2959,8 +2959,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         ColorFormatter.linkify((Spannable) e.formatted_realname, server, e.entities);
                     }
 
-                    if (precomputedTextParams != null && e.formatted != null)
-                        e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
                 }
                 e.linkified = true;
 
@@ -2978,6 +2976,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 }
                             }
                         }
+
+                        if (precomputedTextParams != null)
+                            e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
                     }
                 }
 
