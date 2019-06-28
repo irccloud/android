@@ -2945,54 +2945,60 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected Void doInBackground(Void... params) {
-            if(!e.linkified) {
-                if (e.formatted != null && e.linkify) {
-                    ColorFormatter.linkify((Spannable) e.formatted, server, e.entities);
-                    ColorFormatter.linkify((Spannable) e.contentDescription, server, e.entities);
-                }
-
-                if (e.formatted_realname != null) {
-                    ColorFormatter.linkify((Spannable) e.formatted_realname, server, e.entities);
-                }
-
-                if (precomputedTextParams != null && e.formatted != null)
-                    e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
-            }
-            e.linkified = true;
-
-            if(e.formatted != null && e.entities != null && NetworkConnection.file_uri_template != null && e.entities.has("files")) {
-                UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
-                String file_url_prefix = template.expand().toLowerCase();
-                URLSpan[] urls = e.formatted.getSpans(0, e.formatted.length(), URLSpan.class);
-                for(URLSpan url : urls) {
-                    for (JsonNode file : e.entities.get("files")) {
-                        if(url.getURL().toLowerCase().startsWith(file_url_prefix) && url.getURL().contains(file.get("id").asText())) {
-                            IRCCloudLinkMovementMethod.addFileID(url.getURL(), file.get("id").asText());
-                        }
+            if(e != null) {
+                if (!e.linkified) {
+                    if (e.formatted != null && e.linkify) {
+                        ColorFormatter.linkify((Spannable) e.formatted, server, e.entities);
+                        ColorFormatter.linkify((Spannable) e.contentDescription, server, e.entities);
                     }
+
+                    if (e.formatted_realname != null) {
+                        ColorFormatter.linkify((Spannable) e.formatted_realname, server, e.entities);
+                    }
+
+                    if (precomputedTextParams != null && e.formatted != null)
+                        e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
                 }
-            }
+                e.linkified = true;
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ListView listView = getListView();
-                    if(listView.getAdapter() != null && listView.getAdapter().getCount() > 0) {
-                        try {
-                            int first = listView.getFirstVisiblePosition();
-                            int last = listView.getLastVisiblePosition();
-
-                            for (int j = first; j <= last; j++) {
-                                if (e == listView.getAdapter().getItem(j)) {
-                                    View view = listView.getChildAt(j - first);
-                                    listView.getAdapter().getView(j, view, listView);
+                if (e.formatted != null) {
+                    synchronized (e.formatted) {
+                        if (e.entities != null && NetworkConnection.file_uri_template != null && e.entities.has("files")) {
+                            UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
+                            String file_url_prefix = template.expand().toLowerCase();
+                            URLSpan[] urls = e.formatted.getSpans(0, e.formatted.length(), URLSpan.class);
+                            for (URLSpan url : urls) {
+                                for (JsonNode file : e.entities.get("files")) {
+                                    if (url.getURL().toLowerCase().startsWith(file_url_prefix) && url.getURL().contains(file.get("id").asText())) {
+                                        IRCCloudLinkMovementMethod.addFileID(url.getURL(), file.get("id").asText());
+                                    }
                                 }
                             }
-                        } catch (Exception ex) {
                         }
                     }
                 }
-            });
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ListView listView = getListView();
+                        if (listView.getAdapter() != null && listView.getAdapter().getCount() > 0) {
+                            try {
+                                int first = listView.getFirstVisiblePosition();
+                                int last = listView.getLastVisiblePosition();
+
+                                for (int j = first; j <= last; j++) {
+                                    if (e == listView.getAdapter().getItem(j)) {
+                                        View view = listView.getChildAt(j - first);
+                                        listView.getAdapter().getView(j, view, listView);
+                                    }
+                                }
+                            } catch (Exception ex) {
+                            }
+                        }
+                    }
+                });
+            }
             return null;
         }
     }
