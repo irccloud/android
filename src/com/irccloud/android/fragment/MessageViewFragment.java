@@ -680,7 +680,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(linkify && !e.linkified) {
                     new LinkifyTask(e).execute((Void)null);
                 } else if (precomputedTextParams != null && e.formatted != null) {
-                    e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
+                    try {
+                        e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         }
