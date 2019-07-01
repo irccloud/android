@@ -2937,7 +2937,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             for(int i = adapter.getCount() - 1; i >= 0; i--) {
                 Event e = (Event)adapter.getItem(i);
                 adapter.format(e, false);
-                new LinkifyTask(e).doInBackground((Void)null);
+                if(!e.linkified)
+                    new LinkifyTask(e).doInBackground((Void)null);
             }
             return null;
         }
