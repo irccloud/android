@@ -654,6 +654,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                     if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
                         e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), false, null);
+                        e.linkified = false;
                     }
                     if (e.html != null && e.formatted == null) {
                         try {
@@ -1724,7 +1725,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     @Override
-    public void setArguments(Bundle args) {
+    public synchronized void setArguments(Bundle args) {
         ready = false;
         if(args == null)
             return;
@@ -1846,7 +1847,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private void insertEvent(final MessageAdapter messageAdapter, final Event event, final boolean backlog, boolean nextIsGrouped) {
         synchronized (MessageViewFragment.class) {
             event.ready_for_display = false;
-            event.formatted = null;
             try {
                 long start = System.currentTimeMillis();
                 if (event.eid <= buffer.getMin_eid() || (msgid != null && msgids.containsKey(msgid))) {
@@ -2000,20 +2000,23 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     currentCollapsedEid = -1;
                     lastCollapsedEid = -1;
                     collapsedEvents.clear();
-                    String msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
-                    if(!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
-                        msg = "<large>" + msg + "</large>";
 
-                    if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
-                        event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
-                    else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
-                        event.html = "<b>" + event.server + "</b> " + msg;
-                    else
-                        event.html = msg;
-                    if(event.html != null && event.msg != null)
-                        event.mention_offset = event.html.length() - event.msg.length();
-                    if(event.type.equals("channel_topic") && event.msg.startsWith("set the topic: "))
-                        event.mention_offset += 15;
+                    if(event.html == null) {
+                        String msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
+                        if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                            msg = "<large>" + msg + "</large>";
+
+                        if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
+                        else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
+                            event.html = "<b>" + event.server + "</b> " + msg;
+                        else
+                            event.html = msg;
+                        if (event.html != null && event.msg != null)
+                            event.mention_offset = event.html.length() - event.msg.length();
+                        if (event.type.equals("channel_topic") && event.msg.startsWith("set the topic: "))
+                            event.mention_offset += 15;
+                    }
                 }
 
                 String collapsedNickColor = Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2);
@@ -2126,7 +2129,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                                 if (pos > 0 && pos < original_msg.length()) {
                                     Event e = new Event(event);
-                                    e.html = original_msg.substring(pos, original_msg.length());
+                                    e.html = original_msg.substring(pos);
                                     boolean strippedSpace = false;
                                     if (e.html.startsWith(" ")) {
                                         e.html = e.html.substring(1);
@@ -3099,18 +3102,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 } else {
                     pref_expandJoinPart = (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid())));
                 }
-
-                /*JSONObject disableFilesMap = null;
-                if (buffer.isChannel()) {
-                    if (prefs.has("channel-files-disableinline"))
-                        disableFilesMap = prefs.getJSONObject("channel-files-disableinline");
-                } else {
-                    if (prefs.has("buffer-files-disableinline"))
-                        disableFilesMap = prefs.getJSONObject("buffer-files-disableinline");
-                }
-
-                pref_disableInlineFiles = ((prefs.has("files-disableinline") && prefs.get("files-disableinline") instanceof Boolean && prefs.getBoolean("files-disableinline")) || (disableFilesMap != null && disableFilesMap.has(String.valueOf(buffer.getBid())) && disableFilesMap.getBoolean(String.valueOf(buffer.getBid()))));
-*/
 
                 if(prefs.has("inlineimages") && prefs.get("inlineimages") instanceof Boolean && prefs.getBoolean("inlineimages")) {
                     JSONObject inlineImagesMap = null;
