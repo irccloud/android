@@ -2930,17 +2930,22 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected Void doInBackground(Void... params) {
-            for(Event e : events.values()) {
-                adapter.format(e, false);
-                if(!e.linkified)
-                    new LinkifyTask(e).doInBackground((Void)null);
+            if(events != null) {
+                for (Event e : events.values()) {
+                    if (e != null) {
+                        adapter.format(e, false);
+                        if (!e.linkified)
+                            new LinkifyTask(e).doInBackground((Void) null);
+                    }
+                }
             }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            adapter.notifyDataSetChanged();
+            if(this.adapter != null)
+                this.adapter.notifyDataSetChanged();
         }
     }
 
@@ -3003,7 +3008,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if(notify)
+            if(adapter != null && notify)
                 adapter.notifyDataSetChanged();
         }
     }
