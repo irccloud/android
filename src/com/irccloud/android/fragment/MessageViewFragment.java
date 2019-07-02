@@ -83,12 +83,9 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.OffsetLinearLayout;
 import com.irccloud.android.R;
 import com.irccloud.android.activity.BaseActivity;
-import com.irccloud.android.activity.ImageViewerActivity;
 import com.irccloud.android.activity.MainActivity;
-import com.irccloud.android.activity.UploadsActivity;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.ImageList;
-import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -103,7 +100,6 @@ import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -1969,7 +1965,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(collapsedEvents.getCollapsedMessage(true)), false, server);
                     if (msg == null && type.equals("nickchange")) {
                         msg = event.old_nick + " → <b>" + event.nick + "</b>";
-                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(event.old_nick + " changed nickname to " + event.nick));
+                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(event.old_nick + " notify nickname to " + event.nick));
                     }
                     if (msg == null && type.equals("user_channel_mode")) {
                         if (event.from != null && event.from.length() > 0)
@@ -2934,18 +2930,23 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected Void doInBackground(Void... params) {
-            for(int i = adapter.getCount() - 1; i >= 0; i--) {
-                Event e = (Event)adapter.getItem(i);
+            for(Event e : events.values()) {
                 adapter.format(e, false);
                 if(!e.linkified)
                     new LinkifyTask(e).doInBackground((Void)null);
             }
             return null;
         }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private class LinkifyTask extends AsyncTaskEx<Void, Void, Void> {
         private Event e;
+        private boolean notify = false;
 
         public LinkifyTask(Event event) {
             e = event;
@@ -2958,14 +2959,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if (!e.linkified) {
                         if (e.formatted != null && e.linkify) {
                             ColorFormatter.linkify((Spannable) e.formatted, server, e.entities);
+                            notify = true;
                         }
 
                         if (e.contentDescription != null && e.linkify) {
                             ColorFormatter.linkify((Spannable) e.contentDescription, server, e.entities);
+                            notify = true;
                         }
 
                         if (e.formatted_realname != null) {
                             ColorFormatter.linkify((Spannable) e.formatted_realname, server, e.entities);
+                            notify = true;
                         }
 
                     }
@@ -2990,32 +2994,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
                         }
                     }
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ListView listView = getListView();
-                            if (listView.getAdapter() != null && listView.getAdapter().getCount() > 0) {
-                                try {
-                                    int first = listView.getFirstVisiblePosition();
-                                    int last = listView.getLastVisiblePosition();
-
-                                    for (int j = first; j <= last; j++) {
-                                        if (e == listView.getAdapter().getItem(j)) {
-                                            View view = listView.getChildAt(j - first);
-                                            listView.getAdapter().getView(j, view, listView);
-                                        }
-                                    }
-                                } catch (Exception ex) {
-                                }
-                            }
-                        }
-                    });
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(notify)
+                adapter.notifyDataSetChanged();
         }
     }
 
