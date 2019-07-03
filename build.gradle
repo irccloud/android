@@ -68,7 +68,7 @@ android {
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 243
+        versionCode 244
         versionName "4.18.2"
         minSdkVersion 17
         targetSdkVersion 29
@@ -355,7 +355,7 @@ tasks.whenTaskAdded { task ->
 
 dependencies {
     implementation 'android.arch.work:work-runtime:1.0.1'
-    implementation 'androidx.appcompat:appcompat:1.1.0-beta01'
+    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
     implementation 'androidx.sharetarget:sharetarget:1.0.0-alpha02'
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.0.0"
@@ -369,7 +369,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:16.0.1"
     implementation "com.google.android.gms:play-services-identity:16.0.0"
     implementation 'com.google.android.gms:play-services-ads:16.0.0'
-    implementation 'com.google.firebase:firebase-messaging:18.0.0'
+    implementation 'com.google.firebase:firebase-messaging:19.0.1'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.7'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
