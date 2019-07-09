@@ -289,38 +289,41 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 }
 
                 if (e.isConsole()) {
-                    ObjectNode fail_info = ServersList.getInstance().getServer(e.getCid()).getFail_info();
+                    Server s = ServersList.getInstance().getServer(e.getCid());
+                    if (s != null) {
+                        ObjectNode fail_info = s.getFail_info();
 
-                    if (fail_info != null && fail_info.has("type")) {
-                        if (firstFailurePosition == -1 || firstFailurePosition > pos)
-                            firstFailurePosition = pos;
-                        if (lastFailurePosition == -1 || lastFailurePosition < pos)
-                            lastFailurePosition = pos;
-                    } else {
-                        if (firstFailurePosition == pos) {
-                            firstFailurePosition = -1;
-                            for (int i = 0; i < data.size(); i++) {
-                                Buffer j = data.get(i);
-                                Server s = j.getServer();
-                                if(j.isConsole() && s != null) {
-                                    fail_info = s.getFail_info();
-                                    if (fail_info != null && fail_info.has("type")) {
-                                        firstFailurePosition = i;
-                                        break;
+                        if (fail_info != null && fail_info.has("type")) {
+                            if (firstFailurePosition == -1 || firstFailurePosition > pos)
+                                firstFailurePosition = pos;
+                            if (lastFailurePosition == -1 || lastFailurePosition < pos)
+                                lastFailurePosition = pos;
+                        } else {
+                            if (firstFailurePosition == pos) {
+                                firstFailurePosition = -1;
+                                for (int i = 0; i < data.size(); i++) {
+                                    Buffer j = data.get(i);
+                                    s = j.getServer();
+                                    if (j.isConsole() && s != null) {
+                                        fail_info = s.getFail_info();
+                                        if (fail_info != null && fail_info.has("type")) {
+                                            firstFailurePosition = i;
+                                            break;
+                                        }
                                     }
                                 }
                             }
-                        }
-                        if (lastFailurePosition == pos) {
-                            lastFailurePosition = -1;
-                            for (int i = pos; i >= 0; i--) {
-                                Buffer j = data.get(i);
-                                Server s = j.getServer();
-                                if(j.isConsole() && s != null) {
-                                    fail_info = s.getFail_info();
-                                    if (fail_info != null && fail_info.has("type")) {
-                                        lastFailurePosition = i;
-                                        break;
+                            if (lastFailurePosition == pos) {
+                                lastFailurePosition = -1;
+                                for (int i = pos; i >= 0; i--) {
+                                    Buffer j = data.get(i);
+                                    s = j.getServer();
+                                    if (j.isConsole() && s != null) {
+                                        fail_info = s.getFail_info();
+                                        if (fail_info != null && fail_info.has("type")) {
+                                            lastFailurePosition = i;
+                                            break;
+                                        }
                                     }
                                 }
                             }
