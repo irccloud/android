@@ -2210,6 +2210,35 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         return config;
     }
 
+    public void promptToJoin(final String channel, final String key, final Server s) {
+        if(channel != null && s != null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+            builder.setTitle("Join A Channel");
+
+            builder.setMessage("Are you sure you want to join the channel " + channel + " on " + ((s.getName() != null && s.getName().length() > 0) ? s.getName() : s.getHostname()) + "?");
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            builder.setPositiveButton("Join", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    conn.join(s.getCid(), channel, key, null);
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.setOwnerActivity(MainActivity.this);
+            dialog.show();
+        }
+    }
+
     private boolean open_uri(Uri uri) {
         if (uri != null && conn != null && conn.ready) {
             launchURI = null;
@@ -2251,7 +2280,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if(channel.substring(0,1).matches("[a-zA-Z0-9]"))
                             conn.say(s.getCid(), null, "/query " + channel, null);
                         else
-                            conn.join(s.getCid(), channel, key, null);
+                            promptToJoin(channel, key, s);
                     }
                     return true;
                 } else {

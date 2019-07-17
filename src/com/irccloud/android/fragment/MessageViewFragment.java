@@ -86,6 +86,7 @@ import com.irccloud.android.activity.BaseActivity;
 import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.ImageList;
+import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -2545,7 +2546,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         Event e = adapter.data.get(position);
                                         if (e != null) {
                                             if (e.type.equals("channel_invite")) {
-                                                conn.join(buffer.getCid(), e.old_nick, null, null);
+                                                if(mListener != null)
+                                                    mListener.promptToJoin(e.old_nick, null, server);
                                             } else if (e.type.equals("callerid")) {
                                                 conn.say(buffer.getCid(), null, "/accept " + e.from, null);
                                                 Buffer b = BuffersList.getInstance().getBufferByName(buffer.getCid(), e.from);
@@ -3893,5 +3895,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         void onMessageDoubleClicked(Event event);
 
         void onFailedMessageClicked(Event event);
+
+        void promptToJoin(String channel, String key, Server server);
     }
 }
