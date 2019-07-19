@@ -166,6 +166,7 @@ public class BuffersList {
                 UsersList.getInstance().deleteUsersForBuffer(b.getBid());
             }
             EventsList.getInstance().deleteEventsForBuffer(bid);
+            RecentConversationsList.getInstance().deleteConversation(b.getCid(), b.getBid());
             buffers.remove(b);
             //b.delete();
         }

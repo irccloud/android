@@ -94,6 +94,12 @@ public class RecentConversationsList {
         return IRCCloudDatabase.getInstance().RecentConversationsDao().getConversation(cid, bid);
     }
 
+    public void deleteConversation(int cid, int bid) {
+        RecentConversation c = getConversation(cid,bid);
+        if(c != null)
+            IRCCloudDatabase.getInstance().RecentConversationsDao().delete(c);
+    }
+
     public void updateConversation(int cid, int bid, long timestamp) {
         RecentConversation c = getConversation(cid, bid);
         if(c != null) {
