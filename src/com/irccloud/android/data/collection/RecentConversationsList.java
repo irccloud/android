@@ -127,7 +127,7 @@ public class RecentConversationsList {
         List<RecentConversation> conversations = getConversations();
         IRCCloudDatabase.getInstance().beginTransaction();
         for(RecentConversation c : conversations) {
-            if(BuffersList.getInstance().getBuffer(c.getBid()) == null) {
+            if(BuffersList.getInstance().getBuffer(c.getBid()) == null || BuffersList.getInstance().getBuffer(c.getBid()).getArchived() == 1) {
                 IRCCloudDatabase.getInstance().RecentConversationsDao().delete(c);
             }
         }

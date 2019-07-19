@@ -1283,7 +1283,7 @@ public class NetworkConnection {
         userInfo = null;
         session = null;
         ImageList.getInstance().purge();
-        RecentConversationsList.getInstance().clear();
+        mRecentConversations.clear();
         LogExportsList.getInstance().clear();
         save(100);
     }
@@ -2405,6 +2405,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mServers.deleteAllDataForServer(object.cid());
                 NotificationsList.getInstance().pruneNotificationChannels();
+                mRecentConversations.prune();
                 if (!backlog)
                     notifyHandlers(EVENT_CONNECTIONDELETED, object.cid());
             }
@@ -2477,6 +2478,7 @@ public class NetworkConnection {
                 mBuffers.deleteAllDataForBuffer(object.bid());
                 NotificationsList.getInstance().deleteNotificationsForBid(object.bid());
                 NotificationsList.getInstance().pruneNotificationChannels();
+                mRecentConversations.prune();
                 if (!backlog)
                     notifyHandlers(EVENT_DELETEBUFFER, object.bid());
             }
@@ -2488,6 +2490,7 @@ public class NetworkConnection {
                 if(b != null)
                     b.setArchived(1);
                 if (!backlog) {
+                    mRecentConversations.prune();
                     notifyHandlers(EVENT_BUFFERARCHIVED, object.bid());
                 }
             }
