@@ -41,6 +41,8 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.CharacterStyle;
+import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.util.Log;
@@ -2963,42 +2965,59 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         protected Void doInBackground(Void... params) {
             try {
                 if (e != null) {
-                    if (!e.linkified) {
-                        if (e.formatted != null && e.linkify) {
-                            ColorFormatter.linkify((Spannable) e.formatted, server, e.entities);
-                            notify = true;
-                        }
-
-                        if (e.contentDescription != null && e.linkify) {
-                            ColorFormatter.linkify((Spannable) e.contentDescription, server, e.entities);
-                            notify = true;
-                        }
-
-                        if (e.formatted_realname != null) {
-                            ColorFormatter.linkify((Spannable) e.formatted_realname, server, e.entities);
-                            notify = true;
-                        }
-
-                    }
-                    e.linkified = true;
-
-                    if (e.formatted != null) {
-                        synchronized (e.formatted) {
-                            if (e.entities != null && NetworkConnection.file_uri_template != null && e.entities.has("files")) {
-                                UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
-                                String file_url_prefix = template.expand().toLowerCase();
-                                URLSpan[] urls = e.formatted.getSpans(0, e.formatted.length(), URLSpan.class);
-                                for (URLSpan url : urls) {
-                                    for (JsonNode file : e.entities.get("files")) {
-                                        if (url.getURL().toLowerCase().startsWith(file_url_prefix) && url.getURL().contains(file.get("id").asText())) {
-                                            IRCCloudLinkMovementMethod.addFileID(url.getURL(), file.get("id").asText());
+                    synchronized (e) {
+                        if (!e.linkified) {
+                            if (e.formatted != null && e.linkify) {
+                                ColorFormatter.linkify((Spannable) e.formatted, server, e.entities);
+                                if(pref_chatOneLine || e.type.equals("buffer_me_msg")) {
+                                    String from = e.from;
+                                    if (from == null)
+                                        from = e.nick;
+                                    if (from != null) {
+                                        Matcher m = Pattern.compile("(^|\\s)" + Pattern.quote(from) + "($|\\s)").matcher(e.formatted);
+                                        if (m.find() && m.start() < 4) {
+                                            ClickableSpan[] spans = e.formatted.getSpans(m.start(), m.end(), ClickableSpan.class);
+                                            if (spans != null) {
+                                                for (ClickableSpan span : spans)
+                                                    ((Spannable) e.formatted).removeSpan(span);
+                                            }
                                         }
                                     }
                                 }
+                                notify = true;
                             }
 
-                            if (precomputedTextParams != null)
-                                e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
+                            if (e.contentDescription != null && e.linkify) {
+                                ColorFormatter.linkify((Spannable) e.contentDescription, server, e.entities);
+                                notify = true;
+                            }
+
+                            if (e.formatted_realname != null) {
+                                ColorFormatter.linkify((Spannable) e.formatted_realname, server, e.entities);
+                                notify = true;
+                            }
+
+                        }
+                        e.linkified = true;
+
+                        if (e.formatted != null) {
+                            synchronized (e.formatted) {
+                                if (e.entities != null && NetworkConnection.file_uri_template != null && e.entities.has("files")) {
+                                    UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
+                                    String file_url_prefix = template.expand().toLowerCase();
+                                    URLSpan[] urls = e.formatted.getSpans(0, e.formatted.length(), URLSpan.class);
+                                    for (URLSpan url : urls) {
+                                        for (JsonNode file : e.entities.get("files")) {
+                                            if (url.getURL().toLowerCase().startsWith(file_url_prefix) && url.getURL().contains(file.get("id").asText())) {
+                                                IRCCloudLinkMovementMethod.addFileID(url.getURL(), file.get("id").asText());
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (precomputedTextParams != null)
+                                    e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
+                            }
                         }
                     }
                 }
