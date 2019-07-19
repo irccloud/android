@@ -156,8 +156,12 @@ public class RecentConversationsList {
             for(RecentConversation c : conversations) {
                 Buffer b = BuffersList.getInstance().getBuffer(c.getBid());
                 if(b == null) {
-                    BuffersList.getInstance().createBuffer(c.getBid(), c.getCid(), 0, 0, c.getName(), c.getType(), 0, 1, 0, 0);
-                    b = BuffersList.getInstance().getBuffer(c.getBid());
+                    b = new Buffer();
+                    b.setCid(c.getCid());
+                    b.setBid(c.getBid());
+                    b.setName(c.getName());
+                    b.setType(c.getType());
+                    b.setDeferred(1);
                 }
                 IconCompat avatar = null;
                 if(b.isConversation()) {
