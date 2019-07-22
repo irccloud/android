@@ -522,7 +522,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
         registerReceiver(timeZoneReceiver, filter);
 
-        setContentView(R.layout.activity_message);
+        try {
+            setContentView(R.layout.activity_message);
+        } catch (Exception e) {
+            Toast.makeText(this, "Unable to load resources required for this device configuration.  Please reinstall the app from the Play Store or install the correct APKs for this device configuration.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         suggestionsAdapter = new SuggestionsAdapter();
         progressBar = findViewById(R.id.progress);
@@ -2106,11 +2112,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         super.onStart();
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                String packageName = CustomTabsHelper.getPackageNameToUse(this);
-                if (packageName != null && packageName.length() > 0)
-                    CustomTabsClient.bindCustomTabsService(this, packageName, mCustomTabsConnection);
-            }
+            String packageName = CustomTabsHelper.getPackageNameToUse(this);
+            if (packageName != null && packageName.length() > 0)
+                CustomTabsClient.bindCustomTabsService(this, packageName, mCustomTabsConnection);
         } catch (Exception e) {
         }
     }
@@ -2129,11 +2133,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         ExcludeBIDTask t = new ExcludeBIDTask();
         t.execute(-1);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            try {
-                unbindService(mCustomTabsConnection);
-            } catch (Exception e) {
-            }
+        try {
+            unbindService(mCustomTabsConnection);
+        } catch (Exception e) {
         }
     }
 

@@ -377,11 +377,9 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     @Override
     protected void onStop() {
         super.onStop();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            try {
-                unbindService(mCustomTabsConnection);
-            } catch (Exception e) {
-            }
+        try {
+            unbindService(mCustomTabsConnection);
+        } catch (Exception e) {
         }
         handler.removeCallbacks(mUpdateRunnable);
     }
@@ -407,11 +405,9 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         super.onStart();
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                String packageName = CustomTabsHelper.getPackageNameToUse(this);
-                if (packageName != null && packageName.length() > 0)
-                    CustomTabsClient.bindCustomTabsService(this, packageName, mCustomTabsConnection);
-            }
+            String packageName = CustomTabsHelper.getPackageNameToUse(this);
+            if (packageName != null && packageName.length() > 0)
+                CustomTabsClient.bindCustomTabsService(this, packageName, mCustomTabsConnection);
         } catch (Exception e) {
         }
     }

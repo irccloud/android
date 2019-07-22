@@ -83,7 +83,7 @@ public class ActionEditText extends IRCEditText {
                     public boolean onCommitContent(InputContentInfoCompat inputContentInfo,
                                                    int flags, Bundle opts) {
                         // read and display inputContentInfo asynchronously
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && (flags &
+                        if ((flags &
                                 InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0) {
                             try {
                                 inputContentInfo.requestPermission();

@@ -194,14 +194,22 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     @Override
     protected void onStart() {
         super.onStart();
-        if (!mResolvingError) {
-            mGoogleApiClient.connect();
+        try {
+            if (!mResolvingError) {
+                mGoogleApiClient.connect();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     protected void onStop() {
-        mGoogleApiClient.disconnect();
+        try {
+            mGoogleApiClient.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             super.onStop();
         } catch (IllegalStateException e) {

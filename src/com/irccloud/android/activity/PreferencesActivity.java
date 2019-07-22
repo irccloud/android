@@ -361,7 +361,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
 
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 || CustomTabsHelper.getPackageNameToUse(this) == null) {
+        if(CustomTabsHelper.getPackageNameToUse(this) == null) {
             PreferenceCategory c = (PreferenceCategory) findPreference("device");
             c.removePreference(findPreference("browser"));
         }
@@ -918,22 +918,17 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 url = "https://www.irccloud.com/faq#faq-avatars";
             if(url != null) {
                 Answers.getInstance().logCustom(new CustomEvent("prefs_url").putCustomAttribute("url", url));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-                    builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
-                    builder.addDefaultShareMenuItem();
-                    CustomTabsIntent intent = builder.build();
-                    intent.intent.setData(Uri.parse(url));
-                    if (Build.VERSION.SDK_INT >= 22)
-                        intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
-                    if (intent.startAnimationBundle != null) {
-                        startActivity(intent.intent, intent.startAnimationBundle);
-                    } else {
-                        startActivity(intent.intent);
-                    }
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
+                builder.addDefaultShareMenuItem();
+                CustomTabsIntent intent = builder.build();
+                intent.intent.setData(Uri.parse(url));
+                if (Build.VERSION.SDK_INT >= 22)
+                    intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
+                if (intent.startAnimationBundle != null) {
+                    startActivity(intent.intent, intent.startAnimationBundle);
                 } else {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(intent);
+                    startActivity(intent.intent);
                 }
             }
             finish();

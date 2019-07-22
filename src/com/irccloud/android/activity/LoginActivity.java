@@ -49,6 +49,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
@@ -128,7 +129,13 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        setContentView(R.layout.activity_login);
+        try {
+            setContentView(R.layout.activity_login);
+        } catch (Exception e) {
+            Toast.makeText(this, "Unable to load resources required for this device configuration.  Please reinstall the app from the Play Store or install the correct APKs for this device configuration.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         loading = findViewById(R.id.loading);
 
@@ -580,14 +587,22 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
     @Override
     protected void onStart() {
         super.onStart();
-        if (!mResolvingError) {
-            mGoogleApiClient.connect();
+        try {
+            if (!mResolvingError) {
+                mGoogleApiClient.connect();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     protected void onStop() {
-        mGoogleApiClient.disconnect();
+        try {
+            mGoogleApiClient.disconnect();
+        } catch (Exception e) {
+
+        }
         super.onStop();
     }
 
