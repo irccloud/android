@@ -2470,7 +2470,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (!buffer.getScrolledUp()) {
+                    if (buffer != null && !buffer.getScrolledUp()) {
                         getListView().setSelection(messageAdapter.getCount() - 1);
                         if (tapTimer != null) {
                             tapTimer.schedule(new TimerTask() {
