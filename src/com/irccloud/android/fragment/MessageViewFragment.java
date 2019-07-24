@@ -3022,7 +3022,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Crashlytics.logException(e);
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
             return null;
         }
