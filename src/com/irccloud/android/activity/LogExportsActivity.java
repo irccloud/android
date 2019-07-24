@@ -286,10 +286,11 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                     types[0] = "This Channel (" + b.getName() + ")";
                 else if (b.isConversation())
                     types[0] = "This Conversation (" + b.getName() + ")";
-                else
+                else if (s != null)
                     types[0] = "This Network Console (" + s.getHostname() + ")";
 
-                types[1] = "This Network (" + ((s.getName() != null && s.getName().length() > 0) ? s.getName() : s.getHostname()) + ")";
+                if(s != null)
+                    types[1] = "This Network (" + ((s.getName() != null && s.getName().length() > 0) ? s.getName() : s.getHostname()) + ")";
             }
         } else {
             findViewById(R.id.textPrompt).setVisibility(View.GONE);
