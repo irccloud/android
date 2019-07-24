@@ -2081,8 +2081,6 @@ public class NetworkConnection {
                 if (object.has("accrued"))
                     accrued = object.getInt("accrued");
                 state = STATE_CONNECTED;
-                mBuffers.invalidate();
-                mChannels.invalidate();
                 ImageList.getInstance().clear();
                 ImageList.getInstance().clearFailures();
                 notifyHandlers(EVENT_CONNECTIVITY, null);
@@ -2240,6 +2238,8 @@ public class NetworkConnection {
                 try {
                     ready = false;
                     backlog = true;
+                    mBuffers.invalidate();
+                    mChannels.invalidate();
                     OOBFetcher t = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + object.getString("url")), -1);
                     synchronized (oobTasks) {
                         oobTasks.put(-1, t);
@@ -3112,6 +3112,7 @@ public class NetworkConnection {
                                     e.formatted = null;
                                     e.html = null;
                                     e.ready_for_display = false;
+                                    e.linkified = false;
                                 }
                                 found = true;
                                 break;
