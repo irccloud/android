@@ -4670,12 +4670,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             drawerLayout.closeDrawers();
 
         if (messageTxt.getText().length() == 0) {
-            if(server.isSlack())
+            if(server != null && server.isSlack())
                 messageTxt.append("@" + from + " ");
             else
                 messageTxt.append(from + ": ");
         } else {
-            if(server.isSlack())
+            if(server != null && server.isSlack())
                 from = "@" + from;
             int oldPosition = messageTxt.getSelectionStart();
             if(oldPosition < 0)
