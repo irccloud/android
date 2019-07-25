@@ -1655,6 +1655,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             e.bg_color = colorScheme.errorBackgroundColor;
                             e.formatted = null;
                             e.expiration_timer = null;
+                            e.linkified = false;
                             if (conn != null)
                                 conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
                         }

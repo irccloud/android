@@ -657,10 +657,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                     if (e.html != null && e.formatted == null) {
                         try {
-                            e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0));
+                            String html = e.html;
+                            html = ColorFormatter.emojify(ColorFormatter.irc_to_html(html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0));
                             if(e.edited)
-                                e.html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
-                            e.formatted = ColorFormatter.html_to_spanned(e.html, false, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
+                                html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
+                            e.formatted = ColorFormatter.html_to_spanned(html, false, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
                             if (e.group_msg == null && e.msg != null && e.msg.length() > 0) {
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), false, server);
                             }
@@ -2000,21 +2001,23 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     lastCollapsedEid = -1;
                     collapsedEvents.clear();
 
-                    if(event.html == null) {
-                        String msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
-                        if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
-                            msg = "<large>" + msg + "</large>";
+                    synchronized(formatLock) {
+                        if (event.html == null) {
+                            String msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
+                            if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                                msg = "<large>" + msg + "</large>";
 
-                        if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
-                        else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
-                            event.html = "<b>" + event.server + "</b> " + msg;
-                        else
-                            event.html = msg;
-                        if (event.html != null && event.msg != null)
-                            event.mention_offset = event.html.length() - event.msg.length();
-                        if (event.type.equals("channel_topic") && event.msg.startsWith("set the topic: "))
-                            event.mention_offset += 15;
+                            if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
+                                event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
+                            else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
+                                event.html = "<b>" + event.server + "</b> " + msg;
+                            else
+                                event.html = msg;
+                            if (event.html != null && event.msg != null)
+                                event.mention_offset = event.html.length() - event.msg.length();
+                            if (event.type.equals("channel_topic") && event.msg.startsWith("set the topic: "))
+                                event.mention_offset += 15;
+                        }
                     }
                 }
 
@@ -2040,204 +2043,206 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(event.row_type == ROW_THUMBNAIL) {
                     event.html = event.msg;
                 } else {
-                    switch (type) {
-                        case "channel_mode":
-                            if (event.nick != null && event.nick.length() > 0)
-                                event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false) + "</b>";
-                            else if (event.server != null && event.server.length() > 0)
-                                event.html = event.msg + " by the server <b>" + event.server + "</b>";
-                            break;
-                        case "buffer_me_msg":
-                            msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
-                            if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
-                                msg = "<large>" + msg + "</large>";
-                            event.html = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
-                            event.mention_offset = event.html.length() - msg.length();
-                            break;
-                        case "buffer_msg":
-                        case "notice":
-                            event.code_block = false;
-                            event.mention_offset = type.equals("notice")?5:0;
-                            event.color = ColorScheme.getInstance().messageTextColor;
-                            msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
-                            if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
-                                msg = "<large>" + msg + "</large>";
+                    synchronized (formatLock) {
+                        switch (type) {
+                            case "channel_mode":
+                                if (event.nick != null && event.nick.length() > 0)
+                                    event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false) + "</b>";
+                                else if (event.server != null && event.server.length() > 0)
+                                    event.html = event.msg + " by the server <b>" + event.server + "</b>";
+                                break;
+                            case "buffer_me_msg":
+                                msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
+                                if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                                    msg = "<large>" + msg + "</large>";
+                                event.html = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
+                                event.mention_offset = event.html.length() - msg.length();
+                                break;
+                            case "buffer_msg":
+                            case "notice":
+                                event.code_block = false;
+                                event.mention_offset = type.equals("notice") ? 5 : 0;
+                                event.color = ColorScheme.getInstance().messageTextColor;
+                                msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
+                                if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                                    msg = "<large>" + msg + "</large>";
 
-                            if (!pref_disableCodeBlock) {
-                                String original_msg = msg;
-                                Matcher m = IS_CODE_BLOCK.matcher(original_msg);
-                                int pos = -1;
-                                String lastChunk = "";
+                                if (!pref_disableCodeBlock) {
+                                    String original_msg = msg;
+                                    Matcher m = IS_CODE_BLOCK.matcher(original_msg);
+                                    int pos = -1;
+                                    String lastChunk = "";
 
-                                while (m.find()) {
-                                    if (pos == -1)
-                                        pos = 0;
+                                    while (m.find()) {
+                                        if (pos == -1)
+                                            pos = 0;
 
-                                    if (m.start() > 0)
-                                        lastChunk = original_msg.substring(pos, m.start());
-                                    boolean strippedSpace = false;
-                                    if (lastChunk.startsWith(" ") && lastChunk.length() > 1) {
-                                        lastChunk = lastChunk.substring(1);
-                                        strippedSpace = true;
+                                        if (m.start() > 0)
+                                            lastChunk = original_msg.substring(pos, m.start());
+                                        boolean strippedSpace = false;
+                                        if (lastChunk.startsWith(" ") && lastChunk.length() > 1) {
+                                            lastChunk = lastChunk.substring(1);
+                                            strippedSpace = true;
+                                        }
+
+                                        if (pos > 0) {
+                                            Event e = new Event(event);
+                                            e.html = lastChunk;
+                                            e.timestamp = "";
+                                            e.header = false;
+                                            e.parent_eid = eid;
+                                            if (!pref_disableCodeSpan) {
+                                                e.html = ColorFormatter.insert_codespans(e.html);
+                                            }
+                                            e.mention_offset = -pos;
+                                            if (strippedSpace)
+                                                e.mention_offset--;
+                                            e.ready_for_display = true;
+                                            if (!backlog)
+                                                messageAdapter.format(e);
+                                            messageAdapter.insertBelow(eid, e);
+                                        } else {
+                                            msg = lastChunk;
+                                            messageAdapter.addItem(event.eid, event);
+                                        }
+
+                                        if (m.start() == 0 && !pref_chatOneLine) {
+                                            msg = original_msg.substring(3, m.end() - 3);
+                                            event.code_block = true;
+                                            event.color = ColorScheme.getInstance().codeSpanForegroundColor;
+                                            event.mention_offset = -3;
+                                            messageAdapter.addItem(event.eid, event);
+                                        } else {
+                                            Event e = new Event(event);
+                                            e.html = original_msg.substring(m.start() + 3, m.end() - 3);
+                                            e.timestamp = "";
+                                            e.code_block = true;
+                                            e.color = ColorScheme.getInstance().codeSpanForegroundColor;
+                                            e.header = false;
+                                            e.parent_eid = eid;
+                                            e.mention_offset = -(m.start() + 3);
+                                            e.ready_for_display = true;
+                                            if (!backlog)
+                                                messageAdapter.format(e);
+                                            messageAdapter.insertBelow(eid, e);
+                                        }
+
+                                        pos = m.end();
                                     }
 
-                                    if (pos > 0) {
+                                    if (pos > 0 && pos < original_msg.length()) {
                                         Event e = new Event(event);
-                                        e.html = lastChunk;
-                                        e.timestamp = "";
-                                        e.header = false;
-                                        e.parent_eid = eid;
+                                        e.html = original_msg.substring(pos);
+                                        boolean strippedSpace = false;
+                                        if (e.html.startsWith(" ")) {
+                                            e.html = e.html.substring(1);
+                                            strippedSpace = true;
+                                        }
                                         if (!pref_disableCodeSpan) {
                                             e.html = ColorFormatter.insert_codespans(e.html);
                                         }
-                                        e.mention_offset = -pos;
-                                        if(strippedSpace)
-                                            e.mention_offset--;
-                                        e.ready_for_display = true;
-                                        if(!backlog)
-                                            messageAdapter.format(e);
-                                        messageAdapter.insertBelow(eid, e);
-                                    } else {
-                                        msg = lastChunk;
-                                        messageAdapter.addItem(event.eid, event);
-                                    }
-
-                                    if (m.start() == 0 && !pref_chatOneLine) {
-                                        msg = original_msg.substring(3, m.end() - 3);
-                                        event.code_block = true;
-                                        event.color = ColorScheme.getInstance().codeSpanForegroundColor;
-                                        event.mention_offset = -3;
-                                        messageAdapter.addItem(event.eid, event);
-                                    } else {
-                                        Event e = new Event(event);
-                                        e.html = original_msg.substring(m.start() + 3, m.end() - 3);
                                         e.timestamp = "";
-                                        e.code_block = true;
-                                        e.color = ColorScheme.getInstance().codeSpanForegroundColor;
                                         e.header = false;
                                         e.parent_eid = eid;
-                                        e.mention_offset = -(m.start() + 3);
+                                        e.mention_offset = -pos;
+                                        if (strippedSpace)
+                                            e.mention_offset--;
                                         e.ready_for_display = true;
-                                        if(!backlog)
-                                            messageAdapter.format(e);
-                                        messageAdapter.insertBelow(eid, e);
+                                        if (e.html.length() > 0)
+                                            messageAdapter.insertBelow(eid, e);
                                     }
-
-                                    pos = m.end();
                                 }
 
-                                if (pos > 0 && pos < original_msg.length()) {
-                                    Event e = new Event(event);
-                                    e.html = original_msg.substring(pos);
-                                    boolean strippedSpace = false;
-                                    if (e.html.startsWith(" ")) {
-                                        e.html = e.html.substring(1);
-                                        strippedSpace = true;
-                                    }
-                                    if (!pref_disableCodeSpan) {
-                                        e.html = ColorFormatter.insert_codespans(e.html);
-                                    }
-                                    e.timestamp = "";
-                                    e.header = false;
-                                    e.parent_eid = eid;
-                                    e.mention_offset = -pos;
-                                    if(strippedSpace)
-                                        e.mention_offset--;
-                                    e.ready_for_display = true;
-                                    if (e.html.length() > 0)
-                                        messageAdapter.insertBelow(eid, e);
+                                if (!pref_disableCodeSpan) {
+                                    msg = ColorFormatter.insert_codespans(msg);
                                 }
-                            }
 
-                            if (!pref_disableCodeSpan) {
-                                msg = ColorFormatter.insert_codespans(msg);
-                            }
-
-                            String html = "";
-                            if (event.target_mode != null && server != null && server.PREFIX != null) {
-                                if (server.PREFIX.has(server.MODE_OPER) && server.PREFIX.get(server.MODE_OPER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
-                                    html += collapsedEvents.formatNick("Opers", null, server.MODE_OPER, false) + " ";
-                                else if (server.PREFIX.has(server.MODE_OWNER) && server.PREFIX.get(server.MODE_OWNER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OWNER).asText()))
-                                    html += collapsedEvents.formatNick("Owners", null, server.MODE_OWNER, false) + " ";
-                                else if (server.PREFIX.has(server.MODE_ADMIN) && server.PREFIX.get(server.MODE_ADMIN) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_ADMIN).asText()))
-                                    html += collapsedEvents.formatNick("Admins", null, server.MODE_ADMIN, false) + " ";
-                                else if (server.PREFIX.has(server.MODE_OP) && server.PREFIX.get(server.MODE_OP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OP).asText()))
-                                    html += collapsedEvents.formatNick("Ops", null, server.MODE_OP, false) + " ";
-                                else if (server.PREFIX.has(server.MODE_HALFOP) && server.PREFIX.get(server.MODE_HALFOP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_HALFOP).asText()))
-                                    html += collapsedEvents.formatNick("Half Ops", null, server.MODE_HALFOP, false) + " ";
-                                else if (server.PREFIX.has(server.MODE_VOICED) && server.PREFIX.get(server.MODE_VOICED) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_VOICED).asText()))
-                                    html += collapsedEvents.formatNick("Voiced", null, server.MODE_VOICED, false) + " ";
-                            }
-                            if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
-                                html += "<b>" + event.chan + "</b>: " + msg;
-                            } else if (buffer.isConsole() && event.self && event.nick != null && event.nick.length() > 0) {
-                                html += "<b>" + event.nick + "</b>: " + msg;
-                            } else {
-                                html += msg;
-                            }
-                            if(event.mention_offset == 0)
-                                event.mention_offset = html.length() - msg.length();
-                            if (pref_chatOneLine && event.from != null && event.from.length() > 0) {
-                                if (!pref_disableQuote && event.html.length() > 0 && ColorFormatter.is_blockquote(ColorFormatter.html_to_spanned(event.html).toString())) {
-                                    Event e = new Event(event);
-                                    e.timestamp = "";
-                                    e.html = html;
-                                    e.parent_eid = event.eid;
-                                    event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
-                                    messageAdapter.addItem(event.eid, event);
-                                    e.day = event.day;
-                                    messageAdapter.insertBelow(event.eid, e);
+                                String html = "";
+                                if (event.target_mode != null && server != null && server.PREFIX != null) {
+                                    if (server.PREFIX.has(server.MODE_OPER) && server.PREFIX.get(server.MODE_OPER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
+                                        html += collapsedEvents.formatNick("Opers", null, server.MODE_OPER, false) + " ";
+                                    else if (server.PREFIX.has(server.MODE_OWNER) && server.PREFIX.get(server.MODE_OWNER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OWNER).asText()))
+                                        html += collapsedEvents.formatNick("Owners", null, server.MODE_OWNER, false) + " ";
+                                    else if (server.PREFIX.has(server.MODE_ADMIN) && server.PREFIX.get(server.MODE_ADMIN) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_ADMIN).asText()))
+                                        html += collapsedEvents.formatNick("Admins", null, server.MODE_ADMIN, false) + " ";
+                                    else if (server.PREFIX.has(server.MODE_OP) && server.PREFIX.get(server.MODE_OP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OP).asText()))
+                                        html += collapsedEvents.formatNick("Ops", null, server.MODE_OP, false) + " ";
+                                    else if (server.PREFIX.has(server.MODE_HALFOP) && server.PREFIX.get(server.MODE_HALFOP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_HALFOP).asText()))
+                                        html += collapsedEvents.formatNick("Half Ops", null, server.MODE_HALFOP, false) + " ";
+                                    else if (server.PREFIX.has(server.MODE_VOICED) && server.PREFIX.get(server.MODE_VOICED) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_VOICED).asText()))
+                                        html += collapsedEvents.formatNick("Voiced", null, server.MODE_VOICED, false) + " ";
+                                }
+                                if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
+                                    html += "<b>" + event.chan + "</b>: " + msg;
+                                } else if (buffer.isConsole() && event.self && event.nick != null && event.nick.length() > 0) {
+                                    html += "<b>" + event.nick + "</b>: " + msg;
                                 } else {
-                                    int oldLength = html.length();
-                                    html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + html;
-                                    event.mention_offset += html.length() - oldLength;
+                                    html += msg;
                                 }
-                            }
-                            event.html = html;
-                            break;
-                        case "kicked_channel":
-                            event.html = "\u0004" + collapsedNickColor + "← \u000f";
-                            if (event.type.startsWith("you_"))
-                                event.html += "You";
-                            else
-                                event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, null, false, collapsedNickColor) + "</b>";
-                            if (event.hostmask != null && event.hostmask.length() > 0)
-                                event.html += " (" + event.hostmask + ")";
-                            if (event.type.startsWith("you_"))
-                                event.html += " were";
-                            else
-                                event.html += " was";
-                            if (event.from_hostmask != null && event.from_hostmask.length() > 0)
-                                event.html += " kicked by " + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor);
-                            else
-                                event.html += " kicked by the server \u0004" + collapsedNickColor + event.nick + "\u000f";
-                            if (event.msg != null && event.msg.length() > 0 && !event.msg.equals(event.nick))
-                                event.html += ": " + (pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg);
-                            break;
-                        case "callerid":
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false) + "</b> (" + event.hostmask + ") " + event.msg + " Tap to accept.";
-                            break;
-                        case "channel_mode_list_change":
-                            if (event.from.length() == 0) {
-                                if (event.nick != null && event.nick.length() > 0)
-                                    event.html = "<b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false) + "</b> " + event.msg;
-                                else if (event.server != null && event.server.length() > 0)
-                                    event.html = "The server <b>" + event.server + "</b> " + event.msg;
-                            }
-                            break;
-                        case "user_chghost":
-                            event.html = "<b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor) + "</b> " + event.msg;
-                            break;
-                        case "channel_name_change":
-                            if (event.from.length() == 0) {
-                                if (event.server != null && event.server.length() > 0)
-                                    event.html = "The server <b>" + event.server + "</b> " + event.msg;
+                                if (event.mention_offset == 0)
+                                    event.mention_offset = html.length() - msg.length();
+                                if (pref_chatOneLine && event.from != null && event.from.length() > 0) {
+                                    if (!pref_disableQuote && event.html != null && event.html.length() > 0 && ColorFormatter.is_blockquote(ColorFormatter.html_to_spanned(event.html).toString())) {
+                                        Event e = new Event(event);
+                                        e.timestamp = "";
+                                        e.html = html;
+                                        e.parent_eid = event.eid;
+                                        event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
+                                        messageAdapter.addItem(event.eid, event);
+                                        e.day = event.day;
+                                        messageAdapter.insertBelow(event.eid, e);
+                                    } else {
+                                        int oldLength = html.length();
+                                        html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + html;
+                                        event.mention_offset += html.length() - oldLength;
+                                    }
+                                }
+                                event.html = html;
+                                break;
+                            case "kicked_channel":
+                                event.html = "\u0004" + collapsedNickColor + "← \u000f";
+                                if (event.type.startsWith("you_"))
+                                    event.html += "You";
                                 else
-                                    event.html = "The server " + event.msg;
-                            } else {
-                                event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false, Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2)) + "</b> " + event.msg;
-                            }
-                            break;
+                                    event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, null, false, collapsedNickColor) + "</b>";
+                                if (event.hostmask != null && event.hostmask.length() > 0)
+                                    event.html += " (" + event.hostmask + ")";
+                                if (event.type.startsWith("you_"))
+                                    event.html += " were";
+                                else
+                                    event.html += " was";
+                                if (event.from_hostmask != null && event.from_hostmask.length() > 0)
+                                    event.html += " kicked by " + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor);
+                                else
+                                    event.html += " kicked by the server \u0004" + collapsedNickColor + event.nick + "\u000f";
+                                if (event.msg != null && event.msg.length() > 0 && !event.msg.equals(event.nick))
+                                    event.html += ": " + (pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg);
+                                break;
+                            case "callerid":
+                                event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false) + "</b> (" + event.hostmask + ") " + event.msg + " Tap to accept.";
+                                break;
+                            case "channel_mode_list_change":
+                                if (event.from.length() == 0) {
+                                    if (event.nick != null && event.nick.length() > 0)
+                                        event.html = "<b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false) + "</b> " + event.msg;
+                                    else if (event.server != null && event.server.length() > 0)
+                                        event.html = "The server <b>" + event.server + "</b> " + event.msg;
+                                }
+                                break;
+                            case "user_chghost":
+                                event.html = "<b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor) + "</b> " + event.msg;
+                                break;
+                            case "channel_name_change":
+                                if (event.from.length() == 0) {
+                                    if (event.server != null && event.server.length() > 0)
+                                        event.html = "The server <b>" + event.server + "</b> " + event.msg;
+                                    else
+                                        event.html = "The server " + event.msg;
+                                } else {
+                                    event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false, Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2)) + "</b> " + event.msg;
+                                }
+                                break;
+                        }
                     }
                 }
 
@@ -2934,12 +2939,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected Void doInBackground(Void... params) {
-            if(events != null) {
-                for (Event e : events.values()) {
-                    if (e != null) {
-                        adapter.format(e, false);
-                        if (!e.linkified)
-                            new LinkifyTask(e).doInBackground((Void) null);
+            synchronized (this.adapter) {
+                if (events != null) {
+                    for (Event e : events.values()) {
+                        if (e != null) {
+                            adapter.format(e, false);
+                            if(!e.linkified)
+                                new LinkifyTask(e).doInBackground((Void) null);
+                        }
                     }
                 }
             }
