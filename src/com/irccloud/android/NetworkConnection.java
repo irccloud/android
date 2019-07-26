@@ -375,7 +375,7 @@ public class NetworkConnection {
                 public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
                     super.onCapabilitiesChanged(network, networkCapabilities);
 
-                    if(networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                    /*if(networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
                         if (state == STATE_CONNECTED || state == STATE_CONNECTING) {
                             Crashlytics.log(Log.INFO, TAG, "A VPN has connected, reconnecting websocket");
                             cancel_idle_timer();
@@ -388,7 +388,7 @@ public class NetworkConnection {
                             } catch (Exception e) {
                             }
                         }
-                    }
+                    }*/
 
                     Crashlytics.log(Log.INFO, TAG, "Connectivity changed, connected: " + networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
 

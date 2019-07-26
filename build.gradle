@@ -68,7 +68,7 @@ android {
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 249
+        versionCode 250
         versionName "4.19.1"
         minSdkVersion 17
         targetSdkVersion 29
