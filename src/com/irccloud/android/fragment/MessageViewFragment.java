@@ -1525,7 +1525,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
 
             if (conn.ready && !requestingBacklog && headerView != null && buffer.getMin_eid() > 0) {
-                if (firstVisibleItem == 0 && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                if (firstVisibleItem == 0 && visibleItemCount > 1 && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     requestingBacklog = true;
                     conn.request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
                     hide_avatar();
@@ -1811,6 +1811,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 loadBacklogButton.setVisibility(View.GONE);
                 headerView.setVisibility(View.VISIBLE);
                 requestingBacklog = true;
+                buffer.setDeferred(0);
                 NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), 0);
             } else {
                 headerView.setVisibility(View.GONE);
@@ -3298,6 +3299,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         loadBacklogButton.setVisibility(View.GONE);
                                         headerView.setVisibility(View.VISIBLE);
                                         requestingBacklog = true;
+                                        buffer.setDeferred(0);
                                         NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
                                     } else {
                                         loadBacklogButton.setVisibility(View.VISIBLE);
