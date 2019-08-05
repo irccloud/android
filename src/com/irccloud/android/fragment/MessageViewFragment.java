@@ -642,17 +642,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
 
         public void format(Event e) {
-            format(e, true);
-        }
-
-        public void format(Event e, boolean linkify) {
             if (e != null && e.ready_for_display) {
                 synchronized (formatLock) {
                     if (e.formatted_nick == null && e.from != null && e.from.length() > 0) {
                         e.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from_nick, e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
                     }
                     if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
-                        e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), false, null);
+                        e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
                         e.linkified = false;
                     }
                     if (e.html != null && e.formatted == null) {
@@ -661,7 +657,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             html = ColorFormatter.emojify(ColorFormatter.irc_to_html(html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0));
                             if(e.edited)
                                 html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
-                            e.formatted = ColorFormatter.html_to_spanned(html, false, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
+                            e.formatted = ColorFormatter.html_to_spanned(html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
                             if (e.group_msg == null && e.msg != null && e.msg.length() > 0) {
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), false, server);
                             }
@@ -678,7 +674,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if(linkify && !e.linkified) {
+                if(e.linkify && !e.linkified) {
                     new LinkifyTask(e).execute((Void)null);
                 } else if (precomputedTextParams != null && e.formatted != null) {
                     try {
@@ -2944,9 +2940,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (events != null) {
                     for (Event e : events.values()) {
                         if (e != null) {
-                            adapter.format(e, false);
-                            if(!e.linkified)
-                                new LinkifyTask(e).doInBackground((Void) null);
+                            adapter.format(e);
                         }
                     }
                 }
@@ -2976,7 +2970,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     synchronized (e) {
                         if (!e.linkified) {
                             if (e.formatted != null && e.linkify) {
-                                ColorFormatter.linkify((Spannable) e.formatted, server, e.entities);
+                                ColorFormatter.detectLinks((Spannable) e.formatted);
                                 if(pref_chatOneLine || e.type.equals("buffer_me_msg")) {
                                     String from = e.from;
                                     if (from == null)
@@ -2996,12 +2990,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
 
                             if (e.contentDescription != null && e.linkify) {
-                                ColorFormatter.linkify((Spannable) e.contentDescription, server, e.entities);
+                                ColorFormatter.detectLinks((Spannable) e.contentDescription);
                                 notify = true;
                             }
 
                             if (e.formatted_realname != null) {
-                                ColorFormatter.linkify((Spannable) e.formatted_realname, server, e.entities);
+                                ColorFormatter.detectLinks((Spannable) e.formatted_realname);
                                 notify = true;
                             }
 
