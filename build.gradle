@@ -324,8 +324,8 @@ android {
         exclude 'META-INF/LGPL-3.0.txt'
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -356,6 +356,7 @@ tasks.whenTaskAdded { task ->
 dependencies {
     implementation 'android.arch.work:work-runtime:1.0.1'
     implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
+    implementation 'androidx.drawerlayout:drawerlayout:1.1.0-alpha02'
     implementation 'androidx.sharetarget:sharetarget:1.0.0-alpha02'
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.0.0"
