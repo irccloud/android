@@ -3975,7 +3975,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
 
-                    if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && imageCaptureURI.toString().startsWith("file://")) {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && imageCaptureURI.toString().startsWith("file://")) {
                         ContentValues image = new ContentValues();
                         image.put(MediaStore.Images.Media.DATA, imageCaptureURI.toString().substring(7));
                         getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image);
@@ -4155,7 +4155,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO);
                             } else {
                                 try {
-                                    File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
+                                    File imageDir = (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) ?
+                                            new File(Environment.getExternalStorageDirectory(), "IRCCloud") :
+                                            new File(getExternalFilesDir(null), "uploads")
+                                            ;
                                     imageDir.mkdirs();
                                     new File(imageDir, ".nomedia").createNewFile();
                                     File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
@@ -4167,6 +4170,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                         i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
                                     startActivityForResult(i, REQUEST_CAMERA);
                                 } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             }
                             break;
@@ -4175,7 +4179,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_RECORD_VIDEO);
                             } else {
                                 try {
-                                    File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
+                                    File imageDir = (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) ?
+                                            new File(Environment.getExternalStorageDirectory(), "IRCCloud") :
+                                            new File(getExternalFilesDir(null), "uploads")
+                                            ;
                                     imageDir.mkdirs();
                                     new File(imageDir, ".nomedia").createNewFile();
                                     File tempFile = File.createTempFile("irccloudcapture", ".mp4", imageDir);
@@ -4187,6 +4194,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                         i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
                                     startActivityForResult(i, REQUEST_CAMERA);
                                 } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             }
                             break;

@@ -3,4 +3,5 @@
     <external-path name="IRCCloud" path="IRCCloud" />
     <files-path name="logs" path="logs"/>
     <external-files-path name="export" path="export"/>
+    <external-files-path name="uploads" path="uploads"/>
 </paths>
