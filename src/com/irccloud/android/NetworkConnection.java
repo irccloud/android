@@ -2287,10 +2287,7 @@ public class NetworkConnection {
         put("backlog_cache_init", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.deleteEventsForBuffer(object.bid());
-                Buffer b = mBuffers.getBuffer(object.bid());
-                if(b != null && b.getCreated() < object.eid())
-                    b.setDeferred(1);
+                mEvents.deleteEventsBeforeEid(object.bid(), object.eid());
             }
         });
 

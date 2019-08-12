@@ -642,6 +642,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
 
         public void format(Event e) {
+            format(e, false);
+        }
+
+        public void format(Event e, boolean skipLinkify) {
             if (e != null && e.ready_for_display) {
                 synchronized (formatLock) {
                     if (e.formatted_nick == null && e.from != null && e.from.length() > 0) {
@@ -674,7 +678,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if(e.linkify && !e.linkified) {
+                if(e.linkify && !e.linkified && !skipLinkify) {
                     new LinkifyTask(e).execute((Void)null);
                 } else if (precomputedTextParams != null && e.formatted != null) {
                     try {
@@ -2936,11 +2940,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected Void doInBackground(Void... params) {
+            LinkifyTask linkifyTask = new LinkifyTask(null);
             synchronized (this.adapter) {
                 if (events != null) {
                     for (Event e : events.values()) {
                         if (e != null) {
-                            adapter.format(e);
+                            this.adapter.format(e, true);
+                            linkifyTask.e = e;
+                            linkifyTask.doInBackground((Void)null);
                         }
                     }
                 }
@@ -2956,7 +2963,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private class LinkifyTask extends AsyncTaskEx<Void, Void, Void> {
-        private Event e;
+        public Event e;
         private boolean notify = false;
 
         public LinkifyTask(Event event) {

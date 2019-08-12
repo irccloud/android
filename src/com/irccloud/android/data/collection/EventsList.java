@@ -1158,6 +1158,18 @@ public class EventsList {
         //new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).queryClose();
     }
 
+    public synchronized void deleteEventsBeforeEid(int bid, long eid) {
+        Event[] i;
+        synchronized (events) {
+            i = events.get(bid).values().toArray(new Event[events.get(bid).values().size()]);
+        }
+        for (Event e : i) {
+            if(e.eid <= eid) {
+                deleteEvent(e.eid, e.bid);
+            }
+        }
+    }
+
     public TreeMap<Long, Event> getEventsForBuffer(int bid) {
         synchronized (events) {
             load(bid);
