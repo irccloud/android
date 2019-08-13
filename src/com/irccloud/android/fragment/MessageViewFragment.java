@@ -1525,6 +1525,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 return;
             }
 
+            if (firstVisibleItem > 0)
+                fetch_if_needed = false;
+
             if (conn.ready && !requestingBacklog && headerView != null && buffer.getMin_eid() > 0) {
                 if (firstVisibleItem == 0 && visibleItemCount > 1 && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     requestingBacklog = true;
