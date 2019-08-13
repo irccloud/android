@@ -2501,7 +2501,35 @@ public class ColorFormatter {
                 });
             }
 
-            cleanupSpans(output);
+            URLSpan[] spans = output.getSpans(0, output.length(), URLSpan.class);
+            for (URLSpan span : spans) {
+                int start = output.getSpanStart(span);
+                int end = output.getSpanEnd(span);
+                output.removeSpan(span);
+
+                char last = output.charAt(end - 1);
+                if (isPunctuation(last))
+                    end--;
+
+                if (quotes.containsKey(String.valueOf(output.charAt(end - 1)))) {
+                    char close = output.charAt(end - 1);
+                    char open = quotes.get(String.valueOf(output.charAt(end - 1))).charAt(0);
+                    int countOpen = 0, countClose = 0;
+                    for (int i = start; i < end; i++) {
+                        char c = output.charAt(i);
+                        if (c == open)
+                            countOpen++;
+                        else if (c == close)
+                            countClose++;
+                    }
+                    if (countOpen != countClose) {
+                        end--;
+                    }
+                }
+
+                span = new URLSpanNoUnderline(span.getURL());
+                output.setSpan(span, start, end, 0);
+            }
         }
 
         for(int i = 0; i < output.length() - 1; i++) {
@@ -2525,38 +2553,6 @@ public class ColorFormatter {
             return output;
     }
 
-    private static void cleanupSpans(final Spannable output) {
-        URLSpan[] spans = output.getSpans(0, output.length(), URLSpan.class);
-        for (URLSpan span : spans) {
-            int start = output.getSpanStart(span);
-            int end = output.getSpanEnd(span);
-            output.removeSpan(span);
-
-            char last = output.charAt(end - 1);
-            if (isPunctuation(last))
-                end--;
-
-            if (quotes.containsKey(String.valueOf(output.charAt(end - 1)))) {
-                char close = output.charAt(end - 1);
-                char open = quotes.get(String.valueOf(output.charAt(end - 1))).charAt(0);
-                int countOpen = 0, countClose = 0;
-                for (int i = start; i < end; i++) {
-                    char c = output.charAt(i);
-                    if (c == open)
-                        countOpen++;
-                    else if (c == close)
-                        countClose++;
-                }
-                if (countOpen != countClose) {
-                    end--;
-                }
-            }
-
-            span = new URLSpanNoUnderline(span.getURL());
-            output.setSpan(span, start, end, 0);
-        }
-    }
-
     public static void detectLinks(final Spannable output) {
         if(output == null)
             return;
@@ -2575,7 +2571,39 @@ public class ColorFormatter {
                         e.printStackTrace();
                     }
                 }
-                cleanupSpans(output);
+
+                TextLinkSpanNoUnderline[] spans = output.getSpans(0, output.length(), TextLinkSpanNoUnderline.class);
+                for (TextLinkSpanNoUnderline span : spans) {
+                    int start = output.getSpanStart(span);
+                    int end = output.getSpanEnd(span);
+                    output.removeSpan(span);
+
+                    char last = output.charAt(end - 1);
+                    if (isPunctuation(last))
+                        end--;
+
+                    String text = output.toString().substring(start, end);
+                    if (text.length() < 7 && text.matches("[0-9]+"))
+                        continue;
+
+                    if (quotes.containsKey(String.valueOf(output.charAt(end - 1)))) {
+                        char close = output.charAt(end - 1);
+                        char open = quotes.get(String.valueOf(output.charAt(end - 1))).charAt(0);
+                        int countOpen = 0, countClose = 0;
+                        for (int i = start; i < end; i++) {
+                            char c = output.charAt(i);
+                            if (c == open)
+                                countOpen++;
+                            else if (c == close)
+                                countClose++;
+                        }
+                        if (countOpen != countClose) {
+                            end--;
+                        }
+                    }
+
+                    output.setSpan(span, start, end, 0);
+                }
             } catch (Exception ex) {
                 Crashlytics.logException(ex);
             }
