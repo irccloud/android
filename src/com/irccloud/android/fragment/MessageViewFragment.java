@@ -167,6 +167,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private String msgid;
     private String buffer_usermask;
     private PrecomputedTextCompat.Params precomputedTextParams = null;
+    private boolean fetch_if_needed = false;
 
     public static final int ROW_MESSAGE = 0;
     public static final int ROW_TIMESTAMP = 1;
@@ -1750,6 +1751,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if(args != null)
             msgid = args.getString("msgid");
         requestingBacklog = false;
+        fetch_if_needed = true;
         avgInsertTime = 0;
         newMsgs = 0;
         newMsgTime = 0;
@@ -1812,7 +1814,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 headerView.setVisibility(View.VISIBLE);
                 requestingBacklog = true;
                 buffer.setDeferred(0);
-                NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), 0);
+                NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
             } else {
                 headerView.setVisibility(View.GONE);
                 loadBacklogButton.setVisibility(View.VISIBLE);
@@ -2907,20 +2909,31 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            update_top_unread(getListView().getFirstVisiblePosition());
-                        } catch (IllegalStateException e) {
-                            //List view not ready yet
-                        }
-                        if (server != null)
-                            update_status(server.getStatus(), server.getFail_info());
-                        if (mListener != null && !ready)
-                            mListener.onMessageViewReady();
-                        ready = true;
-                        try {
-                            ListView v = getListView();
-                            mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
-                        } catch (Exception e) {
+                        if(getListAdapter() == RefreshTask.this.adapter) {
+                            try {
+                                update_top_unread(getListView().getFirstVisiblePosition());
+                            } catch (IllegalStateException e) {
+                                //List view not ready yet
+                            }
+                            if (server != null)
+                                update_status(server.getStatus(), server.getFail_info());
+                            if (mListener != null && !ready)
+                                mListener.onMessageViewReady();
+                            ready = true;
+                            try {
+                                ListView v = getListView();
+                                if (fetch_if_needed && ready && !requestingBacklog && buffer.getMin_eid() > 0 && earliest_eid > buffer.getMin_eid() && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !(msgid != null && msgids.containsKey(msgid)) && v.getFirstVisiblePosition() == 0) {
+                                    backlogFailed.setVisibility(View.GONE);
+                                    loadBacklogButton.setVisibility(View.GONE);
+                                    headerView.setVisibility(View.VISIBLE);
+                                    requestingBacklog = true;
+                                    fetch_if_needed = false;
+                                    buffer.setDeferred(0);
+                                    NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
+                                }
+                                mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
+                            } catch (Exception e) {
+                            }
                         }
                     }
                 }, 250);
