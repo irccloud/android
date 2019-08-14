@@ -33,6 +33,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.CharacterStyle;
+import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.MetricAffectingSpan;
 import android.text.style.URLSpan;
@@ -2570,39 +2571,39 @@ public class ColorFormatter {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
 
-                TextLinkSpanNoUnderline[] spans = output.getSpans(0, output.length(), TextLinkSpanNoUnderline.class);
-                for (TextLinkSpanNoUnderline span : spans) {
-                    int start = output.getSpanStart(span);
-                    int end = output.getSpanEnd(span);
-                    output.removeSpan(span);
+                    ClickableSpan[] spans = output.getSpans(0, output.length(), ClickableSpan.class);
+                    for (ClickableSpan span : spans) {
+                        int start = output.getSpanStart(span);
+                        int end = output.getSpanEnd(span);
+                        output.removeSpan(span);
 
-                    char last = output.charAt(end - 1);
-                    if (isPunctuation(last))
-                        end--;
-
-                    String text = output.toString().substring(start, end);
-                    if (text.length() < 7 && text.matches("[0-9]+"))
-                        continue;
-
-                    if (quotes.containsKey(String.valueOf(output.charAt(end - 1)))) {
-                        char close = output.charAt(end - 1);
-                        char open = quotes.get(String.valueOf(output.charAt(end - 1))).charAt(0);
-                        int countOpen = 0, countClose = 0;
-                        for (int i = start; i < end; i++) {
-                            char c = output.charAt(i);
-                            if (c == open)
-                                countOpen++;
-                            else if (c == close)
-                                countClose++;
-                        }
-                        if (countOpen != countClose) {
+                        char last = output.charAt(end - 1);
+                        if (isPunctuation(last))
                             end--;
-                        }
-                    }
 
-                    output.setSpan(span, start, end, 0);
+                        String text = output.toString().substring(start, end);
+                        if (text.length() < 7 && text.matches("[0-9]+"))
+                            continue;
+
+                        if (quotes.containsKey(String.valueOf(output.charAt(end - 1)))) {
+                            char close = output.charAt(end - 1);
+                            char open = quotes.get(String.valueOf(output.charAt(end - 1))).charAt(0);
+                            int countOpen = 0, countClose = 0;
+                            for (int i = start; i < end; i++) {
+                                char c = output.charAt(i);
+                                if (c == open)
+                                    countOpen++;
+                                else if (c == close)
+                                    countClose++;
+                            }
+                            if (countOpen != countClose) {
+                                end--;
+                            }
+                        }
+
+                        output.setSpan(span, start, end, 0);
+                    }
                 }
             } catch (Exception ex) {
                 Crashlytics.logException(ex);
