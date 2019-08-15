@@ -89,4 +89,13 @@ public class ListViewHax extends ListView {
         }
         return false;
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        try {
+            return super.onTouchEvent(ev);
+        } catch (Exception e) {
+        }
+        return false;
+    }
 }

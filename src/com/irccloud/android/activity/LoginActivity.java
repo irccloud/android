@@ -603,7 +603,11 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         } catch (Exception e) {
 
         }
-        super.onStop();
+        try {
+            super.onStop();
+        } catch (Exception e) {
+            
+        }
     }
 
     @Override
