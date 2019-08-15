@@ -837,7 +837,26 @@ public class NotificationsList {
                                             ImageList.getInstance().fetchImage(url, new ImageList.OnImageFetchedListener() {
                                                 @Override
                                                 public void onImageFetched(Bitmap image) {
-                                                    showMessageNotifications(null);
+                                                    if (mNotificationTimerTask == null) {
+                                                        try {
+                                                            TimerTask task = new TimerTask() {
+                                                                @Override
+                                                                public void run() {
+                                                                    showNotificationsNow();
+                                                                }
+
+                                                                @Override
+                                                                public boolean cancel() {
+                                                                    mNotificationTimerTask = null;
+                                                                    return super.cancel();
+                                                                }
+                                                            };
+                                                            mNotificationTimer.schedule(task, 250);
+                                                            mNotificationTimerTask = task;
+                                                        } catch (Exception e) {
+                                                            NetworkConnection.printStackTraceToCrashlytics(e);
+                                                        }
+                                                    }
                                                 }
                                             });
                                         }
