@@ -653,7 +653,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         e.formatted_nick = ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from_nick, e.from, e.from_mode, !e.self && pref_nickColors, ColorScheme.getInstance().selfTextColor)) + "</b>", false, null);
                     }
                     if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
-                        e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
+                        e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(ColorFormatter.emojify(e.from_realname))), true, null);
                         e.linkified = false;
                     }
                     if (e.html != null && e.formatted == null) {
