@@ -19,16 +19,17 @@ package com.irccloud.android.fragment;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+
+import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.ListFragment;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +37,6 @@ import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
-import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
@@ -57,9 +57,42 @@ public class ChannelListFragment extends DialogFragment implements NetworkConnec
     TextView empty;
     Server server;
 
-    public static class ChannelRow {
+    public static class ChannelRow implements Parcelable {
         public Spanned name;
         public Spanned topic;
+
+        public ChannelRow() {
+
+        }
+
+        protected ChannelRow(Parcel in) {
+            name = (Spanned) in.readValue(Spanned.class.getClassLoader());
+            topic = (Spanned) in.readValue(Spanned.class.getClassLoader());
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeValue(name);
+            dest.writeValue(topic);
+        }
+
+        @SuppressWarnings("unused")
+        public static final Parcelable.Creator<ChannelRow> CREATOR = new Parcelable.Creator<ChannelRow>() {
+            @Override
+            public ChannelRow createFromParcel(Parcel in) {
+                return new ChannelRow(in);
+            }
+
+            @Override
+            public ChannelRow[] newArray(int size) {
+                return new ChannelRow[size];
+            }
+        };
     }
 
     private class ViewHolder extends RecyclerView.ViewHolder {
@@ -131,6 +164,13 @@ public class ChannelListFragment extends DialogFragment implements NetworkConnec
         Context ctx = getActivity();
         if(ctx == null)
             return null;
+        if(server == null && savedInstanceState != null && savedInstanceState.containsKey("cid"))
+            server = ServersList.getInstance().getServer(savedInstanceState.getInt("cid"));
+        if(server == null)
+            return null;
+
+        if(savedInstanceState != null && savedInstanceState.containsKey("channels"))
+            channels = savedInstanceState.getParcelableArrayList("channels");
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.recyclerview, null);
@@ -150,6 +190,17 @@ public class ChannelListFragment extends DialogFragment implements NetworkConnec
                 })
                 .create();
         return d;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if(server != null)
+            outState.putInt("cid", server.getCid());
+
+        if(channels != null && channels.size() > 0)
+            outState.putParcelableArrayList("channels", channels);
     }
 
     @Override
