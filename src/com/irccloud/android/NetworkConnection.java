@@ -2297,6 +2297,7 @@ public class NetworkConnection {
                 accrued = 0;
                 backlog = false;
                 Log.d("IRCCloud", "Cleaning up invalid BIDs");
+                mBuffers.dirty = true;
                 mBuffers.purgeInvalidBIDs();
                 mChannels.purgeInvalidChannels();
                 NotificationsList.getInstance().deleteOldNotifications();
@@ -2423,6 +2424,7 @@ public class NetworkConnection {
                             mChannels.deleteChannel(b.getBid());
                         }
                     }
+                    mBuffers.dirty = true;
                     notifyHandlers(EVENT_STATUSCHANGED, object);
                 }
             }
@@ -2710,7 +2712,7 @@ public class NetworkConnection {
                     Iterator<JsonNode> iterator = users.elements();
                     while (iterator.hasNext()) {
                         JsonNode user = iterator.next();
-                        User u = mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.has("mode") ? user.get("mode").asText() : "", user.has("ircserver") ? user.get("ircserver").asText() : "", (user.has("away") && user.get("away").asBoolean()) ? 1 : 0, user.hasNonNull("display_name") ? user.get("display_name").asText() : null, false);
+                        mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.has("mode") ? user.get("mode").asText() : "", user.has("ircserver") ? user.get("ircserver").asText() : "", (user.has("away") && user.get("away").asBoolean()) ? 1 : 0, user.hasNonNull("display_name") ? user.get("display_name").asText() : null, false);
                     }
                 }
                 mBuffers.dirty = true;
@@ -2759,7 +2761,10 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
-                    User u = mUsers.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", object.getString("ircserver"), 0, object.getString("display_name"));
+                    if(object.type().startsWith("you_"))
+                        mBuffers.dirty = true;
+
+                    mUsers.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", object.getString("ircserver"), 0, object.getString("display_name"));
                     notifyHandlers(EVENT_JOIN, object);
                 }
             }
@@ -2786,6 +2791,8 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
+                    if(object.type().startsWith("you_"))
+                        mBuffers.dirty = true;
                     mUsers.deleteUser(object.bid(), object.getString("nick"));
                     notifyHandlers(EVENT_QUIT, object);
                 }
@@ -2796,6 +2803,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
+                    mBuffers.dirty = true;
                     notifyHandlers(EVENT_QUIT, object);
                 }
             }
