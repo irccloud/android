@@ -125,7 +125,6 @@ android {
                 resValue "string", "gcm_defaultSenderId", ""
                 resValue "string", "google_api_key", ""
             }
-            buildConfigField "String[]", "SSL_FPS", "{\"54A0A7A4EE83A09B71F867581627EB242BD2398EAAA1DC7AB4CCE26E6EED8EB8\", \"E68F27E003ED788159670B6A4C6C5328F1D1FDA81CB19CC8B816F9364684233B\"}"
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
             resValue "string", "VIDEO_SCHEME", "irccloud-video"
@@ -144,7 +143,6 @@ android {
 
         release {
             buildConfigField "String", "HOST", "\"api.irccloud.com\""
-            buildConfigField "String[]", "SSL_FPS", "{\"54A0A7A4EE83A09B71F867581627EB242BD2398EAAA1DC7AB4CCE26E6EED8EB8\", \"E68F27E003ED788159670B6A4C6C5328F1D1FDA81CB19CC8B816F9364684233B\"}"
             buildConfigField "boolean", "ENTERPRISE", "false"
             if (rootProject.file('private.properties').exists()) {
                 def props = new Properties()
@@ -356,7 +354,7 @@ tasks.whenTaskAdded { task ->
 dependencies {
     implementation 'android.arch.work:work-runtime:1.0.1'
     implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
-    implementation 'androidx.drawerlayout:drawerlayout:1.1.0-alpha02'
+    implementation 'androidx.drawerlayout:drawerlayout:1.1.0-alpha03'
     implementation 'androidx.sharetarget:sharetarget:1.0.0-alpha02'
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.0.0"
