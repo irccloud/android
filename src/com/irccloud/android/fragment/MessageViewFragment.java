@@ -3266,7 +3266,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 fetch_if_needed = true;
 
             if (events == null || (events.size() == 0 && buffer.getMin_eid() > 0)) {
-                fetch_if_needed = true;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

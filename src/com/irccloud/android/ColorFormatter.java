@@ -3053,6 +3053,9 @@ public class ColorFormatter {
                         }
                         builder.insert(pos, html);
                     }
+                } else if (builder.charAt(pos) == '\n') { //Newline
+                    builder.deleteCharAt(pos);
+                    builder.insert(pos, "<br/>");
                 } else {
                     pos++;
                 }
