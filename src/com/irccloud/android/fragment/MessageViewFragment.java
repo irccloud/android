@@ -1754,7 +1754,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if(args != null)
             msgid = args.getString("msgid");
         requestingBacklog = false;
-        fetch_if_needed = true;
         avgInsertTime = 0;
         newMsgs = 0;
         newMsgTime = 0;
@@ -3263,7 +3262,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             currentCollapsedEid = -1;
             lastCollapsedDay = -1;
 
+            if (events == null || events.size() < 100)
+                fetch_if_needed = true;
+
             if (events == null || (events.size() == 0 && buffer.getMin_eid() > 0)) {
+                fetch_if_needed = true;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

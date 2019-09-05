@@ -1161,7 +1161,11 @@ public class EventsList {
     public synchronized void deleteEventsBeforeEid(int bid, long eid) {
         Event[] i;
         synchronized (events) {
-            i = events.get(bid).values().toArray(new Event[events.get(bid).values().size()]);
+            TreeMap<Long, Event> e = events.get(bid);
+            if(e != null)
+                i = e.values().toArray(new Event[0]);
+            else
+                return;
         }
         for (Event e : i) {
             if(e.eid <= eid) {

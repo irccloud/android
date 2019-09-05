@@ -2393,6 +2393,8 @@ public class NetworkConnection {
                 NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"), avatar_url, server.isSlack());
                 NotificationsList.getInstance().addNotificationGroup(server.getCid(), server.getName() != null && server.getName().length() > 0 ? server.getName() : server.getHostname());
 
+                mBuffers.dirty = true;
+
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKESERVER, server);
                 }
@@ -2417,6 +2419,7 @@ public class NetworkConnection {
                     s.setStatus(object.getString("new_status"));
                     s.setFail_info(object.getJsonObject("fail_info"));
                 }
+                mBuffers.dirty = true;
                 if (!backlog) {
                     if (object.getString("new_status").equals("disconnected")) {
                         ArrayList<Buffer> buffers = mBuffers.getBuffersForServer(object.cid());
@@ -2424,7 +2427,6 @@ public class NetworkConnection {
                             mChannels.deleteChannel(b.getBid());
                         }
                     }
-                    mBuffers.dirty = true;
                     notifyHandlers(EVENT_STATUSCHANGED, object);
                 }
             }
@@ -2760,10 +2762,9 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mEvents.addEvent(object);
+                if(object.type().startsWith("you_"))
+                    mBuffers.dirty = true;
                 if (!backlog) {
-                    if(object.type().startsWith("you_"))
-                        mBuffers.dirty = true;
-
                     mUsers.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", object.getString("ircserver"), 0, object.getString("display_name"));
                     notifyHandlers(EVENT_JOIN, object);
                 }
@@ -2774,12 +2775,13 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mEvents.addEvent(object);
+                if(object.type().startsWith("you_"))
+                    mBuffers.dirty = true;
                 if (!backlog) {
                     mUsers.deleteUser(object.bid(), object.getString("nick"));
                     if (object.type().equals("you_parted_channel")) {
                         mChannels.deleteChannel(object.bid());
                         mUsers.deleteUsersForBuffer(object.bid());
-                        mBuffers.dirty = true;
                     }
                     notifyHandlers(EVENT_PART, object);
                 }
