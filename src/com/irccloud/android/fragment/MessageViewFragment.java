@@ -3262,7 +3262,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             currentCollapsedEid = -1;
             lastCollapsedDay = -1;
 
-            if (events == null || events.size() < 100)
+            if (!requestingBacklog && (events == null || events.size() < 50))
                 fetch_if_needed = true;
 
             if (events == null || (events.size() == 0 && buffer.getMin_eid() > 0)) {
