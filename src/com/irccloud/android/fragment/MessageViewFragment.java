@@ -1794,7 +1794,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         lp.topMargin = 0;
         backlogFailed.setLayoutParams(lp);
         if (buffer != null && EventsList.getInstance().getEventsForBuffer(buffer.getBid()) != null) {
-            requestingBacklog = true;
             if (refreshTask != null)
                 refreshTask.cancel(true);
             refreshTask = new RefreshTask();
