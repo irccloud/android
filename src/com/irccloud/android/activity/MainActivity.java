@@ -1430,7 +1430,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (event.isCtrlPressed()) {
             switch(keyCode) {
-                case KeyEvent.KEYCODE_C:
+                case KeyEvent.KEYCODE_K:
                     Bundle b = new Bundle();
                     b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
                     mColorPickerFragment.setArguments(b);
@@ -3874,7 +3874,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         group.addItem(new KeyboardShortcutInfo("Toggle bold", KeyEvent.KEYCODE_B, KeyEvent.META_CTRL_ON));
         group.addItem(new KeyboardShortcutInfo("Toggle italics", KeyEvent.KEYCODE_I, KeyEvent.META_CTRL_ON));
         group.addItem(new KeyboardShortcutInfo("Toggle underline", KeyEvent.KEYCODE_U, KeyEvent.META_CTRL_ON));
-        group.addItem(new KeyboardShortcutInfo("Change text color", KeyEvent.KEYCODE_C, KeyEvent.META_CTRL_ON));
+        group.addItem(new KeyboardShortcutInfo("Change text color", KeyEvent.KEYCODE_K, KeyEvent.META_CTRL_ON));
 
         data.add(group);
     }
