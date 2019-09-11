@@ -27,6 +27,7 @@ import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -121,6 +122,7 @@ import android.view.textclassifier.ConversationActions;
 import android.view.textclassifier.TextClassificationManager;
 import android.view.textclassifier.TextClassifier;
 import android.view.textclassifier.TextLinks;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -843,7 +845,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         for(int i = 0; i < c.getItemCount(); i++) {
                             ClipData.Item item = c.getItemAt(i);
                             if(item.getUri() != null) {
-                                String type = getContentResolver().getType(item.getUri());
+                                String type = getMimeType(item.getUri());
                                 if(type != null) {
                                     Uri uri = makeTempCopy(item.getUri(), MainActivity.this);
                                     if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
@@ -1777,6 +1779,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
+    public static String getMimeType(Uri uri) {
+        String mimeType = null;
+        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            mimeType = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().getType(uri);
+        } else {
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+            if(fileExtension != null)
+                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
+        }
+        return mimeType;
+    }
+
     private void setFromIntent(Intent intent) {
         launchBid = -1;
         launchURI = null;
@@ -1879,11 +1893,47 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     });
                 } else {
-                    String type = getContentResolver().getType(uri);
+                    String type = getMimeType(uri);
                     uri = makeTempCopy(uri, this);
 
                     if (type != null && type.startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
-                        new ImgurRefreshTask(uri).execute((Void) null);
+                        final Uri file_uri = uri;
+                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        final View view = getLayoutInflater().inflate(R.layout.dialog_upload, null);
+                        view.findViewById(R.id.filename).setVisibility(View.GONE);
+                        view.findViewById(R.id.message).setVisibility(View.GONE);
+                        view.findViewById(R.id.filesize).setVisibility(View.GONE);
+                        final ImageView thumbnail = view.findViewById(R.id.thumbnail);
+
+                        try {
+                            thumbnail.setImageBitmap(loadThumbnail(IRCCloudApplication.getInstance().getApplicationContext(), uri));
+                            thumbnail.setVisibility(View.VISIBLE);
+                        } catch (OutOfMemoryError e) {
+                            thumbnail.setVisibility(View.GONE);
+                        } catch (Exception e) {
+                            NetworkConnection.printStackTraceToCrashlytics(e);
+                        }
+
+                        builder.setTitle("Upload An Image To Imgur");
+                        builder.setView(view);
+                        builder.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                new ImgurRefreshTask(file_uri).execute((Void) null);
+                                dialog.dismiss();
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                        AlertDialog d = builder.create();
+                        d.setOwnerActivity(this);
+                        d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                        if(!isFinishing())
+                            d.show();
                     } else {
                         fileUploadTask = new FileUploadTask(uri, this);
                         if(!mediaPermissionsGranted()) {
@@ -3919,7 +3969,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(path.startsWith(context.getCacheDir().getAbsolutePath()))
             return fileUri;
 
-        String type = context.getContentResolver().getType(fileUri);
+        String type = getMimeType(fileUri);
         if (type == null) {
             String lower = original_filename.toLowerCase();
             if (lower.endsWith(".jpg") || lower.endsWith(".jpeg"))
@@ -6183,7 +6233,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             try {
                 while (activity == null)
                     Thread.sleep(100);
-                String type = activity.getContentResolver().getType(mImageUri);
+                String type = getMimeType(mImageUri);
                 if ((type != null && !type.equals("image/gif")) || Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024")) > 0) {
                     mImageUri = resize(mImageUri);
                 }
@@ -6485,7 +6535,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 notification_id = mBuffer.getBid();
             }
             mFileUri = fileUri;
-            type = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().getType(mFileUri);
+            type = getMimeType(mFileUri);
 
             Cursor cursor = null;
             try {
