@@ -120,6 +120,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
             }
             if(getIntent() != null && getIntent().hasExtra(Intent.EXTRA_STREAM)) {
                 mUri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+
                 String path = mUri.getPath();
                 try {
                     path = new File(path).getCanonicalPath();

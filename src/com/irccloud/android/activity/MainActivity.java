@@ -3911,7 +3911,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(fileUri == null)
             return null;
 
-        if(fileUri.toString().contains(context.getCacheDir().getAbsolutePath()))
+        String path = fileUri.getPath();
+        try {
+            path = new File(path).getCanonicalPath();
+        } catch (IOException e) {
+        }
+        if(path.startsWith(context.getCacheDir().getAbsolutePath()))
             return fileUri;
 
         String type = context.getContentResolver().getType(fileUri);
@@ -6243,9 +6248,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     imageIn.close();
                 } catch (Exception ignore) {
                 }
-                if(mImageUri.toString().contains(getCacheDir().getAbsolutePath())) {
-                    Log.i("IRCCloud", "Removing temporary file: " + mImageUri);
-                    new File(mImageUri.getPath()).delete();
+                String path = mImageUri.getPath();
+                try {
+                    path = new File(path).getCanonicalPath();
+                } catch (IOException e) {
+                }
+                if(path.startsWith(getCacheDir().getAbsolutePath())) {
+                    Log.i("IRCCloud", "Removing temporary file: " + path);
+                    new File(path).delete();
                 }
             }
         }
