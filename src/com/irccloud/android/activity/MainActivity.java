@@ -1867,81 +1867,81 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 String path = uri.getPath();
                 try {
                     path = new File(path).getCanonicalPath();
-                } catch (IOException e) {
-                }
-                if(path.startsWith(getCacheDir().getParent()) && !path.startsWith(getCacheDir().getAbsolutePath())) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                            builder.setTitle("Upload Failed");
-                            builder.setMessage("Unable to upload file: invalid file path.");
-                            builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                    if(path.startsWith(getCacheDir().getParent()) && !path.startsWith(getCacheDir().getCanonicalPath())) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                builder.setTitle("Upload Failed");
+                                builder.setMessage("Unable to upload file: invalid file path.");
+                                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        try {
+                                            dialog.dismiss();
+                                        } catch (IllegalArgumentException e) {
+                                        }
+                                    }
+                                });
+                                if(!isFinishing()) {
+                                    AlertDialog dialog = builder.create();
+                                    dialog.setOwnerActivity(MainActivity.this);
+                                    dialog.show();
+                                }
+                            }
+                        });
+                    } else {
+                        String type = getMimeType(uri);
+                        uri = makeTempCopy(uri, this);
+
+                        if (type != null && type.startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
+                            final Uri file_uri = uri;
+                            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                            final View view = getLayoutInflater().inflate(R.layout.dialog_upload, null);
+                            view.findViewById(R.id.filename).setVisibility(View.GONE);
+                            view.findViewById(R.id.message).setVisibility(View.GONE);
+                            view.findViewById(R.id.filesize).setVisibility(View.GONE);
+                            final ImageView thumbnail = view.findViewById(R.id.thumbnail);
+
+                            try {
+                                thumbnail.setImageBitmap(loadThumbnail(IRCCloudApplication.getInstance().getApplicationContext(), uri));
+                                thumbnail.setVisibility(View.VISIBLE);
+                            } catch (OutOfMemoryError e) {
+                                thumbnail.setVisibility(View.GONE);
+                            } catch (Exception e) {
+                                NetworkConnection.printStackTraceToCrashlytics(e);
+                            }
+
+                            builder.setTitle("Upload An Image To Imgur");
+                            builder.setView(view);
+                            builder.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    try {
-                                        dialog.dismiss();
-                                    } catch (IllegalArgumentException e) {
-                                    }
+                                    new ImgurRefreshTask(file_uri).execute((Void) null);
+                                    dialog.dismiss();
                                 }
                             });
-                            if(!isFinishing()) {
-                                AlertDialog dialog = builder.create();
-                                dialog.setOwnerActivity(MainActivity.this);
-                                dialog.show();
-                            }
-                        }
-                    });
-                } else {
-                    String type = getMimeType(uri);
-                    uri = makeTempCopy(uri, this);
-
-                    if (type != null && type.startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
-                        final Uri file_uri = uri;
-                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        final View view = getLayoutInflater().inflate(R.layout.dialog_upload, null);
-                        view.findViewById(R.id.filename).setVisibility(View.GONE);
-                        view.findViewById(R.id.message).setVisibility(View.GONE);
-                        view.findViewById(R.id.filesize).setVisibility(View.GONE);
-                        final ImageView thumbnail = view.findViewById(R.id.thumbnail);
-
-                        try {
-                            thumbnail.setImageBitmap(loadThumbnail(IRCCloudApplication.getInstance().getApplicationContext(), uri));
-                            thumbnail.setVisibility(View.VISIBLE);
-                        } catch (OutOfMemoryError e) {
-                            thumbnail.setVisibility(View.GONE);
-                        } catch (Exception e) {
-                            NetworkConnection.printStackTraceToCrashlytics(e);
-                        }
-
-                        builder.setTitle("Upload An Image To Imgur");
-                        builder.setView(view);
-                        builder.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                new ImgurRefreshTask(file_uri).execute((Void) null);
-                                dialog.dismiss();
-                            }
-                        });
-                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
-                        AlertDialog d = builder.create();
-                        d.setOwnerActivity(this);
-                        d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                        if(!isFinishing())
-                            d.show();
-                    } else {
-                        fileUploadTask = new FileUploadTask(uri, this);
-                        if(!mediaPermissionsGranted()) {
-                            requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                            AlertDialog d = builder.create();
+                            d.setOwnerActivity(this);
+                            d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                            if(!isFinishing())
+                                d.show();
                         } else {
-                            fileUploadTask.execute((Void) null);
+                            fileUploadTask = new FileUploadTask(uri, this);
+                            if(!mediaPermissionsGranted()) {
+                                requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                            } else {
+                                fileUploadTask.execute((Void) null);
+                            }
                         }
                     }
+                } catch (IOException e) {
                 }
             }
 
@@ -3964,10 +3964,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         String path = fileUri.getPath();
         try {
             path = new File(path).getCanonicalPath();
+            if(path.startsWith(context.getCacheDir().getCanonicalPath()))
+                return fileUri;
         } catch (IOException e) {
         }
-        if(path.startsWith(context.getCacheDir().getAbsolutePath()))
-            return fileUri;
 
         String type = getMimeType(fileUri);
         if (type == null) {
@@ -3997,7 +3997,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         try {
             Uri out = Uri.fromFile(new File(context.getCacheDir(), original_filename));
-            Log.d("IRCCloud", "Copying file to " + out);
+            Log.d("IRCCloud", "Copying " + fileUri + " to " + out + " (" + type + ")");
             InputStream is = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(fileUri);
             OutputStream os = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out);
             byte[] buffer = new byte[8192];
@@ -6137,9 +6137,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
         if (out != null) {
-            if(in.toString().contains(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir().getAbsolutePath())) {
-                Log.i("IRCCloud", "Removing temporary file: " + in);
-                new File(in.getPath()).delete();
+            try {
+                if (in.toString().contains(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir().getCanonicalPath())) {
+                    Log.i("IRCCloud", "Removing temporary file: " + in);
+                    new File(in.getPath()).delete();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return out;
         } else {
@@ -6301,11 +6305,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 String path = mImageUri.getPath();
                 try {
                     path = new File(path).getCanonicalPath();
+                    if(path.startsWith(getCacheDir().getCanonicalPath())) {
+                        Log.i("IRCCloud", "Removing temporary file: " + path);
+                        new File(path).delete();
+                    }
                 } catch (IOException e) {
-                }
-                if(path.startsWith(getCacheDir().getAbsolutePath())) {
-                    Log.i("IRCCloud", "Removing temporary file: " + path);
-                    new File(path).delete();
                 }
             }
         }
@@ -6941,9 +6945,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     fileIn.close();
                 } catch (Exception ignore) {
                 }
-                if(activity != null && mFileUri.toString().contains(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir().getAbsolutePath())) {
-                    Log.i("IRCCloud", "Removing temporary file: " + mFileUri);
-                    new File(mFileUri.getPath()).delete();
+                try {
+                    if (activity != null && mFileUri.toString().contains(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir().getCanonicalPath())) {
+                        Log.i("IRCCloud", "Removing temporary file: " + mFileUri);
+                        new File(mFileUri.getPath()).delete();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
             return null;

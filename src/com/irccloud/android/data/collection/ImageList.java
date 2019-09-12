@@ -68,12 +68,12 @@ import static com.irccloud.android.NetworkConnection.printStackTraceToCrashlytic
 
 public class ImageList {
     private static ImageList instance = null;
-    private HashMap<String, Bitmap> images;
-    private HashMap<String, GifDrawable> GIFs;
-    private ArrayList<String> failedURLs;
-    private ArrayList<String> activeDownloads;
-    private HashMap<String, ImageURLInfo> urlInfo;
-    private HashMap<String, ArrayList<OnImageFetchedListener>> downloadListeners;
+    private final HashMap<String, Bitmap> images;
+    private final HashMap<String, GifDrawable> GIFs;
+    private final ArrayList<String> failedURLs;
+    private final ArrayList<String> activeDownloads;
+    private final HashMap<String, ImageURLInfo> urlInfo;
+    private final HashMap<String, ArrayList<OnImageFetchedListener>> downloadListeners;
     private final BlockingQueue<Runnable> mWorkQueue = new LinkedBlockingQueue<>();
     private static final int KEEP_ALIVE_TIME = 10;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
