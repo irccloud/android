@@ -2112,6 +2112,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                                         if (m.start() == 0 && !pref_chatOneLine) {
                                             msg = original_msg.substring(3, m.end() - 3);
+                                            if(msg.startsWith("\n"))
+                                                msg = msg.substring(1);
+                                            if(msg.endsWith("\n"))
+                                                msg = msg.substring(0, msg.length() - 1);
                                             event.code_block = true;
                                             event.color = ColorScheme.getInstance().codeSpanForegroundColor;
                                             event.mention_offset = -3;
@@ -2119,6 +2123,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         } else {
                                             Event e = new Event(event);
                                             e.html = original_msg.substring(m.start() + 3, m.end() - 3);
+                                            if(e.html.startsWith("\n"))
+                                                e.html = e.html.substring(1);
+                                            if(e.html.endsWith("\n"))
+                                                e.html = e.html.substring(0, e.html.length() - 1);
                                             e.timestamp = "";
                                             e.code_block = true;
                                             e.color = ColorScheme.getInstance().codeSpanForegroundColor;
