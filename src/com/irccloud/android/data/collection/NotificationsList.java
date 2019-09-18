@@ -592,46 +592,48 @@ public class NotificationsList {
             StringBuilder weartext = new StringBuilder();
             HashMap<String, Person> people = new HashMap<>();
             String servernick = getServerNick(messages.get(0).getCid());
-            if(avatars != null && avatars.containsKey(servernick)) {
-                people.put(servernick, new Person.Builder().setName(servernick).setIcon(IconCompat.createWithBitmap(avatars.get(servernick))).build());
-            } else {
-                people.put(servernick, new Person.Builder().setName(servernick).build());
-            }
+            if(servernick != null && servernick.length() > 0) {
+                if (avatars != null && avatars.containsKey(servernick)) {
+                    people.put(servernick, new Person.Builder().setName(servernick).setIcon(IconCompat.createWithBitmap(avatars.get(servernick))).build());
+                } else {
+                    people.put(servernick, new Person.Builder().setName(servernick).build());
+                }
 
-            NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(people.get(servernick));
-            style.setConversationTitle(title + ((network != null) ? (" (" + network + ")") : ""));
-            style.setGroupConversation(true);
+                NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(people.get(servernick));
+                style.setConversationTitle(title + ((network != null) ? (" (" + network + ")") : ""));
+                style.setGroupConversation(true);
 
-            for(Notification n : messages) {
-                if(n != null && n.getMessage() != null && n.getMessage().length() > 0) {
-                    if (weartext.length() > 0)
-                        weartext.append("<br/>");
-                    String nick = (n.getNick() != null) ? n.getNick() : servernick;
-                    Person p = people.get(nick);
-                    if(p == null) {
-                        if(avatars != null && avatars.containsKey(nick)) {
-                            p = new Person.Builder()
-                                    .setName(nick)
-                                    .setIcon(IconCompat.createWithBitmap(avatars.get(nick)))
-                                    .build();
-                        } else {
-                            p = new Person.Builder()
-                                    .setName(nick)
-                                    .build();
+                for (Notification n : messages) {
+                    if (n != null && n.getMessage() != null && n.getMessage().length() > 0) {
+                        if (weartext.length() > 0)
+                            weartext.append("<br/>");
+                        String nick = (n.getNick() != null) ? n.getNick() : servernick;
+                        Person p = people.get(nick);
+                        if (p == null) {
+                            if (avatars != null && avatars.containsKey(nick)) {
+                                p = new Person.Builder()
+                                        .setName(nick)
+                                        .setIcon(IconCompat.createWithBitmap(avatars.get(nick)))
+                                        .build();
+                            } else {
+                                p = new Person.Builder()
+                                        .setName(nick)
+                                        .build();
+                            }
+                            people.put(nick, p);
                         }
-                        people.put(nick, p);
-                    }
-                    if (n.getMessage_type().equals("buffer_me_msg")) {
-                        style.addMessage(new NotificationCompat.MessagingStyle.Message(Html.fromHtml("— " + n.getMessage()).toString(), n.getEid() / 1000, p));
-                        weartext.append("<b>— ").append((n.getNick() == null) ? servernick : n.getNick()).append("</b> ").append(n.getMessage());
-                    } else {
-                        style.addMessage(new NotificationCompat.MessagingStyle.Message(Html.fromHtml(n.getMessage()).toString(), n.getEid() / 1000, p));
-                        weartext.append("<b>&lt;").append((n.getNick() == null) ? servernick : n.getNick()).append("&gt;</b> ").append(n.getMessage());
+                        if (n.getMessage_type().equals("buffer_me_msg")) {
+                            style.addMessage(new NotificationCompat.MessagingStyle.Message(Html.fromHtml("— " + n.getMessage()).toString(), n.getEid() / 1000, p));
+                            weartext.append("<b>— ").append((n.getNick() == null) ? servernick : n.getNick()).append("</b> ").append(n.getMessage());
+                        } else {
+                            style.addMessage(new NotificationCompat.MessagingStyle.Message(Html.fromHtml(n.getMessage()).toString(), n.getEid() / 1000, p));
+                            weartext.append("<b>&lt;").append((n.getNick() == null) ? servernick : n.getNick()).append("&gt;</b> ").append(n.getMessage());
+                        }
                     }
                 }
-            }
 
-            builder.setStyle(style);
+                builder.setStyle(style);
+            }
 
             if(messages.size() > 1) {
                 wearableExtender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(Html.fromHtml(weartext.toString())).extend(new WearableExtender().setStartScrollBottom(true)).build());
