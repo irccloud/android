@@ -228,12 +228,14 @@ public class NotificationsList {
     }
 
     public void updateServerNick(int cid, String nick, String avatar_url, boolean isSlack) {
-        Notification_ServerNick n = new Notification_ServerNick();
-        n.setCid(cid);
-        n.setNick(nick);
-        n.setAvatar_url(avatar_url);
-        n.setIsSlack(isSlack);
-        IRCCloudDatabase.getInstance().NotificationsDao().insert(n);
+        if(nick != null && nick.length() > 0) {
+            Notification_ServerNick n = new Notification_ServerNick();
+            n.setCid(cid);
+            n.setNick(nick);
+            n.setAvatar_url(avatar_url);
+            n.setIsSlack(isSlack);
+            IRCCloudDatabase.getInstance().NotificationsDao().insert(n);
+        }
     }
 
     public String getServerAvatarURL(int cid) {
