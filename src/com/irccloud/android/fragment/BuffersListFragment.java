@@ -60,32 +60,32 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class BuffersListFragment extends Fragment implements NetworkConnection.IRCEventHandler {
-    RecyclerView recyclerView;
-    LinearLayoutManager layoutManager;
-    NetworkConnection conn;
-    BufferListAdapter adapter;
-    OnBufferSelectedListener mListener;
-    View view;
-    LinearLayout topUnreadIndicator = null;
-    LinearLayout topUnreadIndicatorColor = null;
-    LinearLayout topUnreadIndicatorBorder = null;
-    LinearLayout bottomUnreadIndicator = null;
-    LinearLayout bottomUnreadIndicatorColor = null;
-    LinearLayout bottomUnreadIndicatorBorder = null;
-    ProgressBar progressBar = null;
-    RefreshTask refreshTask = null;
+    private RecyclerView recyclerView;
+    private LinearLayoutManager layoutManager;
+    private NetworkConnection conn;
+    private BufferListAdapter adapter;
+    private OnBufferSelectedListener mListener;
+    private LinearLayout topUnreadIndicator = null;
+    private LinearLayout topUnreadIndicatorColor = null;
+    private LinearLayout topUnreadIndicatorBorder = null;
+    private LinearLayout bottomUnreadIndicator = null;
+    private LinearLayout bottomUnreadIndicatorColor = null;
+    private LinearLayout bottomUnreadIndicatorBorder = null;
+    private ProgressBar progressBar = null;
+    private RefreshTask refreshTask = null;
     private boolean ready = false;
+    private boolean requestingArchives = false;
     public boolean readOnly = false;
 
-    int firstUnreadPosition = -1;
-    int lastUnreadPosition = -1;
-    int firstHighlightPosition = -1;
-    int lastHighlightPosition = -1;
-    int firstFailurePosition = -1;
-    int lastFailurePosition = -1;
+    private int firstUnreadPosition = -1;
+    private int lastUnreadPosition = -1;
+    private int firstHighlightPosition = -1;
+    private int lastHighlightPosition = -1;
+    private int firstFailurePosition = -1;
+    private int lastFailurePosition = -1;
 
-    SparseBooleanArray mExpandArchives = new SparseBooleanArray();
-    SparseBooleanArray mExpandCids = new SparseBooleanArray();
+    private SparseBooleanArray mExpandArchives = new SparseBooleanArray();
+    private SparseBooleanArray mExpandCids = new SparseBooleanArray();
 
     private int selected_bid = -1;
 
@@ -396,17 +396,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             }
         }
 
-        private OnClickListener addClickListener = new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Buffer e = (Buffer) v.getTag();
-                AddChannelFragment newFragment = new AddChannelFragment();
-                newFragment.setDefaultCid(e.getCid());
-                newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
-                mListener.addButtonPressed(e.getCid());
-            }
-        };
-
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = RowBufferBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false).getRoot();
@@ -422,8 +411,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             row.setServer(b.getServer());
             row.setSelected(selected_bid);
             row.setReadOnly(readOnly);
-            if(b.getType() == Buffer.TYPE_ARCHIVES_HEADER)
-                row.setShowSpinner(b.getArchived() > 0 && b.getServer() != null && b.getServer().deferred_archives > 0);
+            if(b.getType().equals(Buffer.TYPE_ARCHIVES_HEADER))
+                row.setShowSpinner(requestingArchives && b.getArchived() > 0 && b.getServer() != null && b.getServer().deferred_archives > 0);
             else
                 row.setShowSpinner(!readOnly && b.getShowSpinner());
 
@@ -435,9 +424,11 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                     switch (b.getType()) {
                         case Buffer.TYPE_ARCHIVES_HEADER:
                             mExpandArchives.put(b.getCid(), !mExpandArchives.get(b.getCid(), false));
-                            refresh();
-                            if(mExpandArchives.get(b.getCid(), false) && b.getServer() != null && b.getServer().deferred_archives > 0)
+                            if(mExpandArchives.get(b.getCid(), false) && b.getServer() != null && b.getServer().deferred_archives > 0) {
+                                requestingArchives = true;
                                 NetworkConnection.getInstance().request_archives(b.getCid());
+                            }
+                            refresh();
                             return;
                         case Buffer.TYPE_JOIN_CHANNEL:
                             AddChannelFragment newFragment = new AddChannelFragment();
@@ -773,7 +764,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.bufferslist, null);
+        View view = inflater.inflate(R.layout.bufferslist, null);
         progressBar = view.findViewById(R.id.bufferprogress);
         recyclerView = view.findViewById(android.R.id.list);
         layoutManager = new LinearLayoutManager(view.getContext());
@@ -1019,6 +1010,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 break;
             case NetworkConnection.EVENT_BACKLOG_END:
             case NetworkConnection.EVENT_CACHE_END:
+                requestingArchives = false;
                 ready = true;
                 Integer bid = (obj == null)?-1:((Integer) obj);
                 b = BuffersList.getInstance().getBuffer(bid);
