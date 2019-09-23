@@ -122,6 +122,7 @@ public class BufferOptionsFragment extends DialogFragment {
                             prefs = updatePref(prefs, autosuggest.isChecked(), pref_type + "-disableAutoSuggest");
                         }
                         prefs = updatePref(prefs, joinpart.isChecked(), pref_type + "-hideJoinPart");
+                        prefs = updatePref(prefs, !joinpart.isChecked(), pref_type + "-showJoinPart");
                         prefs = updatePref(prefs, collapse.isChecked(), pref_type + "-expandJoinPart");
                         prefs = updatePref(prefs, !collapse.isChecked(), pref_type + "-collapseJoinPart");
                         prefs = updatePref(prefs, inlineFiles.isChecked(), pref_type + "-files-disableinline");
@@ -163,16 +164,19 @@ public class BufferOptionsFragment extends DialogFragment {
             if (NetworkConnection.getInstance().getUserInfo() != null) {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
                 if (prefs != null) {
-                    if (prefs.has(pref_type + "-hideJoinPart")) {
-                        JSONObject hiddenMap = prefs.getJSONObject(pref_type + "-hideJoinPart");
-                        if (hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
-                            joinpart.setChecked(false);
-                        else
-                            joinpart.setChecked(true);
-                    } else {
-                        joinpart.setChecked(true);
+                    boolean enabled = (prefs.has("hideJoinPart") && prefs.get("hideJoinPart") instanceof Boolean && prefs.getBoolean("hideJoinPart"));
+                    if (prefs.has(pref_type + "-showJoinPart")) {
+                        JSONObject showMap = prefs.getJSONObject(pref_type + "-showJoinPart");
+                        if (showMap.has(String.valueOf(bid)) && showMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
                     }
-                    boolean enabled = !(prefs.has("disableTrackUnread") && prefs.get("disableTrackUnread") instanceof Boolean && prefs.getBoolean("disableTrackUnread"));
+                    if (prefs.has(pref_type + "-hideJoinPart")) {
+                        JSONObject hideMap = prefs.getJSONObject(pref_type + "-hideJoinPart");
+                        if (hideMap.has(String.valueOf(bid)) && hideMap.getBoolean(String.valueOf(bid)))
+                            enabled = true;
+                    }
+                    joinpart.setChecked(!enabled);
+                    enabled = !(prefs.has("disableTrackUnread") && prefs.get("disableTrackUnread") instanceof Boolean && prefs.getBoolean("disableTrackUnread"));
                     if (prefs.has(pref_type + "-disableTrackUnread")) {
                         JSONObject unreadMap = prefs.getJSONObject(pref_type + "-disableTrackUnread");
                         if (unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))

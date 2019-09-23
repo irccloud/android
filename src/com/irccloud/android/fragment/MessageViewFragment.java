@@ -3110,22 +3110,37 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_disableCodeBlock = (prefs.has("chat-nocodeblock") && prefs.get("chat-nocodeblock") instanceof Boolean && prefs.getBoolean("chat-nocodeblock"));
                 pref_disableQuote = (prefs.has("chat-noquote") && prefs.get("chat-noquote") instanceof Boolean && prefs.getBoolean("chat-noquote"));
                 pref_mentionColors = (prefs.has("mention-colors") && prefs.get("mention-colors") instanceof Boolean && prefs.getBoolean("mention-colors"));
+
                 if(prefs.has("channel-disableTrackUnread")) {
                     JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
                     if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {
                         pref_trackUnread = false;
                     }
                 }
-                JSONObject hiddenMap = null;
-                if (buffer.isChannel()) {
-                    if (prefs.has("channel-hideJoinPart"))
-                        hiddenMap = prefs.getJSONObject("channel-hideJoinPart");
-                } else {
-                    if (prefs.has("buffer-hideJoinPart"))
-                        hiddenMap = prefs.getJSONObject("buffer-hideJoinPart");
-                }
 
-                pref_hideJoinPart = (prefs.has("hideJoinPart") && prefs.get("hideJoinPart") instanceof Boolean && prefs.getBoolean("hideJoinPart")) || (hiddenMap != null && hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())));
+                if(prefs.has("hideJoinPart") && prefs.get("hideJoinPart") instanceof Boolean && prefs.getBoolean("hideJoinPart")) {
+                    JSONObject showMap = null;
+                    if (buffer.isChannel()) {
+                        if (prefs.has("channel-showJoinPart"))
+                            showMap = prefs.getJSONObject("channel-showJoinPart");
+                    } else {
+                        if (prefs.has("buffer-showJoinPart"))
+                            showMap = prefs.getJSONObject("buffer-showJoinPart");
+                    }
+
+                    pref_hideJoinPart = !(showMap != null && showMap.has(String.valueOf(buffer.getBid())) && showMap.getBoolean(String.valueOf(buffer.getBid())));
+                } else {
+                    JSONObject hiddenMap = null;
+                    if (buffer.isChannel()) {
+                        if (prefs.has("channel-hideJoinPart"))
+                            hiddenMap = prefs.getJSONObject("channel-hideJoinPart");
+                    } else {
+                        if (prefs.has("buffer-hideJoinPart"))
+                            hiddenMap = prefs.getJSONObject("buffer-hideJoinPart");
+                    }
+
+                    pref_hideJoinPart = (hiddenMap != null && hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())));
+                }
 
                 JSONObject expandMap = null;
                 JSONObject collapseMap = null;
