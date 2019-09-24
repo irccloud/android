@@ -1010,6 +1010,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 break;
             case NetworkConnection.EVENT_BACKLOG_END:
             case NetworkConnection.EVENT_CACHE_END:
+                if(!requestingArchives && obj == null)
+                    mExpandArchives.clear();
                 requestingArchives = false;
                 ready = true;
                 Integer bid = (obj == null)?-1:((Integer) obj);
