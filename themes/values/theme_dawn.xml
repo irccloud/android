@@ -58,7 +58,7 @@
 		<item name="awayBarTextColor">#222</item>
 		<item name="awayBarColor">#eaeaea</item>
 		<item name="connectionBarTextColor">#123e92</item>
-		<item name="connectionBarColor">#e2edff</item>
+		<item name="connectionBarColor">#D9E7FF</item>
 		<item name="placeholderColor">#000</item>
 		<item name="expandCollapseIndicatorColor">#b3cfff</item>
 		<item name="listItemBackgroundColor">#fff</item>

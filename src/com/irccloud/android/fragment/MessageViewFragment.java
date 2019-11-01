@@ -1183,7 +1183,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if(e.row_type == ROW_THUMBNAIL) {
                         if(e.entities.has("id") || e.entities.has("name") || e.entities.has("description")) {
                             holder.metadata.setVisibility(View.VISIBLE);
-                            holder.thumbnailWrapper.setBackgroundResource(ColorScheme.getInstance().bufferBackgroundDrawable);
+                            holder.thumbnailWrapper.setBackgroundColor(ColorScheme.getInstance().navBarColor);
                         } else {
                             holder.metadata.setVisibility(View.GONE);
                             holder.thumbnailWrapper.setBackgroundDrawable(null);
