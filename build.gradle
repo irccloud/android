@@ -353,26 +353,26 @@ tasks.whenTaskAdded { task ->
 
 dependencies {
     implementation 'android.arch.work:work-runtime:1.0.1'
-    implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.drawerlayout:drawerlayout:1.1.0-alpha03'
-    implementation 'androidx.sharetarget:sharetarget:1.0.0-alpha02'
+    implementation 'androidx.sharetarget:sharetarget:1.0.0-beta02'
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.0.0"
-    implementation "androidx.recyclerview:recyclerview:1.0.0"
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.browser:browser:1.0.0"
     implementation "androidx.emoji:emoji:1.0.0"
-    implementation "androidx.exifinterface:exifinterface:1.0.0"
-    implementation "androidx.room:room-runtime:2.1.0"
-    annotationProcessor "androidx.room:room-compiler:2.1.0"
+    implementation "androidx.exifinterface:exifinterface:1.1.0"
+    implementation "androidx.room:room-runtime:2.2.2"
+    annotationProcessor "androidx.room:room-compiler:2.2.2"
     implementation "com.google.android.gms:play-services-base:16.1.0"
     implementation "com.google.android.gms:play-services-auth:16.0.1"
     implementation "com.google.android.gms:play-services-identity:16.0.0"
     implementation 'com.google.android.gms:play-services-ads:16.0.0'
-    implementation 'com.google.firebase:firebase-messaging:19.0.1'
+    implementation 'com.google.firebase:firebase-messaging:20.0.1'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.7'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.16'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation project(':android-websockets')
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
