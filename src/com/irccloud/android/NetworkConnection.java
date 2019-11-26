@@ -3078,66 +3078,46 @@ public class NetworkConnection {
             JsonNode entities = o.getJsonNode("entities");
             if(entities != null) {
                 if (entities.has("delete")) {
-                    boolean found = false;
-                    String msgid = entities.get("delete").asText();
-                    Map<Long,Event> events = mEvents.getEventsForBuffer(o.bid());
-                    if(events != null) {
-                        for (Event e : events.values()) {
-                            if (e.msgid != null && e.msgid.equals(msgid)) {
-                                mEvents.deleteEvent(e.eid, e.bid);
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-                    if(found) {
+                    Event e = mEvents.getEvent(o.bid(), entities.get("delete").asText());
+                    if (e != null) {
+                        mEvents.deleteEvent(e.eid, e.bid);
                         if(!backlog)
                             notifyHandlers(EVENT_MESSAGECHANGE, o);
                     } else {
                         pendingEdits.add(o);
-                        Crashlytics.log(Log.INFO, TAG, "Queued delete for msgID " + msgid);
                     }
                 } else if(entities.has("edit")) {
-                    boolean found = false;
-                    String msgid = entities.get("edit").asText();
-                    Map<Long,Event> events = mEvents.getEventsForBuffer(o.bid());
-                    if(events != null) {
-                        for (Event e : events.values()) {
-                            if (e.msgid != null && e.msgid.equals(msgid)) {
-                                if (o.eid() >= e.lastEditEID) {
-                                    if (entities.has("edit_text") && entities.get("edit_text").asText().length() > 0) {
-                                        e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
-                                        if (e.msg.startsWith(" "))
-                                            e.msg = "&nbsp;" + e.msg.substring(1);
-                                        e.edited = true;
-                                    }
-                                    if(e.entities != null) {
-                                        mergeJsonNode(e.entities, entities);
-                                    } else {
-                                        e.entities = entities;
-                                    }
-                                    e.lastEditEID = o.eid();
-                                    e.formatted = null;
-                                    e.html = null;
-                                    e.ready_for_display = false;
-                                    e.linkified = false;
-                                }
-                                found = true;
-                                break;
+                    Event e = mEvents.getEvent(o.bid(), entities.get("edit").asText());
+                    if(e != null) {
+                        if (o.eid() >= e.lastEditEID) {
+                            if (entities.has("edit_text") && entities.get("edit_text").asText().length() > 0) {
+                                e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
+                                if (e.msg.startsWith(" "))
+                                    e.msg = "&nbsp;" + e.msg.substring(1);
+                                e.edited = true;
                             }
+                            if(e.entities != null) {
+                                mergeJsonNode(e.entities, entities);
+                            } else {
+                                e.entities = entities;
+                            }
+                            e.lastEditEID = o.eid();
+                            e.formatted = null;
+                            e.html = null;
+                            e.ready_for_display = false;
+                            e.linkified = false;
                         }
-                    }
-                    if(found) {
                         if(!backlog)
                             notifyHandlers(EVENT_MESSAGECHANGE, o);
                     } else {
                         pendingEdits.add(o);
-                        Crashlytics.log(Log.INFO, TAG, "Queued edit for msgID " + msgid);
                     }
-
                 }
             }
         }
+
+        if(pendingEdits.size() > 0)
+            Crashlytics.log(Log.INFO, TAG, "Queued pending edits: " + pendingEdits.size());
     }
 
     public synchronized void parse_object(IRCCloudJSONObject object) throws JSONException {

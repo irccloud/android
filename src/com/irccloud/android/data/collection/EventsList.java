@@ -33,6 +33,7 @@ import java.util.TreeMap;
 @SuppressLint("UseSparseArrays")
 public class EventsList {
     private final HashMap<Integer, TreeMap<Long, Event>> events;
+    private final HashMap<Integer, TreeMap<String, Event>> msgids;
     private HashSet<Integer> loaded_bids = new HashSet<>();
     private static EventsList instance = null;
     private ColorScheme colorScheme = ColorScheme.getInstance();
@@ -45,6 +46,7 @@ public class EventsList {
 
     public EventsList() {
         events = new HashMap<>(100);
+        msgids = new HashMap<>(100);
     }
 
     public void load(int bid) {
@@ -94,6 +96,7 @@ public class EventsList {
         synchronized (events) {
             events.clear();
             loaded_bids.clear();
+            msgids.clear();
             //Delete.table(Event.class);
         }
     }
@@ -102,6 +105,13 @@ public class EventsList {
         synchronized (events) {
             if (!events.containsKey(event.bid) || events.get(event.bid) == null)
                 events.put(event.bid, new TreeMap<Long, Event>());
+
+            if (event.msgid != null && event.msgid.length() > 0) {
+                if (!msgids.containsKey(event.bid) || msgids.get(event.bid) == null)
+                    msgids.put(event.bid, new TreeMap<String, Event>());
+
+                msgids.get(event.bid).put(event.msgid, event);
+            }
 
             events.get(event.bid).put(event.eid, event);
         }
@@ -1118,6 +1128,13 @@ public class EventsList {
             if(e.from_nick == null && e.from != null && e.from.length() > 0)
                 e.from_nick = e.from;
 
+            if (e.msgid != null && e.msgid.length() > 0) {
+                if (!msgids.containsKey(e.bid) || msgids.get(e.bid) == null)
+                    msgids.put(e.bid, new TreeMap<String, Event>());
+
+                msgids.get(e.bid).put(e.msgid, e);
+            }
+
             return e;
         }
     }
@@ -1144,8 +1161,14 @@ public class EventsList {
     public void deleteEvent(long eid, int bid) {
         synchronized (events) {
             TreeMap<Long, Event> buffer = events.get(bid);
-            if(buffer != null)
-                buffer.remove(eid);
+            if(buffer != null) {
+                Event e = buffer.get(eid);
+                if(e != null) {
+                    buffer.remove(eid);
+                    if (e.msgid != null && e.msgid.length() > 0 && msgids.get(bid) != null)
+                        msgids.get(bid).remove(e.msgid);
+                }
+            }
         }
         //new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).is(eid)).queryClose();
     }
@@ -1154,6 +1177,9 @@ public class EventsList {
         synchronized (events) {
             if (events.containsKey(bid) && events.get(bid) != null)
                 events.remove(bid);
+
+            if (msgids.containsKey(bid) && msgids.get(bid) != null)
+                msgids.remove(bid);
         }
         //new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).queryClose();
     }
@@ -1211,6 +1237,9 @@ public class EventsList {
             load(bid);
             TreeMap<Long, Event> e = events.get(bid);
             while (e != null && e.size() > 50 && e.firstKey() != null) {
+                Event ev = e.get(e.firstKey());
+                if(ev.msgid != null && ev.msgid.length() > 0 && msgids.get(ev.bid) != null)
+                    msgids.get(ev.bid).remove(ev.msgid);
                 e.remove(e.firstKey());
             }
             /*if(e != null)
@@ -1278,6 +1307,13 @@ public class EventsList {
                 deleteEvent(e.eid, e.bid);
             }
         }
+    }
+
+    public synchronized Event getEvent(int bid, String msgid) {
+        if(msgids.get(bid) != null)
+            return msgids.get(bid).get(msgid);
+        else
+            return null;
     }
 
     private static final HashMap<String, String> REASONS = new HashMap<String, String>() {{
