@@ -919,6 +919,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 e1.printStackTrace();
                             }
                         }
+                        boolean hasAvatarImage = (b != null);
                         if(b == null) {
                             b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from_nick, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, width, e.self);
                         }
@@ -946,6 +947,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     canvas.restore();
                                 }
                             }, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            if(avatarURL != null && hasAvatarImage) {
+                                final Uri uri = Uri.parse(e.getAvatarURL(512));
+                                s.setSpan(new ClickableSpan() {
+                                    @Override
+                                    public void onClick(View widget) {
+                                        IRCCloudLinkMovementMethod.launchURI(uri, getContext());
+                                    }
+                                }, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
                             s.setSpan(new ColorFormatter.TypefaceSpan(ColorFormatter.sourceSansPro), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             formatted = s;
                         }
@@ -1054,6 +1064,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 Avatar a = mAvatarsList.getAvatar(e.cid, e.from_nick, e.from);
                                 b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width, e.self);
                                 holder.avatar.setTag(a);
+                                holder.avatar.setOnClickListener(null);
+                            } else {
+                                final Uri uri = Uri.parse(e.getAvatarURL(512));
+                                 holder.avatar.setOnClickListener(new OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        IRCCloudLinkMovementMethod.launchURI(uri, getContext());
+                                    }
+                                });
                             }
                             holder.avatar.setVisibility(View.VISIBLE);
                         }

@@ -284,7 +284,12 @@ public class Event {
             } else if (avatar_url != null && avatar_url.length() > 0 && avatar_url.startsWith("https://")) {
                 cachedAvatarURL = avatar_url;
                 if (cachedAvatarURL.contains("{size}")) {
-                    cachedAvatarURL = UriTemplate.fromTemplate(cachedAvatarURL).set("size", size == 512 ? "512" : "72").expand();
+                    if(size <= 72)
+                        cachedAvatarURL = UriTemplate.fromTemplate(cachedAvatarURL).set("size", "72").expand();
+                    else if(size <= 192)
+                        cachedAvatarURL = UriTemplate.fromTemplate(cachedAvatarURL).set("size", "192").expand();
+                    else
+                        cachedAvatarURL = UriTemplate.fromTemplate(cachedAvatarURL).set("size", "512").expand();
                 }
             } else if (NetworkConnection.avatar_redirect_uri_template != null) {
                 if (hostmask != null && hostmask.length() > 0 && hostmask.contains("@")) {
