@@ -15,6 +15,7 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
@@ -178,7 +179,8 @@
                 android:hint="NickServ password"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:passwordToggleEnabled="true">
                 <EditText
                     android:importantForAutofill="no"
                     android:id="@+id/nickservpassword"
@@ -195,7 +197,8 @@
                 android:hint="Server password"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:passwordToggleEnabled="true">
                 <EditText
                     android:importantForAutofill="no"
                     android:id="@+id/serverpassword"
