@@ -37,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.damnhandy.uri.template.UriTemplate;
+import com.irccloud.android.activity.ImageViewerActivity;
 import com.irccloud.android.data.collection.ImageList;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
@@ -209,6 +210,13 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             return;
         }
 
+        if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true) && ImageList.isImageURL(uri.toString())) {
+            Intent intent = new Intent(context, ImageViewerActivity.class);
+            intent.setData(uri);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            return;
+        }
         launchBrowser(uri, context);
     }
 

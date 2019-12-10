@@ -97,17 +97,19 @@ public class ImageList {
         return url != null && url.matches(
             "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
                 //"(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
-                "(^https?://(www\\.)?imgur\\.com/.*$)|(^https?://m\\.imgur\\.com/.*$)|" +
-                "(^https?://d\\.pr/i/.*)|(^https?://droplr\\.com/i/.*)|" +
-                "(^https?://cl\\.ly/.*)|" +
-                "(^https?://(www\\.)?leetfiles\\.com/image/.*)|" +
-                "(^https?://(www\\.)?leetfil\\.es/image/.*)|" +
-                "(^https?://i.imgur.com/.*\\.gifv$)|" +
-                "(^https?://(www\\.)?giphy\\.com/gifs/.*)|" +
-                "(^https?://gph\\.is/.*)|" +
-                "(^https?://.*\\.twimg\\.com/media/.*\\.(png|jpe?g|gif|bmp):[a-z]+$)|" +
-                "(^https?://(www\\.)?xkcd\\.com/[0-9]+/?)|" +
-                "(^https?://.*\\.steampowered\\.com/ugc/.*)"
+                    "(^https?://(www\\.)?imgur\\.com/.*$)|(^https?://m\\.imgur\\.com/.*$)|" +
+                    "(^https?://d\\.pr/i/.*)|(^https?://droplr\\.com/i/.*)|" +
+                    "(^https?://cl\\.ly/.*)|" +
+                    "(^https?://(www\\.)?leetfiles\\.com/image/.*)|" +
+                    "(^https?://(www\\.)?leetfil\\.es/image/.*)|" +
+                    "(^https?://i.imgur.com/.*\\.gifv$)|" +
+                    "(^https?://(www\\.)?giphy\\.com/gifs/.*)|" +
+                    "(^https?://gph\\.is/.*)|" +
+                    "(^https?://.*\\.twimg\\.com/media/.*\\.(png|jpe?g|gif|bmp):[a-z]+$)|" +
+                    "(^https?://(www\\.)?xkcd\\.com/[0-9]+/?)|" +
+                    "(^https?://.*\\.steampowered\\.com/ugc/.*)|" +
+                    "(^https?://static\\.irccloud-cdn\\.com/avatar-redirect/s.*)|" +
+                    "(^https?://.*\\.slack-edge\\.com/.*-(72|192|512))"
         ) && !url.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)") && !(url.contains("imgur.com") && url.contains(","));
     }
 

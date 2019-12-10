@@ -948,7 +948,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 }
                             }, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             if(avatarURL != null && hasAvatarImage) {
-                                final Uri uri = Uri.parse(e.getAvatarURL(512));
+                                final Uri uri = Uri.parse(e.getAvatarURL(Resources.getSystem().getDisplayMetrics().widthPixels));
                                 s.setSpan(new ClickableSpan() {
                                     @Override
                                     public void onClick(View widget) {
@@ -1066,7 +1066,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 holder.avatar.setTag(a);
                                 holder.avatar.setOnClickListener(null);
                             } else {
-                                final Uri uri = Uri.parse(e.getAvatarURL(512));
+                                final Uri uri = Uri.parse(e.getAvatarURL(Resources.getSystem().getDisplayMetrics().widthPixels));
                                  holder.avatar.setOnClickListener(new OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
