@@ -130,7 +130,7 @@ public class ColorFormatter {
     private static final String IRI_LABEL = "[" + LABEL_CHAR + "](?:[" + LABEL_CHAR + "_\\-]{0,61}[" + LABEL_CHAR + "]){0,1}";
     private static final String PUNYCODE_TLD = "xn\\-\\-[\\w\\-]{0,58}\\w";
     private static final String PROTOCOL = "[a-z_-]+://";
-    private static final String WORD_BOUNDARY = "(?=[^\\w-]|$|^)";
+    private static final String WORD_BOUNDARY = "(?=\\b|$|^)";
     private static final String USER_INFO = "(?:[a-zA-Z0-9\\$\\-\\_\\.\\+\\!\\*\\'\\(\\)"
             + "\\,\\;\\?\\&\\=]|(?:\\%[a-fA-F0-9]{2})){1,64}(?:\\:(?:[a-zA-Z0-9\\$\\-\\_"
             + "\\.\\+\\!\\*\\'\\(\\)\\,\\;\\?\\&\\=]|(?:\\%[a-fA-F0-9]{2})){1,25})?\\@";
@@ -2422,6 +2422,14 @@ public class ColorFormatter {
             }, new TransformFilter() {
                 @Override
                 public String transformUrl(Matcher match, String url) {
+                    //Fix the trailing - or / from being excluded by the regex
+                    int start = match.start();
+                    int end = match.end();
+                    while(end < output.length() && (output.charAt(end) == '-' || output.charAt(end) == '/')) {
+                        end++;
+                    }
+                    url = output.subSequence(start, end).toString();
+
                     if (!url.contains("://")) {
                         if (url.toLowerCase().startsWith("irc."))
                             url = "irc://" + url;
@@ -2574,6 +2582,11 @@ public class ColorFormatter {
                     if (countOpen != countClose) {
                         end--;
                     }
+                }
+
+                //Fix the trailing - or / from being excluded by the regex
+                while(end < output.length() && (output.charAt(end) == '-' || output.charAt(end) == '/')) {
+                    end++;
                 }
 
                 span = new URLSpanNoUnderline(span.getURL());
