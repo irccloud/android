@@ -109,7 +109,8 @@ public class ImageList {
                     "(^https?://(www\\.)?xkcd\\.com/[0-9]+/?)|" +
                     "(^https?://.*\\.steampowered\\.com/ugc/.*)|" +
                     "(^https?://static\\.irccloud-cdn\\.com/avatar-redirect/s.*)|" +
-                    "(^https?://.*\\.slack-edge\\.com/.*-(72|192|512))"
+                    "(^https?://.*\\.slack-edge\\.com/.*-(72|192|512))|" +
+                    "(^https?://(www\\.)?gravatar\\.com/avatar/.*)"
         ) && !url.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)") && !(url.contains("imgur.com") && url.contains(","));
     }
 
