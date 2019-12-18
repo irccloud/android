@@ -260,9 +260,9 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     startActivity(getPackageManager().getLaunchIntentForPackage("com.irccloud.android"));
                 } else {
                     try {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.irccloud.android")));
+                        IRCCloudLinkMovementMethod.launchBrowser(Uri.parse("market://details?id=com.irccloud.android"),LoginActivity.this);
                     } catch (Exception e) {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.irccloud.android")));
+                        IRCCloudLinkMovementMethod.launchBrowser(Uri.parse("https://play.google.com/store/apps/details?id=com.irccloud.android"),LoginActivity.this);
                     }
                 }
             }

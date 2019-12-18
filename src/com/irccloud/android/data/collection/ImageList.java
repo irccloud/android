@@ -35,6 +35,7 @@ import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
 import com.irccloud.android.data.model.ImageURLInfo;
 
 import org.json.JSONObject;
@@ -87,7 +88,7 @@ public class ImageList {
     public static boolean isImageURL(String url) {
         try {
             Uri uri = Uri.parse(url);
-            if (uri != null && uri.getLastPathSegment() != null && uri.getLastPathSegment().contains(".")) {
+            if (uri != null && (uri.getScheme().startsWith("http") || uri.getScheme().startsWith(IRCCloudApplication.getInstance().getResources().getString(R.string.IMAGE_SCHEME))) && uri.getLastPathSegment() != null && uri.getLastPathSegment().contains(".")) {
                 String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
                 if (extension.equals("jpg") || extension.equals("jpeg") || extension.equals("png") || extension.equals("gif") || extension.equals("bmp") || extension.equals("webp"))
                     return true;

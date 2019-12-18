@@ -59,6 +59,7 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ChromeCopyLinkBroadcastReceiver;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
@@ -229,6 +230,11 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         } else {
             if (getIntent() != null && getIntent().getDataString() != null) {
                 url = getIntent().getDataString().replace(getResources().getString(R.string.PASTE_SCHEME), "https");
+                if(url.contains("/raw/")) {
+                    IRCCloudLinkMovementMethod.forwardToBrowser(getIntent(), this);
+                    finish();
+                    return;
+                }
                 if(!url.contains("?"))
                     url += "?";
                 try {
@@ -265,8 +271,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     }
 
     private void fail() {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        startActivity(intent);
+        IRCCloudLinkMovementMethod.launchBrowser(Uri.parse(url), this);
         finish();
     }
 
@@ -383,25 +388,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             item.setChecked(!item.isChecked());
             mWebView.loadUrl("javascript:window.PASTEVIEW.doToggleLines()");
         } else if (item.getItemId() == R.id.action_browser) {
-            if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false)) {
-                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-                builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
-                builder.addDefaultShareMenuItem();
-                builder.addMenuItem("Copy URL", PendingIntent.getBroadcast(this, 0, new Intent(this, ChromeCopyLinkBroadcastReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT));
-
-                CustomTabsIntent intent = builder.build();
-                intent.intent.setData(Uri.parse(url.contains("?")?url.substring(0, url.indexOf("?")):url));
-                if(Build.VERSION.SDK_INT >= 22)
-                    intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
-                if (intent.startAnimationBundle != null) {
-                    startActivity(intent.intent, intent.startAnimationBundle);
-                } else {
-                    startActivity(intent.intent);
-                }
-            } else {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.contains("?")?url.substring(0, url.indexOf("?")):url));
-                startActivity(intent);
-            }
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.contains("?")?url.substring(0, url.indexOf("?")):url));
+            IRCCloudLinkMovementMethod.forwardToBrowser(intent, this);
             finish();
             return true;
         } else if (item.getItemId() == R.id.action_copy) {

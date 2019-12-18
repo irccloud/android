@@ -72,6 +72,7 @@ import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ChromeCopyLinkBroadcastReceiver;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
@@ -405,8 +406,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     }
 
     private void fail() {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
-        startActivity(intent);
+        IRCCloudLinkMovementMethod.launchBrowser(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")), this);
         finish();
     }
 
@@ -587,8 +587,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                     startActivity(intent.intent);
                 }
             } else {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
-                startActivity(intent);
+                IRCCloudLinkMovementMethod.launchBrowser(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")), this);
             }
             finish();
             return true;

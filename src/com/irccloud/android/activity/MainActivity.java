@@ -5677,9 +5677,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                     dialog.show();
                 } else if (items[item].equals("Slack Profile")) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(server.getSlackBaseURL() + "/team/" + selected_user.nick));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+                    IRCCloudLinkMovementMethod.launchBrowser(Uri.parse(server.getSlackBaseURL() + "/team/" + selected_user.nick), MainActivity.this);
                 } else if (items[item].equals("Reply")) {
                     setBuffer(buffer.getBid(), msgid);
                 }

@@ -18,9 +18,12 @@ package com.irccloud.android;
 
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.Browser;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -43,7 +46,9 @@ import com.irccloud.android.data.collection.ImageList;
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
     private static IRCCloudLinkMovementMethod instance = null;
@@ -220,7 +225,7 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
         launchBrowser(uri, context);
     }
 
-    private static void launchBrowser(Uri uri, Context context) {
+    public static void launchBrowser(Uri uri, Context context) {
         if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false) && uri.getScheme().startsWith("http") && CustomTabsHelper.getPackageNameToUse(context) != null) {
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
             builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
@@ -243,6 +248,33 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    // from https://stackoverflow.com/a/23268821/3221253
+    public static void forwardToBrowser(Intent i, Context context) {
+        Intent intent = new Intent();
+        intent.setAction(android.content.Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.parse("https://www.example.com/"), i.getType());
+        List<ResolveInfo> activities = context.getPackageManager().queryIntentActivities(intent, 0);
+        ArrayList<Intent> targetIntents = new ArrayList<Intent>();
+        String thisPackageName = context.getPackageName();
+        for (ResolveInfo currentInfo : activities) {
+            String packageName = currentInfo.activityInfo.packageName;
+            if (!thisPackageName.equals(packageName)) {
+                Intent targetIntent = new Intent(android.content.Intent.ACTION_VIEW);
+                targetIntent.setDataAndType(i.getData(),i.getType());
+                targetIntent.setPackage(packageName);
+                targetIntent.setComponent(new ComponentName(packageName, currentInfo.activityInfo.name));
+                targetIntents.add(targetIntent);
+            }
+        }
+        if(targetIntents.size() > 0) {
+            Intent chooserIntent = Intent.createChooser(targetIntents.remove(0), "Open with");
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents.toArray(new Parcelable[] {}));
+            context.startActivity(chooserIntent);
+        } else {
+            Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
         }
     }
 
