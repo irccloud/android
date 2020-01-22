@@ -2546,71 +2546,83 @@ public class NetworkConnection {
                 if(event.eid == -1) {
                     alert.parse(object);
                 } else {
-                    if (b != null && event.eid > b.getLast_seen_eid() && event.isImportant(b.getType())) {
-                        if ((event.highlight || b.isConversation())) {
-                            if (newEvent) {
-                                b.setHighlights(b.getHighlights() + 1);
-                                b.setUnread(1);
+                    if (b != null && event.isImportant(b.getType())) {
+                        if(event.from != null) {
+                            User u = mUsers.getUser(event.bid, event.from);
+                            if (u != null) {
+                                if(u.last_message < event.eid)
+                                    u.last_message = event.eid;
+                                if(event.highlight && u.last_mention < event.eid)
+                                    u.last_mention = event.eid;
                             }
-                            if (!backlog) {
-                                JSONObject bufferDisabledMap = null;
-                                boolean show = true;
-                                String pref_type = b.isChannel() ? "channel" : "buffer";
-                                if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has(pref_type + "-disableTrackUnread")) {
-                                    bufferDisabledMap = userInfo.prefs.getJSONObject(pref_type + "-disableTrackUnread");
-                                    if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
-                                        show = false;
-                                }
-                                if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has(pref_type + "-notifications-mute")) {
-                                    JSONObject bufferMutedMap = userInfo.prefs.getJSONObject(pref_type + "-notifications-mute");
-                                    if (bufferMutedMap != null && bufferMutedMap.has(String.valueOf(b.getBid())) && bufferMutedMap.getBoolean(String.valueOf(b.getBid())))
-                                        show = false;
-                                }
-                                try {
-                                    if (IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_token", "").length() > 0)
-                                        show = false;
-                                } catch (Exception e) {
-                                    show = true;
-                                }
-                                if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
-                                    String message = ColorFormatter.strip(event.msg).toString();
-                                    String server_name = b.getServer().getName();
-                                    if (server_name == null || server_name.length() == 0)
-                                        server_name = b.getServer().getHostname();
-                                    String from = event.nick;
-                                    if (from == null)
-                                        from = (event.from != null) ? event.from : event.server;
+                        }
 
-                                    NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type, server_name, event.getAvatarURL(512));
-                                    switch (b.getType()) {
-                                        case "conversation":
-                                            if (event.type.equals("buffer_me_msg"))
-                                                NotificationsList.getInstance().showNotifications("— " + b.getName() + " " + message);
-                                            else
-                                                NotificationsList.getInstance().showNotifications(b.getName() + ": " + message);
-                                            break;
-                                        case "console":
-                                            if (event.from == null || event.from.length() == 0) {
-                                                Server s = mServers.getServer(event.cid);
-                                                if (s.getName() != null && s.getName().length() > 0)
-                                                    NotificationsList.getInstance().showNotifications(s.getName() + ": " + message);
+                        if (event.eid > b.getLast_seen_eid()) {
+                            if ((event.highlight || b.isConversation())) {
+                                if (newEvent) {
+                                    b.setHighlights(b.getHighlights() + 1);
+                                    b.setUnread(1);
+                                }
+                                if (!backlog) {
+                                    JSONObject bufferDisabledMap = null;
+                                    boolean show = true;
+                                    String pref_type = b.isChannel() ? "channel" : "buffer";
+                                    if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has(pref_type + "-disableTrackUnread")) {
+                                        bufferDisabledMap = userInfo.prefs.getJSONObject(pref_type + "-disableTrackUnread");
+                                        if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
+                                            show = false;
+                                    }
+                                    if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has(pref_type + "-notifications-mute")) {
+                                        JSONObject bufferMutedMap = userInfo.prefs.getJSONObject(pref_type + "-notifications-mute");
+                                        if (bufferMutedMap != null && bufferMutedMap.has(String.valueOf(b.getBid())) && bufferMutedMap.getBoolean(String.valueOf(b.getBid())))
+                                            show = false;
+                                    }
+                                    try {
+                                        if (IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_token", "").length() > 0)
+                                            show = false;
+                                    } catch (Exception e) {
+                                        show = true;
+                                    }
+                                    if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
+                                        String message = ColorFormatter.strip(event.msg).toString();
+                                        String server_name = b.getServer().getName();
+                                        if (server_name == null || server_name.length() == 0)
+                                            server_name = b.getServer().getHostname();
+                                        String from = event.nick;
+                                        if (from == null)
+                                            from = (event.from != null) ? event.from : event.server;
+
+                                        NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type, server_name, event.getAvatarURL(512));
+                                        switch (b.getType()) {
+                                            case "conversation":
+                                                if (event.type.equals("buffer_me_msg"))
+                                                    NotificationsList.getInstance().showNotifications("— " + b.getName() + " " + message);
                                                 else
-                                                    NotificationsList.getInstance().showNotifications(s.getHostname() + ": " + message);
-                                            } else {
-                                                NotificationsList.getInstance().showNotifications(event.from + ": " + message);
-                                            }
-                                            break;
-                                        default:
-                                            if (event.type.equals("buffer_me_msg"))
-                                                NotificationsList.getInstance().showNotifications(b.getName() + ": — " + event.nick + " " + message);
-                                            else
-                                                NotificationsList.getInstance().showNotifications(b.getName() + ": <" + event.from + "> " + message);
-                                            break;
+                                                    NotificationsList.getInstance().showNotifications(b.getName() + ": " + message);
+                                                break;
+                                            case "console":
+                                                if (event.from == null || event.from.length() == 0) {
+                                                    Server s = mServers.getServer(event.cid);
+                                                    if (s.getName() != null && s.getName().length() > 0)
+                                                        NotificationsList.getInstance().showNotifications(s.getName() + ": " + message);
+                                                    else
+                                                        NotificationsList.getInstance().showNotifications(s.getHostname() + ": " + message);
+                                                } else {
+                                                    NotificationsList.getInstance().showNotifications(event.from + ": " + message);
+                                                }
+                                                break;
+                                            default:
+                                                if (event.type.equals("buffer_me_msg"))
+                                                    NotificationsList.getInstance().showNotifications(b.getName() + ": — " + event.nick + " " + message);
+                                                else
+                                                    NotificationsList.getInstance().showNotifications(b.getName() + ": <" + event.from + "> " + message);
+                                                break;
+                                        }
                                     }
                                 }
+                            } else {
+                                b.setUnread(1);
                             }
-                        } else {
-                            b.setUnread(1);
                         }
                     }
                 }

@@ -1252,6 +1252,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     return -1;
                                 if (lhs.last_mention < rhs.last_mention)
                                     return 1;
+                                if (lhs.last_message > rhs.last_message)
+                                    return -1;
+                                if (lhs.last_message < rhs.last_message)
+                                    return 1;
                                 return lhs.nick.compareToIgnoreCase(rhs.nick);
                             }
                         });
@@ -5783,22 +5787,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (buffer != null) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.getCid() + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
             server = buffer.getServer();
-
-            try {
-                TreeMap<Long, Event> events = EventsList.getInstance().getEventsForBuffer(buffer.getBid());
-                if (events != null) {
-                    events = (TreeMap<Long, Event>) events.clone();
-                    for (Event e : events.values()) {
-                        if (e != null && e.highlight && e.from != null) {
-                            User u = UsersList.getInstance().getUser(buffer.getBid(), e.from);
-                            if (u != null && u.last_mention < e.eid)
-                                u.last_mention = e.eid;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                Crashlytics.logException(e);
-            }
 
             try {
                 if (buffer != null && server != null) {

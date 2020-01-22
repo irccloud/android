@@ -45,6 +45,7 @@ public class User {
     public int joined;
 
     public long last_mention = -1;
+    public long last_message = -1;
 
     public String getDisplayName() {
         if(display_name != null && display_name.length() > 0)
