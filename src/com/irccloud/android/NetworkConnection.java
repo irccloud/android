@@ -1293,6 +1293,7 @@ public class NetworkConnection {
         ImageList.getInstance().purge();
         mRecentConversations.clear();
         LogExportsList.getInstance().clear();
+        FirebaseAnalytics.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).resetAnalyticsData();
         save(100);
     }
 
