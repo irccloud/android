@@ -45,6 +45,9 @@ import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.perf.metrics.HttpMetric;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.LogExportsList;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -1073,12 +1076,16 @@ public class NetworkConnection {
         TrustManager[] trustManagers = new TrustManager[1];
         trustManagers[0] = TrustKit.getInstance().getTrustManager(IRCCLOUD_HOST);
         WebSocketClient.setTrustManagers(trustManagers);
+        HttpMetric metric = FirebasePerformance.getInstance().newHttpMetric(url.replace("wss://", "https://"), FirebasePerformance.HttpMethod.GET);
+        metric.start();
 
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
             @Override
             public void onConnect() {
                 if (client != null && client.getListener() == this) {
                     Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
+                    metric.setHttpResponseCode(200);
+                    metric.stop();
                     try {
                         JSONObject o = new JSONObject();
                         o.put("cookie", session);
@@ -2112,6 +2119,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 userInfo = new UserInfo(object);
                 Crashlytics.setUserIdentifier("uid" + userInfo.id);
+                FirebaseAnalytics.getInstance(IRCCloudApplication.getInstance()).setUserId("uid" + userInfo.id);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("uid", "uid" + userInfo.id);
@@ -3261,6 +3269,7 @@ public class NetworkConnection {
             Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url);
         }
 
+        HttpMetric metric = FirebasePerformance.getInstance().newHttpMetric(url, postdata != null ? FirebasePerformance.HttpMethod.POST : FirebasePerformance.HttpMethod.GET);
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
             https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
@@ -3297,6 +3306,7 @@ public class NetworkConnection {
                 if (ostr != null)
                     ostr.close();
             }
+            metric.setRequestPayloadSize(postdata.length());
         }
         InputStream is = null;
         String response = "";
@@ -3311,6 +3321,8 @@ public class NetworkConnection {
             }
         } catch (Exception e) {
         }
+
+        metric.start();
 
         try {
             if (conn.getInputStream() != null) {
@@ -3334,6 +3346,10 @@ public class NetworkConnection {
             response = os.toString("UTF-8");
             is.close();
         }
+        metric.setResponsePayloadSize(response.length());
+        metric.setHttpResponseCode(conn.getResponseCode());
+        metric.setResponseContentType(conn.getContentType());
+        metric.stop();
         conn.disconnect();
         return response;
     }

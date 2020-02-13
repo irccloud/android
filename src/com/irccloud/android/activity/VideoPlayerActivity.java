@@ -55,17 +55,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
-import com.crashlytics.android.answers.ShareEvent;
-import com.irccloud.android.AsyncTaskEx;
-import com.irccloud.android.BuildConfig;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
-import org.json.JSONObject;
 
 public class VideoPlayerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
     private View controls;
@@ -362,7 +357,9 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         if (getIntent() != null && getIntent().getDataString() != null) {
             Uri url = Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http"));
             video.setVideoURI(url);
-            Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Video"));
+            Bundle b = new Bundle();
+            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Video");
+            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, b);
         } else {
             finish();
         }
@@ -463,7 +460,10 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                     } catch (PackageManager.NameNotFoundException e) {
                         NetworkConnection.printStackTraceToCrashlytics(e);
                     }
-                    Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod(name));
+                    Bundle b = new Bundle();
+                    b.putString(FirebaseAnalytics.Param.METHOD, name);
+                    b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Video");
+                    FirebaseAnalytics.getInstance(VideoPlayerActivity.this).logEvent(FirebaseAnalytics.Event.SHARE, b);
                     return false;
                 }
             });
@@ -500,7 +500,10 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                     r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                     r.allowScanningByMediaScanner();
                     d.enqueue(r);
-                    Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Download"));
+                    Bundle b = new Bundle();
+                    b.putString(FirebaseAnalytics.Param.METHOD, "Download");
+                    b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Video");
+                    FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
                 }
             }
             return true;
@@ -509,7 +512,10 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             android.content.ClipData clip = android.content.ClipData.newRawUri("IRCCloud Video URL", Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
             clipboard.setPrimaryClip(clip);
             Toast.makeText(VideoPlayerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
-            Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Copy to Clipboard"));
+            Bundle b = new Bundle();
+            b.putString(FirebaseAnalytics.Param.METHOD, "Copy to Clipboard");
+            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Video");
+            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
         } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && item.getItemId() == R.id.action_share) {
             Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
             intent.setType("text/plain");
@@ -518,7 +524,9 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(Intent.createChooser(intent, "Share Video"));
-            Answers.getInstance().logShare(new ShareEvent().putContentType("Video"));
+            Bundle b = new Bundle();
+            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Video");
+            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -541,7 +549,10 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                 r.allowScanningByMediaScanner();
                 d.enqueue(r);
-                Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Download"));
+                Bundle b = new Bundle();
+                b.putString(FirebaseAnalytics.Param.METHOD, "Download");
+                b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Video");
+                FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
             }
         } else {
             Toast.makeText(this, "Unable to download: permission denied", Toast.LENGTH_SHORT).show();

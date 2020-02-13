@@ -25,6 +25,8 @@ import android.util.Log;
 import com.codebutler.android_websockets.HybiParser;
 import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
+import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.perf.metrics.HttpMetric;
 
 import org.apache.http.conn.ssl.StrictHostnameVerifier;
 
@@ -62,6 +64,7 @@ public class HTTPFetcher {
     protected String mProxyHost;
     protected int mProxyPort;
     protected boolean isCancelled;
+    private HttpMetric metric;
 
     private static final String ENABLED_CIPHERS[] = {
             "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
@@ -95,6 +98,8 @@ public class HTTPFetcher {
 
         if (mProxyHost != null && mProxyHost.length() > 0 && (mProxyHost.equalsIgnoreCase("localhost") || mProxyHost.equalsIgnoreCase("127.0.0.1")))
             mProxyHost = null;
+
+        metric = FirebasePerformance.getInstance().newHttpMetric(uri, FirebasePerformance.HttpMethod.GET);
     }
 
     public void cancel() {
@@ -170,6 +175,7 @@ public class HTTPFetcher {
                     if(isCancelled)
                         return;
 
+                    metric.start();
                     Crashlytics.log(Log.INFO, TAG, "Requesting: " + mURI);
                     int port = (mURI.getPort() != -1) ? mURI.getPort() : (mURI.getProtocol().equals("https") ? 443 : 80);
                     SocketFactory factory = mURI.getProtocol().equals("https") ? getSSLSocketFactory() : SocketFactory.getDefault();
@@ -292,6 +298,7 @@ public class HTTPFetcher {
             } else {
                 Crashlytics.log(Log.DEBUG, TAG, "Got HTTP response: " + statusLineString);
                 statusLine = StatusLine.parse(statusLineString);
+                metric.setHttpResponseCode(statusLine.code);
                 if (statusLine.code != HttpURLConnection.HTTP_OK && statusLine.code != HttpURLConnection.HTTP_MOVED_PERM) {
                     Crashlytics.log(Log.ERROR, TAG, "Failure: " + mURI + ": " + statusLine.toString());
                     throw new Exception(statusLine.toString());
@@ -307,6 +314,10 @@ public class HTTPFetcher {
                 Headers header = new Headers.Builder().add(line.substring(0, index).trim(), line.substring(index + 1)).build();
                 if(header.name(0).equalsIgnoreCase("content-encoding") && header.value(0).equalsIgnoreCase("gzip"))
                     gzipped = true;
+                if(header.name(0).equalsIgnoreCase("content-type"))
+                    metric.setResponseContentType(header.value(0));
+                if(header.name(0).equalsIgnoreCase("content-length"))
+                    metric.setResponsePayloadSize(Long.valueOf(header.value(0)));
                 if(statusLine.code == HttpURLConnection.HTTP_MOVED_PERM && header.name(0).equalsIgnoreCase("location")) {
                     Crashlytics.log(Log.INFO, TAG, "Redirecting to: " + header.value(0));
                     mURI = new URL(header.value(0));
@@ -324,6 +335,7 @@ public class HTTPFetcher {
                 onStreamConnected(mSocket.getInputStream());
 
             onFetchComplete();
+            metric.stop();
         } catch (Exception ex) {
             NetworkConnection.printStackTraceToCrashlytics(ex);
             onFetchFailed();

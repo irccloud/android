@@ -51,10 +51,6 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.LoginEvent;
-import com.crashlytics.android.answers.SignUpEvent;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.Credential;
@@ -68,6 +64,7 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.irccloud.android.AsyncTaskEx;
@@ -850,10 +847,17 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     }
 
                     if (!BuildConfig.ENTERPRISE) {
-                        if (name.getVisibility() == View.VISIBLE)
-                            Answers.getInstance().logSignUp(new SignUpEvent().putMethod("email").putSuccess(true));
-                        else
-                            Answers.getInstance().logLogin(new LoginEvent().putMethod("email").putSuccess(true));
+                        if (name.getVisibility() == View.VISIBLE) {
+                            Bundle b = new Bundle();
+                            b.putString(FirebaseAnalytics.Param.METHOD, "email");
+                            b.putBoolean(FirebaseAnalytics.Param.SUCCESS, true);
+                            FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.SIGN_UP, b);
+                        } else {
+                            Bundle b = new Bundle();
+                            b.putString(FirebaseAnalytics.Param.METHOD, "email");
+                            b.putBoolean(FirebaseAnalytics.Param.SUCCESS, true);
+                            FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.LOGIN, b);
+                        }
                     }
                 } catch (JSONException e) {
                     NetworkConnection.printStackTraceToCrashlytics(e);
@@ -879,10 +883,19 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     try {
                         if (result.has("message")) {
                             if (!BuildConfig.ENTERPRISE) {
-                                if (name.getVisibility() == View.VISIBLE)
-                                    Answers.getInstance().logSignUp(new SignUpEvent().putMethod("email").putSuccess(false).putCustomAttribute("Failure", result.getString("message")));
-                                else
-                                    Answers.getInstance().logLogin(new LoginEvent().putMethod("email").putSuccess(false).putCustomAttribute("Failure", result.getString("message")));
+                                if (name.getVisibility() == View.VISIBLE) {
+                                    Bundle b = new Bundle();
+                                    b.putString(FirebaseAnalytics.Param.METHOD, "email");
+                                    b.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
+                                    b.putString("failure", result.getString("message"));
+                                    FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.SIGN_UP, b);
+                                } else {
+                                    Bundle b = new Bundle();
+                                    b.putString(FirebaseAnalytics.Param.METHOD, "email");
+                                    b.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
+                                    b.putString("failure", result.getString("message"));
+                                    FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.LOGIN, b);
+                                }
                             }
                             message = result.getString("message");
                             if (message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("email") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
@@ -935,10 +948,17 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                         message = "Please enter your username and password.";
                 } else {
                     if (!BuildConfig.ENTERPRISE) {
-                        if (name.getVisibility() == View.VISIBLE)
-                            Answers.getInstance().logSignUp(new SignUpEvent().putMethod("email").putSuccess(false));
-                        else
-                            Answers.getInstance().logLogin(new LoginEvent().putMethod("email").putSuccess(false));
+                        if (name.getVisibility() == View.VISIBLE) {
+                            Bundle b = new Bundle();
+                            b.putString(FirebaseAnalytics.Param.METHOD, "email");
+                            b.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
+                            FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.SIGN_UP, b);
+                        } else {
+                            Bundle b = new Bundle();
+                            b.putString(FirebaseAnalytics.Param.METHOD, "email");
+                            b.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
+                            FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.LOGIN, b);
+                        }
                     }
                 }
                 builder.setMessage(message);
@@ -1034,14 +1054,22 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     }
                     startActivity(i);
                     finish();
-                    if (!BuildConfig.ENTERPRISE)
-                        Answers.getInstance().logLogin(new LoginEvent().putMethod("access-link").putSuccess(true));
+                    if (!BuildConfig.ENTERPRISE) {
+                        Bundle b = new Bundle();
+                        b.putString(FirebaseAnalytics.Param.METHOD, "access-link");
+                        b.putBoolean(FirebaseAnalytics.Param.SUCCESS, true);
+                        FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.LOGIN, b);
+                    }
                 } catch (JSONException e) {
                     NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             } else {
-                if (!BuildConfig.ENTERPRISE)
-                    Answers.getInstance().logLogin(new LoginEvent().putMethod("access-link").putSuccess(false));
+                if (!BuildConfig.ENTERPRISE) {
+                    Bundle b = new Bundle();
+                    b.putString(FirebaseAnalytics.Param.METHOD, "access-link");
+                    b.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
+                    FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.LOGIN, b);
+                }
                 name.setEnabled(true);
                 email.setEnabled(true);
                 password.setEnabled(true);

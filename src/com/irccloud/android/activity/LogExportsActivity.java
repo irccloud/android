@@ -45,8 +45,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -333,21 +332,25 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
 
                 int requestCid = -1, requestBid = -1;
 
+                Bundle b = new Bundle();
                 switch(exportType.getSelectedItemPosition()) {
                     case 0:
                         requestCid = cid;
                         requestBid = bid;
-                        Answers.getInstance().logCustom(new CustomEvent("export_logs").putCustomAttribute("type", "buffer"));
+                        b.putString("type", "buffer");
+                        FirebaseAnalytics.getInstance(LogExportsActivity.this).logEvent("export_logs", b);
                         break;
                     case 1:
                         requestCid = cid;
                         requestBid = -1;
-                        Answers.getInstance().logCustom(new CustomEvent("export_logs").putCustomAttribute("type", "network"));
+                        b.putString("type", "network");
+                        FirebaseAnalytics.getInstance(LogExportsActivity.this).logEvent("export_logs", b);
                         break;
                     case 2:
                         requestCid = -1;
                         requestBid = -1;
-                        Answers.getInstance().logCustom(new CustomEvent("export_logs").putCustomAttribute("type", "all"));
+                        b.putString("type", "all");
+                        FirebaseAnalytics.getInstance(LogExportsActivity.this).logEvent("export_logs", b);
                         break;
                 }
 

@@ -137,12 +137,11 @@ import android.widget.Toast;
 import com.commonsware.cwac.richedit.Effect;
 import com.commonsware.cwac.richedit.RichEditText;
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ShareEvent;
 import com.damnhandy.uri.template.UriTemplate;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.irccloud.android.ActionEditText;
@@ -5055,7 +5054,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 i.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
                                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                                Answers.getInstance().logShare(new ShareEvent().putContentType("Channel"));
+                                Bundle b = new Bundle();
+                                b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Channel");
+                                FirebaseAnalytics.getInstance(MainActivity.this).logEvent(FirebaseAnalytics.Event.SHARE, b);
                                 startActivity(Intent.createChooser(i, "Share URL"));
                             } catch (Exception e) {
 
@@ -5417,7 +5418,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(Intent.createChooser(intent, "Share URL"));
-                            Answers.getInstance().logShare(new ShareEvent().putContentType("URL"));
+                            Bundle b = new Bundle();
+                            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "URL");
+                            FirebaseAnalytics.getInstance(MainActivity.this).logEvent(FirebaseAnalytics.Event.SHARE, b);
                         }
                     } else {
                         builder = new AlertDialog.Builder(MainActivity.this);
@@ -5439,7 +5442,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(Intent.createChooser(intent, "Share URL"));
-                                    Answers.getInstance().logShare(new ShareEvent().putContentType("URL"));
+                                    Bundle b = new Bundle();
+                                    b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "URL");
+                                    FirebaseAnalytics.getInstance(MainActivity.this).logEvent(FirebaseAnalytics.Event.SHARE, b);
                                 }
                             }
                         });

@@ -52,9 +52,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
-import com.crashlytics.android.answers.ShareEvent;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ChromeCopyLinkBroadcastReceiver;
 import com.irccloud.android.ColorScheme;
@@ -242,7 +240,9 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 } catch (PackageManager.NameNotFoundException e) {
                 }
                 new FetchPastebinTask().execute();
-                Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Pastebin"));
+                Bundle b = new Bundle();
+                b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Pastebin");
+                FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, b);
             } else {
                 finish();
             }
@@ -422,7 +422,9 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
 
                 startActivity(Intent.createChooser(intent, "Share Snippet"));
-                Answers.getInstance().logShare(new ShareEvent().putContentType("Pastebin"));
+                Bundle b = new Bundle();
+                b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Pastebin");
+                FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
             }
         } else if(item.getItemId() == R.id.action_edit) {
             mSpinner.setVisibility(View.VISIBLE);

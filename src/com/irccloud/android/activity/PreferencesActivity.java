@@ -58,13 +58,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.irccloud.android.AppCompatEditTextPreference;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
@@ -911,13 +910,15 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             if (preference.getKey().equals("changes"))
                 url = "https://github.com/irccloud/android/releases";
             if (preference.getKey().equals("beta_invite")) {
-                Answers.getInstance().logCustom(new CustomEvent("beta_invite"));
                 url = "https://play.google.com/apps/testing/" + getPackageName();
+                FirebaseAnalytics.getInstance(PreferencesActivity.this).logEvent("beta_invite", null);
             }
             if (preference.getKey().equals("avatars_faq"))
                 url = "https://www.irccloud.com/faq#faq-avatars";
             if(url != null) {
-                Answers.getInstance().logCustom(new CustomEvent("prefs_url").putCustomAttribute("url", url));
+                Bundle b = new Bundle();
+                b.putString("url", url);
+                FirebaseAnalytics.getInstance(PreferencesActivity.this).logEvent("prefs_url", null);
                 CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
                 builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
                 builder.addDefaultShareMenuItem();
@@ -1253,7 +1254,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                             }
                         }
                     });
-                    Answers.getInstance().logCustom(new CustomEvent("change-password"));
+                    FirebaseAnalytics.getInstance(PreferencesActivity.this).logEvent("change_password", null);
                 }
             });
             builder.setNegativeButton("Cancel", null);
@@ -1320,7 +1321,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                             }
                         }
                     });
-                    Answers.getInstance().logCustom(new CustomEvent("change-email"));
+                    FirebaseAnalytics.getInstance(PreferencesActivity.this).logEvent("change_email", null);
                 }
             });
             builder.setNegativeButton("Cancel", null);
