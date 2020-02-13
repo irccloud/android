@@ -1409,6 +1409,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                             }
                         }
                     });
+                    FirebaseAnalytics.getInstance(PreferencesActivity.this).logEvent("delete_account", null);
                 }
             });
             builder.setNegativeButton("Cancel", null);
