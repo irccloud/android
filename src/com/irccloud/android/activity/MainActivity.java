@@ -4152,7 +4152,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 startActivityForResult(Intent.createChooser(i, "Select A Document"), REQUEST_DOCUMENT);
                 break;
             case REQUEST_EXTERNAL_MEDIA_IRCCLOUD:
-                if(fileUploadTask != null) {
+                if(fileUploadTask != null && fileUploadTask.getStatus() == AsyncTaskEx.Status.PENDING) {
                     fileUploadTask.setActivity(this);
                     fileUploadTask.execute((Void) null);
                     if(fileUploadTask.metadataDialog == null && !fileUploadTask.filenameSet)
@@ -4160,7 +4160,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
             case REQUEST_EXTERNAL_MEDIA_IMGUR:
-                if(imgurTask != null) {
+                if(imgurTask != null && imgurTask.getStatus() == AsyncTaskEx.Status.PENDING) {
                     imgurTask.setActivity(this);
                     imgurTask.execute((Void)null);
                 }
@@ -6371,6 +6371,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     actionBar.setDisplayShowCustomEnabled(true);
                     actionBar.setDisplayShowTitleEnabled(false);
                 }
+                if(activity != null && ((MainActivity)activity).imgurTask == this)
+                    ((MainActivity)activity).imgurTask = null;
             }
             setText(s);
         }
@@ -7013,6 +7015,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             finalize_upload();
             IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(cancelListener);
             Log.e("IRCCloud", "FileUploadTask finished");
+            if(activity != null && activity.fileUploadTask == this)
+                activity.fileUploadTask = null;
         }
 
         private int copy(InputStream input, OutputStream output) throws IOException {
