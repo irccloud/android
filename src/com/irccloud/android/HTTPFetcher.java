@@ -176,7 +176,6 @@ public class HTTPFetcher {
                         return;
 
                     metric.start();
-                    Crashlytics.log(Log.INFO, TAG, "Requesting: " + mURI);
                     int port = (mURI.getPort() != -1) ? mURI.getPort() : (mURI.getProtocol().equals("https") ? 443 : 80);
                     SocketFactory factory = mURI.getProtocol().equals("https") ? getSSLSocketFactory() : SocketFactory.getDefault();
                     if (mProxyHost != null && mProxyHost.length() > 0 && mProxyPort > 0) {

@@ -418,9 +418,7 @@ public class ImageList {
                     }
 
                     if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-                        Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url + " via proxy: " + host);
-                    } else {
-                        Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting: " + url);
+                        Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting image via proxy: " + host);
                     }
 
                     try {

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../android-websockets/android-websockets.iml" filepath="$PROJECT_DIR$/../android-websockets/android-websockets.iml" />
-      <module fileurl="file://$PROJECT_DIR$/irccloud-android.iml" filepath="$PROJECT_DIR$/irccloud-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../android-websockets/android-websockets.iml" filepath="$PROJECT_DIR$/../android-websockets/android-websockets.iml" group="irccloud-android/android-websockets" />
+      <module fileurl="file://$PROJECT_DIR$/irccloud-android.iml" filepath="$PROJECT_DIR$/irccloud-android.iml" group="irccloud-android" />
     </modules>
   </component>
 </project>

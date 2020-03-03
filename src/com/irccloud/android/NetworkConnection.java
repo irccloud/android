@@ -1061,9 +1061,7 @@ public class NetworkConnection {
         }
 
         if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-            Crashlytics.log(Log.DEBUG, TAG, "Connecting: " + url + " via proxy: " + host);
-        } else {
-            Crashlytics.log(Log.DEBUG, TAG, "Connecting: " + url);
+            Crashlytics.log(Log.DEBUG, TAG, "Connecting via proxy: " + host);
         }
 
         Crashlytics.log(Log.DEBUG, TAG, "Attempt: " + failCount);
@@ -2120,7 +2118,6 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 userInfo = new UserInfo(object);
                 Crashlytics.setUserIdentifier("uid" + userInfo.id);
-                FirebaseAnalytics.getInstance(IRCCloudApplication.getInstance()).setUserId("uid" + userInfo.id);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("uid", "uid" + userInfo.id);
@@ -3265,9 +3262,7 @@ public class NetworkConnection {
         }
 
         if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-            Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url + " via proxy: " + host);
-        } else {
-            Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url);
+            Crashlytics.log(Log.DEBUG, TAG, "Requesting via proxy: " + host);
         }
 
         HttpMetric metric = FirebasePerformance.getInstance().newHttpMetric(url, postdata != null ? FirebasePerformance.HttpMethod.POST : FirebasePerformance.HttpMethod.GET);
