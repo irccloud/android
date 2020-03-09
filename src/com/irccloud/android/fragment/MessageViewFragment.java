@@ -786,8 +786,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder = (ViewHolder) row.getTag();
                 }
 
-                row.setOnClickListener(new OnItemClickListener(position));
-                row.setOnLongClickListener(new OnItemLongClickListener(position));
+                row.setOnClickListener(new OnItemClickListener(e));
+                row.setOnLongClickListener(new OnItemLongClickListener(e));
                 row.setContentDescription(e.contentDescription);
 
                 if ((e.html != null && e.formatted == null) || (e.formatted_nick == null && e.from != null && e.from.length() > 0) || (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0)) {
@@ -856,8 +856,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if (holder.message != null && e.html != null) {
                     holder.message.setMovementMethod(linkMovementMethodNoLongPress);
-                    holder.message.setOnClickListener(new OnItemClickListener(position));
-                    holder.message.setOnLongClickListener(new OnItemLongClickListener(position));
+                    holder.message.setOnClickListener(new OnItemClickListener(e));
+                    holder.message.setOnLongClickListener(new OnItemLongClickListener(e));
                     if (mono || (e.msg != null && e.msg.startsWith("<pre>")) || e.code_block) {
                         holder.message.setTypeface(hackRegular);
                     } else {
@@ -1349,8 +1349,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                     if(e.msg != null && e.msg.length() > 0) {
                         holder.metadata.setMovementMethod(linkMovementMethodNoLongPress);
-                        holder.metadata.setOnClickListener(new OnItemClickListener(position));
-                        holder.metadata.setOnLongClickListener(new OnItemLongClickListener(position));
+                        holder.metadata.setOnClickListener(new OnItemClickListener(e));
+                        holder.metadata.setOnLongClickListener(new OnItemLongClickListener(e));
                         if (mono) {
                             holder.metadata.setTypeface(hackRegular);
                         } else {
@@ -2535,14 +2535,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private class OnItemLongClickListener implements View.OnLongClickListener {
-        private int pos;
+        private Event event;
 
-        OnItemLongClickListener(int position) { pos = position; }
+        OnItemLongClickListener(Event e) { event = e; }
 
         @Override
         public boolean onLongClick(View view) {
             try {
-                longPressOverride = mListener.onMessageLongClicked((Event) adapter.getItem(pos));
+                longPressOverride = mListener.onMessageLongClicked(event);
                 return longPressOverride;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -2552,17 +2552,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private class OnItemClickListener implements OnClickListener {
-        private int pos;
+        private Event event;
 
-        OnItemClickListener(int position) {
-            pos = position;
+        OnItemClickListener(Event e) {
+            event = e;
         }
 
         @Override
         public void onClick(View arg0) {
             longPressOverride = false;
 
-            if (pos < 0 || pos >= adapter.data.size())
+            if (event == null)
                 return;
 
             if(tapTimer == null)
@@ -2572,71 +2572,66 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (tapTimerTask != null) {
                     tapTimerTask.cancel();
                     tapTimerTask = null;
-                    mListener.onMessageDoubleClicked(adapter.data.get(pos));
+                    mListener.onMessageDoubleClicked(event);
                 } else {
                     tapTimerTask = new TimerTask() {
-                        int position = pos;
-
                         @Override
                         public void run() {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (adapter != null && adapter.data != null && position < adapter.data.size()) {
-                                        Event e = adapter.data.get(position);
-                                        if (e != null) {
-                                            if (e.type.equals("channel_invite")) {
-                                                if(mListener != null)
-                                                    mListener.promptToJoin(e.old_nick, null, server);
-                                            } else if (e.type.equals("callerid")) {
-                                                conn.say(buffer.getCid(), null, "/accept " + e.from, null);
-                                                Buffer b = BuffersList.getInstance().getBufferByName(buffer.getCid(), e.from);
-                                                if (b != null) {
-                                                    mListener.onBufferSelected(b.getBid());
-                                                } else {
-                                                    conn.say(buffer.getCid(), null, "/query " + e.from, null);
-                                                }
-                                            } else if (e.row_type == ROW_THUMBNAIL) {
-                                                try {
-                                                    String uri;
-                                                    if(e.entities.has("id"))
-                                                        uri = UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", e.entities.get("id").asText()).set("name", e.entities.get("name").asText()).expand();
-                                                    else
-                                                        uri = e.entities.get("url").asText();
-                                                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
-                                                        if (uri.toLowerCase().startsWith("http://"))
-                                                            uri = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + uri.substring(7);
-                                                        else if (uri.toLowerCase().startsWith("https://"))
-                                                            uri = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + uri.substring(8);
-                                                    }
-                                                    IRCCloudLinkMovementMethod.launchURI(Uri.parse(uri), getActivity());
-                                                } catch (Exception ex) {
-                                                    ex.printStackTrace();
-                                                }
-                                            } else if (e.row_type == ROW_FILE) {
-                                                try {
-                                                    IRCCloudLinkMovementMethod.launchURI(Uri.parse(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", e.entities.get("id").asText()).set("name", e.entities.get("name").asText()).expand()), getActivity());
-                                                } catch (ActivityNotFoundException ex) {
-                                                    Toast.makeText(getActivity(), "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
-                                                } catch (Exception ex) {
-                                                    ex.printStackTrace();
-                                                }
-                                            } else if (e.failed) {
-                                                if(mListener != null)
-                                                    mListener.onFailedMessageClicked(e);
+                                    if (adapter != null) {
+                                        if (event.type.equals("channel_invite")) {
+                                            if(mListener != null)
+                                                mListener.promptToJoin(event.old_nick, null, server);
+                                        } else if (event.type.equals("callerid")) {
+                                            conn.say(buffer.getCid(), null, "/accept " + event.from, null);
+                                            Buffer b = BuffersList.getInstance().getBufferByName(buffer.getCid(), event.from);
+                                            if (b != null) {
+                                                mListener.onBufferSelected(b.getBid());
                                             } else {
-                                                long group = e.group_eid;
-                                                if (expandedSectionEids.contains(group))
-                                                    expandedSectionEids.remove(group);
-                                                else if (e.eid != group)
-                                                    expandedSectionEids.add(group);
-                                                if (e.eid != e.group_eid) {
-                                                    adapter.clearLastSeenEIDMarker();
-                                                    if (refreshTask != null)
-                                                        refreshTask.cancel(true);
-                                                    refreshTask = new RefreshTask();
-                                                    refreshTask.execute((Void) null);
+                                                conn.say(buffer.getCid(), null, "/query " + event.from, null);
+                                            }
+                                        } else if (event.row_type == ROW_THUMBNAIL) {
+                                            try {
+                                                String uri;
+                                                if(event.entities.has("id"))
+                                                    uri = UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", event.entities.get("id").asText()).set("name", event.entities.get("name").asText()).expand();
+                                                else
+                                                    uri = event.entities.get("url").asText();
+                                                if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
+                                                    if (uri.toLowerCase().startsWith("http://"))
+                                                        uri = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + uri.substring(7);
+                                                    else if (uri.toLowerCase().startsWith("https://"))
+                                                        uri = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + uri.substring(8);
                                                 }
+                                                IRCCloudLinkMovementMethod.launchURI(Uri.parse(uri), getActivity());
+                                            } catch (Exception ex) {
+                                                ex.printStackTrace();
+                                            }
+                                        } else if (event.row_type == ROW_FILE) {
+                                            try {
+                                                IRCCloudLinkMovementMethod.launchURI(Uri.parse(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", event.entities.get("id").asText()).set("name", event.entities.get("name").asText()).expand()), getActivity());
+                                            } catch (ActivityNotFoundException ex) {
+                                                Toast.makeText(getActivity(), "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
+                                            } catch (Exception ex) {
+                                                ex.printStackTrace();
+                                            }
+                                        } else if (event.failed) {
+                                            if(mListener != null)
+                                                mListener.onFailedMessageClicked(event);
+                                        } else {
+                                            long group = event.group_eid;
+                                            if (expandedSectionEids.contains(group))
+                                                expandedSectionEids.remove(group);
+                                            else if (event.eid != group)
+                                                expandedSectionEids.add(group);
+                                            if (event.eid != event.group_eid) {
+                                                adapter.clearLastSeenEIDMarker();
+                                                if (refreshTask != null)
+                                                    refreshTask.cancel(true);
+                                                refreshTask = new RefreshTask();
+                                                refreshTask.execute((Void) null);
                                             }
                                         }
                                     }
