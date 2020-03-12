@@ -3009,7 +3009,17 @@ public class NetworkConnection {
         put("whowas_response", new BroadcastParser(EVENT_WHOWAS));
         put("trace_response", new BroadcastParser(EVENT_TRACERESPONSE));
         put("export_finished", new BroadcastParser(EVENT_LOGEXPORTFINISHED));
-        put("avatar_change", new BroadcastParser(EVENT_AVATARCHANGE));
+        put("avatar_change", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                Server s = mServers.getServer(object.cid());
+                if(s != null) {
+                    s.setAvatar(object.getString("avatar"));
+                    s.setAvatarURL(object.getString("avatar_url"));
+                }
+                notifyHandlers(EVENT_AVATARCHANGE, object);
+            }
+        });
         put("who_response", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
