@@ -830,11 +830,18 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
             }
             if (!isCancelled()) {
                 NetworkConnection.UserInfo userInfo = conn.getUserInfo();
-                if (userInfo != null)
+                if (userInfo == null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(PreferencesActivity.this, "This action is unavailable while disconnected", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else {
                     conn.set_user_settings(userInfo.name, userInfo.highlights, userInfo.auto_away, new NetworkConnection.IRCResultCallback() {
                         @Override
                         public void onIRCResult(IRCCloudJSONObject result) {
-                            if(!result.getBoolean("success")) {
+                            if (!result.getBoolean("success")) {
                                 Crashlytics.log(Log.ERROR, "IRCCloud", "Prefs not updated: " + result.getString("message"));
                                 runOnUiThread(new Runnable() {
                                     @Override
@@ -845,6 +852,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                             }
                         }
                     });
+                }
             }
             return null;
         }
@@ -1180,6 +1188,15 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
     Preference.OnPreferenceClickListener changePasswordClick = new Preference.OnPreferenceClickListener() {
 
         public boolean onPreferenceClick(Preference preference) {
+            if(conn == null || conn.getUserInfo() == null || conn.getUserInfo().email == null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(PreferencesActivity.this, "This action is unavailable while disconnected", Toast.LENGTH_LONG).show();
+                    }
+                });
+                return false;
+            }
             AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
             builder.setTitle("Change Password");
 
@@ -1269,6 +1286,16 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
     Preference.OnPreferenceClickListener changeEmailClick = new Preference.OnPreferenceClickListener() {
 
         public boolean onPreferenceClick(Preference preference) {
+            if(conn == null || conn.getUserInfo() == null || conn.getUserInfo().email == null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(PreferencesActivity.this, "This action is unavailable while disconnected", Toast.LENGTH_LONG).show();
+                    }
+                });
+                return false;
+            }
+
             AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
             builder.setTitle("Change Email Address");
 
@@ -1336,6 +1363,15 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
     Preference.OnPreferenceClickListener deleteAccountPasswordClick = new Preference.OnPreferenceClickListener() {
 
         public boolean onPreferenceClick(Preference preference) {
+            if(conn == null || conn.getUserInfo() == null || conn.getUserInfo().email == null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(PreferencesActivity.this, "This action is unavailable while disconnected", Toast.LENGTH_LONG).show();
+                    }
+                });
+                return false;
+            }
             AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
             builder.setTitle("Delete Your Account");
 
