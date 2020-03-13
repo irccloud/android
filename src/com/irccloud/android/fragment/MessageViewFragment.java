@@ -422,7 +422,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             return unseenHighlightPositions.size() - count;
         }
 
-        public synchronized void addItem(long eid, Event e) {
+        public void addItem(long eid, Event e) {
             synchronized (data) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(e.getTime());
@@ -726,175 +726,316 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             synchronized (data) {
                 e = data.get(position);
             }
-            synchronized (e) {
-                View row = convertView;
-                ViewHolder holder;
+            View row = convertView;
+            ViewHolder holder;
 
-                if (row != null && ((ViewHolder) row.getTag()).type != e.row_type)
-                    row = null;
+            if (row != null && ((ViewHolder) row.getTag()).type != e.row_type)
+                row = null;
 
-                if (row == null) {
-                    LayoutInflater inflater = ctx.getLayoutInflater(null);
-                    if (e.row_type == ROW_BACKLOGMARKER)
-                        row = inflater.inflate(R.layout.row_backlogmarker, parent, false);
-                    else if (e.row_type == ROW_TIMESTAMP)
-                        row = inflater.inflate(R.layout.row_timestamp, parent, false);
-                    else if (e.row_type == ROW_SOCKETCLOSED)
-                        row = inflater.inflate(R.layout.row_socketclosed, parent, false);
-                    else if (e.row_type == ROW_LASTSEENEID)
-                        row = inflater.inflate(R.layout.row_lastseeneid, parent, false);
-                    else if (e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE)
-                        row = inflater.inflate(R.layout.row_thumbnail, parent, false);
-                    else
-                        row = inflater.inflate(R.layout.row_message, parent, false);
+            if (row == null) {
+                LayoutInflater inflater = ctx.getLayoutInflater(null);
+                if (e.row_type == ROW_BACKLOGMARKER)
+                    row = inflater.inflate(R.layout.row_backlogmarker, parent, false);
+                else if (e.row_type == ROW_TIMESTAMP)
+                    row = inflater.inflate(R.layout.row_timestamp, parent, false);
+                else if (e.row_type == ROW_SOCKETCLOSED)
+                    row = inflater.inflate(R.layout.row_socketclosed, parent, false);
+                else if (e.row_type == ROW_LASTSEENEID)
+                    row = inflater.inflate(R.layout.row_lastseeneid, parent, false);
+                else if (e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE)
+                    row = inflater.inflate(R.layout.row_thumbnail, parent, false);
+                else
+                    row = inflater.inflate(R.layout.row_message, parent, false);
 
-                    holder = new ViewHolder();
-                    holder.timestamp = row.findViewById(R.id.timestamp);
-                    holder.timestamp_left = row.findViewById(R.id.timestamp_left);
-                    holder.timestamp_right = row.findViewById(R.id.timestamp_right);
-                    holder.message = row.findViewById(R.id.message);
-                    holder.expandable = row.findViewById(R.id.expandable);
-                    if(holder.expandable != null)
-                        holder.expandable.setTypeface(FontAwesome.getTypeface());
-                    holder.nickname = row.findViewById(R.id.nickname);
-                    holder.realname = row.findViewById(R.id.realname);
-                    holder.failed = row.findViewById(R.id.failed);
-                    holder.avatar = row.findViewById(R.id.avatar);
-                    holder.lastSeenEidWrapper = row.findViewById(R.id.lastSeenEidWrapper);
-                    holder.messageContainer = row.findViewById(R.id.messageContainer);
-                    holder.socketClosedBar = row.findViewById(R.id.socketClosedBar);
-                    holder.thumbnailWrapper = row.findViewById(R.id.thumbnailWrapper);
-                    holder.thumbnail = row.findViewById(R.id.thumbnail);
-                    holder.filename = row.findViewById(R.id.filename);
-                    holder.metadata = row.findViewById(R.id.metadata);
-                    holder.extension = row.findViewById(R.id.extension);
-                    holder.progress = row.findViewById(R.id.progress);
-                    holder.quoteBorder = row.findViewById(R.id.quoteBorder);
-                    holder.replyCountContainer = row.findViewById(R.id.replyCountContainer);
-                    holder.reply = row.findViewById(R.id.reply);
-                    if(holder.reply != null)
-                        holder.reply.setTypeface(FontAwesome.getTypeface());
-                    holder.replyCountIcon = row.findViewById(R.id.replyCountIcon);
-                    if(holder.replyCountIcon != null) {
-                        holder.replyCountIcon.setTypeface(FontAwesome.getTypeface());
-                    }
-                    holder.replyCount = row.findViewById(R.id.replyCount);
-                    holder.type = e.row_type;
+                holder = new ViewHolder();
+                holder.timestamp = row.findViewById(R.id.timestamp);
+                holder.timestamp_left = row.findViewById(R.id.timestamp_left);
+                holder.timestamp_right = row.findViewById(R.id.timestamp_right);
+                holder.message = row.findViewById(R.id.message);
+                holder.expandable = row.findViewById(R.id.expandable);
+                if(holder.expandable != null)
+                    holder.expandable.setTypeface(FontAwesome.getTypeface());
+                holder.nickname = row.findViewById(R.id.nickname);
+                holder.realname = row.findViewById(R.id.realname);
+                holder.failed = row.findViewById(R.id.failed);
+                holder.avatar = row.findViewById(R.id.avatar);
+                holder.lastSeenEidWrapper = row.findViewById(R.id.lastSeenEidWrapper);
+                holder.messageContainer = row.findViewById(R.id.messageContainer);
+                holder.socketClosedBar = row.findViewById(R.id.socketClosedBar);
+                holder.thumbnailWrapper = row.findViewById(R.id.thumbnailWrapper);
+                holder.thumbnail = row.findViewById(R.id.thumbnail);
+                holder.filename = row.findViewById(R.id.filename);
+                holder.metadata = row.findViewById(R.id.metadata);
+                holder.extension = row.findViewById(R.id.extension);
+                holder.progress = row.findViewById(R.id.progress);
+                holder.quoteBorder = row.findViewById(R.id.quoteBorder);
+                holder.replyCountContainer = row.findViewById(R.id.replyCountContainer);
+                holder.reply = row.findViewById(R.id.reply);
+                if(holder.reply != null)
+                    holder.reply.setTypeface(FontAwesome.getTypeface());
+                holder.replyCountIcon = row.findViewById(R.id.replyCountIcon);
+                if(holder.replyCountIcon != null) {
+                    holder.replyCountIcon.setTypeface(FontAwesome.getTypeface());
+                }
+                holder.replyCount = row.findViewById(R.id.replyCount);
+                holder.type = e.row_type;
 
-                    row.setTag(holder);
+                row.setTag(holder);
+            } else {
+                holder = (ViewHolder) row.getTag();
+            }
+
+            row.setOnClickListener(new OnItemClickListener(e));
+            row.setOnLongClickListener(new OnItemLongClickListener(e));
+            row.setContentDescription(e.contentDescription);
+
+            if ((e.html != null && e.formatted == null) || (e.formatted_nick == null && e.from != null && e.from.length() > 0) || (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0)) {
+                adapter.format(e);
+            }
+
+            if (e.row_type == ROW_MESSAGE) {
+                if (e.bg_color == colorScheme.contentBackgroundColor)
+                    row.setBackgroundDrawable(null);
+                else
+                    row.setBackgroundColor(e.bg_color);
+                if (e.contentDescription != null && e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0 && e.group_msg == null) {
+                    row.setContentDescription(TextUtils.concat("Message from " + e.from + ": ", e.contentDescription, ", at " + e.timestamp));
+                }
+            }
+
+            boolean mono = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("monospace", false);
+
+            if(holder.timestamp_left != null) {
+                if(pref_timeLeft && (pref_chatOneLine || pref_avatarsOff)) {
+                    holder.timestamp_left.setVisibility(View.VISIBLE);
+                    holder.timestamp_right.setVisibility(View.GONE);
+                    holder.timestamp = holder.timestamp_left;
                 } else {
-                    holder = (ViewHolder) row.getTag();
+                    holder.timestamp_left.setVisibility(View.GONE);
+                    holder.timestamp_right.setVisibility(View.VISIBLE);
+                    holder.timestamp = holder.timestamp_right;
                 }
+            }
 
-                row.setOnClickListener(new OnItemClickListener(e));
-                row.setOnLongClickListener(new OnItemLongClickListener(e));
-                row.setContentDescription(e.contentDescription);
+            if (holder.timestamp != null) {
+                holder.timestamp.setTypeface(mono ? hackRegular : Typeface.DEFAULT);
+                if (e.row_type == ROW_TIMESTAMP) {
+                    holder.timestamp.setTextSize(textSize);
+                } else {
+                    holder.timestamp.setTextSize(textSize - 2);
 
-                if ((e.html != null && e.formatted == null) || (e.formatted_nick == null && e.from != null && e.from.length() > 0) || (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0)) {
-                    adapter.format(e);
-                }
-
-                if (e.row_type == ROW_MESSAGE) {
-                    if (e.bg_color == colorScheme.contentBackgroundColor)
-                        row.setBackgroundDrawable(null);
-                    else
-                        row.setBackgroundColor(e.bg_color);
-                    if (e.contentDescription != null && e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0 && e.group_msg == null) {
-                        row.setContentDescription(TextUtils.concat("Message from " + e.from + ": ", e.contentDescription, ", at " + e.timestamp));
+                    if (timestamp_width == -1) {
+                        String s = " 88:88";
+                        if (pref_seconds)
+                            s += ":88";
+                        if (!pref_24hr)
+                            s += " MM";
+                        timestamp_width = (int) holder.timestamp.getPaint().measureText(s);
                     }
+                    holder.timestamp.setMinWidth(timestamp_width);
                 }
+                if (e.highlight && !e.self)
+                    holder.timestamp.setTextColor(colorScheme.highlightTimestampColor);
+                else if (e.row_type != ROW_TIMESTAMP)
+                    holder.timestamp.setTextColor(colorScheme.timestampColor);
+                holder.timestamp.setText(e.timestamp);
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)holder.timestamp.getLayoutParams();
+                lp.topMargin = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pref_compact?0:2, getResources().getDisplayMetrics());
 
-                boolean mono = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("monospace", false);
-
-                if(holder.timestamp_left != null) {
-                    if(pref_timeLeft && (pref_chatOneLine || pref_avatarsOff)) {
-                        holder.timestamp_left.setVisibility(View.VISIBLE);
-                        holder.timestamp_right.setVisibility(View.GONE);
-                        holder.timestamp = holder.timestamp_left;
-                    } else {
-                        holder.timestamp_left.setVisibility(View.GONE);
-                        holder.timestamp_right.setVisibility(View.VISIBLE);
-                        holder.timestamp = holder.timestamp_right;
-                    }
+            }
+            if (e.row_type == ROW_SOCKETCLOSED) {
+                if ((e.msg != null && e.msg.length() > 0) || (e.group_msg != null && e.group_msg.length() > 0)) {
+                    holder.timestamp.setVisibility(View.VISIBLE);
+                    holder.message.setVisibility(View.VISIBLE);
+                } else {
+                    holder.timestamp.setVisibility(View.GONE);
+                    holder.message.setVisibility(View.GONE);
                 }
+            }
 
-                if (holder.timestamp != null) {
-                    holder.timestamp.setTypeface(mono ? hackRegular : Typeface.DEFAULT);
-                    if (e.row_type == ROW_TIMESTAMP) {
-                        holder.timestamp.setTextSize(textSize);
-                    } else {
-                        holder.timestamp.setTextSize(textSize - 2);
-
-                        if (timestamp_width == -1) {
-                            String s = " 88:88";
-                            if (pref_seconds)
-                                s += ":88";
-                            if (!pref_24hr)
-                                s += " MM";
-                            timestamp_width = (int) holder.timestamp.getPaint().measureText(s);
-                        }
-                        holder.timestamp.setMinWidth(timestamp_width);
-                    }
-                    if (e.highlight && !e.self)
-                        holder.timestamp.setTextColor(colorScheme.highlightTimestampColor);
-                    else if (e.row_type != ROW_TIMESTAMP)
-                        holder.timestamp.setTextColor(colorScheme.timestampColor);
-                    holder.timestamp.setText(e.timestamp);
-                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)holder.timestamp.getLayoutParams();
-                    lp.topMargin = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pref_compact?0:2, getResources().getDisplayMetrics());
+            if (holder.message != null && e.html != null) {
+                holder.message.setMovementMethod(linkMovementMethodNoLongPress);
+                holder.message.setOnClickListener(new OnItemClickListener(e));
+                holder.message.setOnLongClickListener(new OnItemLongClickListener(e));
+                if (mono || (e.msg != null && e.msg.startsWith("<pre>")) || e.code_block) {
+                    holder.message.setTypeface(hackRegular);
+                } else {
+                    holder.message.setTypeface(Typeface.DEFAULT);
+                }
+                try {
+                    holder.message.setTextColor(e.color);
+                } catch (Exception e1) {
 
                 }
-                if (e.row_type == ROW_SOCKETCLOSED) {
-                    if ((e.msg != null && e.msg.length() > 0) || (e.group_msg != null && e.group_msg.length() > 0)) {
-                        holder.timestamp.setVisibility(View.VISIBLE);
-                        holder.message.setVisibility(View.VISIBLE);
-                    } else {
-                        holder.timestamp.setVisibility(View.GONE);
-                        holder.message.setVisibility(View.GONE);
-                    }
-                }
+                if (e.color == colorScheme.timestampColor || e.color == colorScheme.collapsedRowTextColor || e.pending)
+                    holder.message.setLinkTextColor(colorScheme.lightLinkColor);
+                else
+                    holder.message.setLinkTextColor(colorScheme.linkColor);
 
-                if (holder.message != null && e.html != null) {
-                    holder.message.setMovementMethod(linkMovementMethodNoLongPress);
-                    holder.message.setOnClickListener(new OnItemClickListener(e));
-                    holder.message.setOnLongClickListener(new OnItemLongClickListener(e));
-                    if (mono || (e.msg != null && e.msg.startsWith("<pre>")) || e.code_block) {
-                        holder.message.setTypeface(hackRegular);
-                    } else {
-                        holder.message.setTypeface(Typeface.DEFAULT);
-                    }
+                if(pref_compact)
+                    holder.message.setLineSpacing(0,1);
+                else
+                    holder.message.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),1);
+
+                Spanned formatted = e.formatted;
+                if(formatted != null && !pref_avatarsOff && e.parent_eid == 0 && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
+                    final int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize+4, getResources().getDisplayMetrics());
+                    Bitmap b = null;
+                    URL avatarURL = null;
                     try {
-                        holder.message.setTextColor(e.color);
+                        if(pref_avatarImages && e.getAvatarURL(width) != null)
+                            avatarURL = new URL(e.getAvatarURL(width));
                     } catch (Exception e1) {
-
+                        e1.printStackTrace();
                     }
-                    if (e.color == colorScheme.timestampColor || e.color == colorScheme.collapsedRowTextColor || e.pending)
-                        holder.message.setLinkTextColor(colorScheme.lightLinkColor);
-                    else
-                        holder.message.setLinkTextColor(colorScheme.linkColor);
+                    if(avatarURL != null) {
+                        try {
+                            final String avatarURL_string = avatarURL.toString();
+                            b = ImageList.getInstance().getImage(avatarURL);
+                            if(b != null && b.getWidth() != width)
+                                b = Bitmap.createScaledBitmap(b, width, width, false);
+                            ImageList.getInstance().fetchImage(avatarURL, 0, new ImageList.OnImageFetchedListener() {
+                                @Override
+                                public void onImageFetched(Bitmap image) {
+                                    if(image != null) {
+                                        refreshSoon();
+                                    } else {
+                                        String gravatar = e.getGravatar(width);
+                                        if(gravatar != null && !gravatar.equals(avatarURL_string)) {
+                                            try {
+                                                ImageList.getInstance().fetchImage(new URL(gravatar), 0, new ImageList.OnImageFetchedListener() {
+                                                    @Override
+                                                    public void onImageFetched(Bitmap image) {
+                                                        refreshSoon();
+                                                    }
+                                                }, 600000);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                }
+                            }, 600000);
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                    boolean hasAvatarImage = (b != null);
+                    if(b == null) {
+                        b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from_nick, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, width, e.self);
+                    }
+                    if(b != null) {
+                        SpannableStringBuilder s = new SpannableStringBuilder(formatted);
+                        s.insert(0, "\u202f\u202f");
+                        s.setSpan(new ImageSpan(getActivity(), b) {
+                            @Override
+                            public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint p) {
+                                Bitmap bitmap = ((BitmapDrawable)getDrawable()).getBitmap();
+                                BitmapShader shader;
+                                shader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
 
-                    if(pref_compact)
-                        holder.message.setLineSpacing(0,1);
-                    else
-                        holder.message.setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),1);
+                                Paint paint = new Paint();
+                                paint.setAntiAlias(true);
+                                paint.setShader(shader);
 
-                    Spanned formatted = e.formatted;
-                    if(formatted != null && !pref_avatarsOff && e.parent_eid == 0 && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
-                        final int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize+4, getResources().getDisplayMetrics());
-                        Bitmap b = null;
+                                RectF rect = new RectF(0.0f, 0.0f, bitmap.getWidth(), bitmap.getHeight());
+
+                                canvas.save();
+
+                                canvas.translate(x, y - bitmap.getHeight() + paint.getFontMetricsInt().descent);
+                                int radius = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 2, getResources().getDisplayMetrics());
+                                canvas.drawRoundRect(rect, radius, radius, paint);
+                                canvas.restore();
+                            }
+                        }, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        if(avatarURL != null && hasAvatarImage) {
+                            final Uri uri = Uri.parse(e.getAvatarURL(Resources.getSystem().getDisplayMetrics().widthPixels));
+                            s.setSpan(new ClickableSpan() {
+                                @Override
+                                public void onClick(View widget) {
+                                    IRCCloudLinkMovementMethod.launchURI(uri, getContext());
+                                }
+                            }, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                        s.setSpan(new ColorFormatter.TypefaceSpan(ColorFormatter.sourceSansPro), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        formatted = s;
+                    }
+                }
+                holder.message.setText(formatted);
+                holder.message.setTextSize(textSize);
+                if(e.code_block) {
+                    int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
+                    holder.message.setPadding(padding, padding, padding, padding);
+                    holder.message.setBackgroundColor(ColorScheme.getInstance().codeSpanBackgroundColor);
+                } else {
+                    holder.message.setPadding(0,0,0,0);
+                    holder.message.setBackgroundDrawable(null);
+                }
+                if(precomputedTextParams == null)
+                    precomputedTextParams = new PrecomputedTextCompat.Params.Builder(holder.message.getPaint()).build();
+            }
+
+            if (holder.expandable != null) {
+                ViewGroup.LayoutParams lp = holder.expandable.getLayoutParams();
+                lp.width = lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize, getResources().getDisplayMetrics());
+                holder.expandable.setLayoutParams(lp);
+                holder.expandable.setTextSize(textSize);
+                if (e.group_eid > 0 && (e.group_eid != e.eid || expandedSectionEids.contains(e.group_eid))) {
+                    if (expandedSectionEids.contains(e.group_eid)) {
+                        if (e.group_eid == e.eid + 1) {
+                            holder.expandable.setText(FontAwesome.MINUS_SQUARE_O);
+                            holder.expandable.setContentDescription("expanded");
+                            row.setBackgroundColor(colorScheme.collapsedHeadingBackgroundColor);
+                            row.setContentDescription(TextUtils.concat("Expanded events heading: ", e.contentDescription));
+                        } else {
+                            holder.expandable.setText(FontAwesome.ANGLE_RIGHT);
+                            holder.expandable.setContentDescription("collapse");
+                            row.setBackgroundColor(colorScheme.contentBackgroundColor);
+                        }
+                    } else {
+                        holder.expandable.setText(FontAwesome.PLUS_SQUARE_O);
+                        holder.expandable.setContentDescription("expand");
+                        row.setContentDescription(TextUtils.concat("Collapsed events: ", e.contentDescription));
+                    }
+                    holder.expandable.setVisibility(View.VISIBLE);
+                } else {
+                    holder.expandable.setVisibility(View.GONE);
+                }
+                holder.expandable.setTextColor(colorScheme.expandCollapseIndicatorColor);
+            }
+
+            if (holder.failed != null)
+                holder.failed.setVisibility(e.failed ? View.VISIBLE : View.GONE);
+
+            if (holder.messageContainer != null) {
+                if(pref_compact)
+                    holder.messageContainer.setPadding(0,0,0,0);
+                else
+                    holder.messageContainer.setPadding(0,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),0,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
+            }
+
+            if (holder.avatar != null) {
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)holder.avatar.getLayoutParams();
+                if(pref_avatarsOff || pref_chatOneLine || (e.row_type == ROW_SOCKETCLOSED && e.group_msg == null && (e.msg == null || e.msg.length() == 0))) {
+                    holder.avatar.setImageBitmap(null);
+                    lp.topMargin = lp.width = lp.height = 0;
+                } else {
+                    lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics());
+                    lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics());
+                    Bitmap b = null;
+                    if (e.group_eid < 1 && e.from != null && e.from.length() > 0 && (pref_chatOneLine || e.header)) {
                         URL avatarURL = null;
                         try {
-                            if(pref_avatarImages && e.getAvatarURL(width) != null)
-                                avatarURL = new URL(e.getAvatarURL(width));
+                            if(pref_avatarImages && e.getAvatarURL(lp.width) != null)
+                                avatarURL = new URL(e.getAvatarURL(lp.width));
                         } catch (Exception e1) {
                             e1.printStackTrace();
                         }
                         if(avatarURL != null) {
+                            final int width = lp.width;
+                            final String avatarURL_string = avatarURL.toString();
                             try {
-                                final String avatarURL_string = avatarURL.toString();
                                 b = ImageList.getInstance().getImage(avatarURL);
-                                if(b != null && b.getWidth() != width)
-                                    b = Bitmap.createScaledBitmap(b, width, width, false);
                                 ImageList.getInstance().fetchImage(avatarURL, 0, new ImageList.OnImageFetchedListener() {
                                     @Override
                                     public void onImageFetched(Bitmap image) {
@@ -918,405 +1059,244 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     }
                                 }, 600000);
                             } catch (IOException e1) {
-                                e1.printStackTrace();
                             }
                         }
-                        boolean hasAvatarImage = (b != null);
                         if(b == null) {
-                            b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from_nick, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, width, e.self);
-                        }
-                        if(b != null) {
-                            SpannableStringBuilder s = new SpannableStringBuilder(formatted);
-                            s.insert(0, "\u202f\u202f");
-                            s.setSpan(new ImageSpan(getActivity(), b) {
-                                @Override
-                                public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint p) {
-                                    Bitmap bitmap = ((BitmapDrawable)getDrawable()).getBitmap();
-                                    BitmapShader shader;
-                                    shader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-
-                                    Paint paint = new Paint();
-                                    paint.setAntiAlias(true);
-                                    paint.setShader(shader);
-
-                                    RectF rect = new RectF(0.0f, 0.0f, bitmap.getWidth(), bitmap.getHeight());
-
-                                    canvas.save();
-
-                                    canvas.translate(x, y - bitmap.getHeight() + paint.getFontMetricsInt().descent);
-                                    int radius = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 2, getResources().getDisplayMetrics());
-                                    canvas.drawRoundRect(rect, radius, radius, paint);
-                                    canvas.restore();
-                                }
-                            }, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            if(avatarURL != null && hasAvatarImage) {
-                                final Uri uri = Uri.parse(e.getAvatarURL(Resources.getSystem().getDisplayMetrics().widthPixels));
-                                s.setSpan(new ClickableSpan() {
-                                    @Override
-                                    public void onClick(View widget) {
-                                        IRCCloudLinkMovementMethod.launchURI(uri, getContext());
-                                    }
-                                }, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            }
-                            s.setSpan(new ColorFormatter.TypefaceSpan(ColorFormatter.sourceSansPro), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            formatted = s;
-                        }
-                    }
-                    holder.message.setText(formatted);
-                    holder.message.setTextSize(textSize);
-                    if(e.code_block) {
-                        int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
-                        holder.message.setPadding(padding, padding, padding, padding);
-                        holder.message.setBackgroundColor(ColorScheme.getInstance().codeSpanBackgroundColor);
-                    } else {
-                        holder.message.setPadding(0,0,0,0);
-                        holder.message.setBackgroundDrawable(null);
-                    }
-                    if(precomputedTextParams == null)
-                        precomputedTextParams = new PrecomputedTextCompat.Params.Builder(holder.message.getPaint()).build();
-                }
-
-                if (holder.expandable != null) {
-                    ViewGroup.LayoutParams lp = holder.expandable.getLayoutParams();
-                    lp.width = lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize, getResources().getDisplayMetrics());
-                    holder.expandable.setLayoutParams(lp);
-                    holder.expandable.setTextSize(textSize);
-                    if (e.group_eid > 0 && (e.group_eid != e.eid || expandedSectionEids.contains(e.group_eid))) {
-                        if (expandedSectionEids.contains(e.group_eid)) {
-                            if (e.group_eid == e.eid + 1) {
-                                holder.expandable.setText(FontAwesome.MINUS_SQUARE_O);
-                                holder.expandable.setContentDescription("expanded");
-                                row.setBackgroundColor(colorScheme.collapsedHeadingBackgroundColor);
-                                row.setContentDescription(TextUtils.concat("Expanded events heading: ", e.contentDescription));
-                            } else {
-                                holder.expandable.setText(FontAwesome.ANGLE_RIGHT);
-                                holder.expandable.setContentDescription("collapse");
-                                row.setBackgroundColor(colorScheme.contentBackgroundColor);
-                            }
+                            Avatar a = mAvatarsList.getAvatar(e.cid, e.from_nick, e.from);
+                            b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width, e.self);
+                            holder.avatar.setTag(a);
+                            holder.avatar.setOnClickListener(null);
                         } else {
-                            holder.expandable.setText(FontAwesome.PLUS_SQUARE_O);
-                            holder.expandable.setContentDescription("expand");
-                            row.setContentDescription(TextUtils.concat("Collapsed events: ", e.contentDescription));
+                            final Uri uri = Uri.parse(e.getAvatarURL(Resources.getSystem().getDisplayMetrics().widthPixels));
+                             holder.avatar.setOnClickListener(new OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    IRCCloudLinkMovementMethod.launchURI(uri, getContext());
+                                }
+                            });
                         }
-                        holder.expandable.setVisibility(View.VISIBLE);
-                    } else {
-                        holder.expandable.setVisibility(View.GONE);
+                        holder.avatar.setVisibility(View.VISIBLE);
                     }
-                    holder.expandable.setTextColor(colorScheme.expandCollapseIndicatorColor);
-                }
-
-                if (holder.failed != null)
-                    holder.failed.setVisibility(e.failed ? View.VISIBLE : View.GONE);
-
-                if (holder.messageContainer != null) {
-                    if(pref_compact)
-                        holder.messageContainer.setPadding(0,0,0,0);
+                    holder.avatar.setImageBitmap(b);
+                    if(b != null)
+                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16 * ((!e.header || e.group_eid > 0)?1:2), getResources().getDisplayMetrics());
                     else
-                        holder.messageContainer.setPadding(0,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),0,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
+                        lp.height = 0;
+                }
+                holder.avatar.setLayoutParams(lp);
+            }
+
+            if(!pref_chatOneLine && e.header && e.formatted_nick != null && e.formatted_nick.length() > 0 && e.group_eid < 1) {
+                if (holder.nickname != null) {
+                    holder.nickname.setVisibility(View.VISIBLE);
+                    if (mono)
+                        holder.nickname.setTypeface(hackRegular);
+                    else
+                        holder.nickname.setTypeface(Typeface.DEFAULT);
+                    holder.nickname.setTextSize(textSize);
+                    holder.nickname.setText(e.formatted_nick);
+
+                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.nickname.getLayoutParams();
+                    lp.leftMargin = (pref_timeLeft&&pref_avatarsOff)?timestamp_width:0;
+                    holder.nickname.setLayoutParams(lp);
                 }
 
-                if (holder.avatar != null) {
-                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)holder.avatar.getLayoutParams();
-                    if(pref_avatarsOff || pref_chatOneLine || (e.row_type == ROW_SOCKETCLOSED && e.group_msg == null && (e.msg == null || e.msg.length() == 0))) {
-                        holder.avatar.setImageBitmap(null);
-                        lp.topMargin = lp.width = lp.height = 0;
+                if (holder.realname != null) {
+                    holder.realname.setMovementMethod(linkMovementMethodNoLongPress);
+                    holder.realname.setVisibility((pref_chatOneLine || pref_norealname) ? View.GONE : View.VISIBLE);
+                    if (mono)
+                        holder.realname.setTypeface(hackRegular);
+                    else
+                        holder.realname.setTypeface(Typeface.DEFAULT);
+                    holder.realname.setTextSize(textSize);
+                    holder.realname.setTextColor(colorScheme.timestampColor);
+                    holder.realname.setText(e.formatted_realname);
+                }
+            } else {
+                if (holder.nickname != null)
+                    holder.nickname.setVisibility(View.GONE);
+                if (holder.realname != null)
+                    holder.realname.setVisibility(View.GONE);
+                if (holder.avatar != null)
+                    holder.avatar.setVisibility((pref_avatarsOff || pref_chatOneLine) ? View.GONE : View.VISIBLE);
+                if(holder.message != null) {
+                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.message.getLayoutParams();
+                    lp.leftMargin = 0;
+                    holder.message.setLayoutParams(lp);
+                }
+            }
+
+            if(holder.lastSeenEidWrapper != null) {
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.lastSeenEidWrapper.getLayoutParams();
+                if(!pref_avatarsOff && !pref_chatOneLine)
+                    lp.leftMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 48, getResources().getDisplayMetrics());
+                else
+                    lp.leftMargin = 0;
+                holder.lastSeenEidWrapper.setLayoutParams(lp);
+                holder.lastSeenEidWrapper.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pref_compact?(textSize + 2):(textSize + 4), getResources().getDisplayMetrics()));
+            }
+
+            if(holder.socketClosedBar != null) {
+                holder.socketClosedBar.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize + 2, getResources().getDisplayMetrics()));
+            }
+
+            if(e.row_type == ROW_BACKLOGMARKER)
+                row.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pref_compact?4:(textSize + 2), getResources().getDisplayMetrics()));
+
+            if(holder.quoteBorder != null)
+                holder.quoteBorder.setVisibility(e.quoted ? View.VISIBLE : View.GONE );
+
+            if(holder.reply != null) {
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(holder.reply.getLayoutParams());
+                if(!pref_replyCollapse && (e.is_reply || e.reply_count > 0)) {
+                    if(!pref_chatOneLine && e.header) {
+                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 2, getResources().getDisplayMetrics());
                     } else {
-                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics());
-                        lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics());
-                        Bitmap b = null;
-                        if (e.group_eid < 1 && e.from != null && e.from.length() > 0 && (pref_chatOneLine || e.header)) {
-                            URL avatarURL = null;
-                            try {
-                                if(pref_avatarImages && e.getAvatarURL(lp.width) != null)
-                                    avatarURL = new URL(e.getAvatarURL(lp.width));
-                            } catch (Exception e1) {
-                                e1.printStackTrace();
+                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, -4, getResources().getDisplayMetrics());;
+                    }
+                    holder.reply.setLayoutParams(lp);
+                    holder.reply.setText(e.is_reply ? FontAwesome.COMMENTS : FontAwesome.COMMENT);
+                    holder.reply.setTextColor(0x66000000 + Integer.parseInt(ColorScheme.colorForNick(e.is_reply ? e.reply() : e.msgid, ColorScheme.getInstance().isDarkTheme), 16));
+                    holder.reply.setVisibility(View.VISIBLE);
+                    holder.reply.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(getActivity() != null && getActivity() instanceof MainActivity) {
+                                ((MainActivity)getActivity()).setBuffer(buffer.getBid(), e.is_reply ? e.reply() : e.msgid);
                             }
-                            if(avatarURL != null) {
-                                final int width = lp.width;
-                                final String avatarURL_string = avatarURL.toString();
-                                try {
-                                    b = ImageList.getInstance().getImage(avatarURL);
-                                    ImageList.getInstance().fetchImage(avatarURL, 0, new ImageList.OnImageFetchedListener() {
+                        }
+                    });
+                } else {
+                    lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 2, getResources().getDisplayMetrics());
+                    holder.reply.setLayoutParams(lp);
+                    holder.reply.setVisibility(View.INVISIBLE);
+                    holder.reply.setOnClickListener(null);
+                }
+            }
+
+            if(holder.replyCountContainer != null) {
+                if(e.reply_count > 0 && pref_replyCollapse) {
+                    holder.replyCountIcon.setText(FontAwesome.COMMENT);
+                    holder.replyCountIcon.setTextColor(0x66000000 + Integer.parseInt(ColorScheme.colorForNick(e.msgid, ColorScheme.getInstance().isDarkTheme), 16));
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(e.reply_count).append(" ");
+                    sb.append(e.reply_count == 1 ? "reply" : "replies");
+                    sb.append(": ");
+                    sb.append(TextUtils.join(", ", e.reply_nicks));
+                    holder.replyCount.setText(sb.toString());
+                    holder.replyCount.setTextColor(ColorScheme.getInstance().isDarkTheme ? 0x66ffffff : 0x66000000);
+                    holder.replyCountContainer.setVisibility(View.VISIBLE);
+                    holder.replyCountContainer.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if(getActivity() != null && getActivity() instanceof MainActivity) {
+                                ((MainActivity)getActivity()).setBuffer(buffer.getBid(), e.msgid);
+                            }
+                        }
+                    });
+                } else {
+                    holder.replyCountContainer.setVisibility(View.GONE);
+                }
+            }
+
+            if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
+                if(e.row_type == ROW_THUMBNAIL) {
+                    if(e.entities.has("id") || e.entities.has("name") || e.entities.has("description")) {
+                        holder.metadata.setVisibility(View.VISIBLE);
+                        holder.thumbnailWrapper.setBackgroundColor(ColorScheme.getInstance().navBarColor);
+                    } else {
+                        holder.metadata.setVisibility(View.GONE);
+                        holder.thumbnailWrapper.setBackgroundDrawable(null);
+                    }
+                    int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
+                    if(getActivity().getWindowManager().getDefaultDisplay().getHeight() < width)
+                        width = getActivity().getWindowManager().getDefaultDisplay().getHeight();
+                    width /= 2;
+                    if (e.entities.get("properties") != null && e.entities.get("properties").get("width") != null && width > e.entities.get("properties").get("width").asInt())
+                        width = e.entities.get("properties").get("width").asInt();
+                    try {
+                        Bitmap b = null;
+                        GifDrawable d = null;
+
+                        if (e.entities.has("id") ? ImageList.getInstance().isFailedURL(e.entities.get("id").asText(), width) : ImageList.getInstance().isFailedURL(e.entities.get("thumbnail").asText())) {
+                            holder.thumbnailWrapper.setVisibility(View.GONE);
+                        } else{
+                            if (e.entities.get("mime_type").asText().equals("image/gif")) {
+                                if (e.entities.has("id"))
+                                    d = ImageList.getInstance().getGIF(e.entities.get("id").asText(), width);
+                                else
+                                    d = ImageList.getInstance().getGIF(new URL(e.entities.get("thumbnail").asText()));
+                            } else {
+                                if (e.entities.has("id"))
+                                    b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
+                                else
+                                    b = ImageList.getInstance().getImage(new URL(e.entities.get("thumbnail").asText()), width);
+                            }
+                            if (b != null) {
+                                float ratio = (float) b.getHeight() / (float) b.getWidth();
+                                ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
+                                if(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, b.getWidth(), getResources().getDisplayMetrics()) >= width) {
+                                    lp.width = width;
+                                    lp.height = (int) (width * ratio);
+                                } else {
+                                    lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, b.getWidth(), getResources().getDisplayMetrics());
+                                    lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, b.getHeight(), getResources().getDisplayMetrics());
+                                }
+                                holder.thumbnail.setLayoutParams(lp);
+                                holder.thumbnail.setImageBitmap(b);
+                                holder.thumbnail.setVisibility(View.VISIBLE);
+                                holder.progress.setVisibility(View.GONE);
+                            } else if (d != null) {
+                                float ratio = (float) d.getCurrentFrame().getHeight() / (float) d.getCurrentFrame().getWidth();
+                                ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
+                                if(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, d.getCurrentFrame().getWidth(), getResources().getDisplayMetrics()) >= width) {
+                                    lp.width = width;
+                                    lp.height = (int) (width * ratio);
+                                } else {
+                                    lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, d.getCurrentFrame().getWidth(), getResources().getDisplayMetrics());
+                                    lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, d.getCurrentFrame().getHeight(), getResources().getDisplayMetrics());
+                                }
+                                holder.thumbnail.setLayoutParams(lp);
+                                holder.thumbnail.setImageDrawable(d);
+                                holder.thumbnail.setVisibility(View.VISIBLE);
+                                holder.progress.setVisibility(View.GONE);
+                                MultiCallback cb;
+                                if (d.getCallback() != null && d.getCallback() instanceof MultiCallback)
+                                    cb = (MultiCallback) d.getCallback();
+                                else
+                                    cb = new MultiCallback();
+                                cb.addView(holder.thumbnail);
+                                d.setCallback(cb);
+                            } else {
+                                if (e.entities.has("id")) {
+                                    ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
                                         @Override
                                         public void onImageFetched(Bitmap image) {
-                                            if(image != null) {
-                                                refreshSoon();
-                                            } else {
-                                                String gravatar = e.getGravatar(width);
-                                                if(gravatar != null && !gravatar.equals(avatarURL_string)) {
-                                                    try {
-                                                        ImageList.getInstance().fetchImage(new URL(gravatar), 0, new ImageList.OnImageFetchedListener() {
-                                                            @Override
-                                                            public void onImageFetched(Bitmap image) {
-                                                                refreshSoon();
-                                                            }
-                                                        }, 600000);
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            }
+                                            refreshSoon();
                                         }
-                                    }, 600000);
-                                } catch (IOException e1) {
-                                }
-                            }
-                            if(b == null) {
-                                Avatar a = mAvatarsList.getAvatar(e.cid, e.from_nick, e.from);
-                                b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width, e.self);
-                                holder.avatar.setTag(a);
-                                holder.avatar.setOnClickListener(null);
-                            } else {
-                                final Uri uri = Uri.parse(e.getAvatarURL(Resources.getSystem().getDisplayMetrics().widthPixels));
-                                 holder.avatar.setOnClickListener(new OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        IRCCloudLinkMovementMethod.launchURI(uri, getContext());
-                                    }
-                                });
-                            }
-                            holder.avatar.setVisibility(View.VISIBLE);
-                        }
-                        holder.avatar.setImageBitmap(b);
-                        if(b != null)
-                            lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16 * ((!e.header || e.group_eid > 0)?1:2), getResources().getDisplayMetrics());
-                        else
-                            lp.height = 0;
-                    }
-                    holder.avatar.setLayoutParams(lp);
-                }
-
-                if(!pref_chatOneLine && e.header && e.formatted_nick != null && e.formatted_nick.length() > 0 && e.group_eid < 1) {
-                    if (holder.nickname != null) {
-                        holder.nickname.setVisibility(View.VISIBLE);
-                        if (mono)
-                            holder.nickname.setTypeface(hackRegular);
-                        else
-                            holder.nickname.setTypeface(Typeface.DEFAULT);
-                        holder.nickname.setTextSize(textSize);
-                        holder.nickname.setText(e.formatted_nick);
-
-                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.nickname.getLayoutParams();
-                        lp.leftMargin = (pref_timeLeft&&pref_avatarsOff)?timestamp_width:0;
-                        holder.nickname.setLayoutParams(lp);
-                    }
-
-                    if (holder.realname != null) {
-                        holder.realname.setMovementMethod(linkMovementMethodNoLongPress);
-                        holder.realname.setVisibility((pref_chatOneLine || pref_norealname) ? View.GONE : View.VISIBLE);
-                        if (mono)
-                            holder.realname.setTypeface(hackRegular);
-                        else
-                            holder.realname.setTypeface(Typeface.DEFAULT);
-                        holder.realname.setTextSize(textSize);
-                        holder.realname.setTextColor(colorScheme.timestampColor);
-                        holder.realname.setText(e.formatted_realname);
-                    }
-                } else {
-                    if (holder.nickname != null)
-                        holder.nickname.setVisibility(View.GONE);
-                    if (holder.realname != null)
-                        holder.realname.setVisibility(View.GONE);
-                    if (holder.avatar != null)
-                        holder.avatar.setVisibility((pref_avatarsOff || pref_chatOneLine) ? View.GONE : View.VISIBLE);
-                    if(holder.message != null) {
-                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.message.getLayoutParams();
-                        lp.leftMargin = 0;
-                        holder.message.setLayoutParams(lp);
-                    }
-                }
-
-                if(holder.lastSeenEidWrapper != null) {
-                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.lastSeenEidWrapper.getLayoutParams();
-                    if(!pref_avatarsOff && !pref_chatOneLine)
-                        lp.leftMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 48, getResources().getDisplayMetrics());
-                    else
-                        lp.leftMargin = 0;
-                    holder.lastSeenEidWrapper.setLayoutParams(lp);
-                    holder.lastSeenEidWrapper.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pref_compact?(textSize + 2):(textSize + 4), getResources().getDisplayMetrics()));
-                }
-
-                if(holder.socketClosedBar != null) {
-                    holder.socketClosedBar.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize + 2, getResources().getDisplayMetrics()));
-                }
-
-                if(e.row_type == ROW_BACKLOGMARKER)
-                    row.setMinimumHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, pref_compact?4:(textSize + 2), getResources().getDisplayMetrics()));
-
-                if(holder.quoteBorder != null)
-                    holder.quoteBorder.setVisibility(e.quoted ? View.VISIBLE : View.GONE );
-
-                if(holder.reply != null) {
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(holder.reply.getLayoutParams());
-                    if(!pref_replyCollapse && (e.is_reply || e.reply_count > 0)) {
-                        if(!pref_chatOneLine && e.header) {
-                            lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 2, getResources().getDisplayMetrics());
-                        } else {
-                            lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, -4, getResources().getDisplayMetrics());;
-                        }
-                        holder.reply.setLayoutParams(lp);
-                        holder.reply.setText(e.is_reply ? FontAwesome.COMMENTS : FontAwesome.COMMENT);
-                        holder.reply.setTextColor(0x66000000 + Integer.parseInt(ColorScheme.colorForNick(e.is_reply ? e.reply() : e.msgid, ColorScheme.getInstance().isDarkTheme), 16));
-                        holder.reply.setVisibility(View.VISIBLE);
-                        holder.reply.setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                if(getActivity() != null && getActivity() instanceof MainActivity) {
-                                    ((MainActivity)getActivity()).setBuffer(buffer.getBid(), e.is_reply ? e.reply() : e.msgid);
-                                }
-                            }
-                        });
-                    } else {
-                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 2, getResources().getDisplayMetrics());
-                        holder.reply.setLayoutParams(lp);
-                        holder.reply.setVisibility(View.INVISIBLE);
-                        holder.reply.setOnClickListener(null);
-                    }
-                }
-
-                if(holder.replyCountContainer != null) {
-                    if(e.reply_count > 0 && pref_replyCollapse) {
-                        holder.replyCountIcon.setText(FontAwesome.COMMENT);
-                        holder.replyCountIcon.setTextColor(0x66000000 + Integer.parseInt(ColorScheme.colorForNick(e.msgid, ColorScheme.getInstance().isDarkTheme), 16));
-                        StringBuilder sb = new StringBuilder();
-                        sb.append(e.reply_count).append(" ");
-                        sb.append(e.reply_count == 1 ? "reply" : "replies");
-                        sb.append(": ");
-                        sb.append(TextUtils.join(", ", e.reply_nicks));
-                        holder.replyCount.setText(sb.toString());
-                        holder.replyCount.setTextColor(ColorScheme.getInstance().isDarkTheme ? 0x66ffffff : 0x66000000);
-                        holder.replyCountContainer.setVisibility(View.VISIBLE);
-                        holder.replyCountContainer.setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                if(getActivity() != null && getActivity() instanceof MainActivity) {
-                                    ((MainActivity)getActivity()).setBuffer(buffer.getBid(), e.msgid);
-                                }
-                            }
-                        });
-                    } else {
-                        holder.replyCountContainer.setVisibility(View.GONE);
-                    }
-                }
-
-                if(e.row_type == ROW_THUMBNAIL || e.row_type == ROW_FILE) {
-                    if(e.row_type == ROW_THUMBNAIL) {
-                        if(e.entities.has("id") || e.entities.has("name") || e.entities.has("description")) {
-                            holder.metadata.setVisibility(View.VISIBLE);
-                            holder.thumbnailWrapper.setBackgroundColor(ColorScheme.getInstance().navBarColor);
-                        } else {
-                            holder.metadata.setVisibility(View.GONE);
-                            holder.thumbnailWrapper.setBackgroundDrawable(null);
-                        }
-                        int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
-                        if(getActivity().getWindowManager().getDefaultDisplay().getHeight() < width)
-                            width = getActivity().getWindowManager().getDefaultDisplay().getHeight();
-                        width /= 2;
-                        if (e.entities.get("properties") != null && e.entities.get("properties").get("width") != null && width > e.entities.get("properties").get("width").asInt())
-                            width = e.entities.get("properties").get("width").asInt();
-                        try {
-                            Bitmap b = null;
-                            GifDrawable d = null;
-
-                            if (e.entities.has("id") ? ImageList.getInstance().isFailedURL(e.entities.get("id").asText(), width) : ImageList.getInstance().isFailedURL(e.entities.get("thumbnail").asText())) {
-                                holder.thumbnailWrapper.setVisibility(View.GONE);
-                            } else{
-                                if (e.entities.get("mime_type").asText().equals("image/gif")) {
-                                    if (e.entities.has("id"))
-                                        d = ImageList.getInstance().getGIF(e.entities.get("id").asText(), width);
-                                    else
-                                        d = ImageList.getInstance().getGIF(new URL(e.entities.get("thumbnail").asText()));
+                                    });
                                 } else {
-                                    if (e.entities.has("id"))
-                                        b = ImageList.getInstance().getImage(e.entities.get("id").asText(), width);
-                                    else
-                                        b = ImageList.getInstance().getImage(new URL(e.entities.get("thumbnail").asText()), width);
+                                    ImageList.getInstance().fetchImage(new URL(e.entities.get("thumbnail").asText()), width, new ImageList.OnImageFetchedListener() {
+                                        @Override
+                                        public void onImageFetched(Bitmap image) {
+                                            refreshSoon();
+                                        }
+                                    }, 0);
                                 }
-                                if (b != null) {
-                                    float ratio = (float) b.getHeight() / (float) b.getWidth();
-                                    ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
-                                    if(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, b.getWidth(), getResources().getDisplayMetrics()) >= width) {
-                                        lp.width = width;
-                                        lp.height = (int) (width * ratio);
-                                    } else {
-                                        lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, b.getWidth(), getResources().getDisplayMetrics());
-                                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, b.getHeight(), getResources().getDisplayMetrics());
-                                    }
-                                    holder.thumbnail.setLayoutParams(lp);
-                                    holder.thumbnail.setImageBitmap(b);
-                                    holder.thumbnail.setVisibility(View.VISIBLE);
-                                    holder.progress.setVisibility(View.GONE);
-                                } else if (d != null) {
-                                    float ratio = (float) d.getCurrentFrame().getHeight() / (float) d.getCurrentFrame().getWidth();
-                                    ViewGroup.LayoutParams lp = holder.thumbnail.getLayoutParams();
-                                    if(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, d.getCurrentFrame().getWidth(), getResources().getDisplayMetrics()) >= width) {
-                                        lp.width = width;
-                                        lp.height = (int) (width * ratio);
-                                    } else {
-                                        lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, d.getCurrentFrame().getWidth(), getResources().getDisplayMetrics());
-                                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, d.getCurrentFrame().getHeight(), getResources().getDisplayMetrics());
-                                    }
-                                    holder.thumbnail.setLayoutParams(lp);
-                                    holder.thumbnail.setImageDrawable(d);
-                                    holder.thumbnail.setVisibility(View.VISIBLE);
-                                    holder.progress.setVisibility(View.GONE);
-                                    MultiCallback cb;
-                                    if (d.getCallback() != null && d.getCallback() instanceof MultiCallback)
-                                        cb = (MultiCallback) d.getCallback();
-                                    else
-                                        cb = new MultiCallback();
-                                    cb.addView(holder.thumbnail);
-                                    d.setCallback(cb);
-                                } else {
-                                    if (e.entities.has("id")) {
-                                        ImageList.getInstance().fetchImage(e.entities.get("id").asText(), width, new ImageList.OnImageFetchedListener() {
-                                            @Override
-                                            public void onImageFetched(Bitmap image) {
-                                                refreshSoon();
-                                            }
-                                        });
-                                    } else {
-                                        ImageList.getInstance().fetchImage(new URL(e.entities.get("thumbnail").asText()), width, new ImageList.OnImageFetchedListener() {
-                                            @Override
-                                            public void onImageFetched(Bitmap image) {
-                                                refreshSoon();
-                                            }
-                                        }, 0);
-                                    }
-                                    holder.thumbnail.setVisibility(View.GONE);
-                                    holder.progress.setVisibility(View.VISIBLE);
-                                }
-                                holder.thumbnail.setVisibility(View.VISIBLE);
-                                holder.extension.setVisibility(View.GONE);
+                                holder.thumbnail.setVisibility(View.GONE);
+                                holder.progress.setVisibility(View.VISIBLE);
                             }
-                        } catch (FileNotFoundException e1) {
-                            refreshSoon();
-                        } catch (MalformedURLException e1) {
-                            holder.thumbnail.setVisibility(View.GONE);
-                            holder.progress.setVisibility(View.GONE);
-                        } catch (IOException e1) {
-                            refreshSoon();
-                        } catch (OutOfMemoryError e1) {
-                            String ext = "???";
-
-                            if (e.entities.get("extension") != null) {
-                                ext = e.entities.get("extension").asText();
-                            } else {
-                                ext = e.entities.get("mime_type").asText();
-                                ext = ext.substring(ext.indexOf("/") + 1);
-                            }
-                            if(ext.startsWith("."))
-                                ext = ext.substring(1);
-                            holder.extension.setText(ext.toUpperCase());
-                            holder.thumbnail.setVisibility(View.GONE);
-                            holder.extension.setVisibility(View.VISIBLE);
-                            holder.progress.setVisibility(View.GONE);
-
-                            e.msg = e.msg.replace(" • ", "\n");
+                            holder.thumbnail.setVisibility(View.VISIBLE);
+                            holder.extension.setVisibility(View.GONE);
                         }
-                        row.setContentDescription("Image thumbnail: ");
-                    } else {
+                    } catch (FileNotFoundException e1) {
+                        refreshSoon();
+                    } catch (MalformedURLException e1) {
+                        holder.thumbnail.setVisibility(View.GONE);
+                        holder.progress.setVisibility(View.GONE);
+                    } catch (IOException e1) {
+                        refreshSoon();
+                    } catch (OutOfMemoryError e1) {
                         String ext = "???";
 
                         if (e.entities.get("extension") != null) {
@@ -1331,48 +1311,66 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.thumbnail.setVisibility(View.GONE);
                         holder.extension.setVisibility(View.VISIBLE);
                         holder.progress.setVisibility(View.GONE);
-                        row.setContentDescription("Uploaded file: ");
-                    }
 
-                    if(e.entities.has("name") && e.entities.get("name") != null && e.entities.get("name").asText().length() > 0) {
-                        if (mono) {
-                            holder.filename.setTypeface(hackRegular);
-                        } else {
-                            holder.filename.setTypeface(Typeface.DEFAULT);
-                        }
-                        holder.filename.setText(e.entities.get("name").asText());
-                        holder.filename.setVisibility(View.VISIBLE);
-                        row.setContentDescription(TextUtils.concat(row.getContentDescription(), e.entities.get("name").asText(), " "));
-                    } else {
-                        holder.filename.setVisibility(View.GONE);
+                        e.msg = e.msg.replace(" • ", "\n");
                     }
+                    row.setContentDescription("Image thumbnail: ");
+                } else {
+                    String ext = "???";
 
-                    if(e.msg != null && e.msg.length() > 0) {
-                        holder.metadata.setMovementMethod(linkMovementMethodNoLongPress);
-                        holder.metadata.setOnClickListener(new OnItemClickListener(e));
-                        holder.metadata.setOnLongClickListener(new OnItemLongClickListener(e));
-                        if (mono) {
-                            holder.metadata.setTypeface(hackRegular);
-                        } else {
-                            holder.metadata.setTypeface(Typeface.DEFAULT);
-                        }
-                        holder.metadata.setLinkTextColor(colorScheme.linkColor);
-                        holder.metadata.setTextSize(textSize);
-                        holder.metadata.setText(e.formatted);
-                        holder.metadata.setVisibility(View.VISIBLE);
-                        if(e.formatted != null)
-                            row.setContentDescription(TextUtils.concat(row.getContentDescription(), e.formatted));
+                    if (e.entities.get("extension") != null) {
+                        ext = e.entities.get("extension").asText();
                     } else {
-                        holder.metadata.setVisibility(View.GONE);
+                        ext = e.entities.get("mime_type").asText();
+                        ext = ext.substring(ext.indexOf("/") + 1);
                     }
-                    if(holder.thumbnailWrapper.getVisibility() == View.VISIBLE)
-                        holder.timestamp.setVisibility(View.INVISIBLE);
-                    else
-                        holder.timestamp.setVisibility(View.GONE);
-                    row.setBackgroundColor(e.bg_color);
+                    if(ext.startsWith("."))
+                        ext = ext.substring(1);
+                    holder.extension.setText(ext.toUpperCase());
+                    holder.thumbnail.setVisibility(View.GONE);
+                    holder.extension.setVisibility(View.VISIBLE);
+                    holder.progress.setVisibility(View.GONE);
+                    row.setContentDescription("Uploaded file: ");
                 }
-                return row;
+
+                if(e.entities.has("name") && e.entities.get("name") != null && e.entities.get("name").asText().length() > 0) {
+                    if (mono) {
+                        holder.filename.setTypeface(hackRegular);
+                    } else {
+                        holder.filename.setTypeface(Typeface.DEFAULT);
+                    }
+                    holder.filename.setText(e.entities.get("name").asText());
+                    holder.filename.setVisibility(View.VISIBLE);
+                    row.setContentDescription(TextUtils.concat(row.getContentDescription(), e.entities.get("name").asText(), " "));
+                } else {
+                    holder.filename.setVisibility(View.GONE);
+                }
+
+                if(e.msg != null && e.msg.length() > 0) {
+                    holder.metadata.setMovementMethod(linkMovementMethodNoLongPress);
+                    holder.metadata.setOnClickListener(new OnItemClickListener(e));
+                    holder.metadata.setOnLongClickListener(new OnItemLongClickListener(e));
+                    if (mono) {
+                        holder.metadata.setTypeface(hackRegular);
+                    } else {
+                        holder.metadata.setTypeface(Typeface.DEFAULT);
+                    }
+                    holder.metadata.setLinkTextColor(colorScheme.linkColor);
+                    holder.metadata.setTextSize(textSize);
+                    holder.metadata.setText(e.formatted);
+                    holder.metadata.setVisibility(View.VISIBLE);
+                    if(e.formatted != null)
+                        row.setContentDescription(TextUtils.concat(row.getContentDescription(), e.formatted));
+                } else {
+                    holder.metadata.setVisibility(View.GONE);
+                }
+                if(holder.thumbnailWrapper.getVisibility() == View.VISIBLE)
+                    holder.timestamp.setVisibility(View.INVISIBLE);
+                else
+                    holder.timestamp.setVisibility(View.GONE);
+                row.setBackgroundColor(e.bg_color);
             }
+            return row;
         }
     }
 
