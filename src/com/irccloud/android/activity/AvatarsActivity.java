@@ -24,7 +24,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import androidx.core.app.ActivityCompat;
@@ -56,7 +55,6 @@ import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Server;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -66,6 +64,7 @@ import java.util.List;
 public class AvatarsActivity extends BaseActivity implements NetworkConnection.IRCEventHandler {
     private AvatarsAdapter adapter = new AvatarsAdapter();
     private int orgId = -1;
+    private int cid = -1;
     private UriTemplate template;
     private MainActivity.FileUploadTask fileUploadTask;
 
@@ -76,6 +75,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
         public URL url;
         public String label;
         public int orgId;
+        public int cid;
         public Bitmap image;
         public boolean image_failed;
     }
@@ -119,7 +119,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                 builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        NetworkConnection.getInstance().set_avatar(avatarToDelete.orgId, null, null);
+                        NetworkConnection.getInstance().set_avatar(avatarToDelete.cid, avatarToDelete.orgId, null, null);
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -190,11 +190,12 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                 template = UriTemplate.fromTemplate(NetworkConnection.avatar_uri_template);
         }
 
-        public void addAvatar(String id, String label, int orgId) {
+        public void addAvatar(String id, String label, int orgId, int cid) {
             AvatarsAdapterEntry a = new AvatarsAdapterEntry();
             a.id = id;
             a.label = label;
             a.orgId = orgId;
+            a.cid = cid;
             try {
                 if (NetworkConnection.avatar_uri_template != null) {
                     a.url = new URL(template.set("id", a.id).set("modifiers", "w320").expand());
@@ -240,11 +241,11 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
 
             for(Server s : servers) {
                 if(s.getAvatar() != null && s.getAvatar().length() > 0) {
-                    addAvatar(s.getAvatar(), s.getNick() + " on " + ((s.getName() != null && s.getName().length() > 0) ? s.getName() : s.getHostname()), s.getOrgId());
+                    addAvatar(s.getAvatar(), s.getNick() + " on " + ((s.getName() != null && s.getName().length() > 0) ? s.getName() : s.getHostname()), s.getOrgId(), s.getCid());
                 }
             }
             if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().avatar != null) {
-                addAvatar(NetworkConnection.getInstance().getUserInfo().avatar, "Public avatar", -1);
+                addAvatar(NetworkConnection.getInstance().getUserInfo().avatar, "Public avatar", -1, -1);
             }
             return null;
         }
@@ -265,6 +266,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
         onMultiWindowModeChanged(isMultiWindow());
 
         orgId = getIntent().getIntExtra("orgId", -1);
+        cid = getIntent().getIntExtra("cid", -1);
 
         setContentView(R.layout.listview);
 
@@ -293,7 +295,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 AvatarsAdapterEntry e = (AvatarsAdapterEntry)adapterView.getItemAtPosition(i);
                 if(e != null) {
-                    NetworkConnection.getInstance().set_avatar(orgId, e.id, null);
+                    NetworkConnection.getInstance().set_avatar(cid, orgId, e.id, null);
                     finish();
                 }
             }
@@ -373,6 +375,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                 fileUploadTask = new MainActivity.FileUploadTask(uri, null);
                 fileUploadTask.avatar = true;
                 fileUploadTask.orgId = orgId;
+                fileUploadTask.cid = cid;
                 if(ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(AvatarsActivity.this,
                             new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},

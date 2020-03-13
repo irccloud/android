@@ -4294,8 +4294,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         case "Change Avatar":
                         case "Change Public Avatar":
                             i = new Intent(MainActivity.this, AvatarsActivity.class);
-                            if(server.getOrgId() > 0 && !server.isSlack())
+                            if(server.getAvatars_supported() > 0 && !server.isSlack()) {
+                                i.putExtra("cid", server.getCid());
                                 i.putExtra("orgId", server.getOrgId());
+                            }
                             startActivity(i);
                             break;
                     }
@@ -6505,6 +6507,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         public boolean avatar = false;
         public int orgId = -1;
+        public int cid = -1;
         private int notification_id = 1337;
 
         private NotificationCompat.Builder notification;
@@ -6739,7 +6742,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         private void finalize_upload() {
             if (uploadFinished && (filenameSet || avatar) && !isCancelled()) {
                 if (file_id != null && file_id.length() > 0) {
-                    NetworkConnection.getInstance().finalize_upload(file_id, filename, original_filename, avatar, orgId, new NetworkConnection.IRCResultCallback() {
+                    NetworkConnection.getInstance().finalize_upload(file_id, filename, original_filename, avatar, cid, orgId, new NetworkConnection.IRCResultCallback() {
                         @Override
                         public void onIRCResult(final IRCCloudJSONObject result) {
                             if(result.getBoolean("success")) {

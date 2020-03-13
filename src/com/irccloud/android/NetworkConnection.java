@@ -1816,7 +1816,7 @@ public class NetworkConnection {
         return send("resend-verify-email", o, callback);
     }
 
-    public int finalize_upload(String id, String filename, String original_filename, boolean avatar, int orgId, IRCResultCallback callback) {
+    public int finalize_upload(String id, String filename, String original_filename, boolean avatar, int cid, int orgId, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             o.put("id", id);
@@ -1826,6 +1826,8 @@ public class NetworkConnection {
                 o.put("type", "avatar");
                 if(orgId == -1) {
                     o.put("primary", "1");
+                } else if(orgId == 0) {
+                    o.put("cid", cid);
                 } else {
                     o.put("org", orgId);
                 }
@@ -1892,14 +1894,17 @@ public class NetworkConnection {
         }
     }
 
-    public int set_avatar(int orgId, String avatar_id, IRCResultCallback callback) {
+    public int set_avatar(int cid, int orgId, String avatar_id, IRCResultCallback callback) {
         try {
             JSONObject o = new JSONObject();
             if(avatar_id != null)
                 o.put("id", avatar_id);
             else
                 o.put("clear", "1");
-            if(orgId != -1)
+
+            if(orgId == 0)
+                o.put("cid", cid);
+            else if(orgId != -1)
                 o.put("org", orgId);
             else
                 o.put("primary", "1");
