@@ -24,11 +24,17 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
+
+import android.provider.MediaStore;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -46,8 +52,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -56,8 +64,11 @@ import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Server;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,8 +78,12 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
     private int cid = -1;
     private UriTemplate template;
     private MainActivity.FileUploadTask fileUploadTask;
+    private Uri imageCaptureURI = null;
 
-    private static final int REQUEST_EXTERNAL_MEDIA_IRCCLOUD = 1;
+    private static final int REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO = 1;
+    private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO = 2;
+    private final int REQUEST_CAMERA = 1;
+    private final int REQUEST_PHOTO = 2;
 
     private class AvatarsAdapterEntry {
         public String id;
@@ -369,6 +384,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
             Uri uri = CropImage.getActivityResult(imageReturnedIntent).getUri();
             if (uri != null) {
@@ -376,33 +392,73 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                 fileUploadTask.avatar = true;
                 fileUploadTask.orgId = orgId;
                 fileUploadTask.cid = cid;
-                if(ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(AvatarsActivity.this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                } else {
-                    fileUploadTask.execute((Void) null);
-                }
+                fileUploadTask.execute((Void) null);
+            }
+        } else if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
+            if (imageCaptureURI != null) {
+                CropImage.activity(imageCaptureURI)
+                        .setInitialCropWindowPaddingRatio(0)
+                        .setAspectRatio(1, 1)
+                        .start(this);
+            }
+        } else if (requestCode == REQUEST_PHOTO && resultCode == RESULT_OK) {
+            Uri selectedImage = imageReturnedIntent.getData();
+            if (selectedImage != null) {
+                selectedImage = MainActivity.makeTempCopy(selectedImage, this);
+                CropImage.activity(selectedImage)
+                        .setInitialCropWindowPaddingRatio(0)
+                        .setAspectRatio(1, 1)
+                        .start(this);
             }
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if(grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-            switch (requestCode) {
-                case REQUEST_EXTERNAL_MEDIA_IRCCLOUD:
-                    if(fileUploadTask != null) {
-                        fileUploadTask.execute((Void) null);
+        Intent i;
+
+        for(int j = 0; j < grantResults.length; j++) {
+            if(grantResults[j] != PackageManager.PERMISSION_GRANTED) {
+                Crashlytics.log(Log.ERROR, "IRCCloud", "Permission denied: " + permissions[j]);
+                if(fileUploadTask != null) {
+                    if(fileUploadTask.metadataDialog != null) {
+                        try {
+                            fileUploadTask.metadataDialog.cancel();
+                        } catch (Exception e) {
+
+                        }
                     }
-                    break;
+                    fileUploadTask.cancel(true);
+                    fileUploadTask = null;
+                }
+                Toast.makeText(this, "Upload cancelled: permission denied", Toast.LENGTH_SHORT).show();
+                return;
             }
-        } else {
-            if(fileUploadTask != null) {
-                fileUploadTask.cancel(true);
-                fileUploadTask = null;
-            }
-            Toast.makeText(this, "Upload cancelled: permission denied", Toast.LENGTH_SHORT).show();
+        }
+
+        switch (requestCode) {
+            case REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO:
+                try {
+                    File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
+                    imageDir.mkdirs();
+                    new File(imageDir, ".nomedia").createNewFile();
+                    File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
+                    imageCaptureURI = Uri.fromFile(tempFile);
+                    i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                    else
+                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(AvatarsActivity.this,getPackageName() + ".fileprovider",tempFile));
+                    startActivityForResult(i, REQUEST_CAMERA);
+                } catch (IOException e) {
+                }
+                break;
+            case REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO:
+                i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                i.addCategory(Intent.CATEGORY_OPENABLE);
+                i.setType("image/*");
+                startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
+                break;
         }
     }
 
@@ -420,13 +476,74 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                 finish();
                 return true;
             case R.id.action_upload:
-                CropImage.activity()
-                        .setInitialCropWindowPaddingRatio(0)
-                        .setAspectRatio(1,1)
-                        .start(this);
+                upload();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean mediaPermissionsGranted() {
+        return ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestMediaPermissions(int requestCode) {
+        ActivityCompat.requestPermissions(AvatarsActivity.this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                requestCode);
+    }
+
+    private void upload() {
+        AlertDialog.Builder builder;
+        AlertDialog dialog;
+        builder = new AlertDialog.Builder(this);
+        final String[] dialogItems = new String[]{"Take a Photo", "Choose Existing Photo"};
+
+        builder.setItems(dialogItems, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent i;
+                switch(dialogItems[which]) {
+                    case "Take a Photo":
+                        if(!mediaPermissionsGranted()) {
+                            requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO);
+                        } else {
+                            try {
+                                File imageDir = (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) ?
+                                        new File(Environment.getExternalStorageDirectory(), "IRCCloud") :
+                                        new File(getExternalFilesDir(null), "uploads")
+                                        ;
+                                imageDir.mkdirs();
+                                new File(imageDir, ".nomedia").createNewFile();
+                                File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
+                                imageCaptureURI = Uri.fromFile(tempFile);
+                                i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                                    i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                                else
+                                    i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(AvatarsActivity.this,getPackageName() + ".fileprovider",tempFile));
+                                startActivityForResult(i, REQUEST_CAMERA);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        break;
+                    case "Choose Existing Photo":
+                        if(!mediaPermissionsGranted()) {
+                            requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO);
+                        } else {
+                            i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            i.addCategory(Intent.CATEGORY_OPENABLE);
+                            i.setType("image/*");
+                            startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
+                        }
+                        break;
+                }
+                dialog.dismiss();
+            }
+        });
+        dialog = builder.create();
+        dialog.setOwnerActivity(AvatarsActivity.this);
+        dialog.show();
     }
 
     @Override

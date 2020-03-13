@@ -392,7 +392,7 @@ tasks.whenTaskAdded { task ->
 dependencies {
     implementation 'androidx.work:work-runtime:2.3.3'
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.drawerlayout:drawerlayout:1.1.0-alpha03'
+    implementation 'androidx.drawerlayout:drawerlayout:1.1.0-alpha04'
     implementation 'androidx.sharetarget:sharetarget:1.0.0-rc01'
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.1.0"
@@ -405,7 +405,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:17.1.0"
     implementation "com.google.android.gms:play-services-auth:17.0.0"
     implementation "com.google.android.gms:play-services-identity:17.0.0"
-    implementation 'com.google.firebase:firebase-messaging:20.1.1'
+    implementation 'com.google.firebase:firebase-messaging:20.1.2'
     implementation 'com.google.firebase:firebase-analytics:17.2.3'
     implementation 'com.google.firebase:firebase-perf:19.0.5'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
