@@ -472,7 +472,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
         @Override
         protected synchronized Void doInBackground(Void... params) {
-            if (!NetworkConnection.getInstance().ready || !ready || isCancelled()) {
+            if (!NetworkConnection.getInstance().ready || !ready || isCancelled() || NetworkConnection.getInstance().getUserInfo() == null) {
                 Crashlytics.log(Log.WARN, "IRCCloud", "BuffersListFragment not ready or cancelled " + ready + " " + isCancelled());
                 return null;
             }

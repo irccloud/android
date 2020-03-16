@@ -17,7 +17,7 @@
           <task>generateDebugSources</task>
         </afterSyncTasks>
         <option name="ALLOW_USER_CONFIGURATION" value="false" />
-        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/res;file://$MODULE_DIR$/themes;file://$MODULE_DIR$/build/generated/fabric/res/debug;file://$MODULE_DIR$/build/generated/res/rs/debug" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/res;file://$MODULE_DIR$/themes;file://$MODULE_DIR$/build/generated/res/google-services/debug;file://$MODULE_DIR$/build/generated/fabric/res/debug;file://$MODULE_DIR$/build/generated/res/rs/debug" />
         <option name="TEST_RES_FOLDERS_RELATIVE_PATH" value="file://$MODULE_DIR$/tests/res" />
       </configuration>
     </facet>
@@ -31,6 +31,7 @@
       <sourceFolder url="file://$MODULE_DIR$/build/generated/aidl_source_output_dir/debug/out" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/debug" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/renderscript_source_output_dir/debug/out" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/google-services/debug" type="java-resource" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/fabric/res/debug" type="java-resource" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/debug" type="java-resource" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/ap_generated_sources/debugUnitTest/out" isTestSource="true" generated="true" />

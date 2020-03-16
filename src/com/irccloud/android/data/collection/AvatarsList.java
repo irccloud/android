@@ -74,7 +74,7 @@ public class AvatarsList {
             Collections.sort(avs, new Comparator<Avatar>() {
                 @Override
                 public int compare(Avatar a1, Avatar a2) {
-                    return (int)(a2.lastAccessTime - a1.lastAccessTime);
+                    return Long.compare(a2.lastAccessTime, a1.lastAccessTime);
                 }
             });
             while(avs.size() > MAX_AVATARS) {

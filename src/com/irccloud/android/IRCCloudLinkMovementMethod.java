@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.FileUriExposedException;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.Browser;
@@ -247,6 +248,8 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
                 context.startActivity(intent);
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(context, "An error occurred while launching this URL", Toast.LENGTH_SHORT).show();
             }
         }
     }

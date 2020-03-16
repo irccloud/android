@@ -24,6 +24,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.1'
         classpath 'io.fabric.tools:gradle:1.+'
+        classpath 'com.google.gms:google-services:4.3.3'
         classpath 'com.google.firebase:perf-plugin:1.3.1'
     }
 }
@@ -36,8 +37,10 @@ allprojects {
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.firebase.firebase-perf'
-
+if (rootProject.file('private.properties').exists()) {
+    apply plugin: 'com.google.gms.google-services'
+    apply plugin: 'com.google.firebase.firebase-perf'
+}
 if (rootProject.file('private.properties').exists()) {
     apply plugin: 'io.fabric'
 }
@@ -70,7 +73,7 @@ android {
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 274
+        versionCode 275
         versionName "4.21"
         minSdkVersion 17
         targetSdkVersion 29
@@ -116,13 +119,6 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
-                resValue "string", "google_app_id", "\"" + props['FIREBASE_APP_ID'] + "\""
-                resValue "string", "gcm_defaultSenderId", "\"" + props['FCM_ID'] + "\""
-                resValue "string", "default_web_client_id", "\"" + props['WEB_CLIENT_ID'] + "\""
-                resValue "string", "firebase_database_url", "\"" + props['FIREBASE_URL'] + "\""
-                resValue "string", "google_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
-                resValue "string", "google_crash_reporting_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
-                resValue "string", "project_id", "\"" + props['PROJECT_ID'] + "\""
             } else {
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
@@ -160,13 +156,6 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
-                resValue "string", "google_app_id", "\"" + props['FIREBASE_APP_ID'] + "\""
-                resValue "string", "gcm_defaultSenderId", "\"" + props['FCM_ID'] + "\""
-                resValue "string", "default_web_client_id", "\"" + props['WEB_CLIENT_ID'] + "\""
-                resValue "string", "firebase_database_url", "\"" + props['FIREBASE_URL'] + "\""
-                resValue "string", "google_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
-                resValue "string", "google_crash_reporting_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
-                resValue "string", "project_id", "\"" + props['PROJECT_ID'] + "\""
             } else {
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
@@ -211,13 +200,6 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
-                resValue "string", "google_app_id", "\"" + props['FIREBASE_APP_ID'] + "\""
-                resValue "string", "gcm_defaultSenderId", "\"" + props['FCM_ID'] + "\""
-                resValue "string", "default_web_client_id", "\"" + props['WEB_CLIENT_ID'] + "\""
-                resValue "string", "firebase_database_url", "\"" + props['FIREBASE_URL'] + "\""
-                resValue "string", "google_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
-                resValue "string", "google_crash_reporting_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
-                resValue "string", "project_id", "\"" + props['PROJECT_ID'] + "\""
             } else {
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
@@ -258,13 +240,6 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
-                resValue "string", "google_app_id", "\"" + props['FIREBASE_APP_ID'] + "\""
-                resValue "string", "gcm_defaultSenderId", "\"" + props['FCM_ID'] + "\""
-                resValue "string", "default_web_client_id", "\"" + props['WEB_CLIENT_ID'] + "\""
-                resValue "string", "firebase_database_url", "\"" + props['FIREBASE_URL'] + "\""
-                resValue "string", "google_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
-                resValue "string", "google_crash_reporting_api_key", "\"" + props['FIREBASE_API_KEY'] + "\""
-                resValue "string", "project_id", "\"" + props['PROJECT_ID'] + "\""
             } else {
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""

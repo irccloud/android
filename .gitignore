@@ -22,6 +22,7 @@ irccloud.keystore
 *-res/
 build-*.*
 branded.gradle
+google-services.json
 
 .idea/workspace.xml
 .idea/tasks.xml
