@@ -47,10 +47,11 @@ public class Buffer extends BaseObservable {
     public static final String TYPE_JOIN_CHANNEL = "join_channel";
     public static final String TYPE_SPAM = "spam";
     public static final String TYPE_COLLAPSED = "collapsed";
+    public static final String TYPE_PINNED = "pinned";
     public static final String DEFAULT_CHANTYPES = "#&!+";
 
     private enum Type {
-        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, SPAM, COLLAPSED, OTHER
+        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, SPAM, COLLAPSED, PINNED, OTHER
     }
 
     private Server server = null;
@@ -258,6 +259,9 @@ public class Buffer extends BaseObservable {
                 break;
             case TYPE_COLLAPSED:
                 this.type_int = Type.COLLAPSED;
+                break;
+            case TYPE_PINNED:
+                this.type_int = Type.PINNED;
                 break;
             default:
                 this.type_int = Type.OTHER;
@@ -536,6 +540,8 @@ public class Buffer extends BaseObservable {
                 return FontAwesome.LOCK;
         } else if(isSpam()) {
             return FontAwesome.EXCLAMATION_TRIANGLE;
+        } else if(type_int == Type.PINNED) {
+            return FontAwesome.THUMB_TACK;
         }
         return null;
     }
@@ -554,6 +560,8 @@ public class Buffer extends BaseObservable {
             return colorScheme.bufferBackgroundDrawable;
         else if(type_int == Type.ARCHIVES_HEADER)
             return (getArchived() == 0)?colorScheme.bufferBackgroundDrawable:R.drawable.archived_bg_selected;
+        else if(type_int == Type.PINNED)
+            return colorScheme.bufferBackgroundDrawable;
         else
             return colorScheme.serverBackgroundDrawable;
     }

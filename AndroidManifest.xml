@@ -206,7 +206,7 @@
             android:name=".activity.EditConnectionActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".activity.ServerReorderActivity"
+        <activity android:name=".activity.ReorderActivity"
             android:exported="false"/>
         <activity
             android:name=".activity.ImageViewerActivity"

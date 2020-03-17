@@ -52,10 +52,12 @@ import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.databinding.RowBufferBinding;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -450,6 +452,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                                 NetworkConnection.getInstance().archiveBuffer(b.getCid(), b.getBid(), null);
                             }
                             return;
+                        case Buffer.TYPE_PINNED:
+                            return;
                     }
                     mListener.onBufferSelected(b.getBid());
                 }
@@ -458,7 +462,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             row.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    return mListener.onBufferLongClicked(b);
+                    return (b.isChannel() || b.isConversation()) && mListener.onBufferLongClicked(b);
                 }
             });
 
@@ -469,6 +473,24 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
     private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
         private ArrayList<Buffer> entries = new ArrayList<>();
         private boolean shouldScroll = false;
+
+        private void add(int position, Buffer b, Server s) {
+            entries.add(position,b);
+            if (b.getUnread() > 0 && firstUnreadPosition == -1)
+                firstUnreadPosition = position;
+            if (b.getUnread() > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
+                lastUnreadPosition = position;
+            if (b.getHighlights() > 0 && firstHighlightPosition == -1)
+                firstHighlightPosition = position;
+            if (b.getHighlights() > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
+                lastHighlightPosition = position;
+            if(s != null) {
+                if (b.isConsole() && s.isFailed() && firstFailurePosition == -1)
+                    firstFailurePosition = position;
+                if (b.isConsole() && s.isFailed() && (lastFailurePosition == -1 || lastFailurePosition < position))
+                    lastFailurePosition = position;
+            }
+        }
 
         @Override
         protected synchronized Void doInBackground(Void... params) {
@@ -503,6 +525,31 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             lastFailurePosition = -1;
             int position = 0;
 
+            HashSet<Integer> pinned = new HashSet<>();
+            try {
+                if (prefs.has("pinnedBuffers")) {
+                    JSONArray pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
+                    if(pinnedBuffers.length() > 0) {
+                        Buffer heading = new Buffer();
+                        heading.setName("Pinned");
+                        heading.setType(Buffer.TYPE_PINNED);
+                        add(position,heading,null);
+                        position++;
+
+                        for (int i = 0; i < pinnedBuffers.length(); i++) {
+                            Buffer b = BuffersList.getInstance().getBuffer(pinnedBuffers.getInt(i));
+                            if (b != null) {
+                                pinned.add(b.getBid());
+                                add(position,b,b.getServer());
+                                position++;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             for (Server s : servers) {
                 if (isCancelled())
                     return null;
@@ -517,6 +564,9 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 for (Buffer b : buffers) {
                     if (isCancelled())
                         return null;
+
+                    if(pinned.contains(b.getBid()))
+                        continue;
 
                     try {
                         String pref_type = b.isChannel() ? "channel" : "buffer";
@@ -541,19 +591,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                             collapsed_unread += b.getUnread();
                             collapsed_highlights += b.getHighlights();
                         } else {
-                            entries.add(b);
-                            if (b.getUnread() > 0 && firstUnreadPosition == -1)
-                                firstUnreadPosition = position;
-                            if (b.getUnread() > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
-                                lastUnreadPosition = position;
-                            if (b.getHighlights() > 0 && firstHighlightPosition == -1)
-                                firstHighlightPosition = position;
-                            if (b.getHighlights() > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
-                                lastHighlightPosition = position;
-                            if (b.isConsole() && s.isFailed() && firstFailurePosition == -1)
-                                firstFailurePosition = position;
-                            if (b.isConsole() && s.isFailed() && (lastFailurePosition == -1 || lastFailurePosition < position))
-                                lastFailurePosition = position;
+                            add(position,b,s);
                             if (!readOnly && b.isConversation() && b.getUnread() > 0 && EventsList.getInstance().getSizeOfBuffer(b.getBid()) == 1)
                                 spamCount++;
                             position++;
@@ -578,17 +616,8 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 if(collapsed != null) {
                     collapsed.setUnread(collapsed_unread);
                     collapsed.setHighlights(collapsed_highlights);
-                    entries.add(collapsed_row, collapsed);
+                    add(collapsed_row, collapsed, s);
                     position++;
-
-                    if (collapsed_unread > 0 && firstUnreadPosition == -1)
-                        firstUnreadPosition = collapsed_row;
-                    if (collapsed_unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < collapsed_row))
-                        lastUnreadPosition = collapsed_row;
-                    if (collapsed_highlights > 0 && firstHighlightPosition == -1)
-                        firstHighlightPosition = collapsed_row;
-                    if (collapsed_highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < collapsed_row))
-                        lastHighlightPosition = collapsed_row;
                 }
                 if (collapsed == null || mExpandCids.get(s.getCid(), false)) {
                     if (spamCount > 3) {
@@ -963,7 +992,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                     });
                 }
                 break;
-            case NetworkConnection.EVENT_USERINFO:
             case NetworkConnection.EVENT_CHANNELTOPIC:
             case NetworkConnection.EVENT_NICKCHANGE:
             case NetworkConnection.EVENT_MEMBERUPDATES:

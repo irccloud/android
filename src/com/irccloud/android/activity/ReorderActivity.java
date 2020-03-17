@@ -16,32 +16,49 @@
 
 package com.irccloud.android.activity;
 
-import android.app.ActivityManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.irccloud.android.R;
+import com.irccloud.android.fragment.PinReorderFragment;
 import com.irccloud.android.fragment.ServerReorderFragment;
 
-public class ServerReorderActivity extends BaseActivity {
+public class ReorderActivity extends BaseActivity {
+    private String title = "Connections";
+    private boolean servers = true;
+    private boolean pins = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reorder_servers);
-        getSupportActionBar().setTitle("Connections");
+
+        if(savedInstanceState != null && savedInstanceState.containsKey("title")) {
+            title = savedInstanceState.getString("title");
+            servers = savedInstanceState.getBoolean("servers");
+            pins = savedInstanceState.getBoolean("pins");
+        } else {
+            if(getIntent() != null && getIntent().hasExtra("title"))
+                title = getIntent().getStringExtra("title");
+            servers = getIntent() != null && getIntent().getBooleanExtra("servers", false);
+            pins = getIntent() != null && getIntent().getBooleanExtra("pins", false);
+        }
+
+        getSupportActionBar().setTitle(title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setElevation(0);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        final ServerReorderFragment newFragment = new ServerReorderFragment();
-        ft.replace(R.id.reorderFragment, newFragment);
-        ft.commit();
+        if(servers) {
+            final ServerReorderFragment newFragment = new ServerReorderFragment();
+            ft.replace(R.id.reorderFragment, newFragment);
+            ft.commit();
+        } else if(pins) {
+            final PinReorderFragment newFragment = new PinReorderFragment();
+            ft.replace(R.id.reorderFragment, newFragment);
+            ft.commit();
+        }
     }
 
     @Override

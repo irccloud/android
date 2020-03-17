@@ -49,7 +49,6 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 
-import androidx.core.os.BuildCompat;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -117,11 +116,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.view.textclassifier.ConversationAction;
-import android.view.textclassifier.ConversationActions;
-import android.view.textclassifier.TextClassificationManager;
-import android.view.textclassifier.TextClassifier;
-import android.view.textclassifier.TextLinks;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -185,6 +179,7 @@ import com.irccloud.android.fragment.LinksListFragment;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.irccloud.android.fragment.NamesListFragment;
 import com.irccloud.android.fragment.NickservFragment;
+import com.irccloud.android.fragment.PinReorderFragment;
 import com.irccloud.android.fragment.SpamFragment;
 import com.irccloud.android.fragment.TextListFragment;
 import com.irccloud.android.fragment.ServerReorderFragment;
@@ -194,6 +189,7 @@ import com.irccloud.android.fragment.WhoWasFragment;
 import com.irccloud.android.fragment.WhoisFragment;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -219,12 +215,10 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeMap;
 import java.util.UUID;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import static android.view.textclassifier.TextLinks.APPLY_STRATEGY_IGNORE;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_FILE;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_THUMBNAIL;
 
@@ -4871,6 +4865,27 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             itemList.add("Add A Network");
             itemList.add("Reorder Connections");
+
+            boolean pinned = false;
+            try {
+                JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                if (prefs != null && prefs.has("pinnedBuffers")) {
+                    JSONArray pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
+                    if (pinnedBuffers.length() > 0) {
+                        for (int i = 0; i < pinnedBuffers.length(); i++) {
+                            if(b.getBid() == pinnedBuffers.getInt(i)) {
+                                itemList.add("Reorder Pins");
+                                pinned = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if(b.getArchived() == 0)
+                itemList.add(pinned?"Remove Pin":(b.isChannel()?"Pin Channel":"Pin Conversation"));
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -5130,6 +5145,64 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     conn.unarchiveBuffer(b.getCid(), b.getBid(), null);
                 } else if (items[item].equals("Collapse")) {
                     conn.archiveBuffer(b.getCid(), b.getBid(), null);
+                } else if (items[item].equals("Reorder Pins")) {
+                    reorder_pins();
+                } else if (items[item].startsWith("Pin ")) {
+                    if (NetworkConnection.getInstance().getUserInfo() != null) {
+                        JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                        if (prefs == null) {
+                            prefs = new JSONObject();
+                        }
+                        JSONArray pinnedBuffers = null;
+                        try {
+                            if (prefs.has("pinnedBuffers")) {
+                                pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        if (pinnedBuffers == null)
+                            pinnedBuffers = new JSONArray();
+
+                        try {
+                            pinnedBuffers.put(b.getBid());
+                            prefs.put("pinnedBuffers", pinnedBuffers);
+                            conn.set_prefs(prefs.toString(), null);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(MainActivity.this, "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } else if (items[item].equals("Remove Pin")) {
+                    if (NetworkConnection.getInstance().getUserInfo() != null) {
+                        JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                        if (prefs == null) {
+                            prefs = new JSONObject();
+                        }
+                        JSONArray pinnedBuffers = null;
+                        try {
+                            if (prefs.has("pinnedBuffers")) {
+                                pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        if (pinnedBuffers == null)
+                            pinnedBuffers = new JSONArray();
+
+                        try {
+                            ArrayList<Integer> l = new ArrayList<>();
+                            for(int i = 0; i < pinnedBuffers.length(); i++) {
+                                l.add(pinnedBuffers.getInt(i));
+                            }
+                            l.remove(Integer.valueOf(b.getBid()));
+                            prefs.put("pinnedBuffers", new JSONArray(l));
+                            conn.set_prefs(prefs.toString(), null);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(MainActivity.this, "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 }
             }
         });
@@ -5955,14 +6028,36 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             drawerLayout.closeDrawers();
         }
         if (!getResources().getBoolean(R.bool.isTablet)) {
-            Intent i = new Intent(this, ServerReorderActivity.class);
+            Intent i = new Intent(this, ReorderActivity.class);
+            i.putExtra("title", "Connections");
+            i.putExtra("servers", true);
             startActivity(i);
         } else {
             try {
                 ServerReorderFragment fragment = new ServerReorderFragment();
                 fragment.show(getSupportFragmentManager(), "reorder");
             } catch (IllegalStateException e) {
-                Intent i = new Intent(this, ServerReorderActivity.class);
+                Intent i = new Intent(this, ReorderActivity.class);
+                startActivity(i);
+            }
+        }
+    }
+
+    public void reorder_pins() {
+        if (drawerLayout != null) {
+            drawerLayout.closeDrawers();
+        }
+        if (!getResources().getBoolean(R.bool.isTablet)) {
+            Intent i = new Intent(this, ReorderActivity.class);
+            i.putExtra("title", "Pinned Channels");
+            i.putExtra("pins", true);
+            startActivity(i);
+        } else {
+            try {
+                PinReorderFragment fragment = new PinReorderFragment();
+                fragment.show(getSupportFragmentManager(), "reorder");
+            } catch (IllegalStateException e) {
+                Intent i = new Intent(this, ReorderActivity.class);
                 startActivity(i);
             }
         }
