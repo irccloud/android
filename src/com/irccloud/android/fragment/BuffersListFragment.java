@@ -462,7 +462,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             row.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    return (b.isChannel() || b.isConversation()) && mListener.onBufferLongClicked(b);
+                    return (b.isChannel() || b.isConversation() || b.isConsole()) && mListener.onBufferLongClicked(b);
                 }
             });
 

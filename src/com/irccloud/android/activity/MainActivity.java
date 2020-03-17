@@ -4866,26 +4866,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             itemList.add("Add A Network");
             itemList.add("Reorder Connections");
 
-            boolean pinned = false;
-            try {
-                JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-                if (prefs != null && prefs.has("pinnedBuffers")) {
-                    JSONArray pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
-                    if (pinnedBuffers.length() > 0) {
-                        for (int i = 0; i < pinnedBuffers.length(); i++) {
-                            if(b.getBid() == pinnedBuffers.getInt(i)) {
-                                itemList.add("Reorder Pins");
-                                pinned = true;
-                                break;
+            if(b.isChannel() || b.isConversation()) {
+                boolean pinned = false;
+                try {
+                    JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                    if (prefs != null && prefs.has("pinnedBuffers")) {
+                        JSONArray pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
+                        if (pinnedBuffers.length() > 0) {
+                            for (int i = 0; i < pinnedBuffers.length(); i++) {
+                                if (b.getBid() == pinnedBuffers.getInt(i)) {
+                                    itemList.add("Reorder Pins");
+                                    pinned = true;
+                                    break;
+                                }
                             }
                         }
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                if (b.getArchived() == 0)
+                    itemList.add(pinned ? "Remove Pin" : (b.isChannel() ? "Pin Channel" : "Pin Conversation"));
             }
-            if(b.getArchived() == 0)
-                itemList.add(pinned?"Remove Pin":(b.isChannel()?"Pin Channel":"Pin Conversation"));
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
