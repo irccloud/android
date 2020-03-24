@@ -1693,6 +1693,12 @@ public class NetworkConnection {
             Log.i("IRCCloud", "Setting prefs: " + prefs);
             JSONObject o = new JSONObject();
             o.put("prefs", prefs);
+            if(BuildConfig.MOCK_DATA) {
+                if(userInfo == null)
+                    userInfo = new UserInfo();
+                userInfo.prefs = new JSONObject(prefs);
+                notifyHandlers(EVENT_USERINFO, userInfo);
+            }
             return send("set-prefs", o, callback);
         } catch (JSONException e) {
             printStackTraceToCrashlytics(e);

@@ -3311,8 +3311,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 });
             } else if (events.size() > 0) {
-                Trace trace = FirebasePerformance.getInstance().newTrace("loadBacklog");
-                trace.start();
+                Trace trace = null;
+                try {
+                    trace = FirebasePerformance.getInstance().newTrace("loadBacklog");
+                    trace.start();
+                } catch (IllegalStateException e) {
+
+                }
                 if (server != null) {
                     ignore = server.ignores;
                 } else {
@@ -3339,10 +3344,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         } else {
                             insertEvent(adapter, e, true, false);
                         }
-                        trace.incrementMetric("insertEvent", 1);
+                        if(trace != null)
+                            trace.incrementMetric("insertEvent", 1);
                     }
                     adapter.insertLastSeenEIDMarker();
-                    trace.stop();
+                    if(trace != null)
+                        trace.stop();
                     Log.i("IRCCloud", "Backlog rendering took: " + (System.currentTimeMillis() - start) + "ms");
                     //Debug.stopMethodTracing();
                     avgInsertTime = 0;

@@ -99,7 +99,10 @@ public class HTTPFetcher {
         if (mProxyHost != null && mProxyHost.length() > 0 && (mProxyHost.equalsIgnoreCase("localhost") || mProxyHost.equalsIgnoreCase("127.0.0.1")))
             mProxyHost = null;
 
-        metric = FirebasePerformance.getInstance().newHttpMetric(uri, FirebasePerformance.HttpMethod.GET);
+        try {
+            metric = FirebasePerformance.getInstance().newHttpMetric(uri, FirebasePerformance.HttpMethod.GET);
+        } catch (IllegalStateException e) {
+        }
     }
 
     public void cancel() {
@@ -175,7 +178,8 @@ public class HTTPFetcher {
                     if(isCancelled)
                         return;
 
-                    metric.start();
+                    if(metric != null)
+                        metric.start();
                     int port = (mURI.getPort() != -1) ? mURI.getPort() : (mURI.getProtocol().equals("https") ? 443 : 80);
                     SocketFactory factory = mURI.getProtocol().equals("https") ? getSSLSocketFactory() : SocketFactory.getDefault();
                     if (mProxyHost != null && mProxyHost.length() > 0 && mProxyPort > 0) {
@@ -297,7 +301,8 @@ public class HTTPFetcher {
             } else {
                 Crashlytics.log(Log.DEBUG, TAG, "Got HTTP response: " + statusLineString);
                 statusLine = StatusLine.parse(statusLineString);
-                metric.setHttpResponseCode(statusLine.code);
+                if(metric != null)
+                    metric.setHttpResponseCode(statusLine.code);
                 if (statusLine.code != HttpURLConnection.HTTP_OK && statusLine.code != HttpURLConnection.HTTP_MOVED_PERM) {
                     Crashlytics.log(Log.ERROR, TAG, "Failure: " + mURI + ": " + statusLine.toString());
                     throw new Exception(statusLine.toString());
@@ -313,9 +318,9 @@ public class HTTPFetcher {
                 Headers header = new Headers.Builder().add(line.substring(0, index).trim(), line.substring(index + 1)).build();
                 if(header.name(0).equalsIgnoreCase("content-encoding") && header.value(0).equalsIgnoreCase("gzip"))
                     gzipped = true;
-                if(header.name(0).equalsIgnoreCase("content-type"))
+                if(metric != null && header.name(0).equalsIgnoreCase("content-type"))
                     metric.setResponseContentType(header.value(0));
-                if(header.name(0).equalsIgnoreCase("content-length"))
+                if(metric != null && header.name(0).equalsIgnoreCase("content-length"))
                     metric.setResponsePayloadSize(Long.valueOf(header.value(0)));
                 if(statusLine.code == HttpURLConnection.HTTP_MOVED_PERM && header.name(0).equalsIgnoreCase("location")) {
                     Crashlytics.log(Log.INFO, TAG, "Redirecting to: " + header.value(0));
@@ -334,7 +339,8 @@ public class HTTPFetcher {
                 onStreamConnected(mSocket.getInputStream());
 
             onFetchComplete();
-            metric.stop();
+            if(metric != null)
+                metric.stop();
         } catch (Exception ex) {
             NetworkConnection.printStackTraceToCrashlytics(ex);
             onFetchFailed();

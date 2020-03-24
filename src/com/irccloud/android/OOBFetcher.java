@@ -76,8 +76,13 @@ public class OOBFetcher extends HTTPFetcher {
             conn.cancel_idle_timer();
             //android.os.Debug.startMethodTracing("/sdcard/oob", 16*1024*1024);
             Crashlytics.log(Log.DEBUG, TAG, "Beginning backlog...");
-            Trace trace = FirebasePerformance.getInstance().newTrace("parseOOB");
-            trace.start();
+            Trace trace = null;
+            try {
+                trace = FirebasePerformance.getInstance().newTrace("parseOOB");
+                trace.start();
+            } catch (IllegalStateException e) {
+
+            }
             synchronized (conn.parserLock) {
                 conn.notifyHandlers(NetworkConnection.EVENT_OOB_START, mBid);
                 int count = 0;
@@ -105,11 +110,13 @@ public class OOBFetcher extends HTTPFetcher {
                     }
                     totalParseTime += t;
                     count++;
-                    trace.incrementMetric("object", 1);
+                    if(trace != null)
+                        trace.incrementMetric("object", 1);
                 }
                 //android.os.Debug.stopMethodTracing();
                 totalTime = (System.currentTimeMillis() - totalTime);
-                trace.stop();
+                if(trace != null)
+                    trace.stop();
                 Crashlytics.log(Log.DEBUG, TAG, "Backlog complete: " + count + " events");
                 Crashlytics.log(Log.DEBUG, TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime / (float) count) + "ms / object)");
                 Crashlytics.log(Log.DEBUG, TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime / (float) count) + "ms / object)");

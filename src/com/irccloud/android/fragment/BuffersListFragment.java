@@ -530,15 +530,16 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 if (prefs.has("pinnedBuffers")) {
                     JSONArray pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
                     if(pinnedBuffers.length() > 0) {
-                        Buffer heading = new Buffer();
-                        heading.setName("Pinned");
-                        heading.setType(Buffer.TYPE_PINNED);
-                        add(position,heading,null);
-                        position++;
-
                         for (int i = 0; i < pinnedBuffers.length(); i++) {
                             Buffer b = BuffersList.getInstance().getBuffer(pinnedBuffers.getInt(i));
-                            if (b != null) {
+                            if (b != null && b.getArchived() == 0) {
+                                if(pinned.size() == 0) {
+                                    Buffer heading = new Buffer();
+                                    heading.setName("Pinned");
+                                    heading.setType(Buffer.TYPE_PINNED);
+                                    add(position,heading,null);
+                                    position++;
+                                }
                                 pinned.add(b.getBid());
                                 add(position,b,b.getServer());
                                 position++;
