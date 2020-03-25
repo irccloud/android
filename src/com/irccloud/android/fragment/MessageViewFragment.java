@@ -84,6 +84,7 @@ import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.JSONFetcher;
 import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.OOBFetcher;
 import com.irccloud.android.OffsetLinearLayout;
 import com.irccloud.android.R;
 import com.irccloud.android.activity.BaseActivity;
@@ -571,7 +572,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         }
 
-        public void insertAbove(long eid, Event e) {
+        public void insertAbove(long eid, Event e, boolean backlog) {
             synchronized (data) {
                 if (e.day < 1) {
                     Calendar calendar = Calendar.getInstance();
@@ -581,7 +582,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 for (int i = 0; i < data.size(); i++) {
                     if(data.get(i).eid == eid) {
                         e.ready_for_display = true;
-                        format(e);
+                        if(!backlog)
+                            format(e);
                         data.add(i, e);
                         break;
                     }
@@ -589,7 +591,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         }
 
-        public void insertBelow(long eid, Event e) {
+        public void insertBelow(long eid, Event e, boolean backlog) {
             synchronized (data) {
                 if (e.day < 1) {
                     Calendar calendar = Calendar.getInstance();
@@ -598,7 +600,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 if(data.size() == 0 || data.get(data.size() - 1).eid == eid) {
                     e.ready_for_display = true;
-                    format(e);
+                    if(!backlog)
+                        format(e);
                     data.add(e);
                     return;
                 }
@@ -606,7 +609,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 for (int i = 0; i < data.size(); i++) {
                     if(data.get(i).eid == eid) {
                         e.ready_for_display = true;
-                        format(e);
                         data.add(i+1, e);
                         break;
                     }
@@ -790,7 +792,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             row.setContentDescription(e.contentDescription);
 
             if ((e.html != null && e.formatted == null) || (e.formatted_nick == null && e.from != null && e.from.length() > 0) || (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0)) {
-                adapter.format(e);
+                adapter.format(e, true);
             }
 
             if (e.row_type == ROW_MESSAGE) {
@@ -2121,9 +2123,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                             if (strippedSpace)
                                                 e.mention_offset--;
                                             e.ready_for_display = true;
-                                            if (!backlog)
-                                                messageAdapter.format(e);
-                                            messageAdapter.insertBelow(eid, e);
+                                            messageAdapter.insertBelow(eid, e, backlog);
                                         } else {
                                             msg = lastChunk;
                                             messageAdapter.addItem(event.eid, event);
@@ -2153,9 +2153,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                             e.parent_eid = eid;
                                             e.mention_offset = -(m.start() + 3);
                                             e.ready_for_display = true;
-                                            if (!backlog)
-                                                messageAdapter.format(e);
-                                            messageAdapter.insertBelow(eid, e);
+                                            messageAdapter.insertBelow(eid, e, backlog);
                                         }
 
                                         pos = m.end();
@@ -2180,7 +2178,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                             e.mention_offset--;
                                         e.ready_for_display = true;
                                         if (e.html.length() > 0)
-                                            messageAdapter.insertBelow(eid, e);
+                                            messageAdapter.insertBelow(eid, e, backlog);
                                     }
                                 }
 
@@ -2221,7 +2219,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
                                         messageAdapter.addItem(event.eid, event);
                                         e.day = event.day;
-                                        messageAdapter.insertBelow(event.eid, e);
+                                        messageAdapter.insertBelow(event.eid, e, backlog);
                                     } else {
                                         int oldLength = html.length();
                                         html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + html;
@@ -2499,9 +2497,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if(e.msg != null)
             e.html = e.msg = TextUtils.htmlEncode(e.msg);
         e.ready_for_display = true;
-        if(!backlog)
-            messageAdapter.format(e);
-        messageAdapter.insertBelow(parent.eid, e);
+        messageAdapter.insertBelow(parent.eid, e, backlog);
         if(!backlog) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -2783,6 +2779,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         Buffer buffer;
         int oldPosition = -1;
         int topOffset = -1;
+
+        RefreshTask() {
+        }
 
         @Override
         protected void onPreExecute() {
@@ -3756,6 +3755,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 });
                 break;
             case NetworkConnection.EVENT_OOB_END:
+                OOBFetcher fetcher = (OOBFetcher)obj;
+                if(buffer != null && (fetcher.getBid() == -1 || fetcher.getBid() == buffer.getBid())) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (refreshTask != null)
+                                refreshTask.cancel(true);
+                            refreshTask = new RefreshTask();
+                            refreshTask.execute((Void) null);
+                        }
+                    });
+                }
+                break;
             case NetworkConnection.EVENT_BACKLOG_END:
             case NetworkConnection.EVENT_CONNECTIVITY:
             case NetworkConnection.EVENT_USERINFO:

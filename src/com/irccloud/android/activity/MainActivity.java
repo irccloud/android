@@ -1484,7 +1484,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         return super.onKeyUp(keyCode, event);
     }
 
-    private class SendTask extends AsyncTaskEx<Void, Void, Void> {
+    private class SendTask extends AsyncTask<Void, Void, Void> {
         boolean forceText = false;
         Event e = null;
         boolean bold, underline, italic;
