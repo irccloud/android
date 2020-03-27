@@ -57,6 +57,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -102,6 +103,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
     private class BufferListAdapter extends RecyclerView.Adapter<ViewHolder> {
         ArrayList<Buffer> data;
+        HashMap<String,Integer> nameCounts;
 
         public int positionForBid(int bid) {
             for (int i = 0; i < data.size(); i++) {
@@ -114,10 +116,36 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
         public BufferListAdapter() {
             data = new ArrayList<>(BuffersList.getInstance().count() + ServersList.getInstance().count() + 10);
+            nameCounts = new HashMap<>();
         }
 
         public void setItems(ArrayList<Buffer> items) {
             data = items;
+            nameCounts = new HashMap<>();
+
+            JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+            HashSet<Integer> pinned = new HashSet<>();
+            try {
+                if (prefs.has("pinnedBuffers")) {
+                    JSONArray pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
+                    if (pinnedBuffers.length() > 0) {
+                        for (int i = 0; i < pinnedBuffers.length(); i++) {
+                            pinned.add(pinnedBuffers.getInt(i));
+                        }
+
+                        for (Buffer b : data) {
+                            if(pinned.contains(b.getBid())) {
+                                int count = 1;
+                                if (nameCounts.containsKey(b.getName()))
+                                    count += nameCounts.get(b.getName());
+                                nameCounts.put(b.getName(), count);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         public synchronized void updateCollapsed(Server s) {
@@ -407,6 +435,10 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             final Buffer b = data.get(position);
+            int count = 0;
+            if(nameCounts.containsKey(b.getName()))
+                count = nameCounts.get(b.getName());
+            b.showServerSuffix(count > 1);
             RowBufferBinding row = holder.binding;
 
             row.setBuffer(b);

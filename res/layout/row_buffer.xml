@@ -73,7 +73,7 @@
 						android:lines="1"
 						android:maxLines="1"
 						android:paddingRight="6dp"
-						android:text='@{buffer.isConsole ? (server.emojiCompatName ?? server.hostname) : buffer.emojiCompatName}'
+						android:text='@{(buffer.isConsole ? (server.emojiCompatName ?? server.hostname) : buffer.emojiCompatName) + buffer.serverSuffix}'
 						android:textColor="@{ (selected == buffer.bid || (buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader) ) ? buffer.selectedTextColor : buffer.textColor }"
 						android:typeface="@{( !readOnly &amp;&amp; !buffer.isCollapsed &amp;&amp; (selected == buffer.bid || buffer.unread > 0)) ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT }"
 						android:textSize="16sp" />

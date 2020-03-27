@@ -111,6 +111,8 @@ public class Buffer extends BaseObservable {
 
     private boolean muted;
 
+    private boolean showServerSuffix;
+
     public String toString() {
         return "{cid:" + getCid() + ", bid:" + getBid() + ", name: " + getName() + ", type: " + getType() + ", archived: " + getArchived() + "}";
     }
@@ -198,6 +200,21 @@ public class Buffer extends BaseObservable {
             isMPDM = (serverIsSlack && name.matches("#mpdm-(.*)-\\d")) ? 1 : 0;
         }
         return isMPDM == 1;
+    }
+
+    public void showServerSuffix(boolean show) {
+        this.showServerSuffix = show;
+    }
+
+    @Bindable
+    public String getServerSuffix() {
+        if(showServerSuffix && getServer() != null) {
+            String name = getServer().getName();
+            if(name == null || name.length() == 0)
+                name = getServer().getHostname();
+            return " (" + name + ")";
+        }
+        return "";
     }
 
     @Bindable

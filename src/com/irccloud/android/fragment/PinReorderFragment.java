@@ -47,6 +47,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class PinReorderFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     private ColorScheme colorScheme = ColorScheme.getInstance();
@@ -83,7 +85,8 @@ public class PinReorderFragment extends DialogFragment implements NetworkConnect
     };
 
     private class PinListAdapter extends BaseAdapter {
-        public ArrayList<Integer> data;
+        private ArrayList<Integer> data;
+        private HashMap<String,Integer> nameCounts;
         private DialogFragment ctx;
         int width = 0;
 
@@ -103,6 +106,17 @@ public class PinReorderFragment extends DialogFragment implements NetworkConnect
 
         public void setItems(ArrayList<Integer> items) {
             data = items;
+            nameCounts = new HashMap<>();
+
+            for (Integer bid : data) {
+                Buffer b = BuffersList.getInstance().getBuffer(bid);
+                if(b != null) {
+                    int count = 1;
+                    if (nameCounts.containsKey(b.getName()))
+                        count += nameCounts.get(b.getName());
+                    nameCounts.put(b.getName(), count);
+                }
+            }
         }
 
         @Override
@@ -144,7 +158,9 @@ public class PinReorderFragment extends DialogFragment implements NetworkConnect
                 holder = (ViewHolder) row.getTag();
             }
 
-            holder.label.setText(b.getDisplayName());
+            b.showServerSuffix(nameCounts.containsKey(b.getName()) && nameCounts.get(b.getName()) > 1);
+            String name = b.getDisplayName() + b.getServerSuffix();
+            holder.label.setText(name);
             holder.label.setTextColor(b.getTextColor());
             holder.icon.setText(b.getIcon());
             holder.icon.setTextColor(b.getTextColor());
