@@ -2957,6 +2957,16 @@ public class ColorFormatter {
         }
 
         if(mentions_map != null && !mentions_map.isEmpty()) {
+            int length = msg.codePointCount(0, msg.length());
+            for(int i = 0; i < length; i++) {
+                int cp = msg.codePointAt(i);
+                int size = cp / 65536;
+                if(size > 0) {
+                    offset_mention_map(mentions_map, i, size);
+                    i += size;
+                }
+            }
+
             Matcher m = HTML_ENTITY.matcher(msg);
             while (m.find()) {
                 if(m.start() >= mention_offset)
@@ -2973,16 +2983,6 @@ public class ColorFormatter {
 
         if(mentions_map != null && !mentions_map.isEmpty()) {
             offset_mention_map(mentions_map, -1, 5);
-
-            int length = builder.codePointCount(0, builder.length());
-            for(int i = 0; i < length; i++) {
-                int cp = builder.codePointAt(i);
-                int size = cp / 65536;
-                if(size > 0) {
-                    offset_mention_map(mentions_map, i, size);
-                    i += size;
-                }
-            }
 
             for (Map.Entry<String,ArrayList<Mention>> entry : mentions_map.entrySet()) {
                 for (Mention m : entry.getValue()) {
