@@ -123,22 +123,24 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             data = items;
             nameCounts = new HashMap<>();
 
-            JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-            HashSet<Integer> pinned = new HashSet<>();
             try {
-                if (prefs.has("pinnedBuffers")) {
-                    JSONArray pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
-                    if (pinnedBuffers.length() > 0) {
-                        for (int i = 0; i < pinnedBuffers.length(); i++) {
-                            pinned.add(pinnedBuffers.getInt(i));
-                        }
+                if (NetworkConnection.getInstance().getUserInfo() != null) {
+                    JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                    HashSet<Integer> pinned = new HashSet<>();
+                    if (prefs.has("pinnedBuffers")) {
+                        JSONArray pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
+                        if (pinnedBuffers.length() > 0) {
+                            for (int i = 0; i < pinnedBuffers.length(); i++) {
+                                pinned.add(pinnedBuffers.getInt(i));
+                            }
 
-                        for (Buffer b : data) {
-                            if(pinned.contains(b.getBid())) {
-                                int count = 1;
-                                if (nameCounts.containsKey(b.getName()))
-                                    count += nameCounts.get(b.getName());
-                                nameCounts.put(b.getName(), count);
+                            for (Buffer b : data) {
+                                if (pinned.contains(b.getBid())) {
+                                    int count = 1;
+                                    if (nameCounts.containsKey(b.getName()))
+                                        count += nameCounts.get(b.getName());
+                                    nameCounts.put(b.getName(), count);
+                                }
                             }
                         }
                     }
