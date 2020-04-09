@@ -5306,7 +5306,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     e.pending = true;
                     e.failed = false;
                     e.bg_color = colorScheme.selfBackgroundColor;
-                    e.reqid = NetworkConnection.getInstance().say(e.cid, e.chan, e.command, new NetworkConnection.IRCResultCallback() {
+                    NetworkConnection.IRCResultCallback callback = new NetworkConnection.IRCResultCallback() {
                         @Override
                         public void onIRCResult(IRCCloudJSONObject result) {
                             if(!result.getBoolean("success")) {
@@ -5319,7 +5319,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
                             }
                         }
-                    });
+                    };
+                    if(msgid != null)
+                        e.reqid = NetworkConnection.getInstance().reply(e.cid, e.chan, e.command, msgid, callback);
+                    else
+                        e.reqid = NetworkConnection.getInstance().say(e.cid, e.chan, e.command, callback);
                     if (e.reqid >= 0) {
                         pendingEvents.put(e.reqid, e);
                         e.expiration_timer = new TimerTask() {
@@ -6599,6 +6603,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         public String type;
         public String file_id;
         public String message;
+        public String msgid;
         public boolean uploadFinished = false;
         public boolean filenameSet = false;
 
@@ -6630,6 +6635,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(activity != null) {
                 mBuffer = activity.buffer;
                 notification_id = mBuffer.getBid();
+                msgid = activity.msgid;
             }
             mFileUri = fileUri;
             type = getMimeType(mFileUri);
@@ -6850,7 +6856,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                         else
                                             message += " ";
                                         message += result.getJsonObject("file").get("url").asText();
-                                        NetworkConnection.getInstance().say(mBuffer.getCid(), mBuffer.getName(), message, null);
+                                        if(msgid != null)
+                                            NetworkConnection.getInstance().reply(mBuffer.getCid(), mBuffer.getName(), message, msgid,null);
+                                        else
+                                            NetworkConnection.getInstance().say(mBuffer.getCid(), mBuffer.getName(), message, null);
                                     }
                                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(notification_id);
                                     if(activity != null) {
