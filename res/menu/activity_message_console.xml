@@ -32,4 +32,8 @@
         android:id="@+id/menu_disconnect"
         android:title="@string/menu_disconnect"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_ignore_list"
+        android:title="@string/menu_ignore_list"
+        app:showAsAction="never" />
 </menu>
