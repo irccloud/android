@@ -973,8 +973,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.message.setPadding(0,0,0,0);
                     holder.message.setBackgroundDrawable(null);
                 }
-                if(precomputedTextParams == null)
-                    precomputedTextParams = new PrecomputedTextCompat.Params.Builder(holder.message.getPaint()).build();
+                precomputedTextParams = new PrecomputedTextCompat.Params.Builder(holder.message.getPaint()).build();
             }
 
             if (holder.expandable != null) {

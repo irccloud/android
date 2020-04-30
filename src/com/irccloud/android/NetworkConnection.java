@@ -3023,12 +3023,14 @@ public class NetworkConnection {
         put("avatar_change", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                Server s = mServers.getServer(object.cid());
-                if(s != null) {
-                    s.setAvatar(object.getString("avatar"));
-                    s.setAvatarURL(object.getString("avatar_url"));
+                if(object.getBoolean("self")) {
+                    Server s = mServers.getServer(object.cid());
+                    if (s != null) {
+                        s.setAvatar(object.getString("avatar"));
+                        s.setAvatarURL(object.getString("avatar_url"));
+                    }
+                    notifyHandlers(EVENT_AVATARCHANGE, object);
                 }
-                notifyHandlers(EVENT_AVATARCHANGE, object);
             }
         });
         put("who_response", new Parser() {
