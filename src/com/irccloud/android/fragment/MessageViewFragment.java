@@ -609,6 +609,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 for (int i = 0; i < data.size(); i++) {
                     if(data.get(i).eid == eid) {
                         e.ready_for_display = true;
+                        if(!backlog)
+                            format(e);
                         data.add(i+1, e);
                         break;
                     }
