@@ -28,6 +28,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.NotificationsList;
+import com.irccloud.android.data.collection.RecentConversationsList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Event;
@@ -142,6 +143,10 @@ public class FCMService extends FirebaseMessagingService {
 
                 avatar_url = e.getAvatarURL(512, buffer_type != null && buffer_type.equals("channel"), NotificationsList.getInstance().getServerIsSlack(cid));
 
+                if(avatar_url != null)
+                    RecentConversationsList.getInstance().updateAvatar(cid, bid, avatar_url);
+                if(buffer_type != null && (buffer_type.equals("channel") || buffer_type.equals("conversation")))
+                    RecentConversationsList.getInstance().updateConversation(cid, bid, buffer_type.equals("channel")?chan:from, buffer_type, eid);
                 NotificationsList.getInstance().addNotificationGroup(cid, server_name);
                 NotificationsList.getInstance().updateServerNick(cid, data.get("server_nick"));
                 NotificationsList.getInstance().addNotification(cid, bid, eid, (from == null)?data.get("server_hostname"):from, msg, chan, buffer_type, type, server_name, avatar_url);

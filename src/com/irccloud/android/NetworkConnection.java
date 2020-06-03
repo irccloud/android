@@ -2678,7 +2678,8 @@ public class NetworkConnection {
                 }
 
                 if(event.self) {
-                    mRecentConversations.updateConversation(event.cid, event.bid, event.eid / 1000);
+                    if(b != null)
+                        mRecentConversations.updateConversation(event.cid, event.bid, b.getName(), b.getType(), event.eid / 1000);
                     if(!backlog)
                         mRecentConversations.publishShortcuts();
                 }

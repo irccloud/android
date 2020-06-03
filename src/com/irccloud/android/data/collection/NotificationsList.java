@@ -635,6 +635,10 @@ public class NotificationsList {
                 }
 
                 builder.setStyle(style);
+
+                RecentConversationsList.getInstance().setPeople(bid, people.values().toArray(new Person[0]));
+                RecentConversationsList.getInstance().publishShortcuts();
+                builder.setShortcutId(String.valueOf(bid));
             }
 
             if(messages.size() > 1) {

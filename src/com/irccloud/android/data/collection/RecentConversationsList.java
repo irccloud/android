@@ -37,6 +37,7 @@ import com.irccloud.android.data.model.RecentConversation;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -74,6 +75,10 @@ public class RecentConversationsList {
     }
 
     private static RecentConversationsList instance = null;
+    private HashMap<Integer, Person[]> people = new HashMap<>();
+    public void setPeople(int bid, Person[] p) {
+        people.put(bid, p);
+    }
 
     public static RecentConversationsList getInstance() {
         if (instance == null)
@@ -100,25 +105,23 @@ public class RecentConversationsList {
             IRCCloudDatabase.getInstance().RecentConversationsDao().delete(c);
     }
 
-    public void updateConversation(int cid, int bid, long timestamp) {
+    public void updateConversation(int cid, int bid, String name, String type, long timestamp) {
         RecentConversation c = getConversation(cid, bid);
         if(c != null) {
             if(c.getTimestamp() < timestamp)
                 c.setTimestamp(timestamp);
             else
                 return;
-        } else {
-            Buffer b = BuffersList.getInstance().getBuffer(bid);
-            if(b == null)
-                return;
+        } else if(name != null && type != null) {
             c = new RecentConversation();
             c.setCid(cid);
             c.setBid(bid);
-            c.setName(b.getName());
-            c.setType(b.getType());
+            c.setName(name);
+            c.setType(type);
             c.setTimestamp(timestamp);
         }
-        IRCCloudDatabase.getInstance().RecentConversationsDao().insert(c);
+        if(c != null)
+            IRCCloudDatabase.getInstance().RecentConversationsDao().insert(c);
     }
 
     public void updateAvatar(int cid, int bid, String avatar_url) {
@@ -141,7 +144,8 @@ public class RecentConversationsList {
 
         conversations = getConversations();
         IRCCloudDatabase.getInstance().beginTransaction();
-        while(conversations.size() > 5) {
+        int MAX_SHORTCUTS = ShortcutManagerCompat.getMaxShortcutCountPerActivity(IRCCloudApplication.getInstance().getApplicationContext());
+        while(conversations.size() > MAX_SHORTCUTS) {
             RecentConversation last = conversations.get(conversations.size() - 1);
             conversations.remove(last);
             IRCCloudDatabase.getInstance().RecentConversationsDao().delete(last);
@@ -176,6 +180,13 @@ public class RecentConversationsList {
                             Bitmap bitmap = ImageList.getInstance().getImage(new URL(c.getAvatar_url()));
                             if (bitmap != null)
                                 avatar = IconCompat.createWithBitmap(bitmap);
+                            else
+                                ImageList.getInstance().fetchImage(new URL(c.getAvatar_url()), new ImageList.OnImageFetchedListener() {
+                                    @Override
+                                    public void onImageFetched(Bitmap image) {
+                                        publishShortcuts();
+                                    }
+                                });
                         }
                     } catch (Exception e) {
                     }
@@ -193,10 +204,12 @@ public class RecentConversationsList {
                         .setShortLabel(c.getName())
                         .setIcon(c.getType().equals("channel")?channelIcon:avatar)
                         .setIntent(i)
-                        .setLongLived()
+                        .setLongLived(true)
                         .setCategories(categories);
 
-                if(b.isConversation())
+                if(people.containsKey(b.getBid()))
+                    builder.setPersons(people.get(b.getBid()));
+                else if(b.isConversation())
                     builder.setPerson(new Person.Builder().setName(b.getDisplayName()).build());
 
                 shortcuts.add(builder.build());

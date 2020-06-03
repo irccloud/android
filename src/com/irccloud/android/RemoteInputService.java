@@ -74,8 +74,9 @@ public class RemoteInputService extends IntentService {
                             if(intent.getIntExtra("bid", -1) != -1)
                                 NotificationsList.getInstance().addNotification(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis() * 1000, null, reply, intent.getStringExtra("chan"), intent.getStringExtra("buffer_type"), type, intent.getStringExtra("network"), NotificationsList.getInstance().getServerAvatarURL(intent.getIntExtra("cid", -1)));
                         }
+                        if(intent.getStringExtra("buffer_type").equals("channel") || intent.getStringExtra("buffer_type").equals("conversation"))
+                            RecentConversationsList.getInstance().updateConversation(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), intent.getStringExtra("to"), intent.getStringExtra("buffer_type"), System.currentTimeMillis());
                         NotificationsList.getInstance().showNotificationsNow();
-                        RecentConversationsList.getInstance().updateConversation(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis());
                     } else {
                         NotificationsList.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", reply.startsWith("/") ? "Please launch the IRCCloud app to send this command" : "Your message was not sent. Please try again shortly.");
                     }

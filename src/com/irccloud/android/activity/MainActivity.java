@@ -1626,7 +1626,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 EventsList.getInstance().addEvent(e);
                 if(conn != null)
                     conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
-                RecentConversationsList.getInstance().updateConversation(e.cid, e.bid, System.currentTimeMillis());
+                Buffer b = BuffersList.getInstance().getBuffer(e.bid);
+                if(b != null)
+                    RecentConversationsList.getInstance().updateConversation(e.cid, e.bid, b.getName(), b.getType(), System.currentTimeMillis());
             }
             if (BuildConfig.DEBUG) {
                 if (messageTxt.getText().toString().equals("/starttrace")) {

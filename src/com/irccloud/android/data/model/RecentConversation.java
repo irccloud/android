@@ -82,6 +82,6 @@ public class RecentConversation {
     }
 
     public String toString() {
-        return "{cid: " + getCid() + ", bid: " + getBid() + ", name: " + getName() + ", type: " + getType() + "}";
+        return "{cid: " + getCid() + ", bid: " + getBid() + ", name: " + getName() + ", type: " + getType() + ", avatar_url: " + getAvatar_url() + "}";
     }
 }
