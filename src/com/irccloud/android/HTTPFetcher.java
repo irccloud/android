@@ -101,7 +101,7 @@ public class HTTPFetcher {
 
         try {
             metric = FirebasePerformance.getInstance().newHttpMetric(uri, FirebasePerformance.HttpMethod.GET);
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
         }
     }
 

@@ -3298,7 +3298,12 @@ public class NetworkConnection {
             Crashlytics.log(Log.DEBUG, TAG, "Requesting via proxy: " + host);
         }
 
-        HttpMetric metric = FirebasePerformance.getInstance().newHttpMetric(url, postdata != null ? FirebasePerformance.HttpMethod.POST : FirebasePerformance.HttpMethod.GET);
+        HttpMetric metric = null;
+        try {
+            metric = FirebasePerformance.getInstance().newHttpMetric(url, postdata != null ? FirebasePerformance.HttpMethod.POST : FirebasePerformance.HttpMethod.GET);
+        } catch (Exception e) {
+
+        }
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
             https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
