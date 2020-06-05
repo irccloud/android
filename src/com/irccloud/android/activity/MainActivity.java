@@ -2128,15 +2128,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             pastebinResult = null;
         }
 
-        if(NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
-            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
-                @Override
-                public void onSuccess(InstanceIdResult instanceIdResult) {
-                    GcmTask t = new GcmTask();
-                    t.token = instanceIdResult.getToken();
-                    t.execute((Void)null);
-                }
-            });
+        try {
+            if (NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
+                FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                    @Override
+                    public void onSuccess(InstanceIdResult instanceIdResult) {
+                        GcmTask t = new GcmTask();
+                        t.token = instanceIdResult.getToken();
+                        t.execute((Void) null);
+                    }
+                });
+            }
+        } catch (Exception e) {
+
         }
         sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
     }

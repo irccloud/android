@@ -86,9 +86,13 @@ public class IRCCloudApplication extends MultiDexApplication {
         super.onCreate();
         FirebaseApp.initializeApp(getApplicationContext());
         TrustKit.initializeWithNetworkSecurityConfiguration(getApplicationContext(), R.xml.network_security_config);
-        Fabric.with(this, new Crashlytics());
-        FirebaseAnalytics.getInstance(this).setUserId(null);
-        Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
+        try {
+            Fabric.with(this, new Crashlytics());
+            FirebaseAnalytics.getInstance(this).setUserId(null);
+            Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
+        } catch (Exception e) {
+
+        }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         if(prefs.getInt("dbVersion", 0) < IRCCloudDatabase.VERSION) {

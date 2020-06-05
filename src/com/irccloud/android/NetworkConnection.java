@@ -1074,16 +1074,24 @@ public class NetworkConnection {
         TrustManager[] trustManagers = new TrustManager[1];
         trustManagers[0] = TrustKit.getInstance().getTrustManager(IRCCLOUD_HOST);
         WebSocketClient.setTrustManagers(trustManagers);
-        HttpMetric metric = FirebasePerformance.getInstance().newHttpMetric(url.replace("wss://", "https://"), FirebasePerformance.HttpMethod.GET);
-        metric.start();
+        HttpMetric metric = null;
+
+        try {
+            FirebasePerformance.getInstance().newHttpMetric(url.replace("wss://", "https://"), FirebasePerformance.HttpMethod.GET);
+            metric.start();
+        } catch (Exception e) {
+
+        }
 
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
             @Override
             public void onConnect() {
                 if (client != null && client.getListener() == this) {
                     Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
-                    metric.setHttpResponseCode(200);
-                    metric.stop();
+                    if(metric != null) {
+                        metric.setHttpResponseCode(200);
+                        metric.stop();
+                    }
                     try {
                         JSONObject o = new JSONObject();
                         o.put("cookie", session);
@@ -3326,7 +3334,8 @@ public class NetworkConnection {
                 if (ostr != null)
                     ostr.close();
             }
-            metric.setRequestPayloadSize(postdata.length());
+            if(metric != null)
+                metric.setRequestPayloadSize(postdata.length());
         }
         InputStream is = null;
         String response = "";
@@ -3342,7 +3351,8 @@ public class NetworkConnection {
         } catch (Exception e) {
         }
 
-        metric.start();
+        if(metric != null)
+            metric.start();
 
         try {
             if (conn.getInputStream() != null) {
@@ -3366,10 +3376,12 @@ public class NetworkConnection {
             response = os.toString("UTF-8");
             is.close();
         }
-        metric.setResponsePayloadSize(response.length());
-        metric.setHttpResponseCode(conn.getResponseCode());
-        metric.setResponseContentType(conn.getContentType());
-        metric.stop();
+        if(metric != null) {
+            metric.setResponsePayloadSize(response.length());
+            metric.setHttpResponseCode(conn.getResponseCode());
+            metric.setResponseContentType(conn.getContentType());
+            metric.stop();
+        }
         conn.disconnect();
         return response;
     }
