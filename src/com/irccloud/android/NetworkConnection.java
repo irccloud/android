@@ -1074,15 +1074,16 @@ public class NetworkConnection {
         TrustManager[] trustManagers = new TrustManager[1];
         trustManagers[0] = TrustKit.getInstance().getTrustManager(IRCCLOUD_HOST);
         WebSocketClient.setTrustManagers(trustManagers);
-        HttpMetric metric = null;
+        HttpMetric m = null;
 
         try {
-            FirebasePerformance.getInstance().newHttpMetric(url.replace("wss://", "https://"), FirebasePerformance.HttpMethod.GET);
-            metric.start();
+            m = FirebasePerformance.getInstance().newHttpMetric(url.replace("wss://", "https://"), FirebasePerformance.HttpMethod.GET);
+            m.start();
         } catch (Exception e) {
 
         }
 
+        final HttpMetric metric = m;
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
             @Override
             public void onConnect() {
