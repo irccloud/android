@@ -41,7 +41,6 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.style.CharacterStyle;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
@@ -91,7 +90,6 @@ import com.irccloud.android.activity.BaseActivity;
 import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.ImageList;
-import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -171,6 +169,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private String buffer_usermask;
     private PrecomputedTextCompat.Params precomputedTextParams = null;
     private boolean fetch_if_needed = false;
+    private HashMap<Long,LinkifyTask> linkifyTasks = new HashMap<>();
+    private FormatTask mainFormatTask;
 
     public static final int ROW_MESSAGE = 0;
     public static final int ROW_TIMESTAMP = 1;
@@ -686,7 +686,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if(e.linkify && !e.linkified && !skipLinkify) {
-                    new LinkifyTask(e).execute((Void)null);
+                    if(linkifyTasks.containsKey(e.eid)) {
+                        linkifyTasks.get(e.eid).cancel(true);
+                        linkifyTasks.remove(e.eid);
+                    }
+                    LinkifyTask t = new LinkifyTask(e);
+                    linkifyTasks.put(e.eid, t);
+                    t.execute((Void)null);
                 } else if (precomputedTextParams != null && e.formatted != null) {
                     try {
                         e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
@@ -2980,6 +2986,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             synchronized (this.adapter) {
                 if (events != null) {
                     for (Event e : events.values()) {
+                        if(isCancelled())
+                            break;
                         if (e != null) {
                             this.adapter.format(e, true);
                             linkifyTask.e = e;
@@ -2993,8 +3001,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if(this.adapter != null)
+            if(!isCancelled() && this.adapter != null)
                 this.adapter.notifyDataSetChanged();
+            if(mainFormatTask == this)
+                mainFormatTask = null;
         }
     }
 
@@ -3008,12 +3018,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected Void doInBackground(Void... params) {
+            if(isCancelled())
+                return null;
+
             try {
                 if (e != null) {
                     synchronized (e) {
                         if (!e.linkified) {
                             if (e.formatted != null && e.linkify) {
                                 ColorFormatter.detectLinks((Spannable) e.formatted);
+                                if(isCancelled())
+                                    return null;
                                 if(pref_chatOneLine || e.type.equals("buffer_me_msg")) {
                                     String from = e.from;
                                     if (from == null)
@@ -3045,7 +3060,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         e.linkified = true;
 
-                        if (e.formatted != null) {
+                        if (e.formatted != null && !isCancelled()) {
                             synchronized (e.formatted) {
                                 if (e.entities != null && NetworkConnection.file_uri_template != null && e.entities.has("files")) {
                                     UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
@@ -3075,8 +3090,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if(adapter != null && notify)
-                adapter.notifyDataSetChanged();
+            if(!isCancelled()) {
+                if(adapter != null && notify)
+                    adapter.notifyDataSetChanged();
+                linkifyTasks.remove(e.eid);
+            }
         }
     }
 
@@ -3084,6 +3102,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         ImageList.getInstance().clear();
         IRCCloudLinkMovementMethod.clearFileIDs();
         msgids.clear();
+        for(LinkifyTask t : linkifyTasks.values())
+            t.cancel(true);
+        linkifyTasks.clear();
         earliest_eid = 0;
         pref_24hr = false;
         pref_seconds = false;
@@ -3388,7 +3409,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             });
         }
 
-        new FormatTask(adapter, events).execute((Void)null);
+        try {
+            if (mainFormatTask != null)
+                mainFormatTask.cancel(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        mainFormatTask = new FormatTask(adapter, events);
+        mainFormatTask.execute((Void)null);
     }
 
     private void update_top_unread(int first) {
