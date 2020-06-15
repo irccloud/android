@@ -107,12 +107,12 @@
                             android:contentDescription="Insert Photo"
                             app:srcCompat="@drawable/ic_action_photo"
                             android:layout_marginLeft="11dp"
-                            android:layout_marginRight="11dp"
                             android:paddingTop="4dp"/>
 
                         <com.irccloud.android.ActionEditText
                             android:id="@+id/messageTxt"
                             style="@style/messageTxt"
+                            android:layout_marginLeft="11dp"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_gravity="bottom"

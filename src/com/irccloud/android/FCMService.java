@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.util.TypedValue;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -141,7 +142,7 @@ public class FCMService extends FirebaseMessagingService {
                 if (data.containsKey("avatar_url"))
                     e.avatar_url = data.get("avatar_url");
 
-                avatar_url = e.getAvatarURL(512, buffer_type != null && buffer_type.equals("channel"), NotificationsList.getInstance().getServerIsSlack(cid));
+                avatar_url = e.getAvatarURL((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), buffer_type != null && buffer_type.equals("channel"), NotificationsList.getInstance().getServerIsSlack(cid));
 
                 if(avatar_url != null)
                     RecentConversationsList.getInstance().updateAvatar(cid, bid, avatar_url);

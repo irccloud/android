@@ -101,7 +101,9 @@
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:windowSoftInputMode="stateAlwaysHidden"
-            android:configChanges="uiMode">
+            android:configChanges="uiMode"
+            android:allowEmbedded="true"
+            android:documentLaunchMode="always">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />

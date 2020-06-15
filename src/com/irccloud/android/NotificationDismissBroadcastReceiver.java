@@ -31,6 +31,7 @@ public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context ctx, Intent i) {
         if (i.hasExtra("eids")) {
             int bid = i.getIntExtra("bid", -1);
+            NotificationsList.getInstance().removeBubble(bid);
             long[] eids = i.getLongArrayExtra("eids");
             for (int j = 0; j < eids.length; j++) {
                 if (eids[j] > 0) {

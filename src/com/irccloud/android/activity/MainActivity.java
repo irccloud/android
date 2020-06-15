@@ -87,6 +87,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
@@ -255,6 +256,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ColorScheme colorScheme = ColorScheme.getInstance();
     private String msgid = null;
     public TextListFragment help_fragment = null;
+    private boolean bubble = false;
 
     private ColorFilter highlightsFilter;
     private ColorFilter unreadFilter;
@@ -741,7 +743,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         v.findViewById(R.id.actionTitleArea).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(buffer != null && !buffer.isMPDM()) {
+                if(buffer != null && !buffer.isMPDM() && !bubble) {
                     Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                     if(c != null)
                         show_topic_popup(c);
@@ -893,12 +895,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private void adjustTabletLayout() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         if(toolbar != null) {
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
+            if (!bubble && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
                 toolbar.setNavigationIcon(null);
                 findViewById(R.id.BuffersListDocked).setVisibility(View.VISIBLE);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             } else {
-                toolbar.setNavigationIcon(upDrawable);
+                toolbar.setNavigationIcon(bubble ? null : upDrawable);
                 toolbar.setNavigationContentDescription("Channels list");
                 findViewById(R.id.BuffersListDocked).setVisibility(View.GONE);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
@@ -1793,6 +1795,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private void setFromIntent(Intent intent) {
         launchBid = -1;
         launchURI = null;
+        if(intent.hasExtra("bubble"))
+            bubble = intent.getBooleanExtra("bubble", false);
 
         if (NetworkConnection.getInstance().ready)
             setIntent(new Intent(this, MainActivity.class));
@@ -1802,6 +1806,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (intent.hasExtra("bid")) {
             int new_bid = intent.getIntExtra("bid", 0);
+            if(bubble)
+                NotificationsList.getInstance().addBubble(new_bid);
             if (NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && BuffersList.getInstance().getBuffer(new_bid) == null) {
                 Crashlytics.log(Log.WARN, "IRCCloud", "Invalid bid requested by launch intent: " + new_bid);
                 NotificationsList.getInstance().deleteNotificationsForBid(new_bid);
@@ -1964,7 +1970,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     protected void onNewIntent(Intent intent) {
-        if (intent != null) {
+        if (intent != null && !bubble) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Got new launch intent");
             buffer = null;
             setFromIntent(intent);
@@ -2143,6 +2149,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         }
         sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
+        photoBtn.setVisibility(bubble ? View.GONE : View.VISIBLE);
+        IRCCloudLinkMovementMethod.bubble = bubble;
     }
 
     CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
@@ -2267,6 +2275,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     public void promptToJoin(final String channel, final String key, final Server s) {
+        Thread.dumpStack();
         if(channel != null && s != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -2296,7 +2305,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private boolean open_uri(Uri uri) {
-        if (uri != null && conn != null && conn.ready) {
+        if(bubble) {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+            i.setData(uri);
+            startActivity(i);
+            return false;
+        } else if (uri != null && conn != null && conn.ready) {
             launchURI = null;
             Server s = null;
             try {
@@ -2489,8 +2505,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void updateUsersListFragmentVisibility() {
-        boolean hide = true;
         View usersListFragmentDocked = findViewById(R.id.usersListFragmentDocked);
+        if(bubble) {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+            if(usersListFragmentDocked != null)
+                usersListFragmentDocked.setVisibility(View.GONE);
+            return;
+        }
+        boolean hide = true;
         if (usersListFragmentDocked != null) {
             Channel c = null;
             if (buffer != null && buffer.isChannel()) {
@@ -3563,13 +3586,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (BuffersList.getInstance().count() == 0) {
+                            /*if (BuffersList.getInstance().count() == 0) {
                                 startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
                                 finish();
                             } else {
                                 if ((NetworkConnection.getInstance().getUserInfo() == null || !open_bid(NetworkConnection.getInstance().getUserInfo().last_selected_bid)) && !open_bid(BuffersList.getInstance().firstBid()))
                                     finish();
-                            }
+                            }*/
                         }
                     });
                 }
@@ -3729,6 +3752,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        if(bubble)
+            return false;
+
         if (NetworkConnection.getInstance().ready) {
             if(buffer != null && buffer.getType() != null) {
                 if (msgid != null) {

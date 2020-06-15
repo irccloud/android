@@ -20,6 +20,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
@@ -28,6 +29,7 @@ import android.preference.PreferenceManager;
 import android.service.chooser.ChooserTarget;
 import android.util.TypedValue;
 
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.data.IRCCloudDatabase;
@@ -153,10 +155,46 @@ public class RecentConversationsList {
         IRCCloudDatabase.getInstance().endTransaction();
     }
 
+    public static IconCompat getIconForConversation(RecentConversation c, boolean fetchIfNeeded) {
+        IconCompat avatar = null;
+        Buffer b = BuffersList.getInstance().getBuffer(c.getBid());
+        if(b == null) {
+            b = new Buffer();
+            b.setCid(c.getCid());
+            b.setBid(c.getBid());
+            b.setName(c.getName());
+            b.setType(c.getType());
+            b.setDeferred(1);
+        }
+        if(c.getType().equals("channel")) {
+            avatar = IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, Color.parseColor("#" + ColorScheme.colorForNick(c.getName(), false)), false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false));
+        } else if(b.isConversation()) {
+            try {
+                if (c.getAvatar_url() != null && c.getAvatar_url().length() > 0 && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
+                    Bitmap bitmap = ImageList.getInstance().getImage(new URL(c.getAvatar_url()));
+                    if (bitmap != null)
+                        avatar = IconCompat.createWithAdaptiveBitmap(bitmap);
+                    else if(fetchIfNeeded)
+                        ImageList.getInstance().fetchImage(new URL(c.getAvatar_url()), new ImageList.OnImageFetchedListener() {
+                            @Override
+                            public void onImageFetched(Bitmap image) {
+                                RecentConversationsList.getInstance().publishShortcuts();
+                            }
+                        });
+                }
+            } catch (Exception e) {
+            }
+
+            if(avatar == null) {
+                avatar = IconCompat.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.getCid(), c.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false));
+            }
+        }
+        return avatar;
+    }
+
     public void publishShortcuts() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int MAX_SHORTCUTS = ShortcutManagerCompat.getMaxShortcutCountPerActivity(IRCCloudApplication.getInstance().getApplicationContext());
-            IconCompat channelIcon = IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false));
 
             HashSet<String> categories = new HashSet<>();
             categories.add("com.irccloud.android.SHARE_TARGET");
@@ -173,28 +211,7 @@ public class RecentConversationsList {
                     b.setType(c.getType());
                     b.setDeferred(1);
                 }
-                IconCompat avatar = null;
-                if(b.isConversation()) {
-                    try {
-                        if (c.getAvatar_url() != null && c.getAvatar_url().length() > 0 && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
-                            Bitmap bitmap = ImageList.getInstance().getImage(new URL(c.getAvatar_url()));
-                            if (bitmap != null)
-                                avatar = IconCompat.createWithBitmap(bitmap);
-                            else
-                                ImageList.getInstance().fetchImage(new URL(c.getAvatar_url()), new ImageList.OnImageFetchedListener() {
-                                    @Override
-                                    public void onImageFetched(Bitmap image) {
-                                        publishShortcuts();
-                                    }
-                                });
-                        }
-                    } catch (Exception e) {
-                    }
-
-                    if(avatar == null) {
-                        avatar = IconCompat.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.getCid(), c.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false));
-                    }
-                }
+                IconCompat avatar = getIconForConversation(c, true);
 
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
@@ -202,7 +219,7 @@ public class RecentConversationsList {
 
                 ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(c.getBid()))
                         .setShortLabel(c.getName())
-                        .setIcon(c.getType().equals("channel")?channelIcon:avatar)
+                        .setIcon(avatar)
                         .setIntent(i)
                         .setLongLived(true)
                         .setCategories(categories);

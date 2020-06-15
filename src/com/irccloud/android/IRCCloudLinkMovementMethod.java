@@ -54,6 +54,7 @@ import java.util.List;
 public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
     private static IRCCloudLinkMovementMethod instance = null;
     private static HashMap<String, String> file_ids = new HashMap<>();
+    public static boolean bubble;
 
     private static class FetchFileIDTask extends AsyncTaskEx<String, Void, JSONObject> {
         public Uri original_url;
@@ -227,7 +228,7 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
     }
 
     public static void launchBrowser(Uri uri, Context context) {
-        if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false) && uri.getScheme().startsWith("http") && CustomTabsHelper.getPackageNameToUse(context) != null) {
+        if(!bubble && !PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false) && uri.getScheme().startsWith("http") && CustomTabsHelper.getPackageNameToUse(context) != null) {
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
             builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
             builder.addDefaultShareMenuItem();
@@ -241,7 +242,7 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             }
         } else {
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            if(!uri.toString().startsWith("irccloud-"))
+            if(!uri.toString().startsWith("irccloud-") || bubble)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
             try {

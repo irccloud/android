@@ -60,6 +60,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.NotificationDismissBroadcastReceiver;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
+import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.activity.QuickReplyActivity;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.Buffer;
@@ -73,6 +74,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -160,6 +162,7 @@ public class NotificationsList {
     private int excludeBid = -1;
     private static final Timer mNotificationTimer = new Timer("notification-timer");
     private TimerTask mNotificationTimerTask = null;
+    private HashSet<Integer> bubbles = new HashSet<>();
 
     public interface NotificationAddedListener {
         void onNotificationAdded(Notification notification);
@@ -180,8 +183,10 @@ public class NotificationsList {
     public void clear() {
         try {
             for (Notification n : getNotifications()) {
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.getBid());
+                if(!bubbles.contains(n.getBid())) {
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.getBid());
+                }
             }
         } catch (Exception e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
@@ -304,10 +309,12 @@ public class NotificationsList {
             if(b != null)
                 last_seen_eid = b.getLast_seen_eid();
             if (last_seen_eid == -1 || n.getEid() <= last_seen_eid) {
-                oldNotifications.add(n);
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.getBid());
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
-                changed = true;
+                if(!bubbles.contains(n.getBid())) {
+                    oldNotifications.add(n);
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.getBid());
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
+                    changed = true;
+                }
             }
         }
 
@@ -332,10 +339,14 @@ public class NotificationsList {
 
         if (notifications.size() > 0) {
             for (Notification n : notifications) {
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
+                if(!bubbles.contains(n.getBid())) {
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
+                }
             }
         }
-        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
+        if(!bubbles.contains(bid)) {
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
+        }
 
         IRCCloudDatabase.getInstance().NotificationsDao().delete(bid);
         IRCCloudDatabase.getInstance().NotificationsDao().deleteLastSeenEID(bid);
@@ -360,14 +371,16 @@ public class NotificationsList {
 
     public void excludeBid(int bid) {
         excludeBid = -1;
-        List<Notification> notifications = getOtherNotifications();
+        if(!bubbles.contains(bid)) {
+            List<Notification> notifications = getOtherNotifications();
 
-        if (notifications.size() > 0) {
-            for (Notification n : notifications) {
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
+            if (notifications.size() > 0) {
+                for (Notification n : notifications) {
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.getEid() / 1000));
+                }
             }
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
         }
-        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
         excludeBid = bid;
     }
 
@@ -498,6 +511,14 @@ public class NotificationsList {
         return false;
     }
 
+    public void addBubble(int bid) {
+        bubbles.add(bid);
+    }
+
+    public void removeBubble(int bid) {
+        bubbles.remove(bid);
+    }
+
     public void createChannel(String id, String title, int importance, String group) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -599,6 +620,22 @@ public class NotificationsList {
                     people.put(servernick, new Person.Builder().setName(servernick).setIcon(IconCompat.createWithBitmap(avatars.get(servernick))).build());
                 } else {
                     people.put(servernick, new Person.Builder().setName(servernick).build());
+                }
+
+                try {
+                    NotificationCompat.BubbleMetadata.Builder bubbleBuilder = new NotificationCompat.BubbleMetadata.Builder();
+                    Intent b = new Intent(Intent.ACTION_VIEW);
+                    b.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+                    b.putExtra("bid", bid);
+                    b.putExtra("bubble", true);
+                    b.setData(Uri.parse("bid://" + bid));
+                    bubbleBuilder.setIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, b, PendingIntent.FLAG_UPDATE_CURRENT));
+                    bubbleBuilder.setDeleteIntent(dismissPendingIntent);
+                    bubbleBuilder.setDesiredHeight(4096);
+                    bubbleBuilder.setIcon(RecentConversationsList.getIconForConversation(RecentConversationsList.getInstance().getConversation(cid, bid), false));
+                    builder.setBubbleMetadata(bubbleBuilder.build());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
                 NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(people.get(servernick));
