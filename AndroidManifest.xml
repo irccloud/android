@@ -446,7 +446,6 @@
             android:excludeFromRecents="true"
             android:exported="false"
             android:theme="@style/LaunchTheme"
-            android:windowSoftInputMode="stateAlwaysHidden"
             android:allowEmbedded="true"
             android:documentLaunchMode="always"/>
 

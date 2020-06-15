@@ -1399,6 +1399,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public void onBackPressed() {
+        if(bubble) {
+            super.onBackPressed();
+            return;
+        }
         if (drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT))) {
             drawerLayout.closeDrawers();
             return;
@@ -1817,7 +1821,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else if (BuffersList.getInstance().getBuffer(new_bid) != null) {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Found BID, switching buffers");
                 synchronized (backStack) {
-                    if (buffer != null && buffer.getBid() != new_bid)
+                    if (buffer != null && buffer.getBid() != new_bid && !bubble)
                         backStack.add(0, buffer.getBid());
                 }
                 buffer = BuffersList.getInstance().getBuffer(new_bid);
@@ -2234,7 +2238,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             errorMsg.setVisibility(View.GONE);
             error = null;
             synchronized (backStack) {
-                if (buffer != null)
+                if (buffer != null && !bubble)
                     backStack.add(0, buffer.getBid());
             }
             ImageList.getInstance().clearFailures();
@@ -2249,7 +2253,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         error = null;
         help_fragment = null;
         synchronized (backStack) {
-            if (buffer != null)
+            if (buffer != null && !bubble)
                 backStack.add(0, buffer.getBid());
         }
     }
@@ -3750,8 +3754,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if(bubble)
-            return false;
+        if(bubble) {
+            if (NetworkConnection.getInstance().ready) {
+                if(buffer != null && buffer.getType() != null) {
+                    if (buffer.isChannel()) {
+                        getMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
+                    }
+                }
+            }
+            setMenuColorFilter(menu);
+            return true;
+        }
 
         if (NetworkConnection.getInstance().ready) {
             if(buffer != null && buffer.getType() != null) {
@@ -4341,7 +4354,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (drawerLayout != null) {
+                if (bubble) {
+                    //TODO: Close thread here
+                } else if (drawerLayout != null) {
                     if (drawerLayout.isDrawerOpen(Gravity.LEFT))
                         drawerLayout.closeDrawer(Gravity.LEFT);
                     else if(drawerLayout.getDrawerLockMode(Gravity.LEFT) == DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -4373,18 +4388,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case R.id.menu_userlist:
                 if (drawerLayout != null) {
-                    if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
-                        drawerLayout.closeDrawers();
-                    } else {
-                        drawerLayout.closeDrawer(Gravity.LEFT);
-                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                    if (bubble) {
                         drawerLayout.openDrawer(Gravity.RIGHT);
-                    }
-                    if (!getSharedPreferences("prefs", 0).getBoolean("userSwipeTip", false)) {
-                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Drag from the edge of the screen to quickly open and close the user list", Toast.LENGTH_LONG).show();
-                        SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-                        editor.putBoolean("userSwipeTip", true);
-                        editor.apply();
+                    } else {
+                        if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+                            drawerLayout.closeDrawers();
+                        } else {
+                            drawerLayout.closeDrawer(Gravity.LEFT);
+                            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                            drawerLayout.openDrawer(Gravity.RIGHT);
+                        }
+                        if (!getSharedPreferences("prefs", 0).getBoolean("userSwipeTip", false)) {
+                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Drag from the edge of the screen to quickly open and close the user list", Toast.LENGTH_LONG).show();
+                            SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+                            editor.putBoolean("userSwipeTip", true);
+                            editor.apply();
+                        }
                     }
                 }
                 return true;
@@ -5420,23 +5439,24 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 itemList.add("Close Preview");
             }
             itemList.add("Copy Message");
-            if(canEdit) {
+            if(canEdit && !bubble) {
                 itemList.add("Edit Message…");
                 itemList.add("Delete Message");
             }
         }
 
-        if (msgid != null && this.msgid == null) {
+        if (msgid != null && this.msgid == null && !bubble) {
             itemList.add("Reply");
         }
 
         if (selected_user != null) {
             if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                if(!server.isSlack())
+                if(!server.isSlack() && !bubble)
                     itemList.add("Whois…");
-                itemList.add("Send a message");
+                if(!bubble)
+                    itemList.add("Send a message");
                 itemList.add("Mention");
-                if(!server.isSlack())
+                if(!server.isSlack() && !bubble)
                     itemList.add("Invite to a channel…");
                 itemList.add("Ignore");
                 if (!server.isSlack() && buffer.isChannel()) {
@@ -5884,7 +5904,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         if (buffer != null && buffer.getBid() >= 0 && bid != buffer.getBid()) {
             synchronized (backStack) {
-                backStack.add(0, buffer.getBid());
+                if(!bubble)
+                    backStack.add(0, buffer.getBid());
             }
             buffer.setDraft(messageTxt.getText());
 
