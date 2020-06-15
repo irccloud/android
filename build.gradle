@@ -380,7 +380,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:18.0.0"
     implementation "com.google.android.gms:play-services-identity:17.0.0"
     implementation 'com.google.firebase:firebase-messaging:20.2.0'
-    implementation 'com.google.firebase:firebase-analytics:17.4.2'
+    implementation 'com.google.firebase:firebase-analytics:17.4.3'
     implementation 'com.google.firebase:firebase-perf:19.0.7'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.7'

@@ -256,7 +256,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ColorScheme colorScheme = ColorScheme.getInstance();
     private String msgid = null;
     public TextListFragment help_fragment = null;
-    private boolean bubble = false;
+    protected boolean bubble = false;
 
     private ColorFilter highlightsFilter;
     private ColorFilter unreadFilter;
@@ -1795,8 +1795,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private void setFromIntent(Intent intent) {
         launchBid = -1;
         launchURI = null;
-        if(intent.hasExtra("bubble"))
-            bubble = intent.getBooleanExtra("bubble", false);
 
         if (NetworkConnection.getInstance().ready)
             setIntent(new Intent(this, MainActivity.class));

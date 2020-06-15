@@ -101,9 +101,7 @@
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:windowSoftInputMode="stateAlwaysHidden"
-            android:configChanges="uiMode"
-            android:allowEmbedded="true"
-            android:documentLaunchMode="always">
+            android:configChanges="uiMode">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
@@ -443,6 +441,14 @@
             android:theme="@style/dawnDialog"
             android:exported="false"
             android:windowSoftInputMode="stateVisible|adjustResize"/>
+
+        <activity android:name=".activity.BubbleActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/LaunchTheme"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:allowEmbedded="true"
+            android:documentLaunchMode="always"/>
 
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat"/>

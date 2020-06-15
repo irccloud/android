@@ -60,6 +60,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.NotificationDismissBroadcastReceiver;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
+import com.irccloud.android.activity.BubbleActivity;
 import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.activity.QuickReplyActivity;
 import com.irccloud.android.data.IRCCloudDatabase;
@@ -625,9 +626,8 @@ public class NotificationsList {
                 try {
                     NotificationCompat.BubbleMetadata.Builder bubbleBuilder = new NotificationCompat.BubbleMetadata.Builder();
                     Intent b = new Intent(Intent.ACTION_VIEW);
-                    b.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+                    b.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext(), BubbleActivity.class));
                     b.putExtra("bid", bid);
-                    b.putExtra("bubble", true);
                     b.setData(Uri.parse("bid://" + bid));
                     bubbleBuilder.setIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, b, PendingIntent.FLAG_UPDATE_CURRENT));
                     bubbleBuilder.setDeleteIntent(dismissPendingIntent);
