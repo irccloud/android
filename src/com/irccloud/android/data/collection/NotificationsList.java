@@ -519,6 +519,7 @@ public class NotificationsList {
 
     public void removeBubble(int bid) {
         bubbles.remove(bid);
+        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
     }
 
     public void createChannel(String id, String title, int importance, String group) {

@@ -2693,40 +2693,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
             case NetworkConnection.EVENT_LINKCHANNEL:
-                event = (IRCCloudJSONObject) obj;
-                if (event != null && cidToOpen == event.cid() && event.has("invalid_chan") && event.has("valid_chan") && event.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
-                    bufferToOpen = event.getString("valid_chan");
-                    obj = BuffersList.getInstance().getBuffer(event.bid());
-                } else {
-                    bufferToOpen = null;
-                    return;
+                if(!bubble) {
+                    event = (IRCCloudJSONObject) obj;
+                    if (event != null && cidToOpen == event.cid() && event.has("invalid_chan") && event.has("valid_chan") && event.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
+                        bufferToOpen = event.getString("valid_chan");
+                        obj = BuffersList.getInstance().getBuffer(event.bid());
+                    } else {
+                        bufferToOpen = null;
+                        return;
+                    }
                 }
             case NetworkConnection.EVENT_MAKEBUFFER:
-                b = (Buffer) obj;
-                if (cidToOpen == b.getCid() && (bufferToOpen == null || (b.getName().equalsIgnoreCase(bufferToOpen) && (buffer == null || !bufferToOpen.equalsIgnoreCase(buffer.getName()))))) {
-                    server = null;
-                    final int bid = b.getBid();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            onBufferSelected(bid);
-                        }
-                    });
-                    bufferToOpen = null;
-                    cidToOpen = -1;
-                }
-                break;
-            case NetworkConnection.EVENT_OPENBUFFER:
-                event = (IRCCloudJSONObject) obj;
-                try {
-                    b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("name"));
-                    if (b == null) {
-                        cidToOpen = event.cid();
-                        bufferToOpen = event.getString("name");
-                    } else if (b != buffer) {
+                if(!bubble) {
+                    b = (Buffer) obj;
+                    if (cidToOpen == b.getCid() && (bufferToOpen == null || (b.getName().equalsIgnoreCase(bufferToOpen) && (buffer == null || !bufferToOpen.equalsIgnoreCase(buffer.getName()))))) {
                         server = null;
-                        bufferToOpen = null;
-                        cidToOpen = -1;
                         final int bid = b.getBid();
                         runOnUiThread(new Runnable() {
                             @Override
@@ -2734,9 +2715,34 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 onBufferSelected(bid);
                             }
                         });
+                        bufferToOpen = null;
+                        cidToOpen = -1;
                     }
-                } catch (Exception e2) {
-                    NetworkConnection.printStackTraceToCrashlytics(e2);
+                }
+                break;
+            case NetworkConnection.EVENT_OPENBUFFER:
+                if(!bubble) {
+                    event = (IRCCloudJSONObject) obj;
+                    try {
+                        b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("name"));
+                        if (b == null) {
+                            cidToOpen = event.cid();
+                            bufferToOpen = event.getString("name");
+                        } else if (b != buffer) {
+                            server = null;
+                            bufferToOpen = null;
+                            cidToOpen = -1;
+                            final int bid = b.getBid();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    onBufferSelected(bid);
+                                }
+                            });
+                        }
+                    } catch (Exception e2) {
+                        NetworkConnection.printStackTraceToCrashlytics(e2);
+                    }
                 }
                 break;
             case NetworkConnection.EVENT_CONNECTIVITY:
@@ -3435,7 +3441,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             update_subtitle();
                         }
                     });
-                } else {
+                } else if (!bubble) {
                     cidToOpen = s.getCid();
                     bufferToOpen = "*";
                 }
@@ -3568,36 +3574,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
                 if (buffer != null && id == ((what == NetworkConnection.EVENT_CONNECTIONDELETED) ? buffer.getCid() : buffer.getBid())) {
-                    synchronized (backStack) {
-                        while (backStack != null && backStack.size() > 0) {
-                            final Integer bid = backStack.get(0);
-                            backStack.remove(0);
-                            b = BuffersList.getInstance().getBuffer(bid);
-                            if (b != null) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        onBufferSelected(bid);
-                                        if (backStack.size() > 0)
-                                            backStack.remove(0);
-                                    }
-                                });
-                                return;
+                    if (bubble) {
+                        NotificationsList.getInstance().removeBubble(buffer.getBid());
+                    } else {
+                        synchronized (backStack) {
+                            while (backStack != null && backStack.size() > 0) {
+                                final Integer bid = backStack.get(0);
+                                backStack.remove(0);
+                                b = BuffersList.getInstance().getBuffer(bid);
+                                if (b != null) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            onBufferSelected(bid);
+                                            if (backStack.size() > 0)
+                                                backStack.remove(0);
+                                        }
+                                    });
+                                    return;
+                                }
                             }
                         }
                     }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            /*if (BuffersList.getInstance().count() == 0) {
-                                startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
-                                finish();
-                            } else {
-                                if ((NetworkConnection.getInstance().getUserInfo() == null || !open_bid(NetworkConnection.getInstance().getUserInfo().last_selected_bid)) && !open_bid(BuffersList.getInstance().firstBid()))
-                                    finish();
-                            }*/
-                        }
-                    });
                 }
                 runOnUiThread(new Runnable() {
                     @Override
