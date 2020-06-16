@@ -55,6 +55,7 @@ import android.widget.RemoteViews;
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.MarkAsReadBroadcastReceiver;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.NotificationDismissBroadcastReceiver;
@@ -272,7 +273,7 @@ public class NotificationsList {
     public void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type, String network, String avatar_url) {
         long last_eid = getLastSeenEid(bid);
         if (eid <= last_eid) {
-            Crashlytics.log("Refusing to add notification for seen eid: " + eid);
+            IRCCloudLog.Log("Refusing to add notification for seen eid: " + eid);
             return;
         }
 
@@ -439,7 +440,7 @@ public class NotificationsList {
         if (notifications.size() > 0 && notify) {
             for (Notification n : notifications) {
                 if (!n.isShown()) {
-                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + n.getMessage_type());
+                    IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Posting notification for type " + n.getMessage_type());
                     if (n.getMessage_type().equals("callerid")) {
                         title = n.getNetwork();
                         text = n.getNick() + " is trying to contact you";
@@ -868,7 +869,7 @@ public class NotificationsList {
                             lines.remove(0);
 
                         try {
-                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.getMessage_type());
+                            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.getMessage_type());
                             Bitmap large_avatar = null;
 
                             if(!pref_avatarsOff && pref_avatarImages) {
@@ -917,7 +918,7 @@ public class NotificationsList {
                                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.getCid(), lastbid, eids, title, body, count, replyIntent, last.getNetwork(), messages, null, avatars.get(last.getNick()), large_avatar, avatars));
                             }
                         } catch (Exception e) {
-                            Crashlytics.logException(e);
+                            IRCCloudLog.LogException(e);
                         }
                     }
                     lastbid = n.getBid();
@@ -1012,7 +1013,7 @@ public class NotificationsList {
                     lines.remove(0);
 
                 try {
-                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.getMessage_type());
+                    IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Posting notification for type " + last.getMessage_type());
                     Bitmap large_avatar = null;
 
                     if(!pref_avatarsOff && pref_avatarImages) {
@@ -1042,7 +1043,7 @@ public class NotificationsList {
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, last.getCid(), lastbid, eids, title, body, count, replyIntent, last.getNetwork(), messages, null, avatars.get(last.getNick()), large_avatar, avatars));
                     }
                 } catch (Exception e) {
-                    Crashlytics.logException(e);
+                    IRCCloudLog.LogException(e);
                 }
             }
 
@@ -1056,7 +1057,7 @@ public class NotificationsList {
     }
 
     public NotificationCompat.Builder alert(int bid, String title, String body) {
-        Crashlytics.log(Log.DEBUG, "IRCCloud", "Posting alert notification");
+        IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Posting alert notification");
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), "alert")
                 .setContentTitle(title)
                 .setContentText(body)

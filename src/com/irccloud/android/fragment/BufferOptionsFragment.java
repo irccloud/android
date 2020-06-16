@@ -35,6 +35,7 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
@@ -136,7 +137,7 @@ public class BufferOptionsFragment extends DialogFragment {
                     Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
-                Crashlytics.logException(e);
+                IRCCloudLog.LogException(e);
                 Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
             }
             dismiss();

@@ -68,6 +68,7 @@ import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
@@ -304,7 +305,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
         if (session.length() > 0 || BuildConfig.MOCK_DATA) {
             if(conn.notifier) {
-                Crashlytics.log(Log.INFO, "IRCCloud", "Upgrading notifier websocket");
+                IRCCloudLog.Log(Log.INFO, "IRCCloud", "Upgrading notifier websocket");
                 conn.upgrade();
             }
         } else {
@@ -321,7 +322,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     protected void onPostResume() {
         super.onPostResume();
         if(conn != null){
-            Crashlytics.log(Log.INFO, "IRCCloud", "App resumed, websocket state: " + conn.getState());
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "App resumed, websocket state: " + conn.getState());
             if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
                 conn.connect(true);
         }
@@ -699,41 +700,13 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         "Android version: " + Build.VERSION.RELEASE + "\n" +
                         "Firmware fingerprint: " + Build.FINGERPRINT + "\n";
 
-                    File logsDir = new File(getFilesDir(),".Fabric/com.crashlytics.sdk.android.crashlytics-core/log-files/");
-                    File log = null;
-                    File output = null;
-                    if(logsDir.exists()) {
-                        long max = Long.MIN_VALUE;
-                        for (File f : logsDir.listFiles()) {
-                            if (f.lastModified() > max) {
-                                max = f.lastModified();
-                                log = f;
-                            }
-                        }
+                    File f = new File(getFilesDir(), "logs");
+                    f.mkdirs();
+                    File output = new File(f, LOG_FILENAME);
 
-                        if (log != null) {
-                            File f = new File(getFilesDir(), "logs");
-                            f.mkdirs();
-                            output = new File(f, LOG_FILENAME);
-                            byte[] b = new byte[1];
-
-                            FileOutputStream out = new FileOutputStream(output);
-                            FileInputStream is = new FileInputStream(log);
-                            is.skip(5);
-
-                            while (is.available() > 0 && is.read(b, 0, 1) > 0) {
-                                if (b[0] == ' ') {
-                                    while (is.available() > 0 && is.read(b, 0, 1) > 0) {
-                                        out.write(b);
-                                        if (b[0] == '\n')
-                                            break;
-                                    }
-                                }
-                            }
-                            is.close();
-                            out.close();
-                        }
-                    }
+                    FileOutputStream out = new FileOutputStream(output);
+                    out.write(IRCCloudLog.lines().getBytes());
+                    out.close();
 
                     Intent email = new Intent(Intent.ACTION_SEND);
                     email.setData(Uri.parse("mailto:"));
@@ -741,13 +714,11 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     email.putExtra(Intent.EXTRA_EMAIL, new String[]{"IRCCloud Team <team@irccloud.com>"});
                     email.putExtra(Intent.EXTRA_TEXT, bugReport);
                     email.putExtra(Intent.EXTRA_SUBJECT, "IRCCloud for Android");
-                    if(log != null) {
-                        email.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", output));
-                    }
+                    email.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", output));
                     startActivityForResult(Intent.createChooser(email, "Send Feedback:"), 0);
                 } catch (Exception e) {
                     Toast.makeText(this, "Unable to generate email report: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Crashlytics.logException(e);
+                    IRCCloudLog.LogException(e);
                     NetworkConnection.printStackTraceToCrashlytics(e);
                 }
                 break;

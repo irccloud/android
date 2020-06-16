@@ -2296,7 +2296,7 @@ public class ColorFormatter {
 
             IS_EMOJI = Pattern.compile(sb.toString().replace(":)|","").replace("*", "\\*"));
 
-            Crashlytics.log(Log.INFO, "IRCCloud", "Compiled :emocode: regex from " + emojiMap.size() + " keys in " + (System.currentTimeMillis() - start) + "ms");
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Compiled :emocode: regex from " + emojiMap.size() + " keys in " + (System.currentTimeMillis() - start) + "ms");
         }
 
         if(tc == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -2770,7 +2770,7 @@ public class ColorFormatter {
                     }
                 }
             } catch (Exception ex) {
-                Crashlytics.logException(ex);
+                IRCCloudLog.LogException(ex);
             }
         }
     }
@@ -3225,7 +3225,7 @@ public class ColorFormatter {
                 }
             }
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            IRCCloudLog.LogException(e);
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
 
@@ -3320,7 +3320,7 @@ public class ColorFormatter {
                 }
             }
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            IRCCloudLog.LogException(e);
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
 

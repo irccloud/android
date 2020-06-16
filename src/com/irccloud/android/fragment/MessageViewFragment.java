@@ -80,6 +80,7 @@ import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.JSONFetcher;
 import com.irccloud.android.NetworkConnection;
@@ -1775,9 +1776,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             buffer = BuffersList.getInstance().getBuffer(args.getInt("bid", -1));
         if (buffer != null) {
             server = buffer.getServer();
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: switched to bid: " + buffer.getBid());
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "MessageViewFragment: switched to bid: " + buffer.getBid());
         } else {
-            Crashlytics.log(Log.WARN, "IRCCloud", "MessageViewFragment: couldn't find buffer to switch to");
+            IRCCloudLog.Log(Log.WARN, "IRCCloud", "MessageViewFragment: couldn't find buffer to switch to");
         }
         if(args != null)
             msgid = args.getString("msgid");
@@ -1826,10 +1827,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 refreshTask.cancel(true);
             refreshTask = new RefreshTask();
             if (args != null && args.getBoolean("fade")) {
-                Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: Loading message contents in the background");
+                IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "MessageViewFragment: Loading message contents in the background");
                 refreshTask.execute((Void) null);
             } else {
-                Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: Loading message contents");
+                IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "MessageViewFragment: Loading message contents");
                 refreshTask.onPreExecute();
                 refreshTask.onPostExecute(refreshTask.doInBackground());
             }
@@ -1869,7 +1870,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        Crashlytics.log(Log.DEBUG, "IRCCloud", "Received low memory warning in the foreground, cleaning backlog in other buffers");
+        IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Received low memory warning in the foreground, cleaning backlog in other buffers");
         for (Buffer b : BuffersList.getInstance().getBuffers()) {
             if (b != buffer)
                 EventsList.getInstance().pruneEvents(b.getBid());
@@ -3082,7 +3083,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
             } catch (Exception e) {
-                Crashlytics.logException(e);
+                IRCCloudLog.LogException(e);
                 NetworkConnection.printStackTraceToCrashlytics(e);
             }
             return null;

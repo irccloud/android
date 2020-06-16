@@ -35,12 +35,12 @@ public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {
             long[] eids = i.getLongArrayExtra("eids");
             for (int j = 0; j < eids.length; j++) {
                 if (eids[j] > 0) {
-                    Crashlytics.log(Log.INFO, "IRCCloud", "Dismiss bid" + bid + " eid" + eids[j]);
+                    IRCCloudLog.Log(Log.INFO, "IRCCloud", "Dismiss bid" + bid + " eid" + eids[j]);
                     NotificationsList.getInstance().dismiss(bid, eids[j]);
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (eids[j] / 1000));
                 }
             }
-            Crashlytics.log(Log.INFO, "IRCCloud", "Cancel bid" + bid);
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Cancel bid" + bid);
             NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
         }
     }

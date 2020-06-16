@@ -42,6 +42,7 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.EventsList;
@@ -529,7 +530,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
         @Override
         protected synchronized Void doInBackground(Void... params) {
             if (!NetworkConnection.getInstance().ready || !ready || isCancelled() || NetworkConnection.getInstance().getUserInfo() == null) {
-                Crashlytics.log(Log.WARN, "IRCCloud", "BuffersListFragment not ready or cancelled " + ready + " " + isCancelled());
+                IRCCloudLog.Log(Log.WARN, "IRCCloud", "BuffersListFragment not ready or cancelled " + ready + " " + isCancelled());
                 return null;
             }
 
@@ -544,7 +545,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             }
             Collections.sort(servers);
             if (adapter == null) {
-                Crashlytics.log(Log.DEBUG, "IRCCloud", "Created new BufferListAdapter");
+                IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Created new BufferListAdapter");
                 adapter = new BufferListAdapter();
             }
 
@@ -696,14 +697,14 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 }
             }
 
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffers list adapter contains " + entries.size() + " entries");
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Buffers list adapter contains " + entries.size() + " entries");
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
             if (isCancelled()) {
-                Crashlytics.log(Log.WARN, "IRCCloud", "BuffersListFragment: OnPostExecute: This refresh task was cancelled");
+                IRCCloudLog.Log(Log.WARN, "IRCCloud", "BuffersListFragment: OnPostExecute: This refresh task was cancelled");
                 return;
             }
 
@@ -722,7 +723,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             if (layoutManager != null)
                 updateUnreadIndicators(layoutManager.findFirstVisibleItemPosition(), layoutManager.findLastVisibleItemPosition());
             else {//The activity view isn't ready yet, try again
-                Crashlytics.log(Log.WARN, "IRCCloud", "BuffersListFragment: OnPostExecute: The activity isn't ready yet, will retry");
+                IRCCloudLog.Log(Log.WARN, "IRCCloud", "BuffersListFragment: OnPostExecute: The activity isn't ready yet, will retry");
                 refreshTask = new RefreshTask();
                 refreshTask.execute((Void) null);
             }
@@ -758,12 +759,12 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 }
             });
         } else {
-            Crashlytics.log(Log.WARN, "IRCCloud", "BufferListFragment: Request to set BID but I don't have an adapter yet, refreshing");
+            IRCCloudLog.Log(Log.WARN, "IRCCloud", "BufferListFragment: Request to set BID but I don't have an adapter yet, refreshing");
             refreshTask = new RefreshTask();
             refreshTask.doInBackground((Void) null);
             if(!refreshTask.isCancelled())
                 refreshTask.onPostExecute(null);
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Done");
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Done");
         }
     }
 
@@ -1089,19 +1090,19 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                             public void run() {
                                 if (refreshTask != null)
                                     refreshTask.cancel(true);
-                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Refreshing buffers list");
+                                IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Refreshing buffers list");
                                 refreshTask = new RefreshTask();
                                 refreshTask.doInBackground((Void) null);
                                 if(!refreshTask.isCancelled())
                                     refreshTask.onPostExecute(null);
-                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Done");
+                                IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Done");
                             }
                         });
                     }
                 }
                 break;
             default:
-                Crashlytics.log(Log.WARN, "IRCCloud", "Slow event: " + what);
+                IRCCloudLog.Log(Log.WARN, "IRCCloud", "Slow event: " + what);
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override

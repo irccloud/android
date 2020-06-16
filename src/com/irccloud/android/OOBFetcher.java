@@ -75,7 +75,7 @@ public class OOBFetcher extends HTTPFetcher {
         if (parser.nextToken() == JsonToken.START_ARRAY && !isCancelled) {
             conn.cancel_idle_timer();
             //android.os.Debug.startMethodTracing("/sdcard/oob", 16*1024*1024);
-            Crashlytics.log(Log.DEBUG, TAG, "Beginning backlog...");
+            IRCCloudLog.Log(Log.DEBUG, TAG, "Beginning backlog...");
             Trace trace = null;
             try {
                 trace = FirebasePerformance.getInstance().newTrace("parseOOB");
@@ -88,7 +88,7 @@ public class OOBFetcher extends HTTPFetcher {
                 int count = 0;
                 while (parser.nextToken() == JsonToken.START_OBJECT) {
                     if (isCancelled) {
-                        Crashlytics.log(Log.DEBUG, TAG, "Backlog parsing cancelled");
+                        IRCCloudLog.Log(Log.DEBUG, TAG, "Backlog parsing cancelled");
                         return;
                     }
                     long time = System.currentTimeMillis();
@@ -99,9 +99,9 @@ public class OOBFetcher extends HTTPFetcher {
                     try {
                         conn.parse_object(o);
                     } catch (Exception ex) {
-                        Crashlytics.log(Log.ERROR, TAG, "Unable to parse message type: " + o.type());
+                        IRCCloudLog.Log(Log.ERROR, TAG, "Unable to parse message type: " + o.type());
                         NetworkConnection.printStackTraceToCrashlytics(ex);
-                        Crashlytics.logException(ex);
+                        IRCCloudLog.LogException(ex);
                     }
                     long t = (System.currentTimeMillis() - time);
                     if (t > longestEventTime) {
@@ -117,14 +117,14 @@ public class OOBFetcher extends HTTPFetcher {
                 totalTime = (System.currentTimeMillis() - totalTime);
                 if(trace != null)
                     trace.stop();
-                Crashlytics.log(Log.DEBUG, TAG, "Backlog complete: " + count + " events");
-                Crashlytics.log(Log.DEBUG, TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime / (float) count) + "ms / object)");
-                Crashlytics.log(Log.DEBUG, TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime / (float) count) + "ms / object)");
-                Crashlytics.log(Log.DEBUG, TAG, "Total OOB load time: " + totalTime + "ms (" + (totalTime / (float) count) + "ms / object)");
-                Crashlytics.log(Log.DEBUG, TAG, "Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
+                IRCCloudLog.Log(Log.DEBUG, TAG, "Backlog complete: " + count + " events");
+                IRCCloudLog.Log(Log.DEBUG, TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime / (float) count) + "ms / object)");
+                IRCCloudLog.Log(Log.DEBUG, TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime / (float) count) + "ms / object)");
+                IRCCloudLog.Log(Log.DEBUG, TAG, "Total OOB load time: " + totalTime + "ms (" + (totalTime / (float) count) + "ms / object)");
+                IRCCloudLog.Log(Log.DEBUG, TAG, "Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
                 totalTime -= totalJSONTime;
                 totalTime -= totalParseTime;
-                Crashlytics.log(Log.DEBUG, TAG, "Total non-processing time: " + totalTime + "ms (" + (totalTime / (float) count) + "ms / object)");
+                IRCCloudLog.Log(Log.DEBUG, TAG, "Total non-processing time: " + totalTime + "ms (" + (totalTime / (float) count) + "ms / object)");
             }
             conn.schedule_idle_timer();
         } else {

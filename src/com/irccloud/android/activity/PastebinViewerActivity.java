@@ -58,6 +58,7 @@ import com.irccloud.android.ChromeCopyLinkBroadcastReceiver;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
@@ -216,7 +217,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         mWebView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                Crashlytics.log(consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR ? Log.ERROR : Log.WARN, "IRCCloud", "Javascript error - line: " + consoleMessage.lineNumber() + " message: " + consoleMessage.message());
+                IRCCloudLog.Log(consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR ? Log.ERROR : Log.WARN, "IRCCloud", "Javascript error - line: " + consoleMessage.lineNumber() + " message: " + consoleMessage.message());
                 return super.onConsoleMessage(consoleMessage);
             }
         });

@@ -55,6 +55,7 @@ import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -89,7 +90,8 @@ public class IRCCloudApplication extends MultiDexApplication {
         try {
             Fabric.with(this, new Crashlytics());
             FirebaseAnalytics.getInstance(this).setUserId(null);
-            Crashlytics.log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
+            IRCCloudLog.CrashlyticsEnabled = true;
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
         } catch (Exception e) {
 
         }
@@ -120,7 +122,7 @@ public class IRCCloudApplication extends MultiDexApplication {
                         @Override
                         public void onFailed(@Nullable Throwable throwable) {
                             Log.e("IRCCloud", "EmojiCompat initialization failed: ", throwable);
-                            Crashlytics.logException(throwable);
+                            IRCCloudLog.LogException(throwable);
                         }
                     }));
         //EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true)));
@@ -186,13 +188,13 @@ public class IRCCloudApplication extends MultiDexApplication {
 
         prefs = getSharedPreferences("prefs", 0);
         if (prefs.getString("host", "www.irccloud.com").equals("www.irccloud.com") && !prefs.contains("path") && prefs.contains("session_key")) {
-            Crashlytics.log(Log.INFO, "IRCCloud", "Migrating path from session key");
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Migrating path from session key");
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("path", "/websocket/" + prefs.getString("session_key", "").charAt(0));
             editor.apply();
         }
         if (prefs.contains("host") && prefs.getString("host", "").equals("www.irccloud.com")) {
-            Crashlytics.log(Log.INFO, "IRCCloud", "Migrating host");
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Migrating host");
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("host", "api.irccloud.com");
             editor.apply();
@@ -233,7 +235,7 @@ public class IRCCloudApplication extends MultiDexApplication {
         }, getFontsHandler());
 
 
-        Crashlytics.log(Log.INFO, "IRCCloud", "App Initialized");
+        IRCCloudLog.Log(Log.INFO, "IRCCloud", "App Initialized");
     }
 
     @Override
@@ -263,7 +265,7 @@ public class IRCCloudApplication extends MultiDexApplication {
                 if(!conn.notifier && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     conn.disconnect();
                     if(ServersList.getInstance().count() < 1) {
-                        Crashlytics.log(Log.DEBUG, "IRCCloud", "No servers configured, not connecting notifier socket");
+                        IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "No servers configured, not connecting notifier socket");
                         return;
                     }
                     if(!(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)) {
@@ -300,7 +302,7 @@ public class IRCCloudApplication extends MultiDexApplication {
     public void onLowMemory() {
         super.onLowMemory();
         if (!NetworkConnection.getInstance().isVisible()) {
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Received low memory warning in the background, cleaning backlog in all buffers");
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Received low memory warning in the background, cleaning backlog in all buffers");
             BuffersList buffersList = BuffersList.getInstance();
             EventsList eventsList = EventsList.getInstance();
             for (Buffer b : buffersList.getBuffers()) {

@@ -34,6 +34,7 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.ImageURLInfo;
@@ -418,7 +419,7 @@ public class ImageList {
                     }
 
                     if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-                        Crashlytics.log(Log.DEBUG, "IRCCloud", "Requesting image via proxy: " + host);
+                        IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Requesting image via proxy: " + host);
                     }
 
                     try {
@@ -444,9 +445,9 @@ public class ImageList {
                         ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
                         NetworkInfo ni = cm.getActiveNetworkInfo();
                         if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
-                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via WiFi");
+                            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Loading via WiFi");
                         } else {
-                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Loading via mobile");
+                            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Loading via mobile");
                         }
                     } catch (Exception e) {
                         printStackTraceToCrashlytics(e);

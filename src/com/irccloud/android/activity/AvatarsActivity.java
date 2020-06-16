@@ -57,6 +57,7 @@ import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.ImageList;
@@ -419,7 +420,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
 
         for(int j = 0; j < grantResults.length; j++) {
             if(grantResults[j] != PackageManager.PERMISSION_GRANTED) {
-                Crashlytics.log(Log.ERROR, "IRCCloud", "Permission denied: " + permissions[j]);
+                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Permission denied: " + permissions[j]);
                 if(fileUploadTask != null) {
                     if(fileUploadTask.metadataDialog != null) {
                         try {

@@ -70,6 +70,7 @@ import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
@@ -653,8 +654,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                                 savePreferencesTask.execute((Void) null);
                                 ((SwitchPreference) findPreference("inlineimages")).setChecked(true);
                             } catch (Exception e) {
-                                Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: " + preference.getKey());
-                                Crashlytics.logException(e);
+                                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to set preference: " + preference.getKey());
+                                IRCCloudLog.LogException(e);
                                 Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                             }
                             dialog.dismiss();
@@ -689,8 +690,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 savePreferencesTask = new SavePreferencesTask();
                 savePreferencesTask.execute((Void) null);
             } catch (JSONException e) {
-                Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: " + preference.getKey());
-                Crashlytics.logException(e);
+                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to set preference: " + preference.getKey());
+                IRCCloudLog.LogException(e);
                 Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 return false;
             }
@@ -799,7 +800,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     @Override
                     public void onIRCResult(IRCCloudJSONObject result) {
                         if(!result.getBoolean("success")) {
-                            Crashlytics.log(Log.ERROR, "IRCCloud", "Settings not updated: " + result.getString("message"));
+                            IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Settings not updated: " + result.getString("message"));
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -842,7 +843,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                         @Override
                         public void onIRCResult(IRCCloudJSONObject result) {
                             if (!result.getBoolean("success")) {
-                                Crashlytics.log(Log.ERROR, "IRCCloud", "Prefs not updated: " + result.getString("message"));
+                                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Prefs not updated: " + result.getString("message"));
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -1245,7 +1246,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                             } else {
                                 String error;
                                 newpassword = null;
-                                Crashlytics.log(Log.ERROR, "IRCCloud", "Password not changed: " + result.getString("message"));
+                                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Password not changed: " + result.getString("message"));
                                 switch(result.getString("message")) {
                                     case "oldpassword":
                                         error = "Current password incorrect";
@@ -1319,7 +1320,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                                 });
                             } else {
                                 String error;
-                                Crashlytics.log(Log.ERROR, "IRCCloud", "Email not changed: " + result.getString("message"));
+                                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Email not changed: " + result.getString("message"));
                                 switch(result.getString("message")) {
                                     case "oldpassword":
                                         error = "Current password incorrect";
@@ -1421,7 +1422,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                                 });
                             } else {
                                 final String error;
-                                Crashlytics.log(Log.ERROR, "IRCCloud", "Account not deleted: " + result.getString("message"));
+                                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Account not deleted: " + result.getString("message"));
                                 switch(result.getString("message")) {
                                     case "bad_pass":
                                         error = "Incorrect password, please try again";

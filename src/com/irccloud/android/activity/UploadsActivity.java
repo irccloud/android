@@ -56,6 +56,7 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.ImageList;
@@ -403,7 +404,7 @@ public class UploadsActivity extends BaseActivity {
                                         }
                                     });
                                 } else {
-                                    Crashlytics.log(Log.ERROR, "IRCCloud", "Delete failed: " + result.toString());
+                                    IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Delete failed: " + result.toString());
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {

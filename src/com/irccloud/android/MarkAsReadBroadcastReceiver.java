@@ -42,14 +42,14 @@ public class MarkAsReadBroadcastReceiver extends BroadcastReceiver {
                 if (eids[j] > 0) {
                     if (eids[j] > highestEid)
                         highestEid = eids[j];
-                    Crashlytics.log(Log.INFO, "IRCCloud", "Dismiss bid" + bid + " eid" + eids[j]);
+                    IRCCloudLog.Log(Log.INFO, "IRCCloud", "Dismiss bid" + bid + " eid" + eids[j]);
                     NotificationsList.getInstance().dismiss(bid, eids[j]);
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (eids[j] / 1000));
                 }
             }
-            Crashlytics.log(Log.INFO, "IRCCloud", "Mark as read bid" + bid);
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Mark as read bid" + bid);
             NetworkConnection.getInstance().postHeartbeat(cid, bid, highestEid, IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
-            Crashlytics.log(Log.INFO, "IRCCloud", "Cancel bid" + bid);
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Cancel bid" + bid);
             NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
         }
     }

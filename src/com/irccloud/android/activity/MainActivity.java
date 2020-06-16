@@ -150,6 +150,7 @@ import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.IRCEditText;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.collection.AvatarsList;
@@ -1811,7 +1812,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(bubble)
                 NotificationsList.getInstance().addBubble(new_bid);
             if (NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && BuffersList.getInstance().getBuffer(new_bid) == null) {
-                Crashlytics.log(Log.WARN, "IRCCloud", "Invalid bid requested by launch intent: " + new_bid);
+                IRCCloudLog.Log(Log.WARN, "IRCCloud", "Invalid bid requested by launch intent: " + new_bid);
                 NotificationsList.getInstance().deleteNotificationsForBid(new_bid);
                 if (excludeBIDTask != null)
                     excludeBIDTask.cancel(true);
@@ -1819,7 +1820,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 excludeBIDTask.execute(new_bid);
                 return;
             } else if (BuffersList.getInstance().getBuffer(new_bid) != null) {
-                Crashlytics.log(Log.DEBUG, "IRCCloud", "Found BID, switching buffers");
+                IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Found BID, switching buffers");
                 synchronized (backStack) {
                     if (buffer != null && buffer.getBid() != new_bid && !bubble)
                         backStack.add(0, buffer.getBid());
@@ -1827,7 +1828,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 buffer = BuffersList.getInstance().getBuffer(new_bid);
                 server = buffer.getServer();
             } else {
-                Crashlytics.log(Log.DEBUG, "IRCCloud", "BID not found, will try after reconnecting");
+                IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "BID not found, will try after reconnecting");
                 launchBid = new_bid;
             }
         }
@@ -1973,7 +1974,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     protected void onNewIntent(Intent intent) {
         if (intent != null && !bubble) {
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Got new launch intent");
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Got new launch intent");
             buffer = null;
             setFromIntent(intent);
         }
@@ -1983,7 +1984,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if(theme != ColorScheme.getTheme(ColorScheme.getUserTheme(), false)) {
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme configuration changed");
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Theme configuration changed");
             theme = ColorScheme.getTheme(ColorScheme.getUserTheme(), true);
             setTheme(theme);
             ColorScheme.getInstance().setThemeFromContext(this, ColorScheme.getUserTheme());
@@ -1996,11 +1997,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @SuppressLint("NewApi")
     @Override
     public void onResume() {
-        Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
+        IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Resuming app");
 
         if(theme != ColorScheme.getTheme(ColorScheme.getUserTheme(), false)) {
             super.onResume();
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
             drawerLayout.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -2037,7 +2038,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (server == null || launchURI != null || (getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null))) {
             if (getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null)) {
-                Crashlytics.log(Log.DEBUG, "IRCCloud", "Launch intent contains a BID or URL");
+                IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Launch intent contains a BID or URL");
                 setFromIntent(getIntent());
             } else if (conn.getUserInfo() != null && conn.ready) {
                 if (launchURI == null || !open_uri(launchURI)) {
@@ -2790,7 +2791,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                         });
                         if (conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.ready && server == null) {
-                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Offline cache available and we're waiting for a buffer, switching now");
+                            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Offline cache available and we're waiting for a buffer, switching now");
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -3526,11 +3527,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 updateUsersListFragmentVisibility();
                             }
                             if (ServersList.getInstance().count() < 1) {
-                                Crashlytics.log(Log.DEBUG, "IRCCloud", "No servers configured, launching add dialog");
+                                IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "No servers configured, launching add dialog");
                                 addNetwork();
                             } else {
                                 if (server == null || launchURI != null || launchBid != -1) {
-                                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Backlog loaded and we're waiting for a buffer, switching now");
+                                    IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Backlog loaded and we're waiting for a buffer, switching now");
                                     if (launchURI == null || !open_uri(launchURI)) {
                                         if (launchBid == -1 || !open_bid(launchBid)) {
                                             if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
@@ -4122,7 +4123,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         for(int j = 0; j < grantResults.length; j++) {
             if(grantResults[j] != PackageManager.PERMISSION_GRANTED) {
-                Crashlytics.log(Log.ERROR, "IRCCloud", "Permission denied: " + permissions[j]);
+                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Permission denied: " + permissions[j]);
                 if(fileUploadTask != null) {
                     if(fileUploadTask.metadataDialog != null) {
                         try {
@@ -5637,7 +5638,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void onIRCResult(IRCCloudJSONObject result) {
                                     if(!result.getBoolean("success")) {
-                                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to delete message: " + result.toString());
+                                        IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to delete message: " + result.toString());
                                         Toast.makeText(MainActivity.this, "Unable to delete message, please try again.", Toast.LENGTH_LONG).show();
                                     }
                                 }
@@ -5663,7 +5664,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void onIRCResult(IRCCloudJSONObject result) {
                                     if(!result.getBoolean("success")) {
-                                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to edit message: " + result.toString());
+                                        IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to edit message: " + result.toString());
                                         Toast.makeText(MainActivity.this, "Unable to edit message, please try again.", Toast.LENGTH_LONG).show();
                                     }
                                 }
@@ -5922,7 +5923,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         shouldFadeIn = buffer != null && changed && !(buffer != null && buffer.getBid() == bid);
         buffer = BuffersList.getInstance().getBuffer(bid);
         if (buffer != null) {
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.getCid() + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.getCid() + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
             server = buffer.getServer();
 
             try {
@@ -5945,7 +5946,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } catch (Exception e) {
             }
         } else {
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected but not found: bid" + bid + " shouldFadeIn: " + shouldFadeIn);
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Buffer selected but not found: bid" + bid + " shouldFadeIn: " + shouldFadeIn);
             server = null;
         }
         update_subtitle();
@@ -5973,7 +5974,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (shouldFadeIn) {
             ImageList.getInstance().prune();
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Fade Out");
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Fade Out");
             if(mvf != null) {
                 mvf.avatar.animate().alpha(0);
                 mvf.getListView().animate().alpha(0).withEndAction(new Runnable() {
@@ -6031,7 +6032,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onMessageViewReady() {
         if (shouldFadeIn) {
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Fade In");
+            IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Fade In");
             MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
             UsersListFragment ulf = (UsersListFragment) getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
 
@@ -6271,7 +6272,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } catch (IOException e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
         } catch (Exception e) {
-            Crashlytics.logException(e);
+            IRCCloudLog.LogException(e);
         } catch (OutOfMemoryError e) {
             Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
         }
@@ -6370,7 +6371,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         private Buffer mBuffer;
 
         public ImgurUploadTask(Uri imageUri) {
-            Crashlytics.log(Log.INFO, "IRCCloud", "Uploading image to " + UPLOAD_URL);
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Uploading image to " + UPLOAD_URL);
             mImageUri = imageUri;
             mBuffer = buffer;
             setActivity(MainActivity.this);
@@ -6389,7 +6390,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 imageIn = activity.getContentResolver().openInputStream(mImageUri);
                 total = imageIn.available();
             } catch (Exception e) {
-                Crashlytics.log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
+                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
                 return null;
             }
 
@@ -6416,7 +6417,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     responseIn = conn.getInputStream();
                     return onInput(responseIn);
                 } else {
-                    Crashlytics.log(Log.INFO, "IRCCloud", "responseCode=" + conn.getResponseCode());
+                    IRCCloudLog.Log(Log.INFO, "IRCCloud", "responseCode=" + conn.getResponseCode());
                     responseIn = conn.getErrorStream();
                     StringBuilder sb = new StringBuilder();
                     Scanner scanner = new Scanner(responseIn).useDelimiter("\\A");
@@ -6428,11 +6429,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         error = root.getJSONObject("data").getString("error");
                     else
                         error = null;
-                    Crashlytics.log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
+                    IRCCloudLog.Log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
                     return null;
                 }
             } catch (Exception ex) {
-                Crashlytics.log(Log.ERROR, "IRCCloud", "Error during POST: " + ex);
+                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Error during POST: " + ex);
                 return null;
             } finally {
                 try {
@@ -6546,7 +6547,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
             if (activity != null) {
-                Crashlytics.log(Log.INFO, "IRCCloud", "Upload finished");
+                IRCCloudLog.Log(Log.INFO, "IRCCloud", "Upload finished");
                 if (s != null) {
                     if (mBuffer != null) {
                         if (mBuffer.getDraft() == null)
@@ -6592,7 +6593,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 imgurTask = null;
             } else if (mBuffer != null && s != null) {
-                Crashlytics.log(Log.INFO, "IRCCloud", "Upload finished, updating draft");
+                IRCCloudLog.Log(Log.INFO, "IRCCloud", "Upload finished, updating draft");
                 if (mBuffer.getDraft() == null)
                     mBuffer.setDraft("");
                 if (mBuffer.getDraft().length() > 0 && !mBuffer.getDraft().toString().endsWith(" "))
@@ -6768,7 +6769,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (activity.mediaPermissionsGranted())
                     show_dialog();
             }
-            Crashlytics.log(Log.INFO, "IRCCloud", "Uploading file to IRCCloud: " + original_filename + " " + type);
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Uploading file to IRCCloud: " + original_filename + " " + type);
         }
 
         public void show_dialog() {
@@ -6968,7 +6969,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     c.close();
             } catch (Exception e) {
                 e.printStackTrace();
-                Crashlytics.log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
+                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
                 if(activity != null) {
                     activity.runOnUiThread(new Runnable() {
                         @Override
@@ -7045,14 +7046,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         responseIn = http.getInputStream();
                         return onInput(responseIn);
                     } else {
-                        Crashlytics.log(Log.INFO, "IRCCloud", "responseCode=" + http.getResponseCode());
+                        IRCCloudLog.Log(Log.INFO, "IRCCloud", "responseCode=" + http.getResponseCode());
                         responseIn = http.getErrorStream();
                         StringBuilder sb = new StringBuilder();
                         Scanner scanner = new Scanner(responseIn).useDelimiter("\\A");
                         while (scanner.hasNext()) {
                             sb.append(scanner.next());
                         }
-                        Crashlytics.log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
+                        IRCCloudLog.Log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
                         try {
                             JSONObject root = new JSONObject(sb.toString());
                             if (root.has("message")) {
@@ -7081,7 +7082,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 NetworkConnection.printStackTraceToCrashlytics(ex);
             } catch (Exception ex) {
                 NetworkConnection.printStackTraceToCrashlytics(ex);
-                Crashlytics.logException(ex);
+                IRCCloudLog.LogException(ex);
                 error = "An unexpected error occurred. Please try again later.";
             } finally {
                 try {
@@ -7301,7 +7302,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         protected Boolean doInBackground(Void... voids) {
             try {
-                Crashlytics.log(Log.INFO, "IRCCloud", "Registering for FCM");
+                IRCCloudLog.Log(Log.INFO, "IRCCloud", "Registering for FCM");
                 SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                 editor.putString("gcm_token", token);
                 editor.apply();
@@ -7320,9 +7321,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         protected void onPostExecute(Boolean result) {
             if(result) {
-                Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully registered");
+                IRCCloudLog.Log(Log.INFO, "IRCCloud", "Device successfully registered");
             } else {
-                Crashlytics.log(Log.ERROR, "IRCCloud", "FCM registration failed, scheduling background task");
+                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "FCM registration failed, scheduling background task");
                 BackgroundTaskWorker.registerGCM(token);
             }
         }

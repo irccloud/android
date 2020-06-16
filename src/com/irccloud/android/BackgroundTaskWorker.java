@@ -83,7 +83,7 @@ public class BackgroundTaskWorker extends Worker {
     public static void registerGCM(String token) {
         List<BackgroundTask> tasks = IRCCloudDatabase.getInstance().BackgroundTasksDao().getBackgroundTasks(BackgroundTask.TYPE_FCM_REGISTER);
         for(BackgroundTask t : tasks) {
-            Crashlytics.log(Log.INFO, "IRCCloud", "Removing old FCM registration task: " + t.getTag());
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Removing old FCM registration task: " + t.getTag());
             try {
                 WorkManager.getInstance().cancelUniqueWork(t.getTag());
             } catch (Exception e) {
@@ -98,7 +98,7 @@ public class BackgroundTaskWorker extends Worker {
             task.setTag(Long.toString(System.currentTimeMillis()));
             task.setSession(NetworkConnection.getInstance().session);
 
-            Crashlytics.log(Log.INFO, "IRCCloud", "Scheduled FCM registration task: " + task.getTag());
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Scheduled FCM registration task: " + task.getTag());
             try {
                 OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(BackgroundTaskWorker.class)
                         .setInputData(new Data.Builder().putString("tag", task.getTag()).build())
@@ -189,7 +189,7 @@ public class BackgroundTaskWorker extends Worker {
     @Override
     public ListenableWorker.Result doWork() {
         String tag = getInputData().getString("tag");
-        Crashlytics.log(Log.INFO, "IRCCloud", "Executing background task with tag: " + tag);
+        IRCCloudLog.Log(Log.INFO, "IRCCloud", "Executing background task with tag: " + tag);
         BackgroundTask task = IRCCloudDatabase.getInstance().BackgroundTasksDao().getBackgroundTask(tag);
         if(task != null) {
             switch(task.getType()) {
@@ -202,7 +202,7 @@ public class BackgroundTaskWorker extends Worker {
                     return result;
             }
         } else {
-            Crashlytics.log(Log.ERROR, "IRCCloud", "Task not found");
+            IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Task not found");
         }
 
         return Result.failure();
@@ -213,28 +213,28 @@ public class BackgroundTaskWorker extends Worker {
             if(task.getSession() == null || task.getSession().length() == 0)
                 return Result.failure();
 
-            Crashlytics.log(Log.INFO, "IRCCloud", "Registering for FCM");
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Registering for FCM");
             String token = task.getData();
             if(token != null && token.length() > 0) {
                 JSONObject result = NetworkConnection.getInstance().registerGCM(token, task.getSession());
                 if (result != null && result.has("success")) {
                     if(result.getBoolean("success")) {
-                        Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully registered");
+                        IRCCloudLog.Log(Log.INFO, "IRCCloud", "Device successfully registered");
                         IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(task);
                         return Result.success();
                     } else {
-                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to register device: " + result.toString());
+                        IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to register device: " + result.toString());
                         return Result.retry();
                     }
                 } else {
-                    Crashlytics.log(Log.INFO, "IRCCloud", "Rescheduling FCM registration");
+                    IRCCloudLog.Log(Log.INFO, "IRCCloud", "Rescheduling FCM registration");
                     return Result.retry();
                 }
             }
         } catch (Exception e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
         }
-        Crashlytics.log(Log.ERROR, "IRCCloud", "FCM registration failed");
+        IRCCloudLog.Log(Log.ERROR, "IRCCloud", "FCM registration failed");
         IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(task);
 
         return Result.failure();
@@ -243,13 +243,13 @@ public class BackgroundTaskWorker extends Worker {
     private static Result onGcmUnregister(final String token, String session) {
         if(token != null) {
             try {
-                Crashlytics.log(Log.INFO, "IRCCloud", "Unregistering FCM");
+                IRCCloudLog.Log(Log.INFO, "IRCCloud", "Unregistering FCM");
                 try {
                     FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
                         @Override
                         public void onSuccess(InstanceIdResult instanceIdResult) {
                             if (token.equals(instanceIdResult.getToken())) {
-                                Crashlytics.log(Log.INFO, "IRCCloud", "Deleting old FCM token");
+                                IRCCloudLog.Log(Log.INFO, "IRCCloud", "Deleting old FCM token");
                                 try {
                                     FirebaseInstanceId.getInstance().deleteInstanceId();
                                 } catch (Exception e) {
@@ -264,23 +264,23 @@ public class BackgroundTaskWorker extends Worker {
                 JSONObject result = NetworkConnection.getInstance().unregisterGCM(token, session);
                 if (result != null && result.has("success")) {
                     if (result.getBoolean("success") || result.getString("message").equals("auth")) {
-                        Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully unregistered");
+                        IRCCloudLog.Log(Log.INFO, "IRCCloud", "Device successfully unregistered");
                         SharedPreferences.Editor e = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                         e.remove(session);
                         e.apply();
                         return Result.success();
                     } else {
-                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to unregister device: " + result.toString());
+                        IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to unregister device: " + result.toString());
                         return Result.retry();
                     }
                 } else {
-                    Crashlytics.log(Log.INFO, "IRCCloud", "Rescheduling FCM unregistration");
+                    IRCCloudLog.Log(Log.INFO, "IRCCloud", "Rescheduling FCM unregistration");
                     return Result.retry();
                 }
             } catch (Exception e) {
                 NetworkConnection.printStackTraceToCrashlytics(e);
             }
-            Crashlytics.log(Log.ERROR, "IRCCloud", "FCM unregistration failed");
+            IRCCloudLog.Log(Log.ERROR, "IRCCloud", "FCM unregistration failed");
         }
 
         return Result.failure();

@@ -106,7 +106,7 @@ public class HTTPFetcher {
     }
 
     public void cancel() {
-        Crashlytics.log(Log.INFO, TAG, "HTTP request cancelled");
+        IRCCloudLog.Log(Log.INFO, TAG, "HTTP request cancelled");
         isCancelled = true;
     }
 
@@ -127,12 +127,12 @@ public class HTTPFetcher {
         @Override
         public void run() {
             try {
-                Crashlytics.log(Log.INFO, TAG, "Connecting to address: " + mAddress.getAddress() + " port: " + mAddress.getPort() + " (attempt " + mAttempts + ")");
+                IRCCloudLog.Log(Log.INFO, TAG, "Connecting to address: " + mAddress.getAddress() + " port: " + mAddress.getPort() + " (attempt " + mAttempts + ")");
                 Socket socket = mSocketFactory.createSocket();
                 socket.connect(mAddress, 30000);
                 if(mSocket == null) {
                     mSocket = socket;
-                    Crashlytics.log(Log.INFO, TAG, "Connected to " + mAddress.getAddress() + " (attempt " + mAttempts + ")");
+                    IRCCloudLog.Log(Log.INFO, TAG, "Connected to " + mAddress.getAddress() + " (attempt " + mAttempts + ")");
                     if (mURI.getProtocol().equals("https")) {
                         SSLSocket s = (SSLSocket) mSocket;
                         try {
@@ -160,7 +160,7 @@ public class HTTPFetcher {
             mSocketThreads.remove(Thread.currentThread());
             mCurrentSocketThreads.remove(Thread.currentThread());
             if(mSocket == null && mCurrentSocketThreads.size() == 0 && mAttempts == mAddressCount) {
-                Crashlytics.log(Log.ERROR, TAG, "Failed to connect after " + mAttempts + " attempts");
+                IRCCloudLog.Log(Log.ERROR, TAG, "Failed to connect after " + mAttempts + " attempts");
                 onFetchFailed();
             }
         }
@@ -183,7 +183,7 @@ public class HTTPFetcher {
                     int port = (mURI.getPort() != -1) ? mURI.getPort() : (mURI.getProtocol().equals("https") ? 443 : 80);
                     SocketFactory factory = mURI.getProtocol().equals("https") ? getSSLSocketFactory() : SocketFactory.getDefault();
                     if (mProxyHost != null && mProxyHost.length() > 0 && mProxyPort > 0) {
-                        Crashlytics.log(Log.INFO, TAG, "Connecting to proxy: " + mProxyHost + " port: " + mProxyPort);
+                        IRCCloudLog.Log(Log.INFO, TAG, "Connecting to proxy: " + mProxyHost + " port: " + mProxyPort);
                         mSocket = SocketFactory.getDefault().createSocket(mProxyHost, mProxyPort);
                         mThread = new Thread(new Runnable() {
                             @SuppressLint("NewApi")
@@ -199,7 +199,7 @@ public class HTTPFetcher {
                         for (InetAddress address : addresses) {
                             if(mSocket == null && !isCancelled) {
                                 if(mSocketThreads.size() >= MAX_THREADS) {
-                                    Crashlytics.log(Log.INFO, TAG, "Waiting for other HTTP requests to complete before continuing");
+                                    IRCCloudLog.Log(Log.INFO, TAG, "Waiting for other HTTP requests to complete before continuing");
 
                                     while (mSocketThreads.size() >= MAX_THREADS) {
                                         Thread.sleep(1000);
@@ -279,7 +279,7 @@ public class HTTPFetcher {
                     throw new SSLException("Hostname mismatch");
             }
 
-            Crashlytics.log(Log.DEBUG, TAG, "Sending HTTP request");
+            IRCCloudLog.Log(Log.DEBUG, TAG, "Sending HTTP request");
 
             out.print("GET " + path + " HTTP/1.0\r\n");
             out.print("Host: " + mURI.getHost() + "\r\n");
@@ -299,12 +299,12 @@ public class HTTPFetcher {
             if (statusLineString == null) {
                 throw new Exception("Received no reply from server.");
             } else {
-                Crashlytics.log(Log.DEBUG, TAG, "Got HTTP response: " + statusLineString);
+                IRCCloudLog.Log(Log.DEBUG, TAG, "Got HTTP response: " + statusLineString);
                 statusLine = StatusLine.parse(statusLineString);
                 if(metric != null)
                     metric.setHttpResponseCode(statusLine.code);
                 if (statusLine.code != HttpURLConnection.HTTP_OK && statusLine.code != HttpURLConnection.HTTP_MOVED_PERM) {
-                    Crashlytics.log(Log.ERROR, TAG, "Failure: " + mURI + ": " + statusLine.toString());
+                    IRCCloudLog.Log(Log.ERROR, TAG, "Failure: " + mURI + ": " + statusLine.toString());
                     throw new Exception(statusLine.toString());
                 }
             }
@@ -323,7 +323,7 @@ public class HTTPFetcher {
                 if(metric != null && header.name(0).equalsIgnoreCase("content-length"))
                     metric.setResponsePayloadSize(Long.valueOf(header.value(0)));
                 if(statusLine.code == HttpURLConnection.HTTP_MOVED_PERM && header.name(0).equalsIgnoreCase("location")) {
-                    Crashlytics.log(Log.INFO, TAG, "Redirecting to: " + header.value(0));
+                    IRCCloudLog.Log(Log.INFO, TAG, "Redirecting to: " + header.value(0));
                     mURI = new URL(header.value(0));
                     mSocket.close();
                     mSocket = null;
