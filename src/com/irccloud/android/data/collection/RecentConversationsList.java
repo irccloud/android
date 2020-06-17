@@ -126,14 +126,6 @@ public class RecentConversationsList {
             IRCCloudDatabase.getInstance().RecentConversationsDao().insert(c);
     }
 
-    public void updateAvatar(int cid, int bid, String avatar_url) {
-        RecentConversation c = getConversation(cid, bid);
-        if(c != null) {
-            c.setAvatar_url(avatar_url);
-            IRCCloudDatabase.getInstance().RecentConversationsDao().update(c);
-        }
-    }
-
     public void prune() {
         List<RecentConversation> conversations = getConversations();
         IRCCloudDatabase.getInstance().beginTransaction();
@@ -155,43 +147,6 @@ public class RecentConversationsList {
         IRCCloudDatabase.getInstance().endTransaction();
     }
 
-    public static IconCompat getIconForConversation(RecentConversation c, boolean fetchIfNeeded) {
-        IconCompat avatar = null;
-        Buffer b = BuffersList.getInstance().getBuffer(c.getBid());
-        if(b == null) {
-            b = new Buffer();
-            b.setCid(c.getCid());
-            b.setBid(c.getBid());
-            b.setName(c.getName());
-            b.setType(c.getType());
-            b.setDeferred(1);
-        }
-        if(c.getType().equals("channel")) {
-            avatar = IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, Color.parseColor("#" + ColorScheme.colorForNick(c.getName(), false)), false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false));
-        } else if(b.isConversation()) {
-            try {
-                if (c.getAvatar_url() != null && c.getAvatar_url().length() > 0 && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
-                    Bitmap bitmap = ImageList.getInstance().getImage(new URL(c.getAvatar_url()));
-                    if (bitmap != null)
-                        avatar = IconCompat.createWithAdaptiveBitmap(bitmap);
-                    else if(fetchIfNeeded)
-                        ImageList.getInstance().fetchImage(new URL(c.getAvatar_url()), new ImageList.OnImageFetchedListener() {
-                            @Override
-                            public void onImageFetched(Bitmap image) {
-                                RecentConversationsList.getInstance().publishShortcuts();
-                            }
-                        });
-                }
-            } catch (Exception e) {
-            }
-
-            if(avatar == null) {
-                avatar = IconCompat.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(c.getCid(), c.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false));
-            }
-        }
-        return avatar;
-    }
-
     public void publishShortcuts() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int MAX_SHORTCUTS = ShortcutManagerCompat.getMaxShortcutCountPerActivity(IRCCloudApplication.getInstance().getApplicationContext());
@@ -202,20 +157,16 @@ public class RecentConversationsList {
             ArrayList<ShortcutInfoCompat> shortcuts = new ArrayList<>();
             List<RecentConversation> conversations = getConversations();
             for(RecentConversation c : conversations) {
-                Buffer b = BuffersList.getInstance().getBuffer(c.getBid());
-                if(b == null) {
-                    b = new Buffer();
-                    b.setCid(c.getCid());
-                    b.setBid(c.getBid());
-                    b.setName(c.getName());
-                    b.setType(c.getType());
-                    b.setDeferred(1);
-                }
-                IconCompat avatar = getIconForConversation(c, true);
+                IconCompat avatar = AvatarsList.getIconForBuffer(c.getBuffer(), new ImageList.OnImageFetchedListener() {
+                    @Override
+                    public void onImageFetched(Bitmap image) {
+                        RecentConversationsList.getInstance().publishShortcuts();
+                    }
+                });
 
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
-                i.putExtra("bid", b.getBid());
+                i.putExtra("bid", c.getBid());
 
                 ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(c.getBid()))
                         .setShortLabel(c.getName())
@@ -224,10 +175,10 @@ public class RecentConversationsList {
                         .setLongLived(true)
                         .setCategories(categories);
 
-                if(people.containsKey(b.getBid()))
-                    builder.setPersons(people.get(b.getBid()));
-                else if(b.isConversation())
-                    builder.setPerson(new Person.Builder().setName(b.getDisplayName()).build());
+                if(people.containsKey(c.getBid()))
+                    builder.setPersons(people.get(c.getBid()));
+                else if(c.getBuffer().isConversation())
+                    builder.setPerson(new Person.Builder().setName(c.getBuffer().getDisplayName()).build());
 
                 shortcuts.add(builder.build());
 

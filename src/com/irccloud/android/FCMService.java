@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -145,7 +146,7 @@ public class FCMService extends FirebaseMessagingService {
                 avatar_url = e.getAvatarURL((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), buffer_type != null && buffer_type.equals("channel"), NotificationsList.getInstance().getServerIsSlack(cid));
 
                 if(avatar_url != null)
-                    RecentConversationsList.getInstance().updateAvatar(cid, bid, avatar_url);
+                    AvatarsList.setAvatarURL(cid, from, eid, avatar_url);
                 if(buffer_type != null && (buffer_type.equals("channel") || buffer_type.equals("conversation")))
                     RecentConversationsList.getInstance().updateConversation(cid, bid, buffer_type.equals("channel")?chan:from, buffer_type, eid);
                 NotificationsList.getInstance().addNotificationGroup(cid, server_name);

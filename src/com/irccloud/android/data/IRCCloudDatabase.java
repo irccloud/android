@@ -18,9 +18,11 @@ package com.irccloud.android.data;
 
 import com.irccloud.android.BackgroundTaskWorker;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.LogExportsList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.RecentConversationsList;
+import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.BackgroundTask;
 import com.irccloud.android.data.model.LogExport;
 import com.irccloud.android.data.model.Notification;
@@ -34,29 +36,16 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {RecentConversation.class, BackgroundTask.class, LogExport.class, Notification.class, Notification_LastSeenEID.class, Notification_ServerNick.class}, version = IRCCloudDatabase.VERSION, exportSchema = false)
+@Database(entities = {RecentConversation.class, BackgroundTask.class, LogExport.class, Notification.class, Notification_LastSeenEID.class, Notification_ServerNick.class, Avatar.class}, version = IRCCloudDatabase.VERSION, exportSchema = false)
 public abstract class IRCCloudDatabase extends RoomDatabase {
     public static final String NAME = "irccloud";
-    public static final int VERSION = 12;
+    public static final int VERSION = 13;
 
     public abstract RecentConversationsList.RecentConversationsDao RecentConversationsDao();
     public abstract BackgroundTaskWorker.BackgroundTasksDao BackgroundTasksDao();
     public abstract LogExportsList.LogExportsDao LogExportsDao();
     public abstract NotificationsList.NotificationsDao NotificationsDao();
-
-    private static final Migration MIGRATION_10_11 = new Migration(10, 11) {
-        @Override
-        public void migrate(SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE Notification_ServerNick ADD COLUMN avatar_url TEXT");
-        }
-    };
-
-    private static final Migration MIGRATION_11_12 = new Migration(11, 12) {
-        @Override
-        public void migrate(SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE Notification_ServerNick ADD COLUMN isSlack INTEGER DEFAULT 0 NOT NULL");
-        }
-    };
+    public abstract AvatarsList.AvatarsDao AvatarsDao();
 
     private static IRCCloudDatabase sInstance;
     public static IRCCloudDatabase getInstance() {
@@ -64,7 +53,7 @@ public abstract class IRCCloudDatabase extends RoomDatabase {
             synchronized (IRCCloudDatabase.class) {
                 if (sInstance == null) {
                     sInstance = Room.databaseBuilder(IRCCloudApplication.getInstance().getApplicationContext(), IRCCloudDatabase.class, NAME)
-                            .addMigrations(MIGRATION_10_11,MIGRATION_11_12)
+                            .fallbackToDestructiveMigrationFrom(12)
                             .fallbackToDestructiveMigration()
                             .fallbackToDestructiveMigrationOnDowngrade()
                             .allowMainThreadQueries()

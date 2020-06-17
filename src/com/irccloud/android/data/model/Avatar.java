@@ -21,27 +21,37 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+
+import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Index;
+
 import android.text.TextPaint;
 
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.R;
+import com.irccloud.android.data.IRCCloudDatabase;
 
 import java.util.HashMap;
 
+@Entity(primaryKeys = {"cid", "nick"}, indices = {@Index(value = {"cid", "nick"}, unique = true)})
 public class Avatar {
-    private HashMap<Integer, Bitmap> bitmaps_dark = new HashMap<>();
-    private HashMap<Integer, Bitmap> bitmaps_light = new HashMap<>();
-    private HashMap<Integer, Bitmap> bitmaps_self_light = new HashMap<>();
-    private HashMap<Integer, Bitmap> bitmaps_self_dark = new HashMap<>();
-    private HashMap<Integer, Bitmap> bitmaps_square = new HashMap<>();
-    private static Typeface font = null;
+    @Ignore private HashMap<Integer, Bitmap> bitmaps_dark = new HashMap<>();
+    @Ignore private HashMap<Integer, Bitmap> bitmaps_light = new HashMap<>();
+    @Ignore private HashMap<Integer, Bitmap> bitmaps_self_light = new HashMap<>();
+    @Ignore private HashMap<Integer, Bitmap> bitmaps_self_dark = new HashMap<>();
+    @Ignore private HashMap<Integer, Bitmap> bitmaps_square = new HashMap<>();
+    @Ignore private static Typeface font = null;
 
-    public long lastAccessTime = 0;
+    @Ignore public long lastAccessTime = 0;
     public int cid;
-    public String nick;
-    public String display_name;
+    @NonNull public String nick;
+    @Ignore public String display_name;
+    public String avatar_url;
+    public long eid;
 
     public static Bitmap generateBitmap(String text, int textColor, int bgColor, boolean isDarkTheme, int size, boolean round) {
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
@@ -68,7 +78,10 @@ public class Avatar {
             TextPaint tp = new TextPaint(Paint.ANTI_ALIAS_FLAG);
             tp.setTextAlign(Paint.Align.CENTER);
             tp.setTypeface(font);
-            tp.setTextSize((int) (size * 0.65));
+            if(text.length() == 1)
+                tp.setTextSize((int) (size * 0.65));
+            else
+                tp.setTextSize((int) (size * 0.4));
             tp.setColor(textColor);
             if (isDarkTheme || !round) {
                 c.drawText(text, size / 2, (size / 2) - ((tp.descent() + tp.ascent()) / 2), tp);

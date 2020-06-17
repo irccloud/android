@@ -16,14 +16,54 @@
 
 package com.irccloud.android.data.collection;
 
-import com.irccloud.android.data.model.Avatar;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.preference.PreferenceManager;
+import android.util.TypedValue;
 
+import androidx.core.graphics.drawable.IconCompat;
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
+
+import com.irccloud.android.ColorScheme;
+import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.data.IRCCloudDatabase;
+import com.irccloud.android.data.model.Avatar;
+import com.irccloud.android.data.model.Buffer;
+import com.irccloud.android.data.model.RecentConversation;
+
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
 public class AvatarsList {
+    @Dao
+    public interface AvatarsDao {
+        @Query("SELECT * FROM Avatar WHERE cid = :cid AND nick = :nick LIMIT 1")
+        Avatar getAvatar(int cid, String nick);
+
+        @Query("SELECT avatar_url FROM Avatar WHERE cid = :cid AND nick = :nick LIMIT 1")
+        String getAvatarURL(int cid, String nick);
+
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        void insert(Avatar avatar);
+
+        @Update
+        void update(Avatar avatar);
+
+        @Delete
+        void delete(Avatar avatar);
+
+        @Query("DELETE FROM Avatar")
+        void clear();
+    }
+
     private static final int MAX_AVATARS = 50;
     private HashMap<Integer, HashMap<String, Avatar>> avatars;
 
@@ -41,6 +81,27 @@ public class AvatarsList {
 
     public synchronized void clear() {
         avatars.clear();
+        IRCCloudDatabase.getInstance().AvatarsDao().clear();
+    }
+
+    public static void setAvatarURL(int cid, String nick, long eid, String avatar_url) {
+        if(nick != null) {
+            Avatar a = IRCCloudDatabase.getInstance().AvatarsDao().getAvatar(cid, nick);
+            if (a == null) {
+                a = new Avatar();
+                a.cid = cid;
+                a.nick = nick;
+                IRCCloudDatabase.getInstance().AvatarsDao().insert(a);
+            } else if (a.eid < eid) {
+                a.avatar_url = avatar_url;
+                a.eid = eid;
+                IRCCloudDatabase.getInstance().AvatarsDao().update(a);
+            }
+        }
+    }
+
+    public static String getAvatarURL(int cid, String nick) {
+        return IRCCloudDatabase.getInstance().AvatarsDao().getAvatarURL(cid, nick);
     }
 
     public synchronized Avatar getAvatar(int cid, String nick, String display_name) {
@@ -57,11 +118,20 @@ public class AvatarsList {
             pruneAvatars();
 
         if(a == null) {
+            a = IRCCloudDatabase.getInstance().AvatarsDao().getAvatar(cid, nick);
+            if(a != null) {
+                a.display_name = (display_name != null && display_name.length() > 0) ? display_name : nick;
+                avatars.get(cid).put(nick, a);
+            }
+        }
+
+        if(a == null) {
             a = new Avatar();
             a.cid = cid;
             a.nick = nick;
             a.display_name = (display_name != null && display_name.length() > 0) ? display_name : nick;
             avatars.get(cid).put(nick, a);
+            IRCCloudDatabase.getInstance().AvatarsDao().insert(a);
         }
 
         return a;
@@ -84,4 +154,31 @@ public class AvatarsList {
             }
         }
     }
+
+    public static IconCompat getIconForBuffer(Buffer b, ImageList.OnImageFetchedListener onImageFetchedListener) {
+        IconCompat avatar = null;
+
+        if(b.getType().equals("channel")) {
+            avatar = IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap("#" + b.normalizedName().substring(0,1), 0xFFFFFFFF, Color.parseColor("#" + ColorScheme.colorForNick(b.getName(), false)), false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false));
+        } else if(b.isConversation()) {
+            String avatar_url = getAvatarURL(b.getCid(), b.getName());
+            try {
+                if (avatar_url != null && avatar_url.length() > 0 && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
+                    Bitmap bitmap = ImageList.getInstance().getImage(new URL(avatar_url));
+                    if (bitmap != null)
+                        avatar = IconCompat.createWithAdaptiveBitmap(bitmap);
+                    else if(onImageFetchedListener != null)
+                        ImageList.getInstance().fetchImage(new URL(avatar_url), onImageFetchedListener);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if(avatar == null) {
+                avatar = IconCompat.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(b.getCid(), b.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false));
+            }
+        }
+        return avatar;
+    }
+
 }

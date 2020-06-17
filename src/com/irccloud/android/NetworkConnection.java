@@ -48,6 +48,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.HttpMetric;
+import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.LogExportsList;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -1298,6 +1299,7 @@ public class NetworkConnection {
         userInfo = null;
         session = null;
         ImageList.getInstance().purge();
+        AvatarsList.getInstance().clear();
         mRecentConversations.clear();
         LogExportsList.getInstance().clear();
         FirebaseAnalytics.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).resetAnalyticsData();
@@ -2673,17 +2675,19 @@ public class NetworkConnection {
                     mEvents.clearPendingEvents(event.bid);
                 }
 
-                if(b != null && b.isConversation() && b.getName().equalsIgnoreCase(event.from) && event.isMessage()) {
+                if(event.isMessage()) {
                     String avatar = event.getAvatarURL((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()));
-                    mRecentConversations.updateAvatar(event.cid, event.bid, avatar);
-                    try {
-                        if(avatar != null && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", true)) {
-                            URL url = new URL(event.getAvatarURL((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics())));
-                            if (!ImageList.getInstance().cacheFile(url).exists()) {
-                                ImageList.getInstance().fetchImage(url, null);
+                    AvatarsList.setAvatarURL(event.cid, event.type.equals("buffer_me_msg")?event.nick:event.from_nick, event.eid, avatar);
+                    if (b != null && b.isConversation() && b.getName().equalsIgnoreCase(event.from)) {
+                        try {
+                            if (avatar != null && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", true)) {
+                                URL url = new URL(event.getAvatarURL((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics())));
+                                if (!ImageList.getInstance().cacheFile(url).exists()) {
+                                    ImageList.getInstance().fetchImage(url, null);
+                                }
                             }
+                        } catch (Exception e) {
                         }
-                    } catch (Exception e) {
                     }
                 }
 

@@ -69,6 +69,7 @@ import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Notification_LastSeenEID;
 import com.irccloud.android.data.model.Notification_ServerNick;
+import com.irccloud.android.data.model.RecentConversation;
 import com.irccloud.android.data.model.Server;
 
 import java.net.URL;
@@ -626,6 +627,7 @@ public class NotificationsList {
                 }
 
                 try {
+                    RecentConversation c = RecentConversationsList.getInstance().getConversation(cid, bid);
                     NotificationCompat.BubbleMetadata.Builder bubbleBuilder = new NotificationCompat.BubbleMetadata.Builder();
                     Intent b = new Intent(Intent.ACTION_VIEW);
                     b.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext(), BubbleActivity.class));
@@ -634,7 +636,7 @@ public class NotificationsList {
                     bubbleBuilder.setIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, b, PendingIntent.FLAG_UPDATE_CURRENT));
                     bubbleBuilder.setDeleteIntent(dismissPendingIntent);
                     bubbleBuilder.setDesiredHeight(4096);
-                    bubbleBuilder.setIcon(RecentConversationsList.getIconForConversation(RecentConversationsList.getInstance().getConversation(cid, bid), false));
+                    bubbleBuilder.setIcon(AvatarsList.getIconForBuffer(c.getBuffer(), null));
                     builder.setBubbleMetadata(bubbleBuilder.build());
                 } catch (Exception e) {
                     e.printStackTrace();

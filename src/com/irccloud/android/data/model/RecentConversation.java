@@ -19,6 +19,8 @@ package com.irccloud.android.data.model;
 import androidx.room.Entity;
 import androidx.room.Index;
 
+import com.irccloud.android.data.collection.BuffersList;
+
 @Entity(primaryKeys = {"cid", "bid"}, indices = {@Index(value = {"cid", "bid"}, unique = true)})
 public class RecentConversation {
     private int cid;
@@ -30,8 +32,6 @@ public class RecentConversation {
     private String type;
 
     private long timestamp;
-
-    private String avatar_url;
 
     public int getCid() {
         return cid;
@@ -73,15 +73,20 @@ public class RecentConversation {
         this.timestamp = timestamp;
     }
 
-    public String getAvatar_url() {
-        return avatar_url;
-    }
-
-    public void setAvatar_url(String avatar_url) {
-        this.avatar_url = avatar_url;
+    public Buffer getBuffer() {
+        Buffer b = BuffersList.getInstance().getBuffer(getBid());
+        if(b == null) {
+            b = new Buffer();
+            b.setCid(getCid());
+            b.setBid(getBid());
+            b.setName(getName());
+            b.setType(getType());
+            b.setDeferred(1);
+        }
+        return b;
     }
 
     public String toString() {
-        return "{cid: " + getCid() + ", bid: " + getBid() + ", name: " + getName() + ", type: " + getType() + ", avatar_url: " + getAvatar_url() + "}";
+        return "{cid: " + getCid() + ", bid: " + getBid() + ", name: " + getName() + ", type: " + getType() + "}";
     }
 }

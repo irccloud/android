@@ -49,6 +49,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -901,7 +902,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 findViewById(R.id.BuffersListDocked).setVisibility(View.VISIBLE);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             } else {
-                toolbar.setNavigationIcon(bubble ? null : upDrawable);
+                if(bubble) {
+                    if(msgid != null && msgid.length() > 0) {
+                        toolbar.setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material);
+                    } else {
+                        toolbar.setNavigationIcon(null);
+                    }
+                } else {
+                    toolbar.setNavigationIcon(upDrawable);
+                }
                 toolbar.setNavigationContentDescription("Channels list");
                 findViewById(R.id.BuffersListDocked).setVisibility(View.GONE);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
@@ -4354,7 +4363,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (bubble) {
-                    //TODO: Close thread here
+                    setBuffer(buffer.getBid(), null);
                 } else if (drawerLayout != null) {
                     if (drawerLayout.isDrawerOpen(Gravity.LEFT))
                         drawerLayout.closeDrawer(Gravity.LEFT);
@@ -4593,21 +4602,23 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     } else {
                         ShortcutManager mShortcutManager = getSystemService(ShortcutManager.class);
 
-                        if (mShortcutManager.isRequestPinShortcutSupported()) {
-                            Icon icon = null;
-                            if(buffer.isChannel()) {
-                                icon = Icon.createWithAdaptiveBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, getResources().getDisplayMetrics()), false));
-                            } else if(buffer.isConversation()) {
-                                icon = Icon.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(buffer.getCid(), buffer.getName(), null).getBitmap(false, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, getResources().getDisplayMetrics()), false, false));
-                            }
-                            ShortcutInfo pinShortcutInfo = new ShortcutInfo.Builder(this, String.valueOf(buffer.getBid()))
+                        if (mShortcutManager != null && mShortcutManager.isRequestPinShortcutSupported()) {
+                            ShortcutInfo.Builder pinShortcutInfo = new ShortcutInfo.Builder(this, String.valueOf(buffer.getBid()))
                                     .setIntent(shortcutIntent)
                                     .setShortLabel(buffer.getName())
-                                    .setLongLabel(buffer.getName() + " (" + ((server.getName() != null && server.getName().length() > 0) ? server.getName() : server.getHostname()) + ")")
-                                    .setIcon(icon)
-                                    .build();
+                                    .setLongLabel(buffer.getName() + " (" + ((server.getName() != null && server.getName().length() > 0) ? server.getName() : server.getHostname()) + ")");
 
-                            mShortcutManager.requestPinShortcut(pinShortcutInfo, null);
+                            IconCompat icon = AvatarsList.getIconForBuffer(buffer, new ImageList.OnImageFetchedListener() {
+                                @Override
+                                public void onImageFetched(Bitmap image) {
+                                    if (image != null) {
+                                        pinShortcutInfo.setIcon(Icon.createWithAdaptiveBitmap(image));
+                                        mShortcutManager.requestPinShortcut(pinShortcutInfo.build(), null);
+                                    }
+                                }
+                            });
+                            pinShortcutInfo.setIcon(icon.toIcon(this));
+                            mShortcutManager.requestPinShortcut(pinShortcutInfo.build(), null);
                         }
                     }
                     moveTaskToBack(true);
@@ -5444,7 +5455,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
 
-        if (msgid != null && this.msgid == null && !bubble) {
+        if (msgid != null && this.msgid == null) {
             itemList.add("Reply");
         }
 
@@ -5997,6 +6008,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 messageTxt.append(buffer.getDraft());
         }
 
+        adjustTabletLayout();
         updateUsersListFragmentVisibility();
         supportInvalidateOptionsMenu();
         if (excludeBIDTask != null)

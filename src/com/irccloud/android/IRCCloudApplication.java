@@ -281,8 +281,10 @@ public class IRCCloudApplication extends MultiDexApplication {
         };
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+            android.util.Log.d("IRCCloud", "notifier timer scheduled for 5000 seconds");
             notifierTimer.schedule(notifierSockerTimerTask, 5000);
         } else {
+            android.util.Log.d("IRCCloud", "notifier timer scheduled for 300000 seconds");
             notifierTimer.schedule(notifierSockerTimerTask, 300000);
         }
     }
@@ -293,6 +295,7 @@ public class IRCCloudApplication extends MultiDexApplication {
 
     public void cancelNotifierTimer() {
         if(notifierSockerTimerTask != null) {
+            android.util.Log.d("IRCCloud", "notifier timer cancelled");
             notifierSockerTimerTask.cancel();
             notifierSockerTimerTask = null;
         }
