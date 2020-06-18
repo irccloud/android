@@ -1250,20 +1250,24 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (users == null && buffer != null && (force || !disabled)) {
                     users = UsersList.getInstance().getUsersForBuffer(buffer.getBid());
                     if (users != null) {
-                        Collections.sort(users, new Comparator<User>() {
-                            @Override
-                            public int compare(User lhs, User rhs) {
-                                if (lhs.last_mention > rhs.last_mention)
-                                    return -1;
-                                if (lhs.last_mention < rhs.last_mention)
-                                    return 1;
-                                if (lhs.last_message > rhs.last_message)
-                                    return -1;
-                                if (lhs.last_message < rhs.last_message)
-                                    return 1;
-                                return lhs.nick.compareToIgnoreCase(rhs.nick);
-                            }
-                        });
+                        try {
+                            Collections.sort(users, new Comparator<User>() {
+                                @Override
+                                public int compare(User lhs, User rhs) {
+                                    if (lhs.last_mention > rhs.last_mention)
+                                        return -1;
+                                    if (lhs.last_mention < rhs.last_mention)
+                                        return 1;
+                                    if (lhs.last_message > rhs.last_message)
+                                        return -1;
+                                    if (lhs.last_message < rhs.last_message)
+                                        return 1;
+                                    return lhs.nick.compareToIgnoreCase(rhs.nick);
+                                }
+                            });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                     sortedUsers = users;
                 }

@@ -118,20 +118,11 @@ public class AvatarsList {
             pruneAvatars();
 
         if(a == null) {
-            a = IRCCloudDatabase.getInstance().AvatarsDao().getAvatar(cid, nick);
-            if(a != null) {
-                a.display_name = (display_name != null && display_name.length() > 0) ? display_name : nick;
-                avatars.get(cid).put(nick, a);
-            }
-        }
-
-        if(a == null) {
             a = new Avatar();
             a.cid = cid;
             a.nick = nick;
             a.display_name = (display_name != null && display_name.length() > 0) ? display_name : nick;
             avatars.get(cid).put(nick, a);
-            IRCCloudDatabase.getInstance().AvatarsDao().insert(a);
         }
 
         return a;
