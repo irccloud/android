@@ -57,6 +57,7 @@ import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
+import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -549,11 +550,15 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
 
     @Override
     public void onIRCEvent(int what, Object obj) {
+        IRCCloudJSONObject object;
         super.onIRCEvent(what, obj);
 
         switch (what) {
-            case NetworkConnection.EVENT_USERINFO:
             case NetworkConnection.EVENT_AVATARCHANGE:
+                object = (IRCCloudJSONObject)obj;
+                if(!object.getBoolean("self"))
+                    break;
+            case NetworkConnection.EVENT_USERINFO:
             case NetworkConnection.EVENT_MAKESERVER:
             case NetworkConnection.EVENT_BACKLOG_END:
                 runOnUiThread(new Runnable() {

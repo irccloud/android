@@ -143,7 +143,7 @@ public class FCMService extends FirebaseMessagingService {
                 if (data.containsKey("avatar_url"))
                     e.avatar_url = data.get("avatar_url");
 
-                avatar_url = e.getAvatarURL((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), buffer_type != null && buffer_type.equals("channel"), NotificationsList.getInstance().getServerIsSlack(cid));
+                avatar_url = e.getAvatarURL(AvatarsList.SHORTCUT_ICON_SIZE(), buffer_type != null && buffer_type.equals("channel"), NotificationsList.getInstance().getServerIsSlack(cid));
 
                 if(avatar_url != null)
                     AvatarsList.setAvatarURL(cid, from, eid, avatar_url);

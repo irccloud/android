@@ -87,15 +87,23 @@ public class AvatarsList {
     public static void setAvatarURL(int cid, String nick, long eid, String avatar_url) {
         if(nick != null) {
             Avatar a = IRCCloudDatabase.getInstance().AvatarsDao().getAvatar(cid, nick);
-            if (a == null) {
-                a = new Avatar();
-                a.cid = cid;
-                a.nick = nick;
-                IRCCloudDatabase.getInstance().AvatarsDao().insert(a);
-            } else if (a.eid < eid) {
-                a.avatar_url = avatar_url;
-                a.eid = eid;
-                IRCCloudDatabase.getInstance().AvatarsDao().update(a);
+
+            if(avatar_url != null) {
+                if (a == null) {
+                    a = new Avatar();
+                    a.cid = cid;
+                    a.nick = nick;
+                    a.eid = eid;
+                    a.avatar_url = avatar_url;
+                    IRCCloudDatabase.getInstance().AvatarsDao().insert(a);
+                } else if (a.eid < eid && !a.avatar_url.equals(avatar_url)) {
+                    a.avatar_url = avatar_url;
+                    a.eid = eid;
+                    IRCCloudDatabase.getInstance().AvatarsDao().update(a);
+                }
+            } else {
+                if(a != null)
+                    IRCCloudDatabase.getInstance().AvatarsDao().delete(a);
             }
         }
     }
@@ -146,11 +154,15 @@ public class AvatarsList {
         }
     }
 
+    public static int SHORTCUT_ICON_SIZE() {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics());
+    }
+
     public static IconCompat getIconForBuffer(Buffer b, ImageList.OnImageFetchedListener onImageFetchedListener) {
         IconCompat avatar = null;
 
         if(b.getType().equals("channel")) {
-            avatar = IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap("#" + b.normalizedName().substring(0,1), 0xFFFFFFFF, Color.parseColor("#" + ColorScheme.colorForNick(b.getName(), false)), false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false));
+            avatar = IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap("#" + b.normalizedName().substring(0,1), 0xFFFFFFFF, Color.parseColor("#" + ColorScheme.colorForNick(b.getName(), false)), false, AvatarsList.SHORTCUT_ICON_SIZE(), false));
         } else if(b.isConversation()) {
             String avatar_url = getAvatarURL(b.getCid(), b.getName());
             try {
@@ -166,7 +178,7 @@ public class AvatarsList {
             }
 
             if(avatar == null) {
-                avatar = IconCompat.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(b.getCid(), b.getName(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, false));
+                avatar = IconCompat.createWithAdaptiveBitmap(AvatarsList.getInstance().getAvatar(b.getCid(), b.getName(), null).getBitmap(false, AvatarsList.SHORTCUT_ICON_SIZE(), false, false));
             }
         }
         return avatar;

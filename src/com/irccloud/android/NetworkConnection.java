@@ -2416,7 +2416,7 @@ public class NetworkConnection {
                     e.avatar = server.getAvatar();
                     e.avatar_url = server.getAvatarURL();
 
-                    avatar_url = e.getAvatarURL(512);
+                    avatar_url = e.getAvatarURL(AvatarsList.SHORTCUT_ICON_SIZE());
                 }
 
                 NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"), avatar_url, server.isSlack());
@@ -2676,12 +2676,12 @@ public class NetworkConnection {
                 }
 
                 if(event.isMessage()) {
-                    String avatar = event.getAvatarURL((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()));
+                    String avatar = event.getAvatarURL(AvatarsList.SHORTCUT_ICON_SIZE());
                     AvatarsList.setAvatarURL(event.cid, event.type.equals("buffer_me_msg")?event.nick:event.from_nick, event.eid, avatar);
                     if (b != null && b.isConversation() && b.getName().equalsIgnoreCase(event.from)) {
                         try {
                             if (avatar != null && PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", true)) {
-                                URL url = new URL(event.getAvatarURL((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 108, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics())));
+                                URL url = new URL(event.getAvatarURL(AvatarsList.SHORTCUT_ICON_SIZE()));
                                 if (!ImageList.getInstance().cacheFile(url).exists()) {
                                     ImageList.getInstance().fetchImage(url, null);
                                 }
@@ -3038,14 +3038,41 @@ public class NetworkConnection {
         put("avatar_change", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
+                User u = mUsers.getUser(object.bid(), object.getString("nick"));
+                if(u != null) {
+                    Event e = new Event();
+                    e.cid = object.cid();
+                    e.from = object.getString("nick");
+                    e.type = "buffer_msg";
+                    e.hostmask = u.hostmask;
+                    e.avatar = object.getString("avatar");
+                    e.avatar_url = object.getString("avatar_url");
+
+                    String avatar_url = e.getAvatarURL(AvatarsList.SHORTCUT_ICON_SIZE());
+                    AvatarsList.setAvatarURL(object.cid(), object.getString("nick"), System.currentTimeMillis() * 1000L, avatar_url);
+                    RecentConversationsList.getInstance().publishShortcuts();
+                    NotificationsList.getInstance().showNotificationsNow();
+                }
                 if(object.getBoolean("self")) {
                     Server s = mServers.getServer(object.cid());
                     if (s != null) {
                         s.setAvatar(object.getString("avatar"));
                         s.setAvatarURL(object.getString("avatar_url"));
+
+                        Event e = new Event();
+                        e.cid = s.getCid();
+                        e.from = s.getNick();
+                        e.type = "buffer_msg";
+                        e.hostmask = s.getUsermask();
+                        e.avatar = s.getAvatar();
+                        e.avatar_url = s.getAvatarURL();
+
+                        String avatar_url = e.getAvatarURL(AvatarsList.SHORTCUT_ICON_SIZE());
+
+                        NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"), avatar_url, s.isSlack());
                     }
-                    notifyHandlers(EVENT_AVATARCHANGE, object);
                 }
+                notifyHandlers(EVENT_AVATARCHANGE, object);
             }
         });
         put("who_response", new Parser() {
