@@ -4445,57 +4445,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 renameBuffer(buffer, null);
                 break;
             case R.id.menu_delete:
-                builder = new AlertDialog.Builder(MainActivity.this);
-
-                if (buffer.isConsole())
-                    builder.setTitle("Delete Connection");
-                else
-                    builder.setTitle("Delete History");
-
-                if (buffer.isConsole())
-                    builder.setMessage("Are you sure you want to remove this connection?");
-                else if (buffer.isChannel())
-                    builder.setMessage("Are you sure you want to clear your history in " + buffer.getName() + "?");
-                else
-                    builder.setMessage("Are you sure you want to clear your history with " + buffer.getName() + "?");
-
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (buffer.isConsole()) {
-                            NetworkConnection.getInstance().deleteServer(buffer.getCid(), null);
-                        } else {
-                            NetworkConnection.getInstance().deleteBuffer(buffer.getCid(), buffer.getBid(), new NetworkConnection.IRCResultCallback() {
-                                @Override
-                                public void onIRCResult(IRCCloudJSONObject result) {
-                                    if(result.getBoolean("success")) {
-                                        BuffersList.getInstance().deleteAllDataForBuffer(buffer.getBid());
-                                        BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
-                                        BuffersListFragment blf2 = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersListDocked);
-
-                                        if(blf != null)
-                                            blf.refresh();
-
-                                        if(blf2 != null)
-                                            blf2.refresh();
-                                    }
-                                }
-                            });
-                        }
-                        dialog.dismiss();
-                    }
-                });
-                dialog = builder.create();
-                dialog.setOwnerActivity(MainActivity.this);
-                dialog.show();
+                deleteBuffer(buffer);
                 return true;
             case R.id.menu_editconnection:
                 if (!getResources().getBoolean(R.bool.isTablet)) {
@@ -4640,6 +4590,72 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    void deleteBuffer(final Buffer b) {
+        if(b != null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+            if (b.isConsole())
+                builder.setTitle("Delete Connection");
+            else
+                builder.setTitle("Delete History");
+
+            if (b.isConsole())
+                builder.setMessage("Are you sure you want to remove this connection?  Make sure you download any logs you want to keep before deleting.");
+            else if (b.isChannel())
+                builder.setMessage("Are you sure you want to clear your history in " + b.getName() + "?  Make sure you download any logs you want to keep before deleting.");
+            else
+                builder.setMessage("Are you sure you want to clear your history with " + b.getName() + "?  Make sure you download any logs you want to keep before deleting.");
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (b.isConsole()) {
+                        NetworkConnection.getInstance().deleteServer(b.getCid(), null);
+                    } else {
+                        NetworkConnection.getInstance().deleteBuffer(b.getCid(), b.getBid(), new NetworkConnection.IRCResultCallback() {
+                            @Override
+                            public void onIRCResult(IRCCloudJSONObject result) {
+                                if(result.getBoolean("success")) {
+                                    BuffersList.getInstance().deleteAllDataForBuffer(b.getBid());
+                                    BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+                                    BuffersListFragment blf2 = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersListDocked);
+
+                                    if(blf != null)
+                                        blf.refresh();
+
+                                    if(blf2 != null)
+                                        blf2.refresh();
+                                }
+                            }
+                        });
+                    }
+                    dialog.dismiss();
+                }
+            });
+            builder.setNeutralButton("Download Logs", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent i = new Intent(MainActivity.this, LogExportsActivity.class);
+                    i.putExtra("cid", b.getCid());
+                    i.putExtra("bid", b.getBid());
+                    startActivity(i);
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.setOwnerActivity(MainActivity.this);
+            dialog.show();
+        }
     }
 
     void renameBuffer(final Buffer b, String msg) {
@@ -5017,67 +5033,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if (conn != null && buffer != null)
                         conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]), null);
                 } else if (items[item].equals("Delete")) {
-                    builder = new AlertDialog.Builder(MainActivity.this);
-
-                    if (b.isConsole())
-                        builder.setTitle("Delete Connection");
-                    else
-                        builder.setTitle("Delete History");
-
-                    if (b.isConsole())
-                        builder.setMessage("Are you sure you want to remove this connection?  Make sure you download any logs you want to keep before deleting.");
-                    else if (b.isChannel())
-                        builder.setMessage("Are you sure you want to clear your history in " + b.getName() + "?  Make sure you download any logs you want to keep before deleting.");
-                    else
-                        builder.setMessage("Are you sure you want to clear your history with " + b.getName() + "?  Make sure you download any logs you want to keep before deleting.");
-
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (b.isConsole()) {
-                                NetworkConnection.getInstance().deleteServer(b.getCid(), null);
-                            } else {
-                                NetworkConnection.getInstance().deleteBuffer(b.getCid(), b.getBid(), new NetworkConnection.IRCResultCallback() {
-                                    @Override
-                                    public void onIRCResult(IRCCloudJSONObject result) {
-                                        if(result.getBoolean("success")) {
-                                            BuffersList.getInstance().deleteAllDataForBuffer(b.getBid());
-                                            BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
-                                            BuffersListFragment blf2 = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersListDocked);
-
-                                            if(blf != null)
-                                                blf.refresh();
-
-                                            if(blf2 != null)
-                                                blf2.refresh();
-                                        }
-                                    }
-                                });
-                            }
-                            dialog.dismiss();
-                        }
-                    });
-                    builder.setNeutralButton("Download Logs", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent i = new Intent(MainActivity.this, LogExportsActivity.class);
-                            i.putExtra("cid", b.getCid());
-                            i.putExtra("bid", b.getBid());
-                            startActivity(i);
-                            dialog.dismiss();
-                        }
-                    });
-                    dialog = builder.create();
-                    dialog.setOwnerActivity(MainActivity.this);
-                    dialog.show();
+                    deleteBuffer(b);
                 } else if (items[item].equals("Add A Network")) {
                     addNetwork();
                 } else if (items[item].equals("Reorder Connections")) {
