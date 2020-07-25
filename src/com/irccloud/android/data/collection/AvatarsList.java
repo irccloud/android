@@ -162,7 +162,15 @@ public class AvatarsList {
         IconCompat avatar = null;
 
         if(b.getType().equals("channel")) {
-            avatar = IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap("#" + b.normalizedName().substring(0,1), 0xFFFFFFFF, Color.parseColor("#" + ColorScheme.colorForNick(b.getName(), false)), false, AvatarsList.SHORTCUT_ICON_SIZE(), false));
+            String name = b.normalizedName();
+            if(name.length() > 0) {
+                name = "#" + name.substring(0,1);
+            } else if(b.getName().length() > 1){
+                name = b.getName().toLowerCase().substring(0,2);
+            } else {
+                name = "#";
+            }
+            avatar = IconCompat.createWithAdaptiveBitmap(Avatar.generateBitmap(name.toUpperCase(), 0xFFFFFFFF, Color.parseColor("#" + ColorScheme.colorForNick(b.getName(), false)), false, AvatarsList.SHORTCUT_ICON_SIZE(), false));
         } else if(b.isConversation()) {
             String avatar_url = getAvatarURL(b.getCid(), b.getName());
             try {

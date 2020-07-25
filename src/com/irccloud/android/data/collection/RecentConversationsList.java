@@ -157,30 +157,38 @@ public class RecentConversationsList {
             ArrayList<ShortcutInfoCompat> shortcuts = new ArrayList<>();
             List<RecentConversation> conversations = getConversations();
             for(RecentConversation c : conversations) {
-                IconCompat avatar = AvatarsList.getIconForBuffer(c.getBuffer(), new ImageList.OnImageFetchedListener() {
-                    @Override
-                    public void onImageFetched(Bitmap image) {
-                        RecentConversationsList.getInstance().publishShortcuts();
-                    }
-                });
+                IconCompat avatar = null;
 
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
-                i.putExtra("bid", c.getBid());
+                try {
+                    avatar = AvatarsList.getIconForBuffer(c.getBuffer(), new ImageList.OnImageFetchedListener() {
+                        @Override
+                        public void onImageFetched(Bitmap image) {
+                            RecentConversationsList.getInstance().publishShortcuts();
+                        }
+                    });
+                } catch (Exception e) {
 
-                ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(c.getBid()))
-                        .setShortLabel(c.getName())
-                        .setIcon(avatar)
-                        .setIntent(i)
-                        .setLongLived(true)
-                        .setCategories(categories);
+                }
 
-                if(people.containsKey(c.getBid()))
-                    builder.setPersons(people.get(c.getBid()));
-                else if(c.getBuffer().isConversation())
-                    builder.setPerson(new Person.Builder().setName(c.getBuffer().getDisplayName()).build());
+                if(avatar != null) {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+                    i.putExtra("bid", c.getBid());
 
-                shortcuts.add(builder.build());
+                    ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(c.getBid()))
+                            .setShortLabel(c.getName())
+                            .setIcon(avatar)
+                            .setIntent(i)
+                            .setLongLived(true)
+                            .setCategories(categories);
+
+                    if (people.containsKey(c.getBid()))
+                        builder.setPersons(people.get(c.getBid()));
+                    else if (c.getBuffer().isConversation())
+                        builder.setPerson(new Person.Builder().setName(c.getBuffer().getDisplayName()).build());
+
+                    shortcuts.add(builder.build());
+                }
 
                 if(shortcuts.size() >= MAX_SHORTCUTS)
                     break;

@@ -2325,15 +2325,19 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 accrued = 0;
                 backlog = false;
-                Log.d("IRCCloud", "Cleaning up invalid BIDs");
-                mBuffers.dirty = true;
-                mBuffers.purgeInvalidBIDs();
-                mChannels.purgeInvalidChannels();
-                NotificationsList.getInstance().deleteOldNotifications();
-                NotificationsList.getInstance().pruneNotificationChannels();
-                mRecentConversations.prune();
-                mRecentConversations.publishShortcuts();
-                process_pending_edits();
+                try {
+                    Log.d("IRCCloud", "Cleaning up invalid BIDs");
+                    mBuffers.dirty = true;
+                    mBuffers.purgeInvalidBIDs();
+                    mChannels.purgeInvalidChannels();
+                    NotificationsList.getInstance().deleteOldNotifications();
+                    NotificationsList.getInstance().pruneNotificationChannels();
+                    mRecentConversations.prune();
+                    mRecentConversations.publishShortcuts();
+                    process_pending_edits();
+                } catch (Exception e) {
+                    printStackTraceToCrashlytics(e);
+                }
                 if (userInfo != null && userInfo.connections > 0 && (mServers.count() == 0 || mBuffers.count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
                     notifyHandlers(EVENT_BACKLOG_FAILED, null);
