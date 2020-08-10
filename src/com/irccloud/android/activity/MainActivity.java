@@ -4379,7 +4379,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case R.id.menu_whois:
                 User u = UsersList.getInstance().findUserOnConnection(buffer.getCid(), buffer.getName());
                 if(u != null)
-                    if(u.ircserver != null && u.ircserver.length() > 0)
+                    if(u.ircserver != null && u.ircserver.length() > 0 && !u.ircserver.equals("*"))
                         NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), u.ircserver, null);
                     else
                         NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), (u.joined > 0)?buffer.getName():null, null);
@@ -5652,7 +5652,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                     dialog.show();
                 } else if (items[item].equals("Whois…")) {
-                    if(selected_user.ircserver != null && selected_user.ircserver.length() > 0)
+                    if(selected_user.ircserver != null && selected_user.ircserver.length() > 0 && !selected_user.ircserver.equals("*"))
                         conn.whois(buffer.getCid(), selected_user.nick, selected_user.ircserver, null);
                     else
                         conn.whois(buffer.getCid(), selected_user.nick, (selected_user.joined > 0)?selected_user.nick:null, null);
