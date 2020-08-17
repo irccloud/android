@@ -341,7 +341,7 @@ public class Server extends BaseObservable implements Comparable<Server> {
 
     public void updateUserModes(String modes) {
         if (modes != null && modes.length() > 0) {
-            if(isupport != null && isupport.has("OWNER") && isupport.get("OWNER").asText().equals(modes.substring(0,1))) {
+            if(isupport != null && isupport.has("OWNER") && isupport.get("OWNER").isTextual() && isupport.get("OWNER").asText().equals(modes.substring(0,1))) {
                 MODE_OWNER = modes.substring(0, 1);
                 if(MODE_OPER.equalsIgnoreCase(MODE_OWNER))
                     MODE_OPER = "";
@@ -358,7 +358,7 @@ public class Server extends BaseObservable implements Comparable<Server> {
         else
             isupport = new ObjectMapper().createObjectNode();
 
-        if (isupport.has("PREFIX")) {
+        if (isupport.has("PREFIX") && isupport.get("PREFIX").isObject()) {
             PREFIX = (ObjectNode) isupport.get("PREFIX");
         } else {
             PREFIX = new ObjectMapper().createObjectNode();
@@ -369,7 +369,7 @@ public class Server extends BaseObservable implements Comparable<Server> {
             PREFIX.put(MODE_HALFOP, "%");
             PREFIX.put(MODE_VOICED, "+");
         }
-        if (isupport.has("CHANTYPES"))
+        if (isupport.has("CHANTYPES") && isupport.get("CHANTYPES").isTextual())
             CHANTYPES = isupport.get("CHANTYPES").asText();
         else
             CHANTYPES = Buffer.DEFAULT_CHANTYPES;

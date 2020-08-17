@@ -4736,7 +4736,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             input.setHorizontallyScrolling(false);
             input.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text))), false, null));
             prompt.setVisibility(View.GONE);
-            if(server.isupport != null && server.isupport.has("TOPICLEN"))
+            if(server.isupport != null && server.isupport.has("TOPICLEN") && server.isupport.get("TOPICLEN").isInt())
                 builder.setTitle("Topic for " + c.getBuffer().getDisplayName() + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
             else
                 builder.setTitle("Topic for " + c.getBuffer().getDisplayName());
@@ -4769,7 +4769,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 @Override
                 public void afterTextChanged(Editable editable) {
                     if(c.getBuffer() != null) {
-                        if (server.isupport != null && server.isupport.has("TOPICLEN"))
+                        if (server.isupport != null && server.isupport.has("TOPICLEN") && server.isupport.get("TOPICLEN").isInt())
                             dialog.setTitle("Topic for " + c.getBuffer().getDisplayName() + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
                         else
                             dialog.setTitle("Topic for " + c.getBuffer().getDisplayName());
