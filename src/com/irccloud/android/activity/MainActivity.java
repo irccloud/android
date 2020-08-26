@@ -604,7 +604,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (sendBtn.isEnabled() && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                     sendBtn.setEnabled(false);
-                    new SendTask().execute((Void) null);
+                    runOnUiThread(new SendTask());
                 } else if (keyCode == KeyEvent.KEYCODE_TAB) {
                     if (event.getAction() == KeyEvent.ACTION_DOWN)
                         nextSuggestion();
@@ -664,7 +664,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
                 if (sendBtn.isEnabled() && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && actionId == EditorInfo.IME_ACTION_SEND && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                     sendBtn.setEnabled(false);
-                    new SendTask().execute((Void) null);
+                    runOnUiThread(new SendTask());
                 }
                 return true;
             }
@@ -724,7 +724,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             @Override
             public void onClick(View v) {
                 if (NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED)
-                    new SendTask().execute((Void) null);
+                    runOnUiThread(new SendTask());
             }
         });
 
@@ -1504,7 +1504,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         return super.onKeyUp(keyCode, event);
     }
 
-    private class SendTask extends AsyncTask<Void, Void, Void> {
+    private class SendTask implements Runnable {
         boolean forceText = false;
         Event e = null;
         boolean bold, underline, italic;
@@ -1515,7 +1515,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             forceText = !prefs.getBoolean("pastebin-disableprompt", true);
         }
 
-        @Override
+        public void run() {
+            onPreExecute();
+            onPostExecute(doInBackground((Void)null));
+        }
+
         protected void onPreExecute() {
             if (conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0 && buffer != null && server != null) {
                 if(!PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getBoolean("reset-after-send", true)) {
@@ -1602,7 +1606,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
 
-        @Override
         protected Void doInBackground(Void... arg0) {
             if (BuildConfig.DEBUG && e != null && e.command != null) {
                 if (e.command.equals("/starttrace") || e.command.equals("/stoptrace") || e.command.equals("/crash")) {
@@ -1639,7 +1642,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             return null;
         }
 
-        @Override
         protected void onPostExecute(Void result) {
             if (e != null && e.msg != null) {
                 e.msg = TextUtils.htmlEncode(e.msg);
@@ -2146,7 +2148,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             messageTxt.setTextWithEmoji(text);
             SendTask t = new SendTask();
             t.forceText = true;
-            t.execute((Void) null);
+            runOnUiThread(t);
             pastebinResult = null;
         }
 
