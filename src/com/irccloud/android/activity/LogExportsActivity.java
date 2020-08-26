@@ -377,8 +377,7 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                 if(e.getExists()) {
                     Uri uri = FileProvider.getUriForFile(LogExportsActivity.this,getPackageName() + ".fileprovider", e.file());
                     Intent intent = new Intent(Intent.ACTION_SEND);
-                    intent.setData(uri);
-                    intent.setType("application/zip");
+                    intent.setDataAndType(uri, "application/zip");
                     intent.putExtra(Intent.EXTRA_STREAM, uri);
                     intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
                     intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
