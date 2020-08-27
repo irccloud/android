@@ -224,9 +224,13 @@ public class WhoisFragment extends DialogFragment {
             } else {
                 name.setText("");
             }
-            mask.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(event.getString("user_mask")))));
-            if (event.has("actual_host"))
-                mask.setText(mask.getText() + "/" + event.getString("actual_host"));
+            if(event.has("user_mask")) {
+                mask.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(event.getString("user_mask")))));
+                if (event.has("actual_host"))
+                    mask.setText(mask.getText() + "/" + event.getString("actual_host"));
+            } else {
+                mask.setVisibility(View.GONE);
+            }
             if(event.has("server_addr") && event.getString("server_addr") != null && event.getString("server_addr").length() > 0) {
                 String s = event.getString("server_addr");
                 if (event.has("server_extra") && event.getString("server_extra").length() > 0)
