@@ -4068,11 +4068,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
+    private boolean isValidUploadPath(Uri uri) {
+        String path = uri.getPath();
+        if(path != null) {
+            try {
+                path = new File(path).getCanonicalPath();
+            } catch (IOException e) {
+            }
+            if (getCacheDir() != null && getCacheDir().getParent() != null && path.startsWith(getCacheDir().getParent()) && !path.startsWith(getCacheDir().getAbsolutePath())) {
+                Toast.makeText(this, "Unable to upload file: invalid file path", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         if (buffer != null) {
             if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
-                if (imageCaptureURI != null) {
+                if (imageCaptureURI != null && isValidUploadPath(imageCaptureURI)) {
                     if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
                         new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
                     } else {
@@ -4092,7 +4109,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } else if (requestCode == REQUEST_PHOTO && resultCode == RESULT_OK) {
                 Uri selectedImage = imageReturnedIntent.getData();
-                if (selectedImage != null) {
+                if (selectedImage != null && isValidUploadPath(selectedImage)) {
                     selectedImage = makeTempCopy(selectedImage, this);
                     if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
                         new ImgurRefreshTask(selectedImage).execute((Void) null);
@@ -4107,7 +4124,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } else if (requestCode == REQUEST_DOCUMENT && resultCode == RESULT_OK) {
                 Uri selectedFile = imageReturnedIntent.getData();
-                if (selectedFile != null) {
+                if (selectedFile != null && isValidUploadPath(selectedFile)) {
                     selectedFile = makeTempCopy(selectedFile, this);
                     fileUploadTask = new FileUploadTask(selectedFile, this);
                     if(!mediaPermissionsGranted()) {
