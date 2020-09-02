@@ -101,6 +101,12 @@ public class Server extends BaseObservable implements Comparable<Server> {
     private int isSlack = -1;
     public Buffer collapsed;
 
+    public boolean blocksTyping = false;
+    public boolean blocksReplies = false;
+    public boolean blocksReactions = false;
+    public boolean blocksEdits = false;
+    public boolean blocksDeletes = false;
+
     @Override
     public int compareTo(Server another) {
         if (getOrder() != another.getOrder())
@@ -349,6 +355,23 @@ public class Server extends BaseObservable implements Comparable<Server> {
         }
     }
 
+    public boolean clientTagDeny(String tagname) {
+        if(isupport == null || !isupport.has("CLIENTTAGDENY") || !isupport.get("CLIENTTAGDENY").isTextual())
+            return false;
+
+        boolean denied = false;
+
+        String[] tags = isupport.get("CLIENTTAGDENY").asText().split(",");
+        for(String tag : tags) {
+            if(tag.equals("*") || tag.equals(tagname))
+                denied = true;
+            if(tag.equals("~" + tagname))
+                denied = false;
+        }
+
+        return denied;
+    }
+
     public void updateIsupport(ObjectNode params) {
         if(isupport == null)
             isupport = new ObjectMapper().createObjectNode();
@@ -377,6 +400,12 @@ public class Server extends BaseObservable implements Comparable<Server> {
         for(Buffer b : BuffersList.getInstance().getBuffersForServer(cid)) {
             b.setChan_types(CHANTYPES);
         }
+
+        blocksTyping = clientTagDeny("typing") && clientTagDeny("draft/typing");
+        blocksReplies = clientTagDeny("draft/reply");
+        blocksReactions = blocksReplies || clientTagDeny("draft/react");
+        blocksEdits = clientTagDeny("draft/edit") || clientTagDeny("draft/edit-text");
+        blocksDeletes = clientTagDeny("draft/delete");
     }
 
     public void updateIgnores(JsonNode ignores) {

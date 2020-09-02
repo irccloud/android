@@ -5429,12 +5429,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             itemList.add("Copy Message");
             if(canEdit && !bubble) {
-                itemList.add("Edit Message…");
-                itemList.add("Delete Message");
+                if(!server.blocksEdits)
+                    itemList.add("Edit Message…");
+
+                if(!server.blocksDeletes)
+                    itemList.add("Delete Message");
             }
         }
 
-        if (msgid != null && this.msgid == null) {
+        if (msgid != null && this.msgid == null && !server.blocksReplies) {
             itemList.add("Reply");
         }
 
