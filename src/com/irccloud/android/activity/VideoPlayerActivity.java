@@ -385,10 +385,16 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
         @Override
         public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-            client.warmup(0);
-            mCustomTabsSession = client.newSession(null);
-            if(mCustomTabsSession != null)
-                mCustomTabsSession.mayLaunchUrl(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")), null, null);
+            try {
+                if (client != null) {
+                    client.warmup(0);
+                    mCustomTabsSession = client.newSession(null);
+                    if (mCustomTabsSession != null)
+                        mCustomTabsSession.mayLaunchUrl(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")), null, null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         @Override

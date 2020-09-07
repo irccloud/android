@@ -196,7 +196,8 @@ public class PinReorderFragment extends DialogFragment implements NetworkConnect
 
         try {
             for (int i = 0; i < pinnedBuffers.length(); i++) {
-                pins.add(pinnedBuffers.getInt(i));
+                if(BuffersList.getInstance().getBuffer(pinnedBuffers.getInt(i)) != null)
+                    pins.add(pinnedBuffers.getInt(i));
             }
         } catch (Exception e) {
             e.printStackTrace();

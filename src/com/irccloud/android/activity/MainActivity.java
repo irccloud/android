@@ -2175,9 +2175,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
             try {
-                client.warmup(0);
+                if(client != null)
+                    client.warmup(0);
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
         }
 

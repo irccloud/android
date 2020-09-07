@@ -293,11 +293,15 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
         @Override
         public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-            if(client != null) {
-                client.warmup(0);
-                CustomTabsSession session = client.newSession(null);
-                if (session != null)
-                    session.mayLaunchUrl(Uri.parse(url.contains("?") ? url.substring(0, url.indexOf("?")) : url), null, null);
+            try {
+                if (client != null) {
+                    client.warmup(0);
+                    CustomTabsSession session = client.newSession(null);
+                    if (session != null)
+                        session.mayLaunchUrl(Uri.parse(url.contains("?") ? url.substring(0, url.indexOf("?")) : url), null, null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 

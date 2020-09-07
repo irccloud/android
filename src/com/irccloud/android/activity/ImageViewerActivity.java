@@ -439,8 +439,14 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
         @Override
         public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-            client.warmup(0);
-            mCustomTabsSession = client.newSession(null);
+            try {
+                if(client != null) {
+                    client.warmup(0);
+                    mCustomTabsSession = client.newSession(null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
