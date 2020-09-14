@@ -4071,12 +4071,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private boolean isValidUploadPath(Uri uri) {
         String path = uri.getPath();
+        String cachePath = null;
+        String dataPath = null;
         if(path != null) {
             try {
                 path = new File(path).getCanonicalPath();
+                cachePath = getCacheDir().getCanonicalPath();
+                if(getCacheDir().getParent() != null)
+                    dataPath = new File(getCacheDir().getParent()).getCanonicalPath();
             } catch (IOException e) {
             }
-            if (getCacheDir() != null && getCacheDir().getParent() != null && path.startsWith(getCacheDir().getParent()) && !path.startsWith(getCacheDir().getAbsolutePath())) {
+            if (dataPath != null && cachePath != null && path.startsWith(dataPath) && !path.startsWith(cachePath)) {
                 Toast.makeText(this, "Unable to upload file: invalid file path", Toast.LENGTH_SHORT).show();
                 return false;
             }
