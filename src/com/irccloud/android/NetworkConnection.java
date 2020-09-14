@@ -3177,11 +3177,17 @@ public class NetworkConnection {
                     Event e = mEvents.getEvent(o.bid(), entities.get("edit").asText());
                     if(e != null) {
                         if (o.eid() >= e.lastEditEID) {
-                            if (entities.has("edit_text") && entities.get("edit_text").asText().length() > 0) {
+                            if (entities.has("edit_text")) {
                                 e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
                                 if (e.msg.startsWith(" "))
                                     e.msg = "&nbsp;" + e.msg.substring(1);
                                 e.edited = true;
+                                if(e.entities instanceof ObjectNode) {
+                                    if(e.entities.has("mentions"))
+                                        ((ObjectNode)e.entities).remove("mentions");
+                                    if(e.entities.has("mention_data"))
+                                        ((ObjectNode)e.entities).remove("mention_data");
+                                }
                             }
                             if(e.entities != null) {
                                 mergeJsonNode(e.entities, entities);
