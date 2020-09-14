@@ -120,17 +120,10 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
             }
             if(getIntent() != null && getIntent().hasExtra(Intent.EXTRA_STREAM)) {
                 mUri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-
-                String path = mUri.getPath();
-                try {
-                    path = new File(path).getCanonicalPath();
-                } catch (IOException e) {
-                }
-                if(path.startsWith(getCacheDir().getParent()) && !path.startsWith(getCacheDir().getAbsolutePath())) {
-                    Toast.makeText(this, "Unable to upload file: invalid file path", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
+                if(mUri != null && MainActivity.isValidUploadPath(this, mUri)) {
                     mUri = MainActivity.makeTempCopy(mUri, this);
+                } else {
+                    finish();
                 }
             } else {
                 mUri = null;
