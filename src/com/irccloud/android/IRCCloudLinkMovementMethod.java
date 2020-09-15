@@ -259,7 +259,8 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
     public static void forwardToBrowser(Intent i, Context context) {
         Intent intent = new Intent();
         intent.setAction(android.content.Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.parse("https://www.example.com/"), i.getType());
+        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+        intent.setDataAndType(Uri.fromParts("http", "", null), i.getType());
         List<ResolveInfo> activities = context.getPackageManager().queryIntentActivities(intent, 0);
         ArrayList<Intent> targetIntents = new ArrayList<Intent>();
         String thisPackageName = context.getPackageName();

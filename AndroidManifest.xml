@@ -18,6 +18,22 @@
     package="com.irccloud.android"
     android:installLocation="auto">
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="http" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+    </queries>
+
     <uses-sdk tools:overrideLibrary="android.support.customtabs, com.datatheorem.android.trustkit, android.support.text.emoji, android.support.text.emoji.bundled" />
 
     <permission
