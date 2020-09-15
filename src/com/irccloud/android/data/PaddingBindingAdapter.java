@@ -16,8 +16,9 @@
 
 package com.irccloud.android.data;
 
-import androidx.databinding.BindingAdapter;
 import android.view.View;
+
+import androidx.databinding.BindingAdapter;
 
 public class PaddingBindingAdapter {
     @BindingAdapter("android:paddingBottom")

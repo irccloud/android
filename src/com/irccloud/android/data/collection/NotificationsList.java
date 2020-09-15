@@ -32,6 +32,13 @@ import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.TextUtils;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.View;
+import android.widget.RemoteViews;
+
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.WearableExtender;
 import androidx.core.app.NotificationManagerCompat;
@@ -45,24 +52,14 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import android.text.Html;
-import android.text.TextUtils;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.View;
-import android.widget.RemoteViews;
-
-import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudLog;
-import com.irccloud.android.MarkAsReadBroadcastReceiver;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.NotificationDismissBroadcastReceiver;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
 import com.irccloud.android.activity.BubbleActivity;
-import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.activity.QuickReplyActivity;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.Buffer;

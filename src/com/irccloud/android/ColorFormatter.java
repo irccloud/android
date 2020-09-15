@@ -21,10 +21,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.os.Looper;
 import android.preference.PreferenceManager;
-import androidx.emoji.text.EmojiCompat;
-import androidx.core.content.res.ResourcesCompat;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -32,7 +29,6 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
-import android.text.style.CharacterStyle;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.MetricAffectingSpan;
@@ -46,7 +42,9 @@ import android.view.textclassifier.TextClassificationManager;
 import android.view.textclassifier.TextClassifier;
 import android.view.textclassifier.TextLinks;
 
-import com.crashlytics.android.Crashlytics;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.emoji.text.EmojiCompat;
+
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.collection.ImageList;
@@ -66,8 +64,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import io.fabric.sdk.android.services.common.Crash;
 
 public class ColorFormatter {
     //From: https://github.com/android/platform_frameworks_base/blob/master/core/java/android/util/Patterns.java

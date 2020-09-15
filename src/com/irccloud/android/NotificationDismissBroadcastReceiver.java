@@ -19,10 +19,10 @@ package com.irccloud.android;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import androidx.core.app.NotificationManagerCompat;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import androidx.core.app.NotificationManagerCompat;
+
 import com.irccloud.android.data.collection.NotificationsList;
 
 public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {

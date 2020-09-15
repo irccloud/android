@@ -19,7 +19,6 @@ package com.irccloud.android;
 import android.annotation.TargetApi;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;

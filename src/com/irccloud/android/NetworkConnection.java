@@ -34,34 +34,33 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 import com.codebutler.android_websockets.WebSocketClient;
-import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.HttpMetric;
 import com.irccloud.android.data.collection.AvatarsList;
+import com.irccloud.android.data.collection.BuffersList;
+import com.irccloud.android.data.collection.ChannelsList;
+import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.LogExportsList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.RecentConversationsList;
-import com.irccloud.android.data.model.Buffer;
-import com.irccloud.android.data.collection.BuffersList;
-import com.irccloud.android.data.model.Channel;
-import com.irccloud.android.data.collection.ChannelsList;
-import com.irccloud.android.data.model.Event;
-import com.irccloud.android.data.collection.EventsList;
-import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
+import com.irccloud.android.data.model.Buffer;
+import com.irccloud.android.data.model.Channel;
+import com.irccloud.android.data.model.Event;
+import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.model.User;
 
 import org.json.JSONArray;
@@ -69,7 +68,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -2140,7 +2138,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 userInfo = new UserInfo(object);
-                Crashlytics.setUserIdentifier("uid" + userInfo.id);
+                FirebaseCrashlytics.getInstance().setUserId("uid" + userInfo.id);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("uid", "uid" + userInfo.id);

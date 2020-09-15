@@ -16,6 +16,13 @@
 
 package com.irccloud.android.data.collection;
 
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.LogExport;
@@ -27,13 +34,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
-import androidx.room.Update;
 
 public class LogExportsList {
     @Dao

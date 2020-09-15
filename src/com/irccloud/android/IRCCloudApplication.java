@@ -18,50 +18,35 @@ package com.irccloud.android;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import androidx.annotation.Nullable;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.text.FontRequestEmojiCompatConfig;
-import androidx.core.app.ActivityCompat;
-import androidx.core.provider.FontRequest;
-import androidx.core.provider.FontsContractCompat;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import androidx.annotation.Nullable;
+import androidx.core.provider.FontRequest;
+import androidx.core.provider.FontsContractCompat;
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.text.FontRequestEmojiCompatConfig;
+import androidx.multidex.MultiDexApplication;
+
 import com.datatheorem.android.trustkit.TrustKit;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.irccloud.android.data.IRCCloudDatabase;
-import com.irccloud.android.data.collection.ImageList;
-import com.irccloud.android.data.collection.NotificationsList;
-import com.irccloud.android.data.collection.ServersList;
-import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
+import com.irccloud.android.data.collection.ImageList;
+import com.irccloud.android.data.collection.ServersList;
+import com.irccloud.android.data.model.Buffer;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import androidx.multidex.MultiDexApplication;
-import io.fabric.sdk.android.Fabric;
 
 @SuppressWarnings("unused")
 public class IRCCloudApplication extends MultiDexApplication {
@@ -88,7 +73,6 @@ public class IRCCloudApplication extends MultiDexApplication {
         FirebaseApp.initializeApp(getApplicationContext());
         TrustKit.initializeWithNetworkSecurityConfiguration(getApplicationContext(), R.xml.network_security_config);
         try {
-            Fabric.with(this, new Crashlytics());
             FirebaseAnalytics.getInstance(this).setUserId(null);
             IRCCloudLog.CrashlyticsEnabled = true;
             IRCCloudLog.Log(Log.INFO, "IRCCloud", "Crashlytics Initialized");

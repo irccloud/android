@@ -17,9 +17,10 @@
 package com.irccloud.android.activity;
 
 import android.os.Bundle;
-import androidx.fragment.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import androidx.fragment.app.FragmentTransaction;
 
 import com.irccloud.android.R;
 import com.irccloud.android.fragment.PinReorderFragment;

@@ -20,16 +20,17 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.widget.EmojiEditTextHelper;
-import androidx.core.view.inputmethod.InputConnectionCompat;
-import androidx.core.view.inputmethod.InputContentInfoCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+
 import androidx.core.view.inputmethod.EditorInfoCompat;
+import androidx.core.view.inputmethod.InputConnectionCompat;
+import androidx.core.view.inputmethod.InputContentInfoCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.emoji.text.EmojiCompat;
+import androidx.emoji.widget.EmojiEditTextHelper;
 
 // An EditText that lets you use actions ("Done", "Go", etc.) on multi-line edits.
 // From: http://stackoverflow.com/a/12570003/1406639

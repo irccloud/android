@@ -18,12 +18,10 @@ package com.irccloud.android;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.codebutler.android_websockets.HybiParser;
-import com.crashlytics.android.Crashlytics;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.HttpMetric;

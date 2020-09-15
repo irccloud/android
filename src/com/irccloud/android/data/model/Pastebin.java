@@ -16,9 +16,10 @@
 
 package com.irccloud.android.data.model;
 
+import android.text.format.DateUtils;
+
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-import android.text.format.DateUtils;
 
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.node.ObjectNode;

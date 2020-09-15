@@ -20,6 +20,8 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.net.Uri;
+import android.text.format.DateUtils;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
@@ -27,9 +29,6 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-
-import android.net.Uri;
-import android.text.format.DateUtils;
 
 import com.irccloud.android.BR;
 import com.irccloud.android.IRCCloudApplication;

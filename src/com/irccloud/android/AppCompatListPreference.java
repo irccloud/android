@@ -17,8 +17,6 @@
 package com.irccloud.android;
 
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
@@ -26,7 +24,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 
-import java.util.Arrays;
+import androidx.appcompat.app.AlertDialog.Builder;
 
 /**
  * A {@link Preference} that displays a list of entries as

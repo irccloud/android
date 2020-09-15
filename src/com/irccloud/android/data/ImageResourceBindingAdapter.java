@@ -16,10 +16,9 @@
 
 package com.irccloud.android.data;
 
-import androidx.databinding.BindingAdapter;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import androidx.databinding.BindingAdapter;
 
 public class ImageResourceBindingAdapter {
     @BindingAdapter("android:src")

@@ -48,7 +48,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class PinReorderFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     private ColorScheme colorScheme = ColorScheme.getInstance();

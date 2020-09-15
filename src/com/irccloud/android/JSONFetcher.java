@@ -17,19 +17,12 @@
 package com.irccloud.android;
 
 import android.annotation.TargetApi;
-import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.json.JSONObject;
-
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 
 @TargetApi(8)

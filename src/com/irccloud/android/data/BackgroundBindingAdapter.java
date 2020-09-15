@@ -16,10 +16,9 @@
 
 package com.irccloud.android.data;
 
-import androidx.databinding.BindingAdapter;
-import androidx.core.content.ContextCompat;
 import android.view.View;
-import android.view.ViewGroup;
+
+import androidx.databinding.BindingAdapter;
 
 public class BackgroundBindingAdapter {
     @BindingAdapter("android:background")

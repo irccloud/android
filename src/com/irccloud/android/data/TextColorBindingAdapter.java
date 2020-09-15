@@ -17,8 +17,9 @@
 package com.irccloud.android.data;
 
 import android.content.res.Resources;
-import androidx.databinding.BindingAdapter;
 import android.widget.TextView;
+
+import androidx.databinding.BindingAdapter;
 
 public class TextColorBindingAdapter {
     @BindingAdapter("android:textColor")

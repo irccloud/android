@@ -19,14 +19,7 @@ package com.irccloud.android.fragment;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-
-import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.Spanned;
@@ -35,14 +28,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
+import com.irccloud.android.data.model.Server;
 import com.irccloud.android.databinding.RowChannelBinding;
 
 import org.solovyev.android.views.llm.LinearLayoutManager;

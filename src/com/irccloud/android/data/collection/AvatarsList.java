@@ -34,7 +34,6 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.Buffer;
-import com.irccloud.android.data.model.RecentConversation;
 
 import java.net.URL;
 import java.util.ArrayList;

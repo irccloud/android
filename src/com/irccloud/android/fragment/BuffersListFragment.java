@@ -18,13 +18,7 @@ package com.irccloud.android.fragment;
 
 import android.app.Activity;
 import android.content.res.Resources;
-import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -35,7 +29,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import com.crashlytics.android.Crashlytics;
+import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.AsyncTaskEx;
@@ -45,12 +45,12 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.collection.EventsList;
-import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
+import com.irccloud.android.data.collection.EventsList;
+import com.irccloud.android.data.collection.ServersList;
+import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.Server;
-import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.databinding.RowBufferBinding;
 
 import org.json.JSONArray;

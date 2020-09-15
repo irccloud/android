@@ -17,14 +17,11 @@
 package com.irccloud.android;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
-
-import androidx.core.os.BuildCompat;
 
 public class ColorScheme {
     private static ColorScheme instance = new ColorScheme();

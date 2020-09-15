@@ -17,7 +17,7 @@ package com.irccloud.android;
 
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -57,7 +57,7 @@ public class IRCCloudLog {
         Log(Log.ERROR, defaultTag, sw.toString());
 
         if(CrashlyticsEnabled)
-            Crashlytics.logException(t);
+            FirebaseCrashlytics.getInstance().recordException(t);
     }
 
     public static void Log(String message) {
@@ -67,9 +67,6 @@ public class IRCCloudLog {
     public static void Log(int priority, String tag, String message) {
         if(BuildConfig.DEBUG && !CrashlyticsEnabled)
             android.util.Log.println(priority, tag, message);
-
-        if(CrashlyticsEnabled)
-            Crashlytics.log(priority, tag, message);
 
         StringBuilder b = new StringBuilder();
         b.append(dateFormat.format(new Date())).append(" ");
@@ -100,5 +97,8 @@ public class IRCCloudLog {
             while(lines.size() > 200)
                 lines.removeFirst();
         }
+
+        if(CrashlyticsEnabled)
+            FirebaseCrashlytics.getInstance().log(b.toString());
     }
 }

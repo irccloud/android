@@ -16,14 +16,14 @@
 
 package com.irccloud.android.data.model;
 
+import android.os.Build;
+
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-import android.os.Build;
 import androidx.emoji.text.EmojiCompat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.FontAwesome;
 import com.irccloud.android.Ignore;

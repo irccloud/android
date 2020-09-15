@@ -18,30 +18,8 @@ package com.irccloud.android.data.collection;
 
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.ShortcutManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.Icon;
-import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.service.chooser.ChooserTarget;
-import android.util.TypedValue;
-
-import com.irccloud.android.ColorScheme;
-import com.irccloud.android.IRCCloudApplication;
-import com.irccloud.android.activity.MainActivity;
-import com.irccloud.android.data.IRCCloudDatabase;
-import com.irccloud.android.data.model.Avatar;
-import com.irccloud.android.data.model.Buffer;
-import com.irccloud.android.data.model.RecentConversation;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
 import androidx.core.app.Person;
 import androidx.core.content.pm.ShortcutInfoCompat;
@@ -53,6 +31,15 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
+
+import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.data.IRCCloudDatabase;
+import com.irccloud.android.data.model.RecentConversation;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 public class RecentConversationsList {
     @Dao

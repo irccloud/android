@@ -26,7 +26,6 @@ import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ImageList;
-import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.ServersList;
 
 import org.json.JSONObject;

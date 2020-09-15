@@ -18,12 +18,8 @@ package com.irccloud.android.fragment;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import androidx.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,22 +27,25 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.ColorScheme;
-import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.ChannelsList;
-import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
-import com.irccloud.android.data.model.User;
 import com.irccloud.android.data.collection.UsersList;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.model.User;
 import com.irccloud.android.databinding.RowUserBinding;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Timer;

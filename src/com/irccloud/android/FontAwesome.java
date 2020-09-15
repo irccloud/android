@@ -17,6 +17,7 @@
 package com.irccloud.android;
 
 import android.graphics.Typeface;
+
 import androidx.core.content.res.ResourcesCompat;
 
 /**

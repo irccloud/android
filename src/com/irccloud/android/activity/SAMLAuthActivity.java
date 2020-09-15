@@ -19,7 +19,6 @@ package com.irccloud.android.activity;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,6 +28,8 @@ import android.webkit.SslErrorHandler;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudApplication;

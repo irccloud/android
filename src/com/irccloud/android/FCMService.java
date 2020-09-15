@@ -16,9 +16,7 @@
 
 package com.irccloud.android;
 
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.util.TypedValue;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;

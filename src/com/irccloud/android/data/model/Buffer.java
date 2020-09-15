@@ -16,11 +16,12 @@
 
 package com.irccloud.android.data.model;
 
+import android.os.Build;
+import android.text.TextUtils;
+
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-import android.os.Build;
 import androidx.emoji.text.EmojiCompat;
-import android.text.TextUtils;
 
 import com.irccloud.android.AlphanumComparator;
 import com.irccloud.android.ColorScheme;

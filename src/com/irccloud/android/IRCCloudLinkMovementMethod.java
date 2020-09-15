@@ -23,11 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.FileUriExposedException;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.Browser;
-import androidx.browser.customtabs.CustomTabsIntent;
 import android.text.Layout;
 import android.text.NoCopySpan;
 import android.text.Selection;
@@ -39,6 +37,8 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.activity.ImageViewerActivity;

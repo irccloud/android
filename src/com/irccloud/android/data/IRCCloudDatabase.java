@@ -16,6 +16,10 @@
 
 package com.irccloud.android.data;
 
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+
 import com.irccloud.android.BackgroundTaskWorker;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.data.collection.AvatarsList;
@@ -29,12 +33,6 @@ import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Notification_LastSeenEID;
 import com.irccloud.android.data.model.Notification_ServerNick;
 import com.irccloud.android.data.model.RecentConversation;
-
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
-import androidx.room.migration.Migration;
-import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(entities = {RecentConversation.class, BackgroundTask.class, LogExport.class, Notification.class, Notification_LastSeenEID.class, Notification_ServerNick.class, Avatar.class}, version = IRCCloudDatabase.VERSION, exportSchema = false)
 public abstract class IRCCloudDatabase extends RoomDatabase {

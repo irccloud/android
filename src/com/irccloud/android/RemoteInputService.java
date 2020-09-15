@@ -19,12 +19,11 @@ package com.irccloud.android;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.core.app.RemoteInput;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.RemoteInput;
+
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.collection.RecentConversationsList;
 

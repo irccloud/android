@@ -22,18 +22,6 @@ import android.os.AsyncTask;
 import android.os.Looper;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-import com.irccloud.android.data.IRCCloudDatabase;
-import com.irccloud.android.data.model.BackgroundTask;
-
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -50,6 +38,17 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.irccloud.android.data.IRCCloudDatabase;
+import com.irccloud.android.data.model.BackgroundTask;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.List;
 
 public class BackgroundTaskWorker extends Worker {
     @Dao

@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.content.Context;
 import android.view.ContextThemeWrapper;
+
 import androidx.appcompat.widget.ShareActionProvider;
 
 /**

@@ -22,10 +22,9 @@ import android.content.Intent;
 import android.os.StrictMode;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
-import com.irccloud.android.data.collection.NotificationsList;
-
 import androidx.core.app.NotificationManagerCompat;
+
+import com.irccloud.android.data.collection.NotificationsList;
 
 public class MarkAsReadBroadcastReceiver extends BroadcastReceiver {
 
