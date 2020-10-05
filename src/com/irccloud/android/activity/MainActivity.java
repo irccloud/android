@@ -77,6 +77,7 @@ import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
+import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.ActionMode;
 import android.view.DragEvent;
@@ -1985,7 +1986,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     protected void onNewIntent(Intent intent) {
-        if (intent != null && !bubble) {
+        if (intent != null && !bubble && (intent.hasExtra("cid") || intent.hasExtra("bid") || intent.hasExtra(Intent.EXTRA_STREAM) || intent.getData() != null)) {
             IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Got new launch intent");
             buffer = null;
             setFromIntent(intent);
@@ -2003,6 +2004,32 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             EventsList.getInstance().clearCaches();
             AvatarsList.getInstance().clear();
             recreate();
+        }
+    }
+
+    private void open_last_selected_bid() {
+        if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
+            int fallback = BuffersList.getInstance().firstBid();
+            try {
+                SparseArray<Server> serversArray = ServersList.getInstance().getServers();
+                ArrayList<Server> servers = new ArrayList<>();
+
+                for (int i = 0; i < serversArray.size(); i++) {
+                    Server s = serversArray.valueAt(i);
+                    if(s != null)
+                        servers.add(s);
+                }
+                Collections.sort(servers);
+                Buffer b = BuffersList.getInstance().getBufferByName(servers.get(0).getCid(), "*");
+                if(b != null)
+                    fallback = b.getBid();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            SharedPreferences prefs = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0);
+            if(!open_bid(prefs.getInt("last_selected_bid", -1)))
+                open_bid(fallback);
         }
     }
 
@@ -2054,9 +2081,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 setFromIntent(getIntent());
             } else if (conn.getUserInfo() != null && conn.ready) {
                 if (launchURI == null || !open_uri(launchURI)) {
-                    if (!open_bid(conn.getUserInfo().last_selected_bid)) {
-                        open_bid(BuffersList.getInstance().firstBid());
-                    }
+                    open_last_selected_bid();
                 }
             }
         } else if (buffer != null) {
@@ -2814,8 +2839,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
-                                        open_bid(BuffersList.getInstance().firstBid());
+                                    if (conn == null || conn.getUserInfo() == null) {
+                                        open_last_selected_bid();
                                     }
                                 }
                             });
@@ -3553,8 +3578,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Backlog loaded and we're waiting for a buffer, switching now");
                                     if (launchURI == null || !open_uri(launchURI)) {
                                         if (launchBid == -1 || !open_bid(launchBid)) {
-                                            if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
-                                                open_bid(BuffersList.getInstance().firstBid());
+                                            if (conn == null || conn.getUserInfo() == null) {
+                                                open_last_selected_bid();
                                             }
                                         }
                                     }
@@ -5919,6 +5944,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (buffer != null) {
             IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.getCid() + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
             server = buffer.getServer();
+            SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+            editor.putInt("last_selected_bid", buffer.getBid());
+            editor.apply();
 
             try {
                 if (buffer != null && server != null) {
