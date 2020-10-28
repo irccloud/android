@@ -2157,9 +2157,7 @@ public class ColorFormatter {
         put("shock", "😱");
         put("atom", "⚛️");
         put("<3", "❤️");
-        put("&lt;3", "❤️");
         put("</3", "💔");
-        put("&lt;&#x2f;3", "💔");
         put("simple_smile", "🙂");
         put(":)", "🙂");
         put(":-)", "🙂");
@@ -2172,8 +2170,6 @@ public class ColorFormatter {
         put("(", "😞");
         put(":'(", "😢");
         put("'(", "😢");
-        put(":&#x27;(", "😢");
-        put("&#x27;(", "😢");
         put(":_(", "😭");
         put("_(", "😭");
         put("loudly_crying_face", "😭");
