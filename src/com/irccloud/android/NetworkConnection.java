@@ -3253,11 +3253,9 @@ public class NetworkConnection {
                     ready = false;
                     SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getSharedPreferences("prefs", 0).edit();
                     editor.putString("session_key", object.getString("cookie"));
-                    if (object.has("websocket_host")) {
-                        IRCCLOUD_HOST = object.getString("websocket_host");
+                    if (object.has("websocket_path")) {
                         IRCCLOUD_PATH = object.getString("websocket_path");
                     }
-                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                     editor.apply();
                     connect();
