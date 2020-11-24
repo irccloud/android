@@ -723,6 +723,20 @@ public class NetworkConnection {
                     notifyHandlers(EVENT_GLOBALMSG, null);
                 }
                 set_pastebin_cookie();
+
+                if (config.has("api_host")) {
+                    SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+                    NetworkConnection.IRCCLOUD_HOST = config.getString("api_host");
+                    if (NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
+                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);
+                    if (NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
+                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(8);
+                    if (NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
+                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
+                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+                    editor.apply();
+                }
+
             }
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
@@ -973,8 +987,6 @@ public class NetworkConnection {
         IRCCloudLog.Log(Log.DEBUG, TAG, "connect()");
         Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
         session = ctx.getSharedPreferences("prefs", 0).getString("session_key", "");
-        String host = null;
-        int port = -1;
         int limit = 100;
 
         if (session.length() == 0) {
@@ -1011,8 +1023,6 @@ public class NetworkConnection {
             return;
         }
 
-        new FetchConfigTask().execute((Void)null);
-
         state = STATE_CONNECTING;
 
         if (saveTimerTask != null)
@@ -1034,232 +1044,249 @@ public class NetworkConnection {
             oobTasks.clear();
         }
 
-        host = System.getProperty("http.proxyHost", null);
-        try {
-            port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
-        } catch (NumberFormatException e) {
-            port = -1;
+        new ConnectTask().execute(limit);
+    }
+
+    private class ConnectTask extends AsyncTaskEx<Integer, Void, JSONObject> {
+        int limit;
+
+        @Override
+        protected JSONObject doInBackground(Integer... limits) {
+            limit = limits[0];
+            return fetchConfig();
         }
 
-        if (!wifiLock.isHeld())
-            wifiLock.acquire();
-
-        Map<String, String> extraHeaders = new HashMap<>();
-        extraHeaders.put("User-Agent", useragent);
-
-        String url = "wss://" + IRCCLOUD_HOST + IRCCLOUD_PATH;
-        if (highest_eid > 0 && streamId != null && streamId.length() > 0) {
-            url += "?exclude_archives=1&since_id=" + highest_eid + "&stream_id=" + streamId;
-            if(notifier)
-                url += "&notifier=1";
-            url += "&limit=" + limit;
-        } else if(notifier) {
-            url += "?exclude_archives=1&notifier=1&limit="+limit;
-        } else {
-            url += "?exclude_archives=1&limit=" + limit;
-        }
-
-        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-            IRCCloudLog.Log(Log.DEBUG, TAG, "Connecting via proxy: " + host);
-        }
-
-        IRCCloudLog.Log(Log.DEBUG, TAG, "Attempt: " + failCount);
-
-        if(client != null) {
-            client.setListener(null);
-            client.disconnect();
-        }
-
-        TrustManager[] trustManagers = new TrustManager[1];
-        trustManagers[0] = TrustKit.getInstance().getTrustManager(IRCCLOUD_HOST);
-        WebSocketClient.setTrustManagers(trustManagers);
-        HttpMetric m = null;
-
-        try {
-            m = FirebasePerformance.getInstance().newHttpMetric(url.replace("wss://", "https://"), FirebasePerformance.HttpMethod.GET);
-            m.start();
-        } catch (Exception e) {
-
-        }
-
-        final HttpMetric metric = m;
-        client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
-            @Override
-            public void onConnect() {
-                if (client != null && client.getListener() == this) {
-                    IRCCloudLog.Log(Log.DEBUG, TAG, "WebSocket connected");
-                    if(metric != null) {
-                        metric.setHttpResponseCode(200);
-                        metric.stop();
-                    }
+        @Override
+        protected void onPostExecute(JSONObject config) {
+            try {
+                if (config != null) {
+                    String host = null;
+                    int port = -1;
+                    host = System.getProperty("http.proxyHost", null);
                     try {
-                        JSONObject o = new JSONObject();
-                        o.put("cookie", session);
-                        send("auth", o, null);
-                    } catch (JSONException e) {
-                        printStackTraceToCrashlytics(e);
+                        port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+                    } catch (NumberFormatException e) {
+                        port = -1;
                     }
 
-                    IRCCloudLog.Log(Log.DEBUG, TAG, "Emptying cache");
-                    if (saveTimerTask != null)
-                        saveTimerTask.cancel();
-                    saveTimerTask = null;
-                    final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-                    editor.remove("streamId");
-                    editor.remove("highest_eid");
-                    editor.apply();
-                    //Delete.tables(Server.class, Buffer.class, Channel.class);
-                    notifyHandlers(EVENT_CONNECTIVITY, null);
-                    if (disconnectSockerTimerTask != null)
-                        disconnectSockerTimerTask.cancel();
-                    if (notifier) {
-                        disconnectSockerTimerTask = new TimerTask() {
-                            @Override
-                            public void run() {
-                                disconnectSockerTimerTask = null;
+                    if (!wifiLock.isHeld())
+                        wifiLock.acquire();
+
+                    Map<String, String> extraHeaders = new HashMap<>();
+                    extraHeaders.put("User-Agent", useragent);
+
+                    String url = "wss://" + config.getString("socket_host") + IRCCLOUD_PATH;
+                    if (highest_eid > 0 && streamId != null && streamId.length() > 0) {
+                        url += "?exclude_archives=1&since_id=" + highest_eid + "&stream_id=" + streamId;
+                        if (notifier)
+                            url += "&notifier=1";
+                        url += "&limit=" + limit;
+                    } else if (notifier) {
+                        url += "?exclude_archives=1&notifier=1&limit=" + limit;
+                    } else {
+                        url += "?exclude_archives=1&limit=" + limit;
+                    }
+
+                    if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+                        IRCCloudLog.Log(Log.DEBUG, TAG, "Connecting via proxy: " + host);
+                    }
+
+                    IRCCloudLog.Log(Log.DEBUG, TAG, "Attempt: " + failCount);
+
+                    if (client != null) {
+                        client.setListener(null);
+                        client.disconnect();
+                    }
+
+                    TrustManager[] trustManagers = new TrustManager[1];
+                    trustManagers[0] = TrustKit.getInstance().getTrustManager(config.getString("socket_host"));
+                    WebSocketClient.setTrustManagers(trustManagers);
+                    HttpMetric m = null;
+
+                    try {
+                        m = FirebasePerformance.getInstance().newHttpMetric(url.replace("wss://", "https://"), FirebasePerformance.HttpMethod.GET);
+                        m.start();
+                    } catch (Exception e) {
+
+                    }
+
+                    final HttpMetric metric = m;
+                    client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
+                        @Override
+                        public void onConnect() {
+                            if (client != null && client.getListener() == this) {
+                                IRCCloudLog.Log(Log.DEBUG, TAG, "WebSocket connected");
+                                if (metric != null) {
+                                    metric.setHttpResponseCode(200);
+                                    metric.stop();
+                                }
+                                try {
+                                    JSONObject o = new JSONObject();
+                                    o.put("cookie", session);
+                                    send("auth", o, null);
+                                } catch (JSONException e) {
+                                    printStackTraceToCrashlytics(e);
+                                }
+
+                                IRCCloudLog.Log(Log.DEBUG, TAG, "Emptying cache");
+                                if (saveTimerTask != null)
+                                    saveTimerTask.cancel();
+                                saveTimerTask = null;
+                                final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+                                editor.remove("streamId");
+                                editor.remove("highest_eid");
+                                editor.apply();
+                                //Delete.tables(Server.class, Buffer.class, Channel.class);
+                                notifyHandlers(EVENT_CONNECTIVITY, null);
+                                if (disconnectSockerTimerTask != null)
+                                    disconnectSockerTimerTask.cancel();
                                 if (notifier) {
-                                    Log.d("IRCCloud", "Notifier socket expired");
-                                    disconnect();
+                                    disconnectSockerTimerTask = new TimerTask() {
+                                        @Override
+                                        public void run() {
+                                            disconnectSockerTimerTask = null;
+                                            if (notifier) {
+                                                Log.d("IRCCloud", "Notifier socket expired");
+                                                disconnect();
+                                            }
+                                        }
+                                    };
+                                    idleTimer.schedule(disconnectSockerTimerTask, 600000);
+                                }
+                            } else {
+                                IRCCloudLog.Log(Log.WARN, "IRCCloud", "Got websocket onConnect for inactive websocket");
+                            }
+                        }
+
+                        @Override
+                        public void onMessage(String message) {
+                            if (client != null && client.getListener() == this && message.length() > 0) {
+                                try {
+                                    synchronized (parserLock) {
+                                        parse_object(new IRCCloudJSONObject(mapper.readValue(message, JsonNode.class)));
+                                    }
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Unable to parse: " + message);
+                                    IRCCloudLog.LogException(e);
+                                    printStackTraceToCrashlytics(e);
                                 }
                             }
-                        };
-                        idleTimer.schedule(disconnectSockerTimerTask, 600000);
-                    }
-                } else {
-                    IRCCloudLog.Log(Log.WARN, "IRCCloud", "Got websocket onConnect for inactive websocket");
-                }
-            }
-
-            @Override
-            public void onMessage(String message) {
-                if (client != null && client.getListener() == this && message.length() > 0) {
-                    try {
-                        synchronized (parserLock) {
-                            parse_object(new IRCCloudJSONObject(mapper.readValue(message, JsonNode.class)));
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Unable to parse: " + message);
-                        IRCCloudLog.LogException(e);
-                        printStackTraceToCrashlytics(e);
-                    }
-                }
-            }
 
-            @Override
-            public void onMessage(byte[] data) {
-                //Log.d(TAG, String.format("Got binary message! %s", toHexString(data));
-            }
+                        @Override
+                        public void onMessage(byte[] data) {
+                            //Log.d(TAG, String.format("Got binary message! %s", toHexString(data));
+                        }
 
-            @Override
-            public void onDisconnect(int code, String reason) {
-                if (client != null && client.getListener() == this) {
-                    IRCCloudLog.Log(Log.DEBUG, TAG, "WebSocket disconnected: " + code + " " + reason);
-                    try {
-                        if (wifiLock.isHeld())
-                            wifiLock.release();
-                    } catch (RuntimeException e) {
+                        @Override
+                        public void onDisconnect(int code, String reason) {
+                            if (client != null && client.getListener() == this) {
+                                IRCCloudLog.Log(Log.DEBUG, TAG, "WebSocket disconnected: " + code + " " + reason);
+                                try {
+                                    if (wifiLock.isHeld())
+                                        wifiLock.release();
+                                } catch (RuntimeException e) {
 
-                    }
+                                }
 
-                    IRCCloudLog.Log(Log.DEBUG, TAG, "Clearing OOB tasks");
-                    synchronized (oobTasks) {
-                        for (Integer bid : oobTasks.keySet()) {
-                            try {
-                                oobTasks.get(bid).cancel();
-                            } catch (Exception e) {
-                                printStackTraceToCrashlytics(e);
+                                IRCCloudLog.Log(Log.DEBUG, TAG, "Clearing OOB tasks");
+                                synchronized (oobTasks) {
+                                    for (Integer bid : oobTasks.keySet()) {
+                                        try {
+                                            oobTasks.get(bid).cancel();
+                                        } catch (Exception e) {
+                                            printStackTraceToCrashlytics(e);
+                                        }
+                                    }
+                                    oobTasks.clear();
+                                }
+
+                                if (highest_eid <= 0)
+                                    streamId = null;
+
+                                ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                                NetworkInfo ni = cm.getActiveNetworkInfo();
+                                if (state == STATE_DISCONNECTING || ni == null || !ni.isConnected())
+                                    cancel_idle_timer();
+                                else
+                                    fail();
+                            } else {
+                                IRCCloudLog.Log(Log.WARN, "IRCCloud", "Got websocket onDisconnect for inactive websocket");
                             }
                         }
-                        oobTasks.clear();
-                    }
 
-                    if(highest_eid <= 0)
-                        streamId = null;
+                        @Override
+                        public void onError(Exception error) {
+                            if (client != null && client.getListener() == this) {
+                                IRCCloudLog.Log(Log.ERROR, TAG, "The WebSocket encountered an error: " + error.toString());
+                                try {
+                                    if (wifiLock.isHeld())
+                                        wifiLock.release();
+                                } catch (RuntimeException e) {
 
-                    ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo ni = cm.getActiveNetworkInfo();
-                    if (state == STATE_DISCONNECTING || ni == null || !ni.isConnected())
-                        cancel_idle_timer();
-                    else {
-                        failCount++;
-                        if (failCount < 4)
-                            idle_interval = failCount * 1000;
-                        else if (failCount < 10)
-                            idle_interval = 10000;
-                        else
-                            idle_interval = 30000;
-                        schedule_idle_timer();
-                        IRCCloudLog.Log(Log.DEBUG, TAG, "Reconnecting in " + idle_interval / 1000 + " seconds");
-                    }
-
-                    state = STATE_DISCONNECTED;
-                    notifyHandlers(EVENT_CONNECTIVITY, null);
-                } else {
-                    IRCCloudLog.Log(Log.WARN, "IRCCloud", "Got websocket onDisconnect for inactive websocket");
-                }
-            }
-
-            @Override
-            public void onError(Exception error) {
-                if (client != null && client.getListener() == this) {
-                    IRCCloudLog.Log(Log.ERROR, TAG, "The WebSocket encountered an error: " + error.toString());
-                    try {
-                        if (wifiLock.isHeld())
-                            wifiLock.release();
-                    } catch (RuntimeException e) {
-
-                    }
-                    IRCCloudLog.Log(Log.DEBUG, TAG, "Clearing OOB tasks");
-                    synchronized (oobTasks) {
-                        for (Integer bid : oobTasks.keySet()) {
-                            try {
-                                oobTasks.get(bid).cancel();
-                            } catch (Exception e) {
-                                printStackTraceToCrashlytics(e);
+                                }
+                                IRCCloudLog.Log(Log.DEBUG, TAG, "Clearing OOB tasks");
+                                synchronized (oobTasks) {
+                                    for (Integer bid : oobTasks.keySet()) {
+                                        try {
+                                            oobTasks.get(bid).cancel();
+                                        } catch (Exception e) {
+                                            printStackTraceToCrashlytics(e);
+                                        }
+                                    }
+                                    oobTasks.clear();
+                                }
+                                if (state == STATE_DISCONNECTING)
+                                    cancel_idle_timer();
+                                else
+                                    fail();
+                            } else {
+                                IRCCloudLog.Log(Log.WARN, "IRCCloud", "Got websocket onError for inactive websocket");
                             }
                         }
-                        oobTasks.clear();
-                    }
-                    if (state == STATE_DISCONNECTING)
-                        cancel_idle_timer();
-                    else {
-                        failCount++;
-                        if (failCount < 4)
-                            idle_interval = failCount * 1000;
-                        else if (failCount < 10)
-                            idle_interval = 10000;
-                        else
-                            idle_interval = 30000;
-                        schedule_idle_timer();
-                        IRCCloudLog.Log(Log.DEBUG, TAG, "Reconnecting in " + idle_interval / 1000 + " seconds");
-                    }
+                    }, extraHeaders);
 
-                    state = STATE_DISCONNECTED;
+                    reconnect_timestamp = 0;
+                    idle_interval = 0;
+                    accrued = 0;
+                    resultCallbacks.clear();
                     notifyHandlers(EVENT_CONNECTIVITY, null);
+                    if (client != null) {
+                        client.setDebugListener(new WebSocketClient.DebugListener() {
+                            @Override
+                            public void onDebugMsg(String msg) {
+                                IRCCloudLog.Log(Log.DEBUG, "IRCCloud", msg);
+                            }
+                        });
+                        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0)
+                            client.setProxy(host, port);
+                        else
+                            client.setProxy(null, -1);
+                        client.connect();
+                    }
                 } else {
-                    IRCCloudLog.Log(Log.WARN, "IRCCloud", "Got websocket onError for inactive websocket");
+                    IRCCloudLog.Log(Log.ERROR, TAG, "Unable to fetch configuration");
+                    fail();
                 }
+            } catch (Exception e) {
+                printStackTraceToCrashlytics(e);
+                fail();
             }
-        }, extraHeaders);
-
-        reconnect_timestamp = 0;
-        idle_interval = 0;
-        accrued = 0;
-        resultCallbacks.clear();
-        notifyHandlers(EVENT_CONNECTIVITY, null);
-        if (client != null) {
-            client.setDebugListener(new WebSocketClient.DebugListener() {
-                @Override
-                public void onDebugMsg(String msg) {
-                    IRCCloudLog.Log(Log.DEBUG, "IRCCloud", msg);
-                }
-            });
-            if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0)
-                client.setProxy(host, port);
-            else
-                client.setProxy(null, -1);
-            client.connect();
         }
+    }
+
+    private void fail() {
+        failCount++;
+        if (failCount < 4)
+            idle_interval = failCount * 1000;
+        else if (failCount < 10)
+            idle_interval = 10000;
+        else
+            idle_interval = 30000;
+        schedule_idle_timer();
+        IRCCloudLog.Log(Log.DEBUG, TAG, "Reconnecting in " + idle_interval / 1000 + " seconds");
+        state = STATE_DISCONNECTED;
+        notifyHandlers(EVENT_CONNECTIVITY, null);
     }
 
     public void logout() {
@@ -3632,15 +3659,6 @@ public class NetworkConnection {
         String stack = sw.toString();
         for(String s : stack.split("\n")) {
             IRCCloudLog.Log(Log.WARN, TAG, s);
-        }
-    }
-
-    private class FetchConfigTask extends AsyncTaskEx<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            fetchConfig();
-            return null;
         }
     }
 }

@@ -781,11 +781,9 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     NetworkConnection.getInstance().session = result.getString("session");
                     SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                     editor.putString("session_key", result.getString("session"));
-                    if (result.has("websocket_host")) {
-                        NetworkConnection.IRCCLOUD_HOST = result.getString("websocket_host");
+                    if (result.has("websocket_path")) {
                         NetworkConnection.IRCCLOUD_PATH = result.getString("websocket_path");
                     }
-                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                     editor.apply();
 
@@ -1036,11 +1034,9 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 try {
                     SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                     editor.putString("session_key", result.getString("session"));
-                    if (result.has("websocket_host")) {
-                        NetworkConnection.IRCCLOUD_HOST = result.getString("websocket_host");
+                    if (result.has("websocket_path")) {
                         NetworkConnection.IRCCLOUD_PATH = result.getString("websocket_path");
                     }
-                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                     editor.apply();
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
