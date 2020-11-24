@@ -1044,6 +1044,12 @@ public class NetworkConnection {
             oobTasks.clear();
         }
 
+        reconnect_timestamp = 0;
+        idle_interval = 0;
+        accrued = 0;
+        resultCallbacks.clear();
+        notifyHandlers(EVENT_CONNECTIVITY, null);
+
         new ConnectTask().execute(limit);
     }
 
@@ -1246,11 +1252,6 @@ public class NetworkConnection {
                         }
                     }, extraHeaders);
 
-                    reconnect_timestamp = 0;
-                    idle_interval = 0;
-                    accrued = 0;
-                    resultCallbacks.clear();
-                    notifyHandlers(EVENT_CONNECTIVITY, null);
                     if (client != null) {
                         client.setDebugListener(new WebSocketClient.DebugListener() {
                             @Override
