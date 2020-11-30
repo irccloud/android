@@ -28,6 +28,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -497,19 +498,24 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             if(ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
             } else {
-                DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                if (d != null) {
-                    String uri = getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http");
-                    DownloadManager.Request r = new DownloadManager.Request(Uri.parse(uri));
-                    r.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, getIntent().getData().getLastPathSegment());
-                    r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                    r.allowScanningByMediaScanner();
-                    d.enqueue(r);
-                    Bundle b = new Bundle();
-                    b.putString(FirebaseAnalytics.Param.METHOD, "Download");
-                    b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Video");
-                    FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
-                }
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                        if (d != null) {
+                            String uri = getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http");
+                            DownloadManager.Request r = new DownloadManager.Request(Uri.parse(uri));
+                            r.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, getIntent().getData().getLastPathSegment());
+                            r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                            r.allowScanningByMediaScanner();
+                            d.enqueue(r);
+                            Bundle b = new Bundle();
+                            b.putString(FirebaseAnalytics.Param.METHOD, "Download");
+                            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Video");
+                            FirebaseAnalytics.getInstance(VideoPlayerActivity.this).logEvent(FirebaseAnalytics.Event.SHARE, b);
+                        }
+                    }
+                });
             }
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
