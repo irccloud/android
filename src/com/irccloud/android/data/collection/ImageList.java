@@ -766,6 +766,7 @@ public class ImageList {
         protected JSONObject doInBackground(String... params) {
             try {
                 HashMap<String, String> headers = new HashMap<>();
+                //Request metadata using the Giphy public beta API key from https://giphy.api-docs.io/1.0/welcome/access-and-api-keys
                 JSONObject o = NetworkConnection.getInstance().fetchJSON("https://api.giphy.com/v1/gifs/" + params[0] + "?api_key=dc6zaTOxFJmzC", headers);
                 if (o.has("data") && o.getJSONObject("data").has("images")) {
                     return o.getJSONObject("data").getJSONObject("images").getJSONObject("original");
