@@ -119,6 +119,7 @@ public class IRCCloudApplication extends MultiDexApplication {
         conn = NetworkConnection.getInstance();
         ColorFormatter.init();
 
+        prefs = getSharedPreferences("prefs", 0);
         NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
         NetworkConnection.IRCCLOUD_PATH = prefs.getString("path", "/");
 
