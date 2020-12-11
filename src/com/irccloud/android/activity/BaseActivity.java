@@ -88,8 +88,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError;
     private static final int REQUEST_RESOLVE_ERROR = 1001;
-    private static final int REQUEST_SEND_FEEDBACK = 1002;
-    private static final String LOG_FILENAME = "log.txt";
 
     private SMultiWindow mMultiWindow = null;
     private SMultiWindowActivity mMultiWindowActivity = null;
@@ -248,17 +246,13 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_RESOLVE_ERROR) {
             mResolvingError = false;
             if (resultCode == RESULT_OK) {
                 if (!mGoogleApiClient.isConnecting() && !mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.connect();
                 }
-            }
-        } else if(requestCode == REQUEST_SEND_FEEDBACK) {
-            if(getFileStreamPath(LOG_FILENAME).exists()) {
-                android.util.Log.d("IRCCloud", "Removing stale log file");
-                getFileStreamPath(LOG_FILENAME).delete();
             }
         }
     }
@@ -292,7 +286,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         super.onResume();
         IRCCloudApplication.getInstance().onResume(this);
         finished = false;
-        File f = new File(getFilesDir(), LOG_FILENAME);
+        File f = new File(getFilesDir(), "log.txt");
         if(f.exists()) {
             android.util.Log.d("IRCCloud", "Removing stale log file");
             f.delete();
@@ -687,36 +681,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 startActivity(i);
                 break;
             case R.id.menu_feedback:
-                try {
-                    String bugReport = "Briefly describe the issue below:\n\n\n\n\n" +
-                        "===========\n" +
-                        "UID: " + PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("uid", "") + "\n" +
-                        "App version: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + " (" + getPackageManager().getPackageInfo(getPackageName(), 0).versionCode + ")\n" +
-                        "Device: " + Build.MODEL + "\n" +
-                        "Android version: " + Build.VERSION.RELEASE + "\n" +
-                        "Firmware fingerprint: " + Build.FINGERPRINT + "\n";
-
-                    File f = new File(getFilesDir(), "logs");
-                    f.mkdirs();
-                    File output = new File(f, LOG_FILENAME);
-
-                    FileOutputStream out = new FileOutputStream(output);
-                    out.write(IRCCloudLog.lines().getBytes());
-                    out.close();
-
-                    Intent email = new Intent(Intent.ACTION_SEND);
-                    email.setData(Uri.parse("mailto:"));
-                    email.setType("message/rfc822");
-                    email.putExtra(Intent.EXTRA_EMAIL, new String[]{"IRCCloud Team <team@irccloud.com>"});
-                    email.putExtra(Intent.EXTRA_TEXT, bugReport);
-                    email.putExtra(Intent.EXTRA_SUBJECT, "IRCCloud for Android");
-                    email.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", output));
-                    startActivityForResult(Intent.createChooser(email, "Send Feedback:"), 0);
-                } catch (Exception e) {
-                    Toast.makeText(this, "Unable to generate email report: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    IRCCloudLog.LogException(e);
-                    NetworkConnection.printStackTraceToCrashlytics(e);
-                }
+                NetworkConnection.sendFeedbackReport(this);
                 break;
         }
         return super.onOptionsItemSelected(item);

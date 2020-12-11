@@ -17,11 +17,15 @@
 package com.irccloud.android;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.LabeledIntent;
+import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -37,6 +41,9 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.widget.Toast;
+
+import androidx.core.content.FileProvider;
 
 import com.codebutler.android_websockets.WebSocketClient;
 import com.datatheorem.android.trustkit.TrustKit;
@@ -68,6 +75,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -87,6 +96,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
@@ -660,30 +670,39 @@ public class NetworkConnection {
     }
 
     public JSONObject fetchJSON(String url) throws IOException {
+        String response = null;
         try {
-            String response = fetch(new URL(url), null, session, null, null);
+            response = fetch(new URL(url), null, session, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
+            if(response != null)
+                IRCCloudLog.Log("Unable to parse JSON: " + response);
             printStackTraceToCrashlytics(e);
         }
         return null;
     }
 
     public JSONObject fetchJSON(String url, String postdata) throws IOException {
+        String response = null;
         try {
-            String response = fetch(new URL(url), postdata, null, null, null);
+            response = fetch(new URL(url), postdata, null, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
+            if(response != null)
+                IRCCloudLog.Log("Unable to parse JSON: " + response);
             printStackTraceToCrashlytics(e);
         }
         return null;
     }
 
     public JSONObject fetchJSON(String url, HashMap<String, String>headers) throws IOException {
+        String response = null;
         try {
-            String response = fetch(new URL(url), null, null, null, headers);
+            response = fetch(new URL(url), null, null, null, headers);
             return new JSONObject(response);
         } catch (Exception e) {
+            if(response != null)
+                IRCCloudLog.Log("Unable to parse JSON: " + response);
             printStackTraceToCrashlytics(e);
         }
         return null;
@@ -691,6 +710,7 @@ public class NetworkConnection {
 
     public JSONObject fetchConfig() {
         try {
+            IRCCloudLog.Log(Log.INFO, TAG, "Requesting configuration");
             JSONObject o = fetchJSON("https://" + IRCCLOUD_HOST + "/config");
             if(o != null) {
                 config = o;
@@ -735,6 +755,7 @@ public class NetworkConnection {
                         NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.apply();
+                    IRCCloudLog.Log(Log.INFO, TAG, "API host: " + NetworkConnection.IRCCLOUD_HOST);
                 }
 
             }
@@ -3658,6 +3679,49 @@ public class NetworkConnection {
         String stack = sw.toString();
         for(String s : stack.split("\n")) {
             IRCCloudLog.Log(Log.WARN, TAG, s);
+        }
+    }
+
+    public static void sendFeedbackReport(Activity ctx) {
+        try {
+            String bugReport = "Briefly describe the issue below:\n\n\n\n\n" +
+                    "===========\n" +
+                    "UID: " + PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("uid", "") + "\n" +
+                    "App version: " + ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName + " (" + ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionCode + ")\n" +
+                    "Device: " + Build.MODEL + "\n" +
+                    "Android version: " + Build.VERSION.RELEASE + "\n" +
+                    "Firmware fingerprint: " + Build.FINGERPRINT + "\n";
+
+            File f = new File(ctx.getFilesDir(), "logs");
+            f.mkdirs();
+            File output = new File(f, "log.txt");
+
+            FileOutputStream out = new FileOutputStream(output);
+            out.write(IRCCloudLog.lines().getBytes());
+            out.close();
+
+            Intent email = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:team@irccloud.com"));
+            email.putExtra(Intent.EXTRA_SUBJECT, "IRCCloud for Android");
+
+            List<ResolveInfo> resolveInfos = ctx.getPackageManager().queryIntentActivities(email, 0);
+            List<LabeledIntent> intents = new ArrayList<>();
+            for (ResolveInfo info : resolveInfos) {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setComponent(new ComponentName(info.activityInfo.packageName, info.activityInfo.name));
+                intent.setType("message/rfc822");
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"IRCCloud Team <team@irccloud.com>"});
+                intent.putExtra(Intent.EXTRA_TEXT, bugReport);
+                intent.putExtra(Intent.EXTRA_SUBJECT, "IRCCloud for Android");
+                intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(ctx, ctx.getPackageName() + ".fileprovider", output));
+                intents.add(new LabeledIntent(intent, info.activityInfo.packageName, info.loadLabel(ctx.getPackageManager()), info.icon));
+            }
+            Intent chooser = Intent.createChooser(intents.remove(intents.size() - 1), "Send Feedback:");
+            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents.toArray(new LabeledIntent[intents.size()]));
+            ctx.startActivity(chooser);
+        } catch (Exception e) {
+            Toast.makeText(ctx, "Unable to generate email report: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            IRCCloudLog.LogException(e);
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
     }
 }

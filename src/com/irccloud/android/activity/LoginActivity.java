@@ -71,6 +71,7 @@ import com.irccloud.android.BackgroundTaskWorker;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
@@ -759,6 +760,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 NetworkConnection.IRCCLOUD_HOST = config.getString("api_host");
                 trimHost();
             } catch (Exception e) {
+                NetworkConnection.printStackTraceToCrashlytics(e);
                 return null;
             }
             if (name.getVisibility() == View.VISIBLE) {
@@ -879,6 +881,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 if (result != null) {
                     try {
                         if (result.has("message")) {
+                            IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Failure: " + result.getString("message"));
                             if (!BuildConfig.ENTERPRISE) {
                                 if (name.getVisibility() == View.VISIBLE) {
                                     Bundle b = new Bundle();
@@ -963,6 +966,12 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                    }
+                });
+                builder.setNeutralButton("Send Feedback", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        NetworkConnection.sendFeedbackReport(LoginActivity.this);
                     }
                 });
                 AlertDialog dialog = builder.create();

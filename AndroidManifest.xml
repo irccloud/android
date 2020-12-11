@@ -32,6 +32,10 @@
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService" />
         </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
     </queries>
 
     <uses-sdk tools:overrideLibrary="android.support.customtabs, com.datatheorem.android.trustkit, android.support.text.emoji, android.support.text.emoji.bundled" />
