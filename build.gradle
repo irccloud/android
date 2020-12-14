@@ -68,7 +68,7 @@ android {
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 297
+        versionCode 298
         versionName "4.24"
         minSdkVersion 17
         targetSdkVersion 30
@@ -105,7 +105,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "HOST", "\"api.irccloud.com\""
             versionNameSuffix "-" + getRevision()
             buildConfigField "boolean", "ENTERPRISE", "false"
             if (rootProject.file('private.properties').exists()) {
@@ -141,7 +141,7 @@ android {
         }
 
         release {
-            buildConfigField "String", "HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "HOST", "\"api.irccloud.com\""
             buildConfigField "boolean", "ENTERPRISE", "false"
             if (rootProject.file('private.properties').exists()) {
                 def props = new Properties()
