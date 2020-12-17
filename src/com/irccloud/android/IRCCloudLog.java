@@ -28,7 +28,7 @@ import java.util.Locale;
 
 public class IRCCloudLog {
     private static final LinkedList<String> lines = new LinkedList<>();
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss.SSS", Locale.US);
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS", Locale.US);
     public static boolean CrashlyticsEnabled = false;
     public static String defaultTag = "IRCCloud";
     public static int defaultLevel = Log.INFO;
