@@ -73,7 +73,7 @@ public class ActionEditText extends IRCEditText {
         } else {
             outAttrs.inputType &= ~EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES;
         }
-        if(Build.VERSION.SDK_INT >= 19 && getEmojiEditTextHelper() != null)
+        if(getEmojiEditTextHelper() != null)
             ic = getEmojiEditTextHelper().onCreateInputConnection(ic, outAttrs);
 
         EditorInfoCompat.setContentMimeTypes(outAttrs, new String[]{"image/*"});
@@ -111,7 +111,7 @@ public class ActionEditText extends IRCEditText {
     }
 
     public void setTextWithEmoji(CharSequence s) {
-        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
+        if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
             setText(EmojiCompat.get().process(s));
         else
             setText(s);
@@ -126,7 +126,7 @@ public class ActionEditText extends IRCEditText {
     }
 
     private EmojiEditTextHelper getEmojiEditTextHelper() {
-        if (Build.VERSION.SDK_INT >= 19 && mEmojiEditTextHelper == null) {
+        if (mEmojiEditTextHelper == null) {
             mEmojiEditTextHelper = new EmojiEditTextHelper(this);
         }
         return mEmojiEditTextHelper;

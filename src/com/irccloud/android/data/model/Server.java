@@ -129,7 +129,7 @@ public class Server extends BaseObservable implements Comparable<Server> {
 
     @Bindable
     public CharSequence getEmojiCompatName() {
-        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
+        if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
             return EmojiCompat.get().process(name);
         else
             return name;

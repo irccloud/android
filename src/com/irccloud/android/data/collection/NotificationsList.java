@@ -489,7 +489,7 @@ public class NotificationsList {
                         action = null;
                     }
                     if(title != null && text != null)
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.getEid() / 1000), buildNotification(ticker, n.getCid(), n.getBid(), new long[]{n.getEid()}, title, text, 1, null, n.getNetwork(), null, action, AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, 400, false, false), null));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.getEid() / 1000), buildNotification(ticker, n.getCid(), n.getBid(), new long[]{n.getEid()}, title, text, 1, null, n.getNetwork(), null, action, AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, true), AvatarsList.getInstance().getAvatar(n.getCid(), n.getNick(), null).getBitmap(false, 400, false, false), null));
                 }
             }
 
@@ -969,7 +969,7 @@ public class NotificationsList {
                 }
 
                 if(!downloading && avatar == null) {
-                    avatar = AvatarsList.getInstance().getAvatar(n.getCid(), ((n.getNick() != null)? n.getNick() :getServerNick(n.getCid())), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+                    avatar = AvatarsList.getInstance().getAvatar(n.getCid(), ((n.getNick() != null)? n.getNick() :getServerNick(n.getCid())), null).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, true);
                 }
 
                 if(avatar != null)

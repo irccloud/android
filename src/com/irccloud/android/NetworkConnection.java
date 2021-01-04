@@ -271,38 +271,9 @@ public class NetworkConnection {
                 NetworkInfo ni = cm.getActiveNetworkInfo();
 
                 if (intent.hasExtra("networkInfo") && ((NetworkInfo) intent.getParcelableExtra("networkInfo")).isConnected()) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        if (intent.getIntExtra("networkType", 0) == ConnectivityManager.TYPE_VPN) {
-                            if (state == STATE_CONNECTED || state == STATE_CONNECTING) {
-                                IRCCloudLog.Log(Log.INFO, TAG, "A VPN has connected, reconnecting websocket");
-                                cancel_idle_timer();
-                                reconnect_timestamp = 0;
-                                try {
-                                    state = STATE_DISCONNECTING;
-                                    client.disconnect();
-                                    state = STATE_DISCONNECTED;
-                                    notifyHandlers(EVENT_CONNECTIVITY, null);
-                                } catch (Exception e) {
-                                }
-                            }
-                        }
-                    } else {
-                        boolean hasVPN = false;
-                        try {
-                            for (NetworkInterface intf : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-                                if (!intf.isUp() || intf.getInterfaceAddresses().size() == 0)
-                                    continue;
-
-                                if (intf.getName().startsWith("tun") || intf.getName().startsWith("ppp")) {
-                                    hasVPN = true;
-                                    break;
-                                }
-                            }
-                        } catch (Exception e) {
-                        }
-
-                        if (hasVPN && state == STATE_CONNECTED) {
-                            IRCCloudLog.Log(Log.INFO, TAG, "A network became available while a VPN is active, reconnecting");
+                    if (intent.getIntExtra("networkType", 0) == ConnectivityManager.TYPE_VPN) {
+                        if (state == STATE_CONNECTED || state == STATE_CONNECTING) {
+                            IRCCloudLog.Log(Log.INFO, TAG, "A VPN has connected, reconnecting websocket");
                             cancel_idle_timer();
                             reconnect_timestamp = 0;
                             try {
@@ -382,53 +353,51 @@ public class NetworkConnection {
         } catch (Exception e) {
         }
 
-        if(Build.VERSION.SDK_INT >= 21) {
-             connectivityCallback = new ConnectivityManager.NetworkCallback() {
-                @Override
-                public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
-                    super.onCapabilitiesChanged(network, networkCapabilities);
+         connectivityCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onCapabilitiesChanged(Network network, NetworkCapabilities networkCapabilities) {
+                super.onCapabilitiesChanged(network, networkCapabilities);
 
-                    /*if(networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-                        if (state == STATE_CONNECTED || state == STATE_CONNECTING) {
-                            IRCCloudLog.Log(Log.INFO, TAG, "A VPN has connected, reconnecting websocket");
-                            cancel_idle_timer();
-                            reconnect_timestamp = 0;
-                            try {
-                                state = STATE_DISCONNECTING;
-                                client.disconnect();
-                                state = STATE_DISCONNECTED;
-                                notifyHandlers(EVENT_CONNECTIVITY, null);
-                            } catch (Exception e) {
-                            }
+                /*if(networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                    if (state == STATE_CONNECTED || state == STATE_CONNECTING) {
+                        IRCCloudLog.Log(Log.INFO, TAG, "A VPN has connected, reconnecting websocket");
+                        cancel_idle_timer();
+                        reconnect_timestamp = 0;
+                        try {
+                            state = STATE_DISCONNECTING;
+                            client.disconnect();
+                            state = STATE_DISCONNECTED;
+                            notifyHandlers(EVENT_CONNECTIVITY, null);
+                        } catch (Exception e) {
                         }
-                    }*/
-
-                    IRCCloudLog.Log(Log.INFO, TAG, "Connectivity changed, connected: " + networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
-
-                    if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0 && !notifier) {
-                        IRCCloudLog.Log(Log.INFO, TAG, "Network became available, reconnecting");
-                        if (idleTimerTask != null)
-                            idleTimerTask.cancel();
-                        connect();
                     }
-                }
+                }*/
 
-                @Override
-                public void onLost(Network network) {
-                    super.onLost(network);
-                    IRCCloudLog.Log(Log.INFO, TAG, "Network lost, disconnecting");
-                    cancel_idle_timer();
-                    reconnect_timestamp = 0;
-                    try {
-                        state = STATE_DISCONNECTING;
-                        client.disconnect();
-                        state = STATE_DISCONNECTED;
-                        notifyHandlers(EVENT_CONNECTIVITY, null);
-                    } catch (Exception e) {
-                    }
+                IRCCloudLog.Log(Log.INFO, TAG, "Connectivity changed, connected: " + networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
+
+                if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0 && !notifier) {
+                    IRCCloudLog.Log(Log.INFO, TAG, "Network became available, reconnecting");
+                    if (idleTimerTask != null)
+                        idleTimerTask.cancel();
+                    connect();
                 }
-            };
-        }
+            }
+
+            @Override
+            public void onLost(Network network) {
+                super.onLost(network);
+                IRCCloudLog.Log(Log.INFO, TAG, "Network lost, disconnecting");
+                cancel_idle_timer();
+                reconnect_timestamp = 0;
+                try {
+                    state = STATE_DISCONNECTING;
+                    client.disconnect();
+                    state = STATE_DISCONNECTED;
+                    notifyHandlers(EVENT_CONNECTIVITY, null);
+                } catch (Exception e) {
+                }
+            }
+        };
 
         try {
             config = new JSONObject(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("config", "{}"));
@@ -772,8 +741,7 @@ public class NetworkConnection {
                 CookieManager cm = CookieManager.getInstance();
                 Uri u = Uri.parse(config.getString("pastebin_uri_template"));
                 cm.setCookie(u.getScheme() + "://" + u.getHost() + "/", "session=" + session);
-                if (Build.VERSION.SDK_INT >= 21)
-                    cm.flush();
+                cm.flush();
                 sm.sync();
                 cm.setAcceptCookie(true);
             }

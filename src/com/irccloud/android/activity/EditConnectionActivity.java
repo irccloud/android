@@ -54,18 +54,12 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
 
         TextView t = findViewById(R.id.action_cancel);
         Drawable d;
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            d = VectorDrawableCompat.create(getResources(), R.drawable.ic_action_cancel, null).mutate();
-        else
-            d = getResources().getDrawable(R.drawable.ic_action_cancel, null).mutate();
+        d = getResources().getDrawable(R.drawable.ic_action_cancel, null).mutate();
         d.setColorFilter(ColorScheme.getInstance().navBarHeadingColor, PorterDuff.Mode.SRC_ATOP);
         t.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
 
         t = findViewById(R.id.action_done);
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            d = VectorDrawableCompat.create(getResources(), R.drawable.ic_action_save, null).mutate();
-        else
-            d = getResources().getDrawable(R.drawable.ic_action_save, null).mutate();
+        d = getResources().getDrawable(R.drawable.ic_action_save, null).mutate();
         d.setColorFilter(ColorScheme.getInstance().navBarHeadingColor, PorterDuff.Mode.SRC_ATOP);
         t.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
 

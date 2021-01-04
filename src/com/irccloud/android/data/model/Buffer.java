@@ -181,7 +181,7 @@ public class Buffer extends BaseObservable {
 
     @Bindable
     public CharSequence getEmojiCompatName() {
-        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
+        if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
             return EmojiCompat.get().process(getDisplayName());
         else
             return getDisplayName();

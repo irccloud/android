@@ -105,21 +105,15 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                     if (toolbar.getVisibility() == View.VISIBLE) {
                         if (mHideTimerTask != null)
                             mHideTimerTask.cancel();
-                        if (Build.VERSION.SDK_INT > 16) {
-                            toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
-                                @Override
-                                public void run() {
-                                    toolbar.setVisibility(View.GONE);
-                                }
-                            });
-                        } else {
-                            toolbar.setVisibility(View.GONE);
-                        }
+                        toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                toolbar.setVisibility(View.GONE);
+                            }
+                        });
                     } else {
-                        if (Build.VERSION.SDK_INT > 16) {
-                            toolbar.setAlpha(0);
-                            toolbar.animate().alpha(1).translationY(0);
-                        }
+                        toolbar.setAlpha(0);
+                        toolbar.animate().alpha(1).translationY(0);
                         toolbar.setVisibility(View.VISIBLE);
                         hide_actionbar();
                     }
@@ -152,18 +146,14 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             setSupportActionBar(toolbar);
         } catch (Throwable t) {
         }
-        if (Build.VERSION.SDK_INT < 21) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-        } else if(Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
-            if(cloud != null) {
-                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, getResources().getColor(android.R.color.black)));
-            }
-            getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
-            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
-            if(Build.VERSION.SDK_INT >= 23) {
-                getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            }
+        Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
+        if(cloud != null) {
+            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, getResources().getColor(android.R.color.black)));
+        }
+        getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
+        getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
+        if(Build.VERSION.SDK_INT >= 23) {
+            getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
         getSupportActionBar().setTitle("Image Viewer");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -273,21 +263,15 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 if (toolbar.getVisibility() == View.VISIBLE) {
                     if (mHideTimerTask != null)
                         mHideTimerTask.cancel();
-                    if (Build.VERSION.SDK_INT > 16) {
-                        toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                toolbar.setVisibility(View.GONE);
-                            }
-                        });
-                    } else {
-                        toolbar.setVisibility(View.GONE);
-                    }
+                    toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            toolbar.setVisibility(View.GONE);
+                        }
+                    });
                 } else {
-                    if (Build.VERSION.SDK_INT > 16) {
-                        toolbar.setAlpha(0);
-                        toolbar.animate().alpha(1).translationY(0);
-                    }
+                    toolbar.setAlpha(0);
+                    toolbar.animate().alpha(1).translationY(0);
                     toolbar.setVisibility(View.VISIBLE);
                     hide_actionbar();
                 }
@@ -494,16 +478,12 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                     ImageViewerActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (Build.VERSION.SDK_INT > 16) {
-                                toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        toolbar.setVisibility(View.GONE);
-                                    }
-                                });
-                            } else {
-                                toolbar.setVisibility(View.GONE);
-                            }
+                            toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    toolbar.setVisibility(View.GONE);
+                                }
+                            });
                         }
                     });
                 }

@@ -20,22 +20,37 @@
     android:layout_height="wrap_content"
     android:gravity="top" >
 
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="@android:dimen/notification_large_icon_width"
-        android:layout_height="@android:dimen/notification_large_icon_height"
-        android:background="#18323b"
-        android:scaleType="center"
-        android:src="@drawable/ic_stat_notify" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="centerInside"
+            android:layout_margin="12dp" />
+
+        <ImageView android:id="@+id/small_icon"
+                   android:layout_width="16dp"
+                   android:layout_height="16dp"
+                   android:padding="3dp"
+                   android:layout_gravity="end|bottom"
+                   android:scaleType="centerInside"
+                   android:src="@drawable/ic_stat_notify"
+                   android:background="@drawable/notification_icon_bg"
+                   android:layout_marginEnd="8dp"
+                   android:layout_marginBottom="8dp"/>
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:gravity="left|top"
         android:layout_gravity="center_vertical"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:layout_marginTop="6dp">
 
         <LinearLayout android:layout_width="match_parent"
                       android:orientation="horizontal"
@@ -44,17 +59,16 @@
 
             <TextView
                 android:id="@+id/title"
-                style="@android:style/TextAppearance.StatusBar.EventContent.Title"
+                style="@android:style/TextAppearance.Material.Notification.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginTop="2dp"
                 android:singleLine="true"
                 android:fadingEdge="horizontal" />
 
             <DateTimeView
                 android:id="@+id/time"
-                style="@android:style/TextAppearance.StatusBar.EventContent"
+                style="@android:style/TextAppearance.Material.Notification.Time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
@@ -63,56 +77,55 @@
 
         <TextView
             android:id="@+id/text"
-            style="@android:style/TextAppearance.StatusBar.EventContent"
+            style="@android:style/TextAppearance.Material.Notification"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-4dp"
             android:ellipsize="end"
             android:maxLines="10" />
 
-        <TextView
+		<TextView
             android:id="@+id/more"
-            style="@android:style/TextAppearance.StatusBar.EventContent"
+            style="@android:style/TextAppearance.Material.Notification"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:visibility="gone"
             android:maxLines="1" />
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="1dip"
-            android:layout_marginTop="4dp"
             android:id="@+id/action_divider"
-            android:background="?android:attr/dividerHorizontal"
-            android:visibility="gone" />
+            android:background="#29000000"
+            android:visibility="gone"
+            android:layout_marginTop="4dp" />
 
         <LinearLayout
             android:id="@+id/actions"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="4dp"
-            android:showDividers="middle"
-            android:divider="?android:attr/listDivider"
             android:visibility="gone"
-            android:dividerPadding="12dp">
+            android:background="@null">
             <Button
-                style="?android:attr/borderlessButtonStyle"
                 android:id="@+id/action_reply"
+                style="@android:style/Widget.Material.Light.Button.Borderless.Small"
+                android:tint="#0f0"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_weight="1"
+                android:layout_margin="0dp"
                 android:gravity="start|center_vertical"
                 android:drawablePadding="8dp"
-                android:drawableLeft="@drawable/ic_action_reply"
-                android:paddingLeft="8dp"
-                android:textColor="#ccc"
-                android:textSize="14dp"
+                android:paddingStart="8dp"
+                android:textSize="13sp"
                 android:singleLine="true"
                 android:ellipsize="end"
+                android:drawableLeft="@drawable/ic_action_reply_tinted"
                 android:text="Quick Reply"
-                android:paddingRight="8dp" />
+                android:textColor="#8a000000"
+                android:paddingEnd="8dp"
+                android:background="@drawable/notification_action_bg" />
         </LinearLayout>
     </LinearLayout>
 

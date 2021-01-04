@@ -184,12 +184,10 @@ public class QuickReplyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setTheme(ColorScheme.getDialogTheme(ColorScheme.getUserTheme()));
         ColorScheme.getInstance().setThemeFromContext(this, ColorScheme.getUserTheme());
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
-            getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
-            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
-        }
+        Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
+        setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
+        getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
+        getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
         setContentView(R.layout.activity_quick_reply);
 
         if(getIntent().hasExtra("cid") && getIntent().hasExtra("bid")) {

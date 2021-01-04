@@ -122,14 +122,12 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             EventsList.getInstance().clearCaches();
             AvatarsList.getInstance().clear();
         }
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
-            if(cloud != null) {
-                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
-            }
-            getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
-            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
+        Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
+        if(cloud != null) {
+            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
         }
+        getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
+        getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
         if(ColorScheme.getInstance().windowBackgroundDrawable != 0)
             getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
         if(Build.VERSION.SDK_INT >= 23) {
@@ -162,11 +160,9 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             mMultiWindowActivity = null;
         }
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
-            registerReceiver(powerSaverListener, intentFilter);
-        }
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
+        registerReceiver(powerSaverListener, intentFilter);
     }
 
     @Override
@@ -175,8 +171,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if (conn != null) {
             conn.removeHandler(this);
         }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            unregisterReceiver(powerSaverListener);
+        unregisterReceiver(powerSaverListener);
     }
 
     public boolean isMultiWindow() {

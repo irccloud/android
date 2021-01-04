@@ -76,7 +76,7 @@ public class ColorScheme {
     public static boolean getSystemDarkMode() {
         if(Build.VERSION.SDK_INT < 29) {
             PowerManager pm = (PowerManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.POWER_SERVICE);
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && pm.isPowerSaveMode();
+            return pm.isPowerSaveMode();
         } else {
             int currentNightMode = IRCCloudApplication.getInstance().getApplicationContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
             return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
@@ -316,8 +316,7 @@ public class ColorScheme {
         row_members_bg_drawable = resourceForAttribute(ctx, R.attr.row_members_bg_drawable);
         codeSpanForegroundColor = colorForAttribute(ctx, R.attr.codeSpanForegroundColor);
         codeSpanBackgroundColor = colorForAttribute(ctx, R.attr.codeSpanBackgroundColor);
-        if(Build.VERSION.SDK_INT >= 21)
-            statusBarColor = colorForAttribute(ctx, android.R.attr.statusBarColor);
+        statusBarColor = colorForAttribute(ctx, android.R.attr.statusBarColor);
         isDarkTheme = !theme.equals("dawn");
         selfTextColor = isDarkTheme?"ffffff":"142b43";
     }

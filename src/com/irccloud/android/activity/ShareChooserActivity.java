@@ -62,12 +62,10 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
         countdownTimer = new Timer("share-chooser-countdown-timer");
         setTheme(ColorScheme.getDialogTheme(ColorScheme.getUserTheme()));
         ColorScheme.getInstance().setThemeFromContext(this, ColorScheme.getUserTheme());
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
-            getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
-            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
-        }
+        Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
+        setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
+        getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
+        getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_share_chooser);
         connecting = findViewById(R.id.connecting);

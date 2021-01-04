@@ -78,12 +78,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         @Override
         public void run() {
             if(video != null && video.isPlaying()) {
-                if (Build.VERSION.SDK_INT > 16) {
-                    getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-                } else {
-                    toolbar.setVisibility(View.GONE);
-                    controls.setVisibility(View.GONE);
-                }
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
             }
         }
     };
@@ -151,39 +146,33 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             setSupportActionBar(toolbar);
         } catch (Throwable t) {
         }
-        if (Build.VERSION.SDK_INT < 21) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-        } else if(Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
-            if(cloud != null) {
-                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, getResources().getColor(android.R.color.black)));
-            }
-            getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
-            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
-            if(Build.VERSION.SDK_INT >= 23) {
-                getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            }
+        Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.splash_logo);
+        if(cloud != null) {
+            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, getResources().getColor(android.R.color.black)));
+        }
+        getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
+        getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
+        if(Build.VERSION.SDK_INT >= 23) {
+            getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        if(Build.VERSION.SDK_INT > 16) {
-            getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-                @Override
-                public void onSystemUiVisibilityChange(int visibility) {
-                    if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
-                        toolbar.setAlpha(0);
-                        toolbar.animate().alpha(1);
-                        controls.setAlpha(0);
-                        controls.animate().alpha(1);
-                        hide_actionbar();
-                    } else {
-                        toolbar.setAlpha(1);
-                        toolbar.animate().alpha(0);
-                        controls.setAlpha(1);
-                        controls.animate().alpha(0);
-                    }
+        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                if ((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
+                    toolbar.setAlpha(0);
+                    toolbar.animate().alpha(1);
+                    controls.setAlpha(0);
+                    controls.animate().alpha(1);
+                    hide_actionbar();
+                } else {
+                    toolbar.setAlpha(1);
+                    toolbar.animate().alpha(0);
+                    controls.setAlpha(1);
+                    controls.animate().alpha(0);
                 }
-            });
-        }
+            }
+        });
 
         controls = findViewById(R.id.controls);
         mProgress = findViewById(R.id.progress);
@@ -269,22 +258,11 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         video.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (Build.VERSION.SDK_INT > 16) {
-                    if((getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
-                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-                    } else {
-                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-                        hide_actionbar();
-                    }
+                if((getWindow().getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
+                    getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
                 } else {
-                    if (toolbar.getVisibility() == View.VISIBLE) {
-                        toolbar.setVisibility(View.GONE);
-                        controls.setVisibility(View.GONE);
-                    } else {
-                        toolbar.setVisibility(View.VISIBLE);
-                        controls.setVisibility(View.VISIBLE);
-                        hide_actionbar();
-                    }
+                    getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+                    hide_actionbar();
                 }
                 return false;
             }
@@ -309,12 +287,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 video.pause();
                 video.seekTo(video.getDuration());
                 handler.removeCallbacks(mHideRunnable);
-                if (Build.VERSION.SDK_INT > 16) {
-                    getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-                } else {
-                    toolbar.setVisibility(View.VISIBLE);
-                    controls.setVisibility(View.VISIBLE);
-                }
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
             }
         });
         video.setOnErrorListener(new MediaPlayer.OnErrorListener() {

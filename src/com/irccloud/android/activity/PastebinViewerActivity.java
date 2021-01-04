@@ -394,21 +394,13 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             finish();
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                if(url.contains("?"))
-                    clipboard.setText(url.substring(0, url.indexOf("?")));
-                else
-                    clipboard.setText(url);
-            } else {
-                @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                android.content.ClipData clip;
-                if(url.contains("?"))
-                    clip = android.content.ClipData.newRawUri("IRCCloud Snippet URL", Uri.parse(url.substring(0, url.indexOf("?"))));
-                else
-                    clip = android.content.ClipData.newRawUri("IRCCloud Snippet URL", Uri.parse(url));
-                clipboard.setPrimaryClip(clip);
-            }
+            @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            android.content.ClipData clip;
+            if(url.contains("?"))
+                clip = android.content.ClipData.newRawUri("IRCCloud Snippet URL", Uri.parse(url.substring(0, url.indexOf("?"))));
+            else
+                clip = android.content.ClipData.newRawUri("IRCCloud Snippet URL", Uri.parse(url));
+            clipboard.setPrimaryClip(clip);
             Toast.makeText(PastebinViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
         } else if(item.getItemId() == R.id.action_share) {
             if (getIntent() != null && getIntent().getDataString() != null) {

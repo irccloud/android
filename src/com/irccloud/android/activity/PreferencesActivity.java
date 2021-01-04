@@ -931,8 +931,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 builder.addDefaultShareMenuItem();
                 CustomTabsIntent intent = builder.build();
                 intent.intent.setData(Uri.parse(url));
-                if (Build.VERSION.SDK_INT >= 22)
-                    intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
+                intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
                 if (intent.startAnimationBundle != null) {
                     startActivity(intent.intent, intent.startAnimationBundle);
                 } else {

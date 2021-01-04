@@ -23,7 +23,7 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:orientation="vertical">
 
-    <TextView
+    <androidx.emoji.widget.EmojiTextView
         android:id="@+id/prompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,8 +36,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="?editTextTheme"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:inputType="text"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:ems="10">
 
         <requestFocus />

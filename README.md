@@ -21,17 +21,16 @@ Screenshots
 
 Requirements
 ------
-* Android Studio 2.2.x
-* Gradle 2.2.x
-* Android 7.0 SDK
-* Android Support Library, revision 24 or newer
-* Google Play Services, version 9.6.0 or newer
+* Android Studio 4.1.x
+* Gradle 4.1.x
+* Android 11.0 SDK
+* Latest versions of AndroidX and Google Play Services
 * android-websockets library: https://github.com/irccloud/android-websockets
-* An Android device running Android 2.2 or newer
+* An Android device running Android 5.1 or newer
 
 Building
 ------
-* Make sure you've installed the Android 7.0 SDK and upgraded to the latest version of Android Studio
+* Make sure you've installed the Android 11.0 SDK and upgraded to the latest version of Android Studio
 * Make sure you've updated all support repository and Google Play Services repository packages in the Android SDK manager
 * Check out android-websockets and the IRCCloud Android project from github
 * Open Android studio and select the IRCCloud Android build.gradle file
@@ -43,7 +42,7 @@ _You must uninstall the Play Store version of the app first before installing a 
 
 License
 ------
-Copyright (C) 2016 IRCCloud, Ltd.
+Copyright (C) 2021 IRCCloud, Ltd.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at

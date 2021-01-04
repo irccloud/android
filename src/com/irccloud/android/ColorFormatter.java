@@ -2244,18 +2244,6 @@ public class ColorFormatter {
     public static Pattern EMOJI = null;
 
     public static final HashMap<String, String> conversionMap = new HashMap<String, String>() {{
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            put("\uD83C\uDDEF\uD83C\uDDF5", "\uDBB9\uDCE5"); // JP
-            put("\uD83C\uDDF0\uD83C\uDDF7", "\uDBB9\uDCEE"); // KR
-            put("\uD83C\uDDE9\uD83C\uDDEA", "\uDBB9\uDCE8"); // DE
-            put("\uD83C\uDDE8\uD83C\uDDF3", "\uDBB9\uDCED"); // CN
-            put("\uD83C\uDDFA\uD83C\uDDF8", "\uDBB9\uDCE6"); // US
-            put("\uD83C\uDDEB\uD83C\uDDF7", "\uDBB9\uDCE7"); // FR
-            put("\uD83C\uDDEA\uD83C\uDDF8", "\uDBB9\uDCEB"); // ES
-            put("\uD83C\uDDEE\uD83C\uDDF9", "\uDBB9\uDCE9"); // IT
-            put("\uD83C\uDDF7\uD83C\uDDFA", "\uDBB9\uDCEC"); // RU
-            put("\uD83C\uDDEC\uD83C\uDDE7", "\uDBB9\uDCEA"); // GB
-        }
         put("\u0030\u20E3", "\uDBBA\uDC37"); // ZERO
         put("\u0031\u20E3", "\uDBBA\uDC2E"); // ONE
         put("\u0032\u20E3", "\uDBBA\uDC2F"); // TWO
@@ -2436,7 +2424,7 @@ public class ColorFormatter {
     }
 
     public static CharSequence strip(String msg) {
-        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
+        if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
             return EmojiCompat.get().process(html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString());
         else
             return html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString();
@@ -2776,7 +2764,7 @@ public class ColorFormatter {
             }
         }
 
-        if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
+        if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
             return (Spanned)EmojiCompat.get().process(output);
         else
             return output;

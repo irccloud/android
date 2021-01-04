@@ -299,7 +299,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 v.setBackgroundColor(colorScheme.bufferBackgroundColor);
             }
 
-            if(Build.VERSION.SDK_INT >= 19 && EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
+            if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
                 v.setText(EmojiCompat.get().process(getItem(position)));
 
             //This will prevent GridView from stealing focus from the EditText by bypassing the check on line 1397 of GridView.java in the Android Source
@@ -755,10 +755,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(actionBar != null)
             actionBar.setCustomView(v);
 
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
-            upDrawable = VectorDrawableCompat.create(getResources(), R.drawable.ic_action_navigation_menu, null).mutate();
-        else
-            upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu, null).mutate();
+        upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu, null).mutate();
         upDrawable.setColorFilter(normalFilter);
         upDrawableFilter = normalFilter;
         drawerLayout.setDrawerListener(mDrawerListener);
@@ -4281,7 +4278,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         AlertDialog.Builder builder;
         AlertDialog dialog;
         builder = new AlertDialog.Builder(this);
-        String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing", "Post a Text Snippet", "Text Snippets"} : new String[]{"Take a Photo", "Record a Video", "Choose Existing Photo", "Choose Existing Document", "Post a Text Snippet", "Text Snippets"};
+        String[] items = (!NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing", "Post a Text Snippet", "Text Snippets"} : new String[]{"Take a Photo", "Record a Video", "Choose Existing Photo", "Choose Existing Document", "Post a Text Snippet", "Text Snippets"};
         if(NetworkConnection.getInstance().uploadsAvailable()) {
             items = Arrays.copyOf(items, items.length + 1);
             items[items.length - 1] = "File Uploads";
@@ -6786,7 +6783,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 i.putExtra("bid", mBuffer.getBid());
                 i.setData(Uri.parse("bid://" + mBuffer.getBid()));
                 notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
-                notification.addAction(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP?R.drawable.ic_action_cancel_upload:R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), PendingIntent.FLAG_UPDATE_CURRENT));
+                notification.addAction(R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), PendingIntent.FLAG_UPDATE_CURRENT));
 
 
                 if (activity.mediaPermissionsGranted())
