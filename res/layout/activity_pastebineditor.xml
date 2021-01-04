@@ -51,12 +51,12 @@
                 android:hint="Text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/paste"
                     android:theme="?editTextTheme"
-                    android:inputType="textMultiLine"><requestFocus/></EditText>
+                    android:inputType="textMultiLine"><requestFocus/></com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -78,7 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/filename"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -96,7 +96,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@id/message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

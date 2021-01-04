@@ -25,7 +25,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    <EditText
+    <com.google.android.material.textfield.TextInputEditText
 		android:importantForAutofill="no"
         android:id="@+id/hostname"
         android:layout_width="match_parent"
@@ -43,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1">
-	    <EditText
+	    <com.google.android.material.textfield.TextInputEditText
 			android:importantForAutofill="no"
 	        android:id="@+id/port"
 	        android:layout_width="match_parent"

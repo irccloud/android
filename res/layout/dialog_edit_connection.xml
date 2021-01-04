@@ -82,7 +82,7 @@
             android:hint="Name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:importantForAutofill="no"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:id="@+id/network"
@@ -118,7 +118,7 @@
                     android:layout_weight="1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:importantForAutofill="no"
                         android:id="@+id/nickname"
                         android:layout_width="match_parent"
@@ -134,7 +134,7 @@
                     android:layout_weight="1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:importantForAutofill="no"
                         android:id="@+id/realname"
                         android:layout_width="match_parent"
@@ -181,7 +181,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:passwordToggleEnabled="true">
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:importantForAutofill="no"
                     android:id="@+id/nickservpassword"
                     android:layout_width="match_parent"
@@ -199,7 +199,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:passwordToggleEnabled="true">
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:importantForAutofill="no"
                     android:id="@+id/serverpassword"
                     android:layout_width="match_parent"
@@ -216,7 +216,7 @@
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:importantForAutofill="no"
                     android:id="@+id/commands"
                     android:layout_width="match_parent"
