@@ -25,7 +25,6 @@
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:actionMenuTextColor">?navBarSubheadingColor</item>
         <item name="actionMenuTextColor">?navBarSubheadingColor</item>
         <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
@@ -94,7 +93,6 @@
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:actionMenuTextColor">?navBarSubheadingColor</item>
         <item name="actionMenuTextColor">?navBarSubheadingColor</item>
         <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
@@ -162,7 +160,6 @@
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:actionMenuTextColor">?navBarSubheadingColor</item>
         <item name="actionMenuTextColor">?navBarSubheadingColor</item>
         <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
@@ -223,7 +220,6 @@
     <style name="LightAppDialogTheme" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:forceDarkAllowed">false</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
         <item name="android:colorControlNormal">?navBarSubheadingColor</item>
         <item name="colorControlNormal">?navBarSubheadingColor</item>
@@ -245,7 +241,6 @@
         <item name="android:forceDarkAllowed">false</item>
         <item name="android:windowBackground">?dialogBackgroundDrawable</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
         <item name="android:colorControlNormal">?navBarSubheadingColor</item>
         <item name="colorControlNormal">?navBarSubheadingColor</item>
