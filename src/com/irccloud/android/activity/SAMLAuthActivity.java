@@ -57,6 +57,7 @@ public class SAMLAuthActivity extends AppCompatActivity {
         mWebView.getSettings().setSaveFormData(false);
         mWebView.getSettings().setSavePassword(false);
         mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setAllowFileAccess(false);
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {

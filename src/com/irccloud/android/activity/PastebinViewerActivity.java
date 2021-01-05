@@ -196,6 +196,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         mWebView.getSettings().setLoadWithOverviewMode(false);
         mWebView.getSettings().setUseWideViewPort(false);
         mWebView.getSettings().setAppCacheEnabled(false);
+        mWebView.getSettings().setAllowFileAccess(false);
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {

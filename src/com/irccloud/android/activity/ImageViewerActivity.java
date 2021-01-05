@@ -168,6 +168,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
         mImage.getSettings().setJavaScriptEnabled(true);
         mImage.getSettings().setLoadWithOverviewMode(true);
         mImage.getSettings().setUseWideViewPort(true);
+        mImage.getSettings().setAllowFileAccess(false);
         mImage.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {

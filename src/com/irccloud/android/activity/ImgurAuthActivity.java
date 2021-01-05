@@ -54,6 +54,7 @@ public class ImgurAuthActivity extends AppCompatActivity {
         mWebView.getSettings().setSaveFormData(false);
         mWebView.getSettings().setSavePassword(false);
         mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setAllowFileAccess(false);
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
