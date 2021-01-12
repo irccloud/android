@@ -2223,7 +2223,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 }
 
                                 if (pref_chatOneLine && event.from != null && event.from.length() > 0) {
-                                    if (!pref_disableQuote && event.html != null && event.html.length() > 0 && ColorFormatter.is_blockquote(ColorFormatter.html_to_spanned(event.html).toString())) {
+                                    if (!pref_disableQuote && event.msg != null && event.msg.length() > 0 && ColorFormatter.is_blockquote(ColorFormatter.html_to_spanned(event.msg).toString())) {
                                         Event e = new Event(event);
                                         e.timestamp = "";
                                         e.html = msg;
