@@ -666,10 +666,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if (e.html != null && e.formatted == null) {
                         try {
                             String html = e.html;
-                            html = ColorFormatter.emojify(ColorFormatter.irc_to_html(html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0));
+                            html = ColorFormatter.emojify(ColorFormatter.irc_to_html(html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0, pref_noColor));
                             if(e.edited)
                                 html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
                             e.formatted = ColorFormatter.html_to_spanned(html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
+                            if(e.html_prefix != null) {
+                                SpannableStringBuilder sb = new SpannableStringBuilder();
+                                sb.append(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.html_prefix)));
+                                if(!e.html_prefix.endsWith(" "))
+                                    sb.append(" ");
+                                sb.append(e.formatted);
+                                e.formatted = sb;
+                            }
                             if (e.group_msg == null && e.msg != null && e.msg.length() > 0) {
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), false, server);
                             }
@@ -2036,16 +2044,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                     synchronized(formatLock) {
                         if (event.html == null) {
-                            String msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
+                            String msg = event.msg;
                             if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                                 msg = "<large>" + msg + "</large>";
 
                             if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
-                                event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
+                                event.html_prefix = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> ";
                             else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
-                                event.html = "<b>" + event.server + "</b> " + msg;
-                            else
-                                event.html = msg;
+                                event.html_prefix = "<b>" + event.server + "</b> ";
+                            event.html = msg;
                             if (event.html != null && event.msg != null)
                                 event.mention_offset = event.html.length() - event.msg.length();
                             if (event.type.equals("channel_topic") && event.msg.startsWith("set the topic: "))
@@ -2085,18 +2092,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     event.html = event.msg + " by the server <b>" + event.server + "</b>";
                                 break;
                             case "buffer_me_msg":
-                                msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
+                                msg = event.msg;
                                 if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                                     msg = "<large>" + msg + "</large>";
-                                event.html = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + msg;
-                                event.mention_offset = event.html.length() - msg.length();
+                                event.html_prefix = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> ";
+                                event.html = msg;
                                 break;
                             case "buffer_msg":
                             case "notice":
                                 event.code_block = false;
                                 event.mention_offset = type.equals("notice") ? 5 : 0;
                                 event.color = ColorScheme.getInstance().messageTextColor;
-                                msg = pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg;
+                                msg = event.msg;
                                 if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                                     msg = "<large>" + msg + "</large>";
 
@@ -2210,53 +2217,53 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         html += collapsedEvents.formatNick("Voiced", null, server.MODE_VOICED, false) + " ";
                                 }
                                 if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
-                                    html += "<b>" + event.chan + "</b>: " + msg;
+                                    html += "<b>" + event.chan + "</b>: ";
                                 } else if (buffer.isConsole() && event.self && event.nick != null && event.nick.length() > 0) {
-                                    html += "<b>" + event.nick + "</b>: " + msg;
-                                } else {
-                                    html += msg;
+                                    html += "<b>" + event.nick + "</b>: ";
                                 }
-                                if (event.mention_offset == 0)
-                                    event.mention_offset = html.length() - msg.length();
+
                                 if (pref_chatOneLine && event.from != null && event.from.length() > 0) {
                                     if (!pref_disableQuote && event.html != null && event.html.length() > 0 && ColorFormatter.is_blockquote(ColorFormatter.html_to_spanned(event.html).toString())) {
                                         Event e = new Event(event);
                                         e.timestamp = "";
-                                        e.html = html;
+                                        e.html_prefix = html;
+                                        e.html = msg;
                                         e.parent_eid = event.eid;
                                         event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
                                         messageAdapter.addItem(event.eid, event);
                                         e.day = event.day;
                                         messageAdapter.insertBelow(event.eid, e, backlog);
                                     } else {
-                                        int oldLength = html.length();
                                         html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + html;
-                                        event.mention_offset += html.length() - oldLength;
                                     }
                                 }
-                                event.html = html;
+                                event.html_prefix = html;
+                                event.html = msg;
                                 break;
                             case "kicked_channel":
-                                event.html = "\u0004" + collapsedNickColor + "← \u000f";
+                                event.html_prefix = "\u0004" + collapsedNickColor + "← \u000f";
                                 if (event.type.startsWith("you_"))
-                                    event.html += "You";
+                                    event.html_prefix += "You";
                                 else
-                                    event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, null, false, collapsedNickColor) + "</b>";
+                                    event.html_prefix += "<b>" + collapsedEvents.formatNick(event.old_nick, null, null, false, collapsedNickColor) + "</b>";
                                 if (event.hostmask != null && event.hostmask.length() > 0)
-                                    event.html += " (" + event.hostmask + ")";
+                                    event.html_prefix += " (" + event.hostmask + ")";
                                 if (event.type.startsWith("you_"))
-                                    event.html += " were";
+                                    event.html_prefix += " were";
                                 else
-                                    event.html += " was";
+                                    event.html_prefix += " was";
                                 if (event.from_hostmask != null && event.from_hostmask.length() > 0)
-                                    event.html += " kicked by " + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor);
+                                    event.html_prefix += " kicked by " + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor);
                                 else
-                                    event.html += " kicked by the server \u0004" + collapsedNickColor + event.nick + "\u000f";
+                                    event.html_prefix += " kicked by the server \u0004" + collapsedNickColor + event.nick + "\u000f";
                                 if (event.msg != null && event.msg.length() > 0 && !event.msg.equals(event.nick))
-                                    event.html += ": " + (pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg);
+                                    event.html = ": " + (pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg);
+                                else
+                                    event.html = "";
                                 break;
                             case "callerid":
-                                event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false) + "</b> (" + event.hostmask + ") " + event.msg + " Tap to accept.";
+                                event.html_prefix = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false) + "</b> (" + event.hostmask + ") ";
+                                event.html = event.msg + " Tap to accept.";
                                 break;
                             case "channel_mode_list_change":
                                 if (event.from.length() == 0) {

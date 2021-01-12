@@ -2981,10 +2981,10 @@ public class ColorFormatter {
     }
 
     public static String irc_to_html(String msg) {
-        return irc_to_html(msg, null, 0, null, 0);
+        return irc_to_html(msg, null, 0, null, 0, false);
     }
 
-    public static String irc_to_html(String msg, JsonNode mentions, int mention_offset, JsonNode mention_data, int cid) {
+    public static String irc_to_html(String msg, JsonNode mentions, int mention_offset, JsonNode mention_data, int cid, boolean strip_colors) {
         if (msg == null)
             return "";
 
@@ -3201,7 +3201,7 @@ public class ColorFormatter {
                         if (new_fg.length() > 0 && fg.length() > 0) {
                             html += "</font>";
                         }
-                        if (new_bg.length() > 0 && bg.length() > 0) {
+                        if (new_bg.length() > 0 && bg.length() > 0 && !strip_colors) {
                             html += "</_bg" + bg + ">";
                         }
                         if (new_bg.length() > 0) {
@@ -3221,7 +3221,7 @@ public class ColorFormatter {
                                 } else {
                                     bg = "ffffff";
                                 }
-                                if (bg.length() > 0)
+                                if (bg.length() > 0 && !strip_colors)
                                     html += "<_bg" + bg + ">";
                             }
                         }
@@ -3264,11 +3264,13 @@ public class ColorFormatter {
                                     fg = String.format("%02x%02x%02x", red, green, blue);
                                 }
                             }
-                            if (fg.length() > 0)
+                            if (fg.length() > 0 && !strip_colors)
                                 html += "<font color=\"#" + fg + "\">";
                         }
                         builder.insert(pos, html);
                     }
+                    if(strip_colors)
+                        bg = fg = "";
                 } else if (builder.charAt(pos) == '\n') { //Newline
                     builder.deleteCharAt(pos);
                     builder.insert(pos, "<br/>");

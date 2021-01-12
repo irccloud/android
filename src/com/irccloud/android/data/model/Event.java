@@ -118,6 +118,7 @@ public class Event {
 
     public String timestamp;
     public String html;
+    public String html_prefix;
     public Spanned formatted;
     public Spanned formatted_nick;
     public Spanned formatted_realname;
