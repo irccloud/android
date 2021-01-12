@@ -670,7 +670,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if(e.edited)
                                 html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
                             e.formatted = ColorFormatter.html_to_spanned(html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
-                            if(e.html_prefix != null) {
+                            if(e.formatted != null && !pref_disableQuote && e.type.equals("buffer_msg") && ColorFormatter.is_blockquote(e.formatted.toString())) {
+                                e.formatted = (Spanned)e.formatted.subSequence(1, e.formatted.length());
+                                e.quoted = true;
+                            } else {
+                                e.quoted = false;
+                            }
+                            if(e.html_prefix != null && e.html_prefix.length() > 0) {
                                 SpannableStringBuilder sb = new SpannableStringBuilder();
                                 sb.append(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.html_prefix)));
                                 if(!e.html_prefix.endsWith(" "))
@@ -680,12 +686,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                             if (e.group_msg == null && e.msg != null && e.msg.length() > 0) {
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), false, server);
-                            }
-                            if(e.formatted != null && !pref_disableQuote && e.type.equals("buffer_msg") && ColorFormatter.is_blockquote(e.formatted.toString())) {
-                                e.formatted = (Spanned)e.formatted.subSequence(1, e.formatted.length());
-                                e.quoted = true;
-                            } else {
-                                e.quoted = false;
                             }
                         } catch (Exception ex) {
                             ex.printStackTrace();
@@ -2226,10 +2226,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     if (!pref_disableQuote && event.html != null && event.html.length() > 0 && ColorFormatter.is_blockquote(ColorFormatter.html_to_spanned(event.html).toString())) {
                                         Event e = new Event(event);
                                         e.timestamp = "";
-                                        e.html_prefix = html;
                                         e.html = msg;
                                         e.parent_eid = event.eid;
-                                        event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
+                                        html = null;
+                                        event.html = msg = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
                                         messageAdapter.addItem(event.eid, event);
                                         e.day = event.day;
                                         messageAdapter.insertBelow(event.eid, e, backlog);
