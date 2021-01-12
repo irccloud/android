@@ -68,8 +68,8 @@ android {
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 302
-        versionName "4.25"
+        versionCode 303
+        versionName "4.26"
         minSdkVersion 22
         targetSdkVersion 30
         applicationId "com.irccloud.android"
