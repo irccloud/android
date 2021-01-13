@@ -96,7 +96,7 @@ public class OOBFetcher extends HTTPFetcher {
                     time = System.currentTimeMillis();
                     IRCCloudJSONObject o = new IRCCloudJSONObject(e);
                     try {
-                        conn.parse_object(o);
+                        conn.parse_object(o, true);
                     } catch (Exception ex) {
                         IRCCloudLog.Log(Log.ERROR, TAG, "Unable to parse message type: " + o.type());
                         NetworkConnection.printStackTraceToCrashlytics(ex);

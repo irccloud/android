@@ -148,7 +148,6 @@ public class NetworkConnection {
     public String useragent = null;
     private String streamId = null;
     private int accrued = 0;
-    private boolean backlog = false;
     int currentBid = -1;
     long firstEid = -1;
     public JSONObject config = null;
@@ -1158,7 +1157,7 @@ public class NetworkConnection {
                             if (client != null && client.getListener() == this && message.length() > 0) {
                                 try {
                                     synchronized (parserLock) {
-                                        parse_object(new IRCCloudJSONObject(mapper.readValue(message, JsonNode.class)));
+                                        parse_object(new IRCCloudJSONObject(mapper.readValue(message, JsonNode.class)), false);
                                     }
                                 } catch (Exception e) {
                                     Log.e(TAG, "Unable to parse: " + message);
@@ -2073,7 +2072,7 @@ public class NetworkConnection {
     }
 
     public interface Parser {
-        void parse(IRCCloudJSONObject object) throws JSONException;
+        void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException;
     }
 
     private class BroadcastParser implements Parser {
@@ -2083,7 +2082,7 @@ public class NetworkConnection {
             type = t;
         }
 
-        public void parse(IRCCloudJSONObject object) {
+        public void parse(IRCCloudJSONObject object, boolean backlog) {
             if (!backlog)
                 notifyHandlers(type, object);
         }
@@ -2100,7 +2099,7 @@ public class NetworkConnection {
 
         put("header", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 if (!(object.has("resumed") && object.getBoolean("resumed"))) {
                     Log.d("IRCCloud", "Socket was not resumed");
                     NotificationsList.getInstance().clearLastSeenEIDs();
@@ -2134,7 +2133,7 @@ public class NetworkConnection {
 
         put("global_system_message", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 String msgType = object.getString("system_message_type");
                 if (msgType == null || (!msgType.equalsIgnoreCase("eval") && !msgType.equalsIgnoreCase("refresh"))) {
                     globalMsg = object.getString("msg");
@@ -2145,7 +2144,7 @@ public class NetworkConnection {
 
         put("num_invites", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 if (userInfo != null)
                     userInfo.num_invites = object.getInt("num_invites");
             }
@@ -2153,7 +2152,7 @@ public class NetworkConnection {
 
         put("stat_user", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 userInfo = new UserInfo(object);
                 FirebaseCrashlytics.getInstance().setUserId("uid" + userInfo.id);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
@@ -2237,7 +2236,7 @@ public class NetworkConnection {
 
         put("set_ignores", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 if(mServers.getServer(object.cid()) != null)
                     mServers.getServer(object.cid()).updateIgnores(object.getJsonNode("masks"));
                 if (!backlog)
@@ -2248,7 +2247,7 @@ public class NetworkConnection {
 
         put("heartbeat_echo", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Iterator<Entry<String, JsonNode>> iterator = object.getJsonNode("seenEids").fields();
                 while (iterator.hasNext()) {
                     Map.Entry<String, JsonNode> entry = iterator.next();
@@ -2279,10 +2278,9 @@ public class NetworkConnection {
         //Backlog
         put("oob_include", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 try {
                     ready = false;
-                    backlog = true;
                     mBuffers.invalidate();
                     mChannels.invalidate();
                     OOBFetcher t = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + object.getString("url")), -1);
@@ -2299,7 +2297,7 @@ public class NetworkConnection {
 
         put("oob_timeout", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 IRCCloudLog.Log(Log.WARN, "IRCCloud", "OOB timed out");
                 highest_eid = 0;
                 streamId = null;
@@ -2311,18 +2309,17 @@ public class NetworkConnection {
 
         put("backlog_starts", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 numbuffers = object.getInt("numbuffers");
                 totalbuffers = 0;
                 currentBid = -1;
                 notifyHandlers(EVENT_BACKLOG_START, null);
-                backlog = true;
             }
         });
 
         put("oob_skipped", new Parser() {
                     @Override
-                    public void parse(IRCCloudJSONObject object) throws JSONException {
+                    public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                         Log.d("IRCCloud", "OOB was skipped");
                         ready = true;
                     }
@@ -2330,16 +2327,15 @@ public class NetworkConnection {
 
         put("backlog_cache_init", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.deleteEventsBeforeEid(object.bid(), object.eid());
             }
         });
 
         put("backlog_complete", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 accrued = 0;
-                backlog = false;
                 try {
                     Log.d("IRCCloud", "Cleaning up invalid BIDs");
                     mBuffers.dirty = true;
@@ -2349,7 +2345,7 @@ public class NetworkConnection {
                     NotificationsList.getInstance().pruneNotificationChannels();
                     mRecentConversations.prune();
                     mRecentConversations.publishShortcuts();
-                    process_pending_edits();
+                    process_pending_edits(false);
                 } catch (Exception e) {
                     printStackTraceToCrashlytics(e);
                 }
@@ -2400,7 +2396,7 @@ public class NetworkConnection {
         //Server events
         put("makeserver", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 String away = object.getString("away");
                 if (getUserInfo() != null && getUserInfo().auto_away && away != null && away.equals("Auto-away"))
                     away = "";
@@ -2451,7 +2447,7 @@ public class NetworkConnection {
         put("server_details_changed", get("makeserver"));
         put("connection_deleted", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mServers.deleteAllDataForServer(object.cid());
                 NotificationsList.getInstance().pruneNotificationChannels();
                 mRecentConversations.prune();
@@ -2461,7 +2457,7 @@ public class NetworkConnection {
         });
         put("status_changed", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Server s = mServers.getServer(object.cid());
                 if(s != null) {
                     s.setStatus(object.getString("new_status"));
@@ -2481,7 +2477,7 @@ public class NetworkConnection {
         });
         put("isupport_params", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Server s = mServers.getServer(object.cid());
                 if(s != null) {
                     s.updateIsupport(object.getJsonObject("params"));
@@ -2491,7 +2487,7 @@ public class NetworkConnection {
         });
         put("reorder_connections", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 JsonNode order = object.getJsonNode("order");
                 for (int i = 0; i < order.size(); i++) {
                     mServers.getServer(order.get(i).asInt()).setOrder(i + 1);
@@ -2504,7 +2500,7 @@ public class NetworkConnection {
         put("open_buffer", new BroadcastParser(EVENT_OPENBUFFER));
         put("makebuffer", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Buffer buffer = mBuffers.createBuffer(object.bid(), object.cid(),
                         (object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined")) ? object.getLong("min_eid") : 0,
                         (object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined")) ? object.getLong("last_seen_eid") : -1, object.getString("name"), object.getString("buffer_type"),
@@ -2524,7 +2520,7 @@ public class NetworkConnection {
         });
         put("delete_buffer", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mBuffers.deleteAllDataForBuffer(object.bid());
                 NotificationsList.getInstance().deleteNotificationsForBid(object.bid());
                 NotificationsList.getInstance().pruneNotificationChannels();
@@ -2535,7 +2531,7 @@ public class NetworkConnection {
         });
         put("buffer_archived", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null)
                     b.setArchived(1);
@@ -2547,7 +2543,7 @@ public class NetworkConnection {
         });
         put("buffer_unarchived", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null)
                     b.setArchived(0);
@@ -2561,7 +2557,7 @@ public class NetworkConnection {
         });
         put("rename_conversation", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null)
                     b.setName(object.getString("new_name"));
@@ -2572,7 +2568,7 @@ public class NetworkConnection {
         });
         put("rename_channel", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null)
                     b.setName(object.getString("new_name"));
@@ -2586,13 +2582,13 @@ public class NetworkConnection {
         });
         Parser msg = new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 boolean newEvent = (mEvents.getEvent(object.eid(), object.bid()) == null);
                 Event event = mEvents.addEvent(object);
                 Buffer b = mBuffers.getBuffer(object.bid());
 
                 if(event.eid == -1) {
-                    alert.parse(object);
+                    alert.parse(object, backlog);
                 } else {
                     if (b != null && event.isImportant(b.getType())) {
                         if(event.from != null) {
@@ -2748,7 +2744,7 @@ public class NetworkConnection {
         //Channel events
         put("link_channel", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
                     notifyHandlers(EVENT_LINKCHANNEL, object);
@@ -2757,7 +2753,7 @@ public class NetworkConnection {
         });
         put("channel_init", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 JsonNode topic = object.getJsonObject("topic");
                 String set_by = "";
                 if(topic != null && topic.has("nick") && !topic.get("nick").isNull())
@@ -2787,7 +2783,7 @@ public class NetworkConnection {
         });
         put("channel_topic", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
                     mChannels.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid") / 1000000, object.has("author") ? object.getString("author") : object.getString("server"));
@@ -2797,13 +2793,13 @@ public class NetworkConnection {
         });
         put("channel_url", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mChannels.updateURL(object.bid(), object.getString("url"));
             }
         });
         put("channel_mode", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
                     mChannels.updateMode(object.bid(), object.getString("newmode"), object.getJsonObject("ops"), false);
@@ -2814,7 +2810,7 @@ public class NetworkConnection {
         put("channel_mode_is", get("channel_mode"));
         put("channel_timestamp", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 if (!backlog) {
                     mChannels.updateTimestamp(object.bid(), object.getLong("timestamp"));
                     notifyHandlers(EVENT_CHANNELTIMESTAMP, object);
@@ -2823,7 +2819,7 @@ public class NetworkConnection {
         });
         put("joined_channel", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if(object.type().startsWith("you_"))
                     mBuffers.dirty = true;
@@ -2836,7 +2832,7 @@ public class NetworkConnection {
         put("you_joined_channel", get("joined_channel"));
         put("parted_channel", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if(object.type().startsWith("you_"))
                     mBuffers.dirty = true;
@@ -2853,7 +2849,7 @@ public class NetworkConnection {
         put("you_parted_channel", get("parted_channel"));
         put("quit", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
                     if(object.type().startsWith("you_"))
@@ -2865,7 +2861,7 @@ public class NetworkConnection {
         });
         put("quit_server", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
                     mBuffers.dirty = true;
@@ -2875,7 +2871,7 @@ public class NetworkConnection {
         });
         put("kicked_channel", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
                     mUsers.deleteUser(object.bid(), object.getString("nick"));
@@ -2893,7 +2889,7 @@ public class NetworkConnection {
         //Member list events
         put("nickchange", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
                     mUsers.updateNick(object.bid(), object.getString("oldnick"), object.getString("newnick"));
@@ -2909,7 +2905,7 @@ public class NetworkConnection {
         put("you_nickchange", get("nickchange"));
         put("display_name_change", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 if (!backlog) {
                     mUsers.updateDisplayName(object.cid(), object.getString("nick"), object.getString("display_name"));
                     notifyHandlers(EVENT_DISPLAYNAMECHANGE, object);
@@ -2918,7 +2914,7 @@ public class NetworkConnection {
         });
         put("user_channel_mode", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
                     mUsers.updateMode(object.bid(), object.getString("nick"), object.getString("newmode"));
@@ -2928,7 +2924,7 @@ public class NetworkConnection {
         });
         put("member_updates", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 JsonNode updates = object.getJsonObject("updates");
                 Iterator<Map.Entry<String, JsonNode>> i = updates.fields();
                 while (i.hasNext()) {
@@ -2943,7 +2939,7 @@ public class NetworkConnection {
         });
         put("user_away", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null && b.isConsole()) {
                     mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("msg"));
@@ -2959,7 +2955,7 @@ public class NetworkConnection {
         put("away", get("user_away"));
         put("user_back", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null && b.isConsole()) {
                     mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
@@ -2974,7 +2970,7 @@ public class NetworkConnection {
         });
         put("self_away", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 if (!backlog) {
                     mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("away_msg"));
                     if(mServers.getServer(object.cid()) != null)
@@ -2985,7 +2981,7 @@ public class NetworkConnection {
         });
         put("self_back", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mUsers.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
                 if(mServers.getServer(object.cid()) != null)
                     mServers.getServer(object.cid()).setAway("");
@@ -2995,7 +2991,7 @@ public class NetworkConnection {
         });
         put("self_details", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Server s = mServers.getServer(object.cid());
                 if(s != null) {
                     s.setUsermask(object.getString("usermask"));
@@ -3013,7 +3009,7 @@ public class NetworkConnection {
         });
         put("user_mode", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
                     Server s = mServers.getServer(object.cid());
@@ -3027,9 +3023,9 @@ public class NetworkConnection {
         //Message updates
         put("empty_msg", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 pendingEdits.add(object);
-                process_pending_edits();
+                process_pending_edits(backlog);
             }
         });
 
@@ -3056,7 +3052,7 @@ public class NetworkConnection {
         put("export_finished", new BroadcastParser(EVENT_LOGEXPORTFINISHED));
         put("avatar_change", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 User u = mUsers.getUser(object.bid(), object.getString("nick"));
                 if(u != null) {
                     Event e = new Event();
@@ -3096,7 +3092,7 @@ public class NetworkConnection {
         });
         put("who_response", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 if (!backlog) {
                     Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("subject"));
                     if (b != null) {
@@ -3113,7 +3109,7 @@ public class NetworkConnection {
         });
         put("time", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Event e = mEvents.addEvent(object);
                 if (!backlog) {
                     notifyHandlers(EVENT_ALERT, object);
@@ -3123,7 +3119,7 @@ public class NetworkConnection {
         });
         put("channel_topic_is", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("chan"));
                 if (b != null) {
                     Channel c = mChannels.getChannelForBuffer(b.getBid());
@@ -3139,7 +3135,7 @@ public class NetworkConnection {
         });
         put("watch_status", new Parser() {
             @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 object.setEid(System.currentTimeMillis() * 1000L);
                 Event e = mEvents.addEvent(object);
                 if (!backlog) {
@@ -3172,7 +3168,7 @@ public class NetworkConnection {
         return mainNode;
     }
 
-    private synchronized void process_pending_edits() {
+    private synchronized void process_pending_edits(boolean backlog) {
         ArrayList<IRCCloudJSONObject> edits = pendingEdits;
         pendingEdits = new ArrayList<>();
 
@@ -3228,7 +3224,7 @@ public class NetworkConnection {
             IRCCloudLog.Log(Log.INFO, TAG, "Queued pending edits: " + pendingEdits.size());
     }
 
-    public synchronized void parse_object(IRCCloudJSONObject object) throws JSONException {
+    public synchronized void parse_object(IRCCloudJSONObject object, boolean backlog) throws JSONException {
         cancel_idle_timer();
         //Log.d(TAG, "Backlog: " + backlog + " count: " + currentcount + " New event: " + object);
         if (!object.has("type")) {
@@ -3253,6 +3249,9 @@ public class NetworkConnection {
                     notifyHandlers(EVENT_TEMP_UNAVAILABLE, object);
                 } else if(object.getString("message").equals("invalid_nick")) {
                     notifyHandlers(EVENT_ALERT, object);
+                } else if(backlog) {
+                    disconnect();
+                    fail();
                 }
             }
             if (object.has("_reqid") && resultCallbacks.containsKey(object.getInt("_reqid"))) {
@@ -3286,7 +3285,7 @@ public class NetworkConnection {
             }
             Parser p = parserMap.get(type);
             if (p != null) {
-                p.parse(object);
+                p.parse(object, backlog);
             } else if (!parserMap.containsKey(type)) {
                 IRCCloudLog.Log(Log.WARN, TAG, "Unhandled type: " + object.type());
                 //Log.w(TAG, "Unhandled type: " + object);
@@ -3482,13 +3481,11 @@ public class NetworkConnection {
 
             switch(message) {
                 case EVENT_OOB_START:
-                    backlog = true;
                     numbuffers = 0;
                     totalbuffers = 0;
                     currentBid = -1;
                     break;
                 case EVENT_OOB_END:
-                    backlog = false;
                     bid = ((OOBFetcher)object).getBid();
                     ArrayList<Buffer> buffers = mBuffers.getBuffers();
                     for (Buffer b : buffers) {
@@ -3514,7 +3511,6 @@ public class NetworkConnection {
                         oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
                     break;
                 case EVENT_OOB_FAILED:
-                    backlog = false;
                     bid = ((OOBFetcher)object).getBid();
                     if (bid == -1) {
                         IRCCloudLog.Log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
