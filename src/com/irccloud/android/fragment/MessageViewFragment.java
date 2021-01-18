@@ -2096,7 +2096,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
                                     msg = "<large>" + msg + "</large>";
                                 event.html_prefix = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> ";
-                                event.html = msg;
+                                event.html = "<i>" + msg;
+                                event.mention_offset += 3;
                                 break;
                             case "buffer_msg":
                             case "notice":
