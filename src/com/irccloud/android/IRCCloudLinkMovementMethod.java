@@ -235,10 +235,16 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             builder.addMenuItem("Copy URL", PendingIntent.getBroadcast(context, 0, new Intent(context, ChromeCopyLinkBroadcastReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT));
             CustomTabsIntent intent = builder.build();
             intent.intent.setData(uri);
-            if (intent.startAnimationBundle != null) {
-                context.startActivity(intent.intent, intent.startAnimationBundle);
-            } else {
-                context.startActivity(intent.intent);
+            try {
+                if (intent.startAnimationBundle != null) {
+                    context.startActivity(intent.intent, intent.startAnimationBundle);
+                } else {
+                    context.startActivity(intent.intent);
+                }
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(context, "An error occurred while launching this URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         } else {
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -250,7 +256,7 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
-                Toast.makeText(context, "An error occurred while launching this URL", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "An error occurred while launching this URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }
