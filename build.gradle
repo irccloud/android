@@ -68,7 +68,7 @@ android {
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 306
+        versionCode 307
         versionName "4.26"
         minSdkVersion 22
         targetSdkVersion 30

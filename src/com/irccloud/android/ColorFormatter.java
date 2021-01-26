@@ -2799,8 +2799,19 @@ public class ColorFormatter {
                             end--;
 
                         String text = output.toString().substring(start, end);
-                        if (text.length() < 7 && text.matches("[0-9]+"))
-                            continue;
+
+                        //The phone number detector is a little too aggressive
+                        if(text.matches("[0-9()\\-%+. ]+")) {
+                            String digits = text.replaceAll("[()\\-%+. ]","");
+
+                            //Skip matches that contain less than 7 digits
+                            if (digits.length() < 7)
+                                continue;
+
+                            //Skip matches that include a percent sign
+                            if (text.contains("%"))
+                                continue;
+                        }
 
                         if (quotes.containsKey(String.valueOf(output.charAt(end - 1)))) {
                             char close = output.charAt(end - 1);
