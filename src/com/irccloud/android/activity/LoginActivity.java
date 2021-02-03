@@ -27,6 +27,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.net.Network;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -647,10 +648,6 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                 editor.apply();
 
-                editor = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).edit();
-                editor.putBoolean("greeting_3.0", true);
-                editor.apply();
-
                 final Intent i = new Intent(LoginActivity.this, MainActivity.class);
                 i.putExtra("nosplash", true);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -787,9 +784,9 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                     editor.apply();
 
-                    editor = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).edit();
-                    editor.putBoolean("greeting_3.0", true);
-                    editor.apply();
+                    if (result.has("api_host")) {
+                        NetworkConnection.set_api_host(result.getString("api_host"));
+                    }
 
                     final Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     i.putExtra("nosplash", true);
@@ -1046,6 +1043,11 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     }
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                     editor.apply();
+
+                    if (result.has("api_host")) {
+                        NetworkConnection.set_api_host(result.getString("api_host"));
+                    }
+
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     i.putExtra("nosplash", true);
                     if (getIntent() != null) {

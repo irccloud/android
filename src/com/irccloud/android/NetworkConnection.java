@@ -713,17 +713,7 @@ public class NetworkConnection {
                 set_pastebin_cookie();
 
                 if (config.has("api_host")) {
-                    SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-                    NetworkConnection.IRCCLOUD_HOST = config.getString("api_host");
-                    if (NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
-                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);
-                    if (NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
-                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(8);
-                    if (NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
-                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
-                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
-                    editor.apply();
-                    IRCCloudLog.Log(Log.INFO, TAG, "API host: " + NetworkConnection.IRCCLOUD_HOST);
+                    set_api_host(config.getString("api_host"));
                 }
 
             }
@@ -731,6 +721,21 @@ public class NetworkConnection {
             printStackTraceToCrashlytics(e);
         }
         return config;
+    }
+
+    public static void set_api_host(String host) {
+        NetworkConnection.IRCCLOUD_HOST = host;
+        if (NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
+            NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);
+        if (NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
+            NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(8);
+        if (NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
+            NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
+
+        SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+        editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+        editor.apply();
+        IRCCloudLog.Log(Log.INFO, TAG, "API host: " + NetworkConnection.IRCCLOUD_HOST);
     }
 
     public void set_pastebin_cookie() {
@@ -2283,7 +2288,7 @@ public class NetworkConnection {
                     ready = false;
                     mBuffers.invalidate();
                     mChannels.invalidate();
-                    OOBFetcher t = new OOBFetcher(new URL("https://" + IRCCLOUD_HOST + object.getString("url")), -1);
+                    OOBFetcher t = new OOBFetcher(new URL(object.getString("api_host") + object.getString("url")), -1);
                     synchronized (oobTasks) {
                         oobTasks.put(-1, t);
                     }
@@ -3244,6 +3249,9 @@ public class NetworkConnection {
                     }
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                     editor.apply();
+                    if (object.has("api_host")) {
+                        set_api_host(object.getString("api_host"));
+                    }
                     connect();
                 } else if(object.getString("message").equals("temp_unavailable")) {
                     notifyHandlers(EVENT_TEMP_UNAVAILABLE, object);

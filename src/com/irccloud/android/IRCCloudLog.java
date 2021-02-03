@@ -65,7 +65,7 @@ public class IRCCloudLog {
     }
 
     public static void Log(int priority, String tag, String message) {
-        if(BuildConfig.DEBUG && !CrashlyticsEnabled)
+        if(BuildConfig.DEBUG || !CrashlyticsEnabled)
             android.util.Log.println(priority, tag, message);
 
         StringBuilder b = new StringBuilder();
