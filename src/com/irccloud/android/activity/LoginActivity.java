@@ -161,7 +161,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     login.post(new Runnable() {
                         @Override
                         public void run() {
-                            new LoginTask().execute((Void) null);
+                            login();
                         }
                     });
                     return true;
@@ -183,7 +183,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     login.post(new Runnable() {
                         @Override
                         public void run() {
-                            new LoginTask().execute((Void) null);
+                            login();
                         }
                     });
                     return true;
@@ -212,7 +212,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                             i.putExtra("title", loginBtn.getText().toString());
                             startActivityForResult(i, REQUEST_SAML);
                         } else {
-                            new LoginTask().execute((Void) null);
+                            login();
                         }
                     }
                 });
@@ -284,7 +284,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         signupBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                new LoginTask().execute((Void) null);
+                login();
             }
         });
 
@@ -548,7 +548,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                             email.setText(result.getCredential().getId());
                             password.setText(result.getCredential().getPassword());
                             loginHintClickListener.onClick(null);
-                            new LoginTask().execute((Void) null);
+                            login();
                         } else if (result.getStatus().getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
                             Log.e("IRCCloud", "Credentials request sign in");
                             loading.setVisibility(View.GONE);
@@ -699,7 +699,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 loading.setVisibility(View.GONE);
                 login.setVisibility(View.VISIBLE);
                 loginHintClickListener.onClick(null);
-                new LoginTask().execute((Void) null);
+                login();
             } else {
                 loading.setVisibility(View.GONE);
                 login.setVisibility(View.VISIBLE);
@@ -720,6 +720,32 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             startActivity(i);
             finish();
         }
+    }
+
+    private void login() {
+        LoginTask task = new LoginTask();
+        task.onPreExecute();
+        NetworkConnection.getInstance().fetchConfig(new NetworkConnection.ConfigCallback() {
+            @Override
+            public void onConfig(JSONObject config) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(config != null) {
+                            task.execute((Void) null);
+                        } else {
+                            try {
+                                JSONObject result = new JSONObject();
+                                result.put("message", "config");
+                                task.onPostExecute(result);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+            }
+        });
     }
 
     private class LoginTask extends AsyncTaskEx<Void, Void, JSONObject> {
@@ -748,16 +774,6 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
 
         @Override
         protected JSONObject doInBackground(Void... arg0) {
-            try {
-                if (!BuildConfig.ENTERPRISE)
-                    NetworkConnection.IRCCLOUD_HOST = BuildConfig.HOST;
-                JSONObject config = NetworkConnection.getInstance().fetchConfig();
-                NetworkConnection.IRCCLOUD_HOST = config.getString("api_host");
-                trimHost();
-            } catch (Exception e) {
-                NetworkConnection.printStackTraceToCrashlytics(e);
-                return null;
-            }
             if (name.getVisibility() == View.VISIBLE) {
                 if (name.getText() != null && name.getText().length() > 0 && email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
                     return NetworkConnection.getInstance().signup(name.getText().toString(), email.getText().toString(), password.getText().toString(), (impression_id != null) ? impression_id : "");
@@ -920,6 +936,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                                 message = "No signups allowed from TOR exit nodes";
                             else if (message.equals("signup_ip_blocked"))
                                 message = "Your IP address has been blacklisted";
+                            else if (message.equals("config"))
+                                message = "Unable to fetch configuration. Please try again shortly.";
                             else
                                 message = "Error: " + message;
                         }

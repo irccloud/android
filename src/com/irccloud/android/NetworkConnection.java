@@ -676,51 +676,59 @@ public class NetworkConnection {
         return null;
     }
 
-    public JSONObject fetchConfig() {
+    public void fetchConfig(ConfigCallback callback) {
+        IRCCloudLog.Log(Log.INFO, TAG, "Requesting configuration");
         try {
-            IRCCloudLog.Log(Log.INFO, TAG, "Requesting configuration");
-            JSONObject o = fetchJSON("https://" + IRCCLOUD_HOST + "/config");
-            if(o != null) {
-                config = o;
-                SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-                prefs.putString("config", config.toString());
-                prefs.apply();
+            new ConfigFetcher(new ConfigCallback() {
+                @Override
+                public void onConfig(JSONObject o) {
+                    try {
+                        if (o != null) {
+                            config = o;
+                            SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+                            prefs.putString("config", config.toString());
+                            prefs.apply();
 
-                if(config.has("file_uri_template"))
-                    file_uri_template = config.getString("file_uri_template");
-                else
-                    file_uri_template = null;
+                            if (config.has("file_uri_template"))
+                                file_uri_template = config.getString("file_uri_template");
+                            else
+                                file_uri_template = null;
 
-                if(config.has("pastebin_uri_template"))
-                    pastebin_uri_template = config.getString("pastebin_uri_template");
-                else
-                    pastebin_uri_template = null;
+                            if (config.has("pastebin_uri_template"))
+                                pastebin_uri_template = config.getString("pastebin_uri_template");
+                            else
+                                pastebin_uri_template = null;
 
-                if(config.has("avatar_uri_template"))
-                    avatar_uri_template = config.getString("avatar_uri_template");
-                else
-                    avatar_uri_template = null;
+                            if (config.has("avatar_uri_template"))
+                                avatar_uri_template = config.getString("avatar_uri_template");
+                            else
+                                avatar_uri_template = null;
 
-                if(config.has("avatar_redirect_uri_template"))
-                    avatar_redirect_uri_template = config.getString("avatar_redirect_uri_template");
-                else
-                    avatar_redirect_uri_template = null;
+                            if (config.has("avatar_redirect_uri_template"))
+                                avatar_redirect_uri_template = config.getString("avatar_redirect_uri_template");
+                            else
+                                avatar_redirect_uri_template = null;
 
-                if(BuildConfig.ENTERPRISE && !(config.get("enterprise") instanceof JSONObject)) {
-                    globalMsg = "Some features, such as push notifications, may not work as expected.  Please download the standard IRCCloud app from the <a href=\"" + config.getString("android_app") + "\">Play Store</a>";
-                    notifyHandlers(EVENT_GLOBALMSG, null);
+                            if (BuildConfig.ENTERPRISE && !(config.get("enterprise") instanceof JSONObject)) {
+                                globalMsg = "Some features, such as push notifications, may not work as expected.  Please download the standard IRCCloud app from the <a href=\"" + config.getString("android_app") + "\">Play Store</a>";
+                                notifyHandlers(EVENT_GLOBALMSG, null);
+                            }
+                            set_pastebin_cookie();
+
+                            if (config.has("api_host")) {
+                                set_api_host(config.getString("api_host"));
+                            }
+                        }
+                        if(callback != null)
+                            callback.onConfig(o);
+                    } catch (Exception e) {
+                        printStackTraceToCrashlytics(e);
+                    }
                 }
-                set_pastebin_cookie();
-
-                if (config.has("api_host")) {
-                    set_api_host(config.getString("api_host"));
-                }
-
-            }
+            }).connect();
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
         }
-        return config;
     }
 
     public static void set_api_host(String host) {
@@ -1043,20 +1051,58 @@ public class NetworkConnection {
         resultCallbacks.clear();
         notifyHandlers(EVENT_CONNECTIVITY, null);
 
-        new ConnectTask().execute(limit);
+        fetchConfig(new ConnectCallback(limit));
     }
 
-    private class ConnectTask extends AsyncTaskEx<Integer, Void, JSONObject> {
+    public interface ConfigCallback {
+        void onConfig(JSONObject config);
+    }
+
+    private class ConfigFetcher extends HTTPFetcher {
+        ConfigCallback callback;
+        JSONObject result = null;
+
+        public ConfigFetcher(ConfigCallback callback) throws MalformedURLException {
+            super(new URL("https://" + IRCCLOUD_HOST + "/config"));
+            this.callback = callback;
+        }
+
+        protected void onFetchComplete() {
+            if(!isCancelled && callback != null)
+                callback.onConfig(result);
+        }
+
+        protected void onFetchFailed() {
+            if(!isCancelled && callback != null)
+                callback.onConfig(result);
+        }
+
+        protected void onStreamConnected(InputStream is) throws Exception {
+            if (isCancelled)
+                return;
+
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = is.read(buffer)) != -1) {
+                os.write(buffer, 0, len);
+            }
+            String response = os.toString("UTF-8");
+            is.close();
+
+            result = new JSONObject(response);
+        }
+    }
+
+    private class ConnectCallback implements ConfigCallback {
         int limit;
 
-        @Override
-        protected JSONObject doInBackground(Integer... limits) {
-            limit = limits[0];
-            return fetchConfig();
+        public ConnectCallback(int limit) {
+            this.limit = limit;
         }
 
         @Override
-        protected void onPostExecute(JSONObject config) {
+        public void onConfig(JSONObject config) {
             try {
                 if (config != null) {
                     String host = null;
