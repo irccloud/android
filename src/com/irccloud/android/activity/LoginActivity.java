@@ -723,6 +723,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
     }
 
     private void login() {
+        if(!BuildConfig.ENTERPRISE)
+            NetworkConnection.IRCCLOUD_HOST = BuildConfig.HOST;
         LoginTask task = new LoginTask();
         task.onPreExecute();
         NetworkConnection.getInstance().fetchConfig(new NetworkConnection.ConfigCallback() {

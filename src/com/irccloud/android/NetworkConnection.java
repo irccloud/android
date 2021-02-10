@@ -1369,6 +1369,8 @@ public class NetworkConnection {
         LogExportsList.getInstance().clear();
         FirebaseAnalytics.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).resetAnalyticsData();
         IRCCloudLog.clear();
+        if(!BuildConfig.ENTERPRISE)
+            IRCCLOUD_HOST = BuildConfig.HOST;
         save(100);
     }
 
