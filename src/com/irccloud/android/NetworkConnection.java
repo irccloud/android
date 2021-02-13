@@ -845,7 +845,7 @@ public class NetworkConnection {
 
     public JSONArray networkPresets() throws IOException {
         try {
-            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/static/networks.json"), null, null, null, null);
+            String response = fetch(new URL("https://www.irccloud.com/static/networks.json"), null, null, null, null);
             if(response.length() > 0) {
                 JSONObject o = new JSONObject(response);
                 return o.getJSONArray("networks");
