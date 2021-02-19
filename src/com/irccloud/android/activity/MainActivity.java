@@ -4813,7 +4813,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 @Override
                 public void afterTextChanged(Editable editable) {
                     if(c.getBuffer() != null) {
-                        if (server.isupport != null && server.isupport.has("TOPICLEN") && server.isupport.get("TOPICLEN").isInt())
+                        if (server != null && server.isupport != null && server.isupport.has("TOPICLEN") && server.isupport.get("TOPICLEN").isInt())
                             dialog.setTitle("Topic for " + c.getBuffer().getDisplayName() + " (" + (server.isupport.get("TOPICLEN").asInt() - input.getText().length()) + " chars)");
                         else
                             dialog.setTitle("Topic for " + c.getBuffer().getDisplayName());

@@ -2947,9 +2947,10 @@ public class NetworkConnection {
                 if (!backlog) {
                     mUsers.updateNick(object.bid(), object.getString("oldnick"), object.getString("newnick"));
                     if (object.type().equals("you_nickchange")) {
-                        if(mServers.getServer(object.cid()) != null)
-                            mServers.getServer(object.cid()).setNick(object.getString("newnick"));
-                        NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("newnick"), mServers.getServer(object.cid()).getAvatarURL(), mServers.getServer(object.cid()).isSlack());
+                        Server s = mServers.getServer(object.cid());
+                        if(s != null)
+                            s.setNick(object.getString("newnick"));
+                        NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("newnick"), s != null ? s.getAvatarURL() : null, s != null && s.isSlack());
                     }
                     notifyHandlers(EVENT_NICKCHANGE, object);
                 }
