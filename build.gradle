@@ -22,9 +22,9 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
-        classpath 'com.google.gms:google-services:4.3.4'
-        classpath 'com.google.firebase:perf-plugin:1.3.4'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.5.1'
+        classpath 'com.google.gms:google-services:4.3.5'
+        classpath 'com.google.firebase:perf-plugin:1.3.5'
     }
 }
 
@@ -353,7 +353,7 @@ dependencies {
     implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
     implementation 'androidx.sharetarget:sharetarget:1.1.0'
     implementation "androidx.cardview:cardview:1.0.0"
-    implementation "com.google.android.material:material:1.2.1"
+    implementation "com.google.android.material:material:1.3.0"
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.browser:browser:1.3.0"
     implementation "androidx.emoji:emoji:1.1.0"
@@ -365,7 +365,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-identity:17.0.0"
     implementation 'com.google.firebase:firebase-messaging:21.0.1'
     implementation 'com.google.firebase:firebase-analytics:18.0.2'
-    implementation 'com.google.firebase:firebase-perf:19.1.0'
+    implementation 'com.google.firebase:firebase-perf:19.1.1'
     implementation 'com.google.firebase:firebase-crashlytics:17.3.1'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.7'
