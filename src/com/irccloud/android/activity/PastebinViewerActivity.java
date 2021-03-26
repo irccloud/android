@@ -37,6 +37,7 @@ import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
@@ -209,6 +210,20 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
 
             @Override
             public void onLoadResource(WebView view, String url) {
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return shouldOverrideUrlLoading(view, request.getUrl().toString());
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (!url.startsWith("https://" + NetworkConnection.IRCCLOUD_HOST + "/pastebin/") && !url.startsWith("https://www.irccloud.com/pastebin/")) {
+                    IRCCloudLinkMovementMethod.launchBrowser(Uri.parse(url), PastebinViewerActivity.this);
+                    return true;
+                }
+                return false;
             }
         });
         mWebView.setWebChromeClient(new WebChromeClient() {
