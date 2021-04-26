@@ -83,6 +83,7 @@ public class IRCCloudApplication extends Application {
             IRCCloudLog.CrashlyticsEnabled = true;
             IRCCloudLog.Log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
         } catch (Exception e) {
+            IRCCloudLog.CrashlyticsEnabled = false;
             e.printStackTrace();
         }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -116,9 +117,6 @@ public class IRCCloudApplication extends Application {
                 }));
         //EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true)));
         NetworkConnection.getInstance().registerForConnectivity();
-
-        //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
-        System.setProperty("http.keepAlive", "false");
 
         //Allocate all the shared objects at launch
         conn = NetworkConnection.getInstance();

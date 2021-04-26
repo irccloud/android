@@ -3491,7 +3491,6 @@ public class NetworkConnection {
                 os.write(buffer, 0, len);
             }
             response = os.toString("UTF-8");
-            is.close();
         }
         if(metric != null) {
             metric.setResponsePayloadSize(response.length());
