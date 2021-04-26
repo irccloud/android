@@ -2207,7 +2207,8 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
                 userInfo = new UserInfo(object);
-                FirebaseCrashlytics.getInstance().setUserId("uid" + userInfo.id);
+                if(IRCCloudLog.CrashlyticsEnabled)
+                    FirebaseCrashlytics.getInstance().setUserId("uid" + userInfo.id);
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("uid", "uid" + userInfo.id);
