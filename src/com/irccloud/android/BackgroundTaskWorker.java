@@ -40,14 +40,12 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.BackgroundTask;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.List;
 
 public class BackgroundTaskWorker extends Worker {
@@ -84,7 +82,7 @@ public class BackgroundTaskWorker extends Worker {
         for(BackgroundTask t : tasks) {
             IRCCloudLog.Log(Log.INFO, "IRCCloud", "Removing old FCM registration task: " + t.getTag());
             try {
-                WorkManager.getInstance().cancelUniqueWork(t.getTag());
+                WorkManager.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).cancelUniqueWork(t.getTag());
             } catch (Exception e) {
             }
             IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(t);
@@ -103,7 +101,7 @@ public class BackgroundTaskWorker extends Worker {
                         .setInputData(new Data.Builder().putString("tag", task.getTag()).build())
                         .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                         .build();
-                WorkManager.getInstance().enqueueUniqueWork(task.getTag(), ExistingWorkPolicy.REPLACE, request);
+                WorkManager.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).enqueueUniqueWork(task.getTag(), ExistingWorkPolicy.REPLACE, request);
             } catch (Exception e) {
                 return;
             }
@@ -117,7 +115,7 @@ public class BackgroundTaskWorker extends Worker {
 
             for(BackgroundTask t : tasks) {
                 try {
-                    WorkManager.getInstance().cancelUniqueWork(t.getTag());
+                    WorkManager.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).cancelUniqueWork(t.getTag());
                 } catch (Exception e) {
                 }
                 IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(t);
@@ -134,7 +132,7 @@ public class BackgroundTaskWorker extends Worker {
                         .setInputData(new Data.Builder().putString("tag", task.getTag()).build())
                         .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                         .build();
-                WorkManager.getInstance().enqueueUniqueWork(task.getTag(), ExistingWorkPolicy.REPLACE, request);
+                WorkManager.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).enqueueUniqueWork(task.getTag(), ExistingWorkPolicy.REPLACE, request);
             } catch (Exception e) {
                 return;
             }
@@ -153,7 +151,7 @@ public class BackgroundTaskWorker extends Worker {
 
         for(BackgroundTask t : tasks) {
             try {
-                WorkManager.getInstance().cancelUniqueWork(t.getTag());
+                WorkManager.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).cancelUniqueWork(t.getTag());
             } catch (Exception e) {
             }
             IRCCloudDatabase.getInstance().BackgroundTasksDao().delete(t);
@@ -164,22 +162,14 @@ public class BackgroundTaskWorker extends Worker {
 
                 @Override
                 protected Void doInBackground(Void... voids) {
-                    try {
-                        FirebaseInstanceId.getInstance().deleteInstanceId();
-                    } catch (IOException e) {
-                        NetworkConnection.printStackTraceToCrashlytics(e);
-                    }
+                    FirebaseMessaging.getInstance().deleteToken();
                     if(!onGcmUnregister(token, session).equals(Result.success()))
                         scheduleUnregister(token, session);
                     return null;
                 }
             }.execute((Void) null);
         } else {
-            try {
-                FirebaseInstanceId.getInstance().deleteInstanceId();
-            } catch (IOException e) {
-                NetworkConnection.printStackTraceToCrashlytics(e);
-            }
+            FirebaseMessaging.getInstance().deleteToken();
             if(!onGcmUnregister(token, session).equals(Result.success()))
                 scheduleUnregister(token, session);
         }
@@ -244,16 +234,12 @@ public class BackgroundTaskWorker extends Worker {
             try {
                 IRCCloudLog.Log(Log.INFO, "IRCCloud", "Unregistering FCM");
                 try {
-                    FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                    FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
                         @Override
-                        public void onSuccess(InstanceIdResult instanceIdResult) {
-                            if (token.equals(instanceIdResult.getToken())) {
+                        public void onSuccess(@NonNull String s) {
+                            if (token.equals(s)) {
                                 IRCCloudLog.Log(Log.INFO, "IRCCloud", "Deleting old FCM token");
-                                try {
-                                    FirebaseInstanceId.getInstance().deleteInstanceId();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                                FirebaseMessaging.getInstance().deleteToken();
                             }
                         }
                     });

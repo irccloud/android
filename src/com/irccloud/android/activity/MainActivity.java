@@ -111,6 +111,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -137,8 +138,7 @@ import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BackgroundTaskWorker;
@@ -2173,11 +2173,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         try {
             if (NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
-                FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
                     @Override
-                    public void onSuccess(InstanceIdResult instanceIdResult) {
+                    public void onSuccess(@NonNull String s) {
                         GcmTask t = new GcmTask();
-                        t.token = instanceIdResult.getToken();
+                        t.token = s;
                         t.execute((Void) null);
                     }
                 });

@@ -731,7 +731,7 @@ public class NetworkConnection {
         }
     }
 
-    public static void set_api_host(String host) {
+    public static synchronized void set_api_host(String host) {
         NetworkConnection.IRCCLOUD_HOST = host;
         if (NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
             NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);

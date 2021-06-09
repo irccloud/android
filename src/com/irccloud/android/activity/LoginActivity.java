@@ -47,6 +47,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -65,8 +66,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BackgroundTaskWorker;
 import com.irccloud.android.BuildConfig;
@@ -844,10 +844,10 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                             }
                         });
                         try {
-                            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                            FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
                                 @Override
-                                public void onSuccess(InstanceIdResult instanceIdResult) {
-                                    BackgroundTaskWorker.registerGCM(instanceIdResult.getToken());
+                                public void onSuccess(@NonNull String s) {
+                                    BackgroundTaskWorker.registerGCM(s);
                                 }
                             });
                         } catch (Exception e) {

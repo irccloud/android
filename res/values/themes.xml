@@ -1,0 +1,11 @@
+<resources>
+
+    <style name="dawn.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="dawn.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="dawn.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+</resources>

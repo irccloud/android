@@ -21,7 +21,7 @@ import android.util.Log;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.irccloud.android.data.collection.AvatarsList;
@@ -54,7 +54,7 @@ public class FCMService extends FirebaseMessagingService {
         if(NetworkConnection.getInstance().session == null || NetworkConnection.getInstance().session.length() == 0) {
             Log.e("IRCCloud", "Got a FCM while logged out, deleting token");
             try {
-                FirebaseInstanceId.getInstance().deleteInstanceId();
+                FirebaseMessaging.getInstance().deleteToken();
             } catch (Exception e) {
                 NetworkConnection.printStackTraceToCrashlytics(e);
             }
