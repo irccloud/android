@@ -1189,38 +1189,45 @@ public class NetworkConnection {
                             //Log.d(TAG, String.format("Got binary message! %s", toHexString(data));
                         }
 
+                        private void closed() {
+                            try {
+                                if (wifiLock.isHeld())
+                                    wifiLock.release();
+                            } catch (RuntimeException e) {
+
+                            }
+
+                            IRCCloudLog.Log(Log.DEBUG, TAG, "Clearing OOB tasks");
+                            synchronized (oobTasks) {
+                                for (Integer bid : oobTasks.keySet()) {
+                                    try {
+                                        oobTasks.get(bid).cancel();
+                                    } catch (Exception e) {
+                                        printStackTraceToCrashlytics(e);
+                                    }
+                                }
+                                oobTasks.clear();
+                            }
+                            IRCCloudLog.Log(Log.DEBUG, TAG, "Clear");
+
+                            if (highest_eid <= 0)
+                                streamId = null;
+
+                            ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                            NetworkInfo ni = cm.getActiveNetworkInfo();
+                            if (state == STATE_DISCONNECTING || ni == null || !ni.isConnected()) {
+                                cancel_idle_timer();
+                                state = STATE_DISCONNECTED;
+                            } else {
+                                fail();
+                            }
+                        }
+
                         @Override
                         public void onDisconnect(int code, String reason) {
                             if (client != null && client.getListener() == this) {
                                 IRCCloudLog.Log(Log.DEBUG, TAG, "WebSocket disconnected: " + code + " " + reason);
-                                try {
-                                    if (wifiLock.isHeld())
-                                        wifiLock.release();
-                                } catch (RuntimeException e) {
-
-                                }
-
-                                IRCCloudLog.Log(Log.DEBUG, TAG, "Clearing OOB tasks");
-                                synchronized (oobTasks) {
-                                    for (Integer bid : oobTasks.keySet()) {
-                                        try {
-                                            oobTasks.get(bid).cancel();
-                                        } catch (Exception e) {
-                                            printStackTraceToCrashlytics(e);
-                                        }
-                                    }
-                                    oobTasks.clear();
-                                }
-
-                                if (highest_eid <= 0)
-                                    streamId = null;
-
-                                ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-                                NetworkInfo ni = cm.getActiveNetworkInfo();
-                                if (state == STATE_DISCONNECTING || ni == null || !ni.isConnected())
-                                    cancel_idle_timer();
-                                else
-                                    fail();
+                                closed();
                             } else {
                                 IRCCloudLog.Log(Log.WARN, "IRCCloud", "Got websocket onDisconnect for inactive websocket");
                             }
@@ -1230,27 +1237,7 @@ public class NetworkConnection {
                         public void onError(Exception error) {
                             if (client != null && client.getListener() == this) {
                                 IRCCloudLog.Log(Log.ERROR, TAG, "The WebSocket encountered an error: " + error.toString());
-                                try {
-                                    if (wifiLock.isHeld())
-                                        wifiLock.release();
-                                } catch (RuntimeException e) {
-
-                                }
-                                IRCCloudLog.Log(Log.DEBUG, TAG, "Clearing OOB tasks");
-                                synchronized (oobTasks) {
-                                    for (Integer bid : oobTasks.keySet()) {
-                                        try {
-                                            oobTasks.get(bid).cancel();
-                                        } catch (Exception e) {
-                                            printStackTraceToCrashlytics(e);
-                                        }
-                                    }
-                                    oobTasks.clear();
-                                }
-                                if (state == STATE_DISCONNECTING)
-                                    cancel_idle_timer();
-                                else
-                                    fail();
+                                closed();
                             } else {
                                 IRCCloudLog.Log(Log.WARN, "IRCCloud", "Got websocket onError for inactive websocket");
                             }

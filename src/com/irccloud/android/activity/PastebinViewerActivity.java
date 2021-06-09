@@ -72,7 +72,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         @Override
         protected void onPreExecute() {
             try {
-                if (!url.startsWith("https://" + NetworkConnection.IRCCLOUD_HOST + "/pastebin/") && !url.startsWith("https://www.irccloud.com/pastebin/")) {
+                if (url.contains("..") || (!url.startsWith("https://" + NetworkConnection.IRCCLOUD_HOST + "/pastebin/") && !url.startsWith("https://www.irccloud.com/pastebin/"))) {
                     Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unsupported URL", Toast.LENGTH_SHORT).show();
                     cancel(true);
                     finish();

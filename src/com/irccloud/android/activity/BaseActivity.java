@@ -306,8 +306,11 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        if(conn != null){
+        if(conn != null) {
             IRCCloudLog.Log(Log.INFO, "IRCCloud", "App resumed, websocket state: " + conn.getState());
+            if(conn.getState() == NetworkConnection.STATE_CONNECTING)
+                conn.disconnect();
+
             if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
                 conn.connect(true);
         }
