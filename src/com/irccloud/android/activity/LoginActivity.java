@@ -106,7 +106,6 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
     private LinearLayout enterpriseHint = null;
     private LinearLayout loginSignupHint = null;
 
-    private String impression_id = null;
     private GoogleApiClient mGoogleApiClient;
 
     private static final int REQUEST_SAML = 1;
@@ -513,14 +512,6 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             NetworkConnection.getInstance().logout();
             new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1", "") + "&format=json");
             setIntent(new Intent(this, LoginActivity.class));
-        } else if (getIntent() != null && getIntent().getData() != null && getIntent().getData().getHost().equals("referral")) {
-            new ImpressionTask().execute(getIntent().getDataString().substring(getIntent().getData().getScheme().length() + getIntent().getData().getHost().length() + 4));
-            if (getSharedPreferences("prefs", 0).contains("session_key")) {
-                Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                i.putExtra("nosplash", true);
-                startActivity(i);
-                finish();
-            }
         } else if (getSharedPreferences("prefs", 0).getString("session_key","").length() > 0) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
             i.putExtra("nosplash", true);
@@ -537,7 +528,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 Log.e("IRCCloud", "Play Services connected");
                 CredentialRequest request = new CredentialRequest.Builder()
                         .setAccountTypes("https://" + NetworkConnection.IRCCLOUD_HOST)
-                        .setSupportsPasswordLogin(true)
+                        .setPasswordLoginSupported(true)
                         .build();
 
                 Auth.CredentialsApi.request(mGoogleApiClient, request).setResultCallback(new ResultCallback<CredentialRequestResult>() {
@@ -778,7 +769,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         protected JSONObject doInBackground(Void... arg0) {
             if (name.getVisibility() == View.VISIBLE) {
                 if (name.getText() != null && name.getText().length() > 0 && email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
-                    return NetworkConnection.getInstance().signup(name.getText().toString(), email.getText().toString(), password.getText().toString(), (impression_id != null) ? impression_id : "");
+                    return NetworkConnection.getInstance().signup(name.getText().toString(), email.getText().toString(), password.getText().toString());
                 else
                     return null;
             } else {
@@ -993,34 +984,6 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 dialog.setOwnerActivity(LoginActivity.this);
                 if(!isFinishing())
                     dialog.show();
-            }
-        }
-    }
-
-    private class ImpressionTask extends AsyncTaskEx<String, Void, JSONObject> {
-        @Override
-        protected JSONObject doInBackground(String... arg0) {
-            try {
-                return NetworkConnection.getInstance().impression(AdvertisingIdClient.getAdvertisingIdInfo(LoginActivity.this).getId(), arg0[0], getSharedPreferences("prefs", 0).getString("session_key", ""));
-            } catch (IOException e) {
-            } catch (GooglePlayServicesNotAvailableException e) {
-                NetworkConnection.printStackTraceToCrashlytics(e);
-            } catch (GooglePlayServicesRepairableException e) {
-                NetworkConnection.printStackTraceToCrashlytics(e);
-            }
-            return null;
-        }
-
-        @Override
-        public void onPostExecute(JSONObject result) {
-            if (result != null && result.has("success")) {
-                try {
-                    if (result.getBoolean("success")) {
-                        impression_id = result.getString("id");
-                    }
-                } catch (JSONException e) {
-                    NetworkConnection.printStackTraceToCrashlytics(e);
-                }
             }
         }
     }

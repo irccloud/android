@@ -523,12 +523,12 @@ public class NetworkConnection {
         return null;
     }
 
-    public JSONObject signup(String realname, String email, String password, String impression) {
+    public JSONObject signup(String realname, String email, String password) {
         try {
             String tokenResponse = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null, null);
             JSONObject token = new JSONObject(tokenResponse);
             if (token.has("token")) {
-                String postdata = "realname=" + URLEncoder.encode(realname, "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(password, "UTF-8") + "&token=" + token.getString("token") + "&android_impression=" + URLEncoder.encode(impression, "UTF-8");
+                String postdata = "realname=" + URLEncoder.encode(realname, "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(password, "UTF-8") + "&token=" + token.getString("token");
                 String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/signup"), postdata, null, token.getString("token"), null);
                 if (response.length() < 1) {
                     JSONObject o = new JSONObject();
@@ -583,40 +583,6 @@ public class NetworkConnection {
             } else {
                 return null;
             }
-        } catch (UnknownHostException e) {
-            printStackTraceToCrashlytics(e);
-            return null;
-        } catch (IOException e) {
-            printStackTraceToCrashlytics(e);
-            return null;
-        } catch (JSONException e) {
-            printStackTraceToCrashlytics(e);
-            JSONObject o = new JSONObject();
-            try {
-                o.put("message", "json_error");
-            } catch (JSONException e1) {
-            }
-            return o;
-        } catch (Exception e) {
-            printStackTraceToCrashlytics(e);
-        }
-        return null;
-    }
-
-    public JSONObject impression(String adid, String referrer, String sk) {
-        try {
-            String postdata = "adid=" + URLEncoder.encode(adid, "UTF-8") + "&referrer=" + URLEncoder.encode(referrer, "UTF-8") + "&session=" + sk;
-            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/android-impressions"), postdata, sk, null, null);
-            if (response.length() < 1) {
-                JSONObject o = new JSONObject();
-                o.put("message", "empty_response");
-                return o;
-            } else if (response.charAt(0) != '{') {
-                JSONObject o = new JSONObject();
-                o.put("message", "invalid_response");
-                return o;
-            }
-            return new JSONObject(response);
         } catch (UnknownHostException e) {
             printStackTraceToCrashlytics(e);
             return null;
