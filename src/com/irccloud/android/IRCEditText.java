@@ -329,7 +329,11 @@ public class IRCEditText extends RichEditText {
 
     @Override
     public void setText(CharSequence text, BufferType type) {
-        super.setText(text, type);
+        try {
+            super.setText(text, type);
+        } catch (Exception e) {
+            //Fix a crash on some Samsung devices
+        }
         if(text == null || text.length() == 0) {
             clearTypingEffects();
             onSelectionChanged(0, 0);

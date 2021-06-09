@@ -5089,7 +5089,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     input.setText("");
                     prompt.setText("Invite someone to join " + b.getName());
                     builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                    builder.setTitle(s.getName() + " (" + s.getHostname() + ":" + (s.getPort()) + ")");
                     builder.setView(view);
                     builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
                         @Override
@@ -5157,7 +5157,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     input.setText("");
                     prompt.setText("Which channel do you want to join?");
                     builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                    builder.setTitle(s.getName() + " (" + s.getHostname() + ":" + (s.getPort()) + ")");
                     builder.setView(view);
                     builder.setPositiveButton("Join", new DialogInterface.OnClickListener() {
                         @Override
@@ -5183,7 +5183,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     input.setText("");
                     prompt.setText("Which nick do you want to message?");
                     builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                    builder.setTitle(s.getName() + " (" + s.getHostname() + ":" + (s.getPort()) + ")");
                     builder.setView(view);
                     builder.setPositiveButton("Message", new DialogInterface.OnClickListener() {
                         @Override
