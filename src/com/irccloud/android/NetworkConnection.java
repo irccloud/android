@@ -731,18 +731,18 @@ public class NetworkConnection {
         }
     }
 
-    public static synchronized void set_api_host(String host) {
-        NetworkConnection.IRCCLOUD_HOST = host;
-        if (NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
-            NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);
-        if (NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
-            NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(8);
-        if (NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
-            NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
+    public static void set_api_host(String host) {
+        if (host.startsWith("http://"))
+            host = host.substring(7);
+        if (host.startsWith("https://"))
+            host = host.substring(8);
+        if (host.endsWith("/"))
+            host = host.substring(0, host.length() - 1);
 
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-        editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+        editor.putString("host", host);
         editor.apply();
+        NetworkConnection.IRCCLOUD_HOST = host;
         IRCCloudLog.Log(Log.INFO, TAG, "API host: " + NetworkConnection.IRCCLOUD_HOST);
     }
 
