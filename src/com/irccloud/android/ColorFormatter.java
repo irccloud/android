@@ -914,7 +914,8 @@ public class ColorFormatter {
         put("ant", "🐜");
         put("bee", "🐝");
         put("honeybee", "🐝");
-        put("beetle", "🐞");
+        put("ladybug", "🐞");
+        put("lady_beetle", "🐞");
         put("fish", "🐟");
         put("tropical_fish", "🐠");
         put("blowfish", "🐡");
@@ -1075,15 +1076,13 @@ public class ColorFormatter {
         put("female-judge", "👩‍⚖️");
         put("female-pilot", "👩‍✈️");
         put("woman-heart-man", "👩‍❤️‍👨");
-        put("couple_with_heart", "👩‍❤️‍👨");
         put("woman-heart-woman", "👩‍❤️‍👩");
         put("woman-kiss-man", "👩‍❤️‍💋‍👨");
-        put("couplekiss", "👩‍❤️‍💋‍👨");
         put("woman-kiss-woman", "👩‍❤️‍💋‍👩");
         put("woman", "👩");
-        put("couple", "👫");
         put("man_and_woman_holding_hands", "👫");
         put("woman_and_man_holding_hands", "👫");
+        put("couple", "👫");
         put("two_men_holding_hands", "👬");
         put("men_holding_hands", "👬");
         put("two_women_holding_hands", "👭");
@@ -1091,8 +1090,10 @@ public class ColorFormatter {
         put("female-police-officer", "👮‍♀️");
         put("male-police-officer", "👮‍♂️");
         put("cop", "👮‍♂️");
+        put("women-with-bunny-ears-partying", "👯‍♀️");
         put("woman-with-bunny-ears-partying", "👯‍♀️");
         put("dancers", "👯‍♀️");
+        put("men-with-bunny-ears-partying", "👯‍♂️");
         put("man-with-bunny-ears-partying", "👯‍♂️");
         put("woman_with_veil", "👰‍♀️");
         put("man_with_veil", "👰‍♂️");
@@ -1141,7 +1142,9 @@ public class ColorFormatter {
         put("love_letter", "💌");
         put("ring", "💍");
         put("gem", "💎");
+        put("couplekiss", "💏");
         put("bouquet", "💐");
+        put("couple_with_heart", "💑");
         put("wedding", "💒");
         put("heartbeat", "💓");
         put("broken_heart", "💔");
@@ -1166,7 +1169,6 @@ public class ColorFormatter {
         put("sweat_drops", "💦");
         put("droplet", "💧");
         put("dash", "💨");
-        put("pile_of_poo", "💩");
         put("hankey", "💩");
         put("poop", "💩");
         put("shit", "💩");
@@ -1444,6 +1446,7 @@ public class ColorFormatter {
         put("tired_face", "😫");
         put("grimacing", "😬");
         put("sob", "😭");
+        put("face_exhaling", "😮‍💨");
         put("open_mouth", "😮");
         put("hushed", "😯");
         put("cold_sweat", "😰");
@@ -1451,7 +1454,9 @@ public class ColorFormatter {
         put("astonished", "😲");
         put("flushed", "😳");
         put("sleeping", "😴");
+        put("face_with_spiral_eyes", "😵‍💫");
         put("dizzy_face", "😵");
+        put("face_in_clouds", "😶‍🌫️");
         put("no_mouth", "😶");
         put("mask", "😷");
         put("smile_cat", "😸");
@@ -1667,7 +1672,7 @@ public class ColorFormatter {
         put("prince", "🤴");
         put("woman_in_tuxedo", "🤵‍♀️");
         put("man_in_tuxedo", "🤵‍♂️");
-        put("man_in_tuxedo", "🤵");
+        put("person_in_tuxedo", "🤵");
         put("mrs_claus", "🤶");
         put("mother_christmas", "🤶");
         put("woman-shrugging", "🤷‍♀️");
@@ -1867,6 +1872,8 @@ public class ColorFormatter {
         put("adult", "🧑");
         put("child", "🧒");
         put("older_adult", "🧓");
+        put("woman_with_beard", "🧔‍♀️");
+        put("man_with_beard", "🧔‍♂️");
         put("bearded_person", "🧔");
         put("person_with_headscarf", "🧕");
         put("woman_in_steamy_room", "🧖‍♀️");
@@ -2128,6 +2135,8 @@ public class ColorFormatter {
         put("x", "❌");
         put("negative_squared_cross_mark", "❎");
         put("heavy_heart_exclamation_mark_ornament", "❣️");
+        put("heart_on_fire", "❤️‍🔥");
+        put("mending_heart", "❤️‍🩹");
         put("heart", "❤️");
         put("arrow_right", "➡️");
         put("curly_loop", "➰");
