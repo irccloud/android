@@ -6284,7 +6284,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
 
-            if (bmp == null || !bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
+            if (bmp == null || !bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 100, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
                 out = null;
             }
             if (bmp != null)
