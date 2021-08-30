@@ -53,7 +53,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -125,6 +124,7 @@
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:windowSoftInputMode="stateAlwaysHidden"
+            android:exported="true"
             android:configChanges="uiMode">
             <meta-data
                 android:name="android.app.shortcuts"
@@ -186,6 +186,7 @@
             android:name=".activity.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/LoginTheme"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter
                 android:autoVerify="true"
@@ -269,7 +270,9 @@
         <activity
             android:name=".activity.PastebinViewerActivity"
             android:label="@string/title_activity_pastebin"
-            android:theme="@style/dawnDialogWhenLarge">
+            android:theme="@style/dawnDialogWhenLarge"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -295,7 +298,9 @@
         <activity
             android:name=".activity.PreferencesActivity"
             android:label="@string/menu_settings"
-            android:theme="@style/dawnDialogWhenLarge">
+            android:theme="@style/dawnDialogWhenLarge"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -385,22 +390,12 @@
             android:exported="false"
             android:theme="@style/ImgurAuthTheme"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".activity.SAMLAuthActivity"
             android:exported="false"
             android:theme="@style/dawn"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".activity.PastebinEditorActivity"
@@ -411,6 +406,7 @@
 
         <service
             android:name=".RemoteInputService"
+            android:exported="false"
             android:permission="${applicationId}.permission.BROADCAST">
             <intent-filter>
                 <action android:name="${applicationId}.ACTION_REPLY" />
@@ -420,6 +416,7 @@
         <activity
             android:name=".activity.ShareChooserActivity"
             android:excludeFromRecents="true"
+            android:exported="true"
             android:theme="@style/dawnDialog">
             <meta-data
                 android:name="android.service.chooser.chooser_target_service"

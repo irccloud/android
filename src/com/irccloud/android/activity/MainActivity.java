@@ -1983,6 +1983,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         if (intent != null && !bubble && (intent.hasExtra("cid") || intent.hasExtra("bid") || intent.hasExtra(Intent.EXTRA_STREAM) || intent.getData() != null)) {
             IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Got new launch intent");
             buffer = null;
@@ -4112,6 +4113,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
         if (buffer != null) {
             if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
                 if (imageCaptureURI != null && isValidUploadPath(this,imageCaptureURI)) {
@@ -4174,6 +4176,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Intent i;
 
         for(int j = 0; j < grantResults.length; j++) {
@@ -6762,7 +6765,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(cancelListener, intentFilter, BuildConfig.APPLICATION_ID + ".permission.BROADCAST", null);
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel c = new NotificationChannel("upload_progress", "Upload Progress", NotificationManagerCompat.IMPORTANCE_LOW);
+                NotificationChannel c = new NotificationChannel("upload_progress", "Upload Progress", NotificationManager.IMPORTANCE_LOW);
                 c.setSound(null, null);
                 c.setShowBadge(false);
                 ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(c);
@@ -6782,8 +6785,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
                 i.putExtra("bid", mBuffer.getBid());
                 i.setData(Uri.parse("bid://" + mBuffer.getBid()));
-                notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
-                notification.addAction(R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), PendingIntent.FLAG_UPDATE_CURRENT));
+                notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
+                notification.addAction(R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
 
 
                 if (activity.mediaPermissionsGranted())
@@ -7316,7 +7319,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
     private TimeZoneReceiver timeZoneReceiver = new TimeZoneReceiver();
 
-    private class GcmTask extends AsyncTask<Void, Void, Boolean> {
+    private static class GcmTask extends AsyncTask<Void, Void, Boolean> {
         public String token;
 
         @Override

@@ -190,8 +190,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         mWebView = findViewById(R.id.image);
         mWebView.setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
         mWebView.getSettings().setBuiltInZoomControls(true);
-        if (Integer.parseInt(Build.VERSION.SDK) >= 19)
-            mWebView.getSettings().setDisplayZoomControls(!getPackageManager().hasSystemFeature("android.hardware.touchscreen"));
+        mWebView.getSettings().setDisplayZoomControls(!getPackageManager().hasSystemFeature("android.hardware.touchscreen"));
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.addJavascriptInterface(new JSInterface(), "Android");
         mWebView.getSettings().setLoadWithOverviewMode(false);
@@ -421,7 +420,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         } else if(item.getItemId() == R.id.action_share) {
             if (getIntent() != null && getIntent().getDataString() != null) {
                 Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(url));
-                intent.setType("text/plain");
+                intent.setDataAndType(Uri.parse(url), "text/plain");
                 if(url.contains("?"))
                     intent.putExtra(Intent.EXTRA_TEXT, url.substring(0, url.indexOf("?")));
                 else
@@ -450,6 +449,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 1) {
             if(resultCode == RESULT_OK) {
                 mWebView.clearCache(true);

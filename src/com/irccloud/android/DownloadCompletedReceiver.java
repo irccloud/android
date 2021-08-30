@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
 
 import androidx.core.app.NotificationCompat;
@@ -78,7 +79,7 @@ public class DownloadCompletedReceiver extends BroadcastReceiver {
                 notification.setDefaults(defaults);
 
                 Intent i = new Intent(context, LogExportsActivity.class);
-                notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
+                notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
 
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) e.getDownload_id(), notification.build());
 

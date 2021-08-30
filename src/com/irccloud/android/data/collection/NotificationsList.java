@@ -453,7 +453,7 @@ public class NotificationsList {
                         i.putExtra("network", n.getNetwork());
                         i.putExtra("to", n.getNick());
                         i.putExtra("reply", "/accept " + n.getNick());
-                        action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Accept", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, PendingIntent.FLAG_UPDATE_CURRENT));
+                        action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Accept", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
                     } else if(n.getMessage_type().equals("callerid_success")) {
                         title = n.getNetwork();
                         text = n.getNick() + " has been added to your accept list";
@@ -466,7 +466,7 @@ public class NotificationsList {
                         i.putExtra("buffer_type", n.getBuffer_type());
                         i.putExtra("network", n.getNetwork());
                         i.putExtra("to", n.getNick());
-                        action = new NotificationCompat.Action.Builder(R.drawable.ic_wearable_reply, "Message", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, PendingIntent.FLAG_UPDATE_CURRENT))
+                        action = new NotificationCompat.Action.Builder(R.drawable.ic_wearable_reply, "Message", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)))
                                 .setAllowGeneratedReplies(true)
                                 .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Message to " + n.getNick()).build()).build();
                     } else if(n.getMessage_type().equals("channel_invite")) {
@@ -478,7 +478,7 @@ public class NotificationsList {
                             i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
                             i.setData(Uri.parse(IRCCloudApplication.getInstance().getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + n.getCid() + "/" + URLEncoder.encode(n.getChan(), "UTF-8")));
                             i.putExtra("eid", n.getEid());
-                            action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Join", PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, PendingIntent.FLAG_UPDATE_CURRENT));
+                            action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Join", PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
                         } catch (Exception e) {
                             action = null;
                         }
@@ -605,9 +605,9 @@ public class NotificationsList {
         dismiss.putExtra("bid", bid);
         dismiss.putExtra("eids", eids);
 
-        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, Build.VERSION.SDK_INT < 31 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE));
 
-        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
+        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
         builder.setDeleteIntent(dismissPendingIntent);
 
         WearableExtender wearableExtender = new WearableExtender();
@@ -630,7 +630,7 @@ public class NotificationsList {
                     b.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext(), BubbleActivity.class));
                     b.putExtra("bid", bid);
                     b.setData(Uri.parse("bid://" + bid));
-                    bubbleBuilder.setIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, b, PendingIntent.FLAG_UPDATE_CURRENT));
+                    bubbleBuilder.setIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, b, Build.VERSION.SDK_INT < 31 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE)));
                     bubbleBuilder.setDeleteIntent(dismissPendingIntent);
                     bubbleBuilder.setDesiredHeight(4096);
                     bubbleBuilder.setIcon(AvatarsList.getIconForBuffer(c.getBuffer(), null));
@@ -718,7 +718,7 @@ public class NotificationsList {
                     i.setData(Uri.parse("irccloud-bid://" + bid));
                     i.putExtras(replyIntent);
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
                     bigContentView.setOnClickPendingIntent(R.id.action_reply, quickReplyIntent);
                 }
                 builder.setCustomBigContentView(bigContentView);
@@ -726,7 +726,7 @@ public class NotificationsList {
         }
 
         if (replyIntent != null) {
-            PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, Build.VERSION.SDK_INT < 31 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE));
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 builder.addAction(new NotificationCompat.Action.Builder(0,
@@ -792,7 +792,7 @@ public class NotificationsList {
             markAsRead.putExtra("bid", bid);
             markAsRead.putExtra("eids", eids);
 
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, markAsRead, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, markAsRead, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
             builder.addAction(0, "Mark As Read", pendingIntent);
         }*/
 
@@ -1070,7 +1070,7 @@ public class NotificationsList {
         i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
         i.putExtra("bid", bid);
         i.setData(Uri.parse("bid://" + bid));
-        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
+        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
 
         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(bid, builder.build());
 
