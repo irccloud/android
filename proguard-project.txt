@@ -40,6 +40,7 @@
 -dontwarn okhttp3.**
 -dontwarn org.conscrypt.**
 -dontwarn org.codehaus.mojo.**
+-dontwarn org.joda.convert.**
 #Play Services
 -keep class * extends java.util.ListResourceBundle {
     protected java.lang.Object[][] getContents();

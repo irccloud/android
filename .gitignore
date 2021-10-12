@@ -29,6 +29,8 @@ google-services.json
 .idea/libraries
 .idea/caches
 .idea/codeStyles
+.idea/modules/
+.idea/deploymentTargetDropDown.xml
 .gradle/
 res/values/com_crashlytics_export_strings.xml
 assets/crashlytics-build.properties
