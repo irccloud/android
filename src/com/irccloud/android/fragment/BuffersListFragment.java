@@ -489,6 +489,9 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                             return;
                         case Buffer.TYPE_PINNED:
                             return;
+                        case Buffer.TYPE_ADD_NETWORK:
+                            mListener.addNetwork();
+                            return;
                     }
                     mListener.onBufferSelected(b.getBid());
                 }
@@ -690,12 +693,17 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                     if (buffers.size() == 1 && s.getStatus().equals("connected_ready") && !readOnly && archiveCount == 0) {
                         Buffer join = new Buffer();
                         join.setCid(s.getCid());
-                        join.setName("Join a Channel");
+                        join.setName("Join a channel");
                         join.setType(Buffer.TYPE_JOIN_CHANNEL);
                         entries.add(join);
                     }
                 }
             }
+
+            Buffer add_network = new Buffer();
+            add_network.setName("Add a network");
+            add_network.setType(Buffer.TYPE_ADD_NETWORK);
+            entries.add(add_network);
 
             IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Buffers list adapter contains " + entries.size() + " entries");
             return null;
