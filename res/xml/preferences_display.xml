@@ -28,10 +28,6 @@
             android:key="monospace"
             android:defaultValue="false"
             android:title="Monospace Font"/>
-        <SwitchPreference
-            android:key="preferSystemEmoji"
-            android:defaultValue="true"
-            android:title="Prefer Android Emoji Font"/>
         <com.robobunny.SeekBarPreference
             android:key="textSize"
             android:title="Text Size"
