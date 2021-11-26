@@ -29,11 +29,8 @@ import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.text.FontRequestEmojiCompatConfig;
 
 import com.datatheorem.android.trustkit.TrustKit;
 import com.google.android.gms.security.ProviderInstaller;
@@ -95,27 +92,6 @@ public class IRCCloudApplication extends Application {
             editor.apply();
         }
 
-        EmojiCompat.init(new FontRequestEmojiCompatConfig(getApplicationContext(), new FontRequest(
-                "com.google.android.gms.fonts",
-                "com.google.android.gms",
-                "Noto Color Emoji Compat",
-                R.array.com_google_android_gms_fonts_certs))
-                .setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true))
-                .registerInitCallback(new EmojiCompat.InitCallback() {
-                    @Override
-                    public void onInitialized() {
-                        Log.i("IRCCloud", "EmojiCompat initialized");
-                        super.onInitialized();
-                        EventsList.getInstance().clearCaches();
-                        conn.notifyHandlers(NetworkConnection.EVENT_FONT_DOWNLOADED, null);
-                    }
-                    @Override
-                    public void onFailed(@Nullable Throwable throwable) {
-                        Log.e("IRCCloud", "EmojiCompat initialization failed: ", throwable);
-                        IRCCloudLog.LogException(throwable);
-                    }
-                }));
-        //EmojiCompat.init(new BundledEmojiCompatConfig(this).setReplaceAll(!prefs.getBoolean("preferSystemEmoji", true)));
         NetworkConnection.getInstance().registerForConnectivity();
 
         //Allocate all the shared objects at launch

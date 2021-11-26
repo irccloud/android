@@ -43,7 +43,6 @@ import android.view.textclassifier.TextClassifier;
 import android.view.textclassifier.TextLinks;
 
 import androidx.core.content.res.ResourcesCompat;
-import androidx.emoji.text.EmojiCompat;
 
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -2433,10 +2432,7 @@ public class ColorFormatter {
     }
 
     public static CharSequence strip(String msg) {
-        if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
-            return EmojiCompat.get().process(html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString());
-        else
-            return html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString();
+        return html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString();
     }
 
     public static Spanned html_to_spanned(String msg, boolean linkify, final Server server, final JsonNode entities) {
@@ -2773,10 +2769,7 @@ public class ColorFormatter {
             }
         }
 
-        if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
-            return (Spanned)EmojiCompat.get().process(output);
-        else
-            return output;
+        return output;
     }
 
     public static void detectLinks(final Spannable output) {

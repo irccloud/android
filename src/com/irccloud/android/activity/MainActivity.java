@@ -125,9 +125,6 @@ import androidx.core.content.FileProvider;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.text.EmojiSpan;
-import androidx.emoji.text.TypefaceEmojiSpan;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
@@ -299,8 +296,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 v.setBackgroundColor(colorScheme.bufferBackgroundColor);
             }
 
-            if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
-                v.setText(EmojiCompat.get().process(getItem(position)));
+            v.setText(getItem(position));
 
             //This will prevent GridView from stealing focus from the EditText by bypassing the check on line 1397 of GridView.java in the Android Source
             v.setSelected(true);
@@ -671,7 +667,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void afterTextChanged(Editable s) {
                 Object[] spans = s.getSpans(0, s.length(), Object.class);
                 for (Object o : spans) {
-                    if (((s.getSpanFlags(o) & Spanned.SPAN_COMPOSING) != Spanned.SPAN_COMPOSING) && o instanceof CharacterStyle && o.getClass() != StyleSpan.class && o.getClass() != ForegroundColorSpan.class && o.getClass() != BackgroundColorSpan.class && o.getClass() != UnderlineSpan.class && o.getClass() != StrikethroughSpan.class && o.getClass() != EmojiSpan.class && o.getClass() != TypefaceEmojiSpan.class) {
+                    if (((s.getSpanFlags(o) & Spanned.SPAN_COMPOSING) != Spanned.SPAN_COMPOSING) && o instanceof CharacterStyle && o.getClass() != StyleSpan.class && o.getClass() != ForegroundColorSpan.class && o.getClass() != BackgroundColorSpan.class && o.getClass() != UnderlineSpan.class && o.getClass() != StrikethroughSpan.class) {
                         s.removeSpan(o);
                     }
                 }
@@ -683,7 +679,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 String text = s.toString();
                 if (text.endsWith("\t")) { //Workaround for Swype
                     text = text.substring(0, text.length() - 1);
-                    messageTxt.setTextWithEmoji(text);
+                    messageTxt.setText(text);
                     nextSuggestion();
                 } else if (suggestionsContainer != null && suggestionsContainer.getVisibility() == View.VISIBLE) {
                     runOnUiThread(new Runnable() {
@@ -855,7 +851,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             } else if(item.getText().length() > 0) {
                                 if(buffer != null)
                                     buffer.setDraft(item.getText());
-                                messageTxt.setTextWithEmoji(item.getText());
+                                messageTxt.setText(item.getText());
                                 return true;
                             }
                         }
@@ -936,7 +932,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             messageTxt.setDrawerLayout(null);
             if(textWatcher != null)
                 messageTxt.removeTextChangedListener(textWatcher);
-            messageTxt.setTextWithEmoji(null);
+            messageTxt.setText(null);
         }
         textWatcher = null;
         fileUploadTask = null;
@@ -1370,12 +1366,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 nick = "@" + nick;
 
             if (text.lastIndexOf(' ') > 0) {
-                messageTxt.setTextWithEmoji(text.substring(0, text.lastIndexOf(' ') + 1) + nick);
+                messageTxt.setText(text.substring(0, text.lastIndexOf(' ') + 1) + nick);
             } else {
                 if (nick.startsWith("#") || text.startsWith(":") || server.isSlack())
-                    messageTxt.setTextWithEmoji(nick);
+                    messageTxt.setText(nick);
                 else
-                    messageTxt.setTextWithEmoji(nick + ":");
+                    messageTxt.setText(nick + ":");
             }
             messageTxt.setSelection(messageTxt.getText().length());
         }
@@ -1536,13 +1532,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 if(formatted.equals("/paste") || formatted.startsWith("/paste ") || (!forceText && msg != null && (msg.length() > 1080 || msg.split("\n").length > 1))) {
                     if(formatted.equals("/paste"))
-                        messageTxt.setTextWithEmoji("");
+                        messageTxt.setText("");
                     else if(formatted.startsWith("/paste "))
-                        messageTxt.setTextWithEmoji(messageTxt.getText().toString().substring(7));
+                        messageTxt.setText(messageTxt.getText().toString().substring(7));
                     show_pastebin_prompt();
                     return;
                 } else if(formatted.equals("/ignore")) {
-                    messageTxt.setTextWithEmoji("");
+                    messageTxt.setText("");
                     Bundle args = new Bundle();
                     args.putInt("cid", buffer.getCid());
                     IgnoreListFragment ignoreList = new IgnoreListFragment();
@@ -1550,7 +1546,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     ignoreList.show(getSupportFragmentManager(), "ignorelist");
                     return;
                 } else if(formatted.equals("/clear")) {
-                    messageTxt.setTextWithEmoji("");
+                    messageTxt.setText("");
                     EventsList.getInstance().deleteEventsForBuffer(buffer.getBid());
                     onBufferSelected(buffer.getBid());
                     return;
@@ -1659,7 +1655,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
             if (e != null && e.reqid != -1) {
-                messageTxt.setTextWithEmoji("");
+                messageTxt.setText("");
                 Buffer b = BuffersList.getInstance().getBuffer(e.bid);
                 if(b != null)
                     b.setDraft(null);
@@ -2109,12 +2105,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     nick = "@" + nick;
 
                 if (text.lastIndexOf(' ') > 0) {
-                    messageTxt.setTextWithEmoji(text.substring(0, text.lastIndexOf(' ') + 1) + nick + " ");
+                    messageTxt.setText(text.substring(0, text.lastIndexOf(' ') + 1) + nick + " ");
                 } else {
                     if (nick.startsWith("#") || text.startsWith(":") || server.isSlack())
-                        messageTxt.setTextWithEmoji(nick + " ");
+                        messageTxt.setText(nick + " ");
                     else
-                        messageTxt.setTextWithEmoji(nick + ": ");
+                        messageTxt.setText(nick + ": ");
                 }
                 messageTxt.setSelection(messageTxt.getText().length());
             }
@@ -2165,7 +2161,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 text = pastebinResult.getStringExtra("paste_contents");
             }
-            messageTxt.setTextWithEmoji(text);
+            messageTxt.setText(text);
             SendTask t = new SendTask();
             t.forceText = true;
             runOnUiThread(t);
@@ -2459,7 +2455,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
             } else {
-                title.setText(buffer.getEmojiCompatName());
+                title.setText(buffer.getDisplayName());
                 if (progressBar.getVisibility() == View.GONE) {
                     actionBar.setTitle(buffer.getDisplayName());
                     actionBar.setSubtitle(null);
@@ -2470,7 +2466,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 actionBar.setTitle("Thread");
                 title.setText("Thread");
                 subtitle.setVisibility(View.VISIBLE);
-                subtitle.setText(buffer.getEmojiCompatName());
+                subtitle.setText(buffer.getDisplayName());
                 actionBar.setSubtitle(buffer.getDisplayName());
                 key.setVisibility(View.GONE);
             } else if (buffer.getArchived() > 0 && !buffer.isConsole()) {
@@ -4162,13 +4158,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } else if (requestCode == REQUEST_UPLOADS && resultCode == RESULT_OK) {
                 buffer.setDraft("");
-                messageTxt.setTextWithEmoji("");
+                messageTxt.setText("");
             } else if (requestCode == REQUEST_PASTEBIN) {
                 if(resultCode == RESULT_OK) {
                     pastebinResult = imageReturnedIntent;
                 } else if(resultCode == RESULT_CANCELED) {
                     buffer.setDraft(imageReturnedIntent.getStringExtra("paste_contents"));
-                    messageTxt.setTextWithEmoji(buffer.getDraft());
+                    messageTxt.setText(buffer.getDraft());
                 }
             }
         }
@@ -4896,7 +4892,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     newtext = newtext.substring(0, newtext.length() - 1);
                 if (newtext.equals(":"))
                     newtext = "";
-                messageTxt.setTextWithEmoji(newtext);
+                messageTxt.setText(newtext);
                 if (match < newtext.length())
                     messageTxt.setSelection(match);
                 else
@@ -4916,7 +4912,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         newtext = newtext.substring(0, newtext.length() - 1);
                     text = newtext + " ";
                 }
-                messageTxt.setTextWithEmoji(text);
+                messageTxt.setText(text);
                 if (text.length() > 0) {
                     if (oldPosition + from.length() + 2 < text.length())
                         messageTxt.setSelection(oldPosition + from.length());
@@ -6003,7 +5999,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         mvf.setArguments(b);
-                        messageTxt.setTextWithEmoji("");
+                        messageTxt.setText("");
                         if (buffer != null && buffer.getDraft() != null)
                             messageTxt.append(buffer.getDraft());
                     }
@@ -6016,7 +6012,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } else {
             if (mvf != null)
                 mvf.setArguments(b);
-            messageTxt.setTextWithEmoji("");
+            messageTxt.setText("");
             if (buffer != null && buffer.getDraft() != null)
                 messageTxt.append(buffer.getDraft());
         }
@@ -6587,7 +6583,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             if (txt.length() > 0 && !txt.endsWith(" "))
                                 txt += " ";
                             txt += s.replace("http://", "https://");
-                            messageTxt.setTextWithEmoji(txt);
+                            messageTxt.setText(txt);
                         }
                     });
                 } else {
@@ -6806,7 +6802,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     final ImageView thumbnail = view.findViewById(R.id.thumbnail);
                     messageinput.setText(activity.buffer.getDraft());
                     activity.buffer.setDraft("");
-                    activity.messageTxt.setTextWithEmoji("");
+                    activity.messageTxt.setText("");
 
                     view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
@@ -6901,7 +6897,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 if (activity.buffer != null)
                                     activity.buffer.setDraft(messageinput.getText());
                                 if (activity.messageTxt != null)
-                                    activity.messageTxt.setTextWithEmoji(messageinput.getText());
+                                    activity.messageTxt.setText(messageinput.getText());
                             }
                             dialog.dismiss();
                             metadataDialog = null;

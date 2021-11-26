@@ -16,12 +16,10 @@
 
 package com.irccloud.android.data.model;
 
-import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-import androidx.emoji.text.EmojiCompat;
 
 import com.irccloud.android.AlphanumComparator;
 import com.irccloud.android.ColorScheme;
@@ -178,14 +176,6 @@ public class Buffer extends BaseObservable {
     @Bindable
     public String getName() {
         return name;
-    }
-
-    @Bindable
-    public CharSequence getEmojiCompatName() {
-        if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
-            return EmojiCompat.get().process(getDisplayName());
-        else
-            return getDisplayName();
     }
 
     public void setName(String name) {

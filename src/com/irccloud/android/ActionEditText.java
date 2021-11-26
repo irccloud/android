@@ -17,7 +17,6 @@
 package com.irccloud.android;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
@@ -29,14 +28,11 @@ import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.emoji.text.EmojiCompat;
-import androidx.emoji.widget.EmojiEditTextHelper;
 
 // An EditText that lets you use actions ("Done", "Go", etc.) on multi-line edits.
 // From: http://stackoverflow.com/a/12570003/1406639
 public class ActionEditText extends IRCEditText {
     private DrawerLayout mDrawerLayout = null;
-    private EmojiEditTextHelper mEmojiEditTextHelper;
 
     public ActionEditText(Context context) {
         super(context);
@@ -73,8 +69,6 @@ public class ActionEditText extends IRCEditText {
         } else {
             outAttrs.inputType &= ~EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES;
         }
-        if(getEmojiEditTextHelper() != null)
-            ic = getEmojiEditTextHelper().onCreateInputConnection(ic, outAttrs);
 
         EditorInfoCompat.setContentMimeTypes(outAttrs, new String[]{"image/*"});
 
@@ -106,30 +100,6 @@ public class ActionEditText extends IRCEditText {
     }
 
     private void init() {
-        if(getEmojiEditTextHelper() != null)
-            super.setKeyListener(getEmojiEditTextHelper().getKeyListener(getKeyListener()));
-    }
-
-    public void setTextWithEmoji(CharSequence s) {
-        if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
-            setText(EmojiCompat.get().process(s));
-        else
-            setText(s);
-    }
-
-    @Override
-    public void setKeyListener(android.text.method.KeyListener keyListener) {
-        if(getEmojiEditTextHelper() != null)
-            super.setKeyListener(getEmojiEditTextHelper().getKeyListener(keyListener));
-        else
-            super.setKeyListener(keyListener);
-    }
-
-    private EmojiEditTextHelper getEmojiEditTextHelper() {
-        if (mEmojiEditTextHelper == null) {
-            mEmojiEditTextHelper = new EmojiEditTextHelper(this);
-        }
-        return mEmojiEditTextHelper;
     }
 
     @Override

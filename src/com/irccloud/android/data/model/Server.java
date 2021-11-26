@@ -20,7 +20,6 @@ import android.os.Build;
 
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
-import androidx.emoji.text.EmojiCompat;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -125,14 +124,6 @@ public class Server extends BaseObservable implements Comparable<Server> {
     @Bindable
     public String getName() {
         return name;
-    }
-
-    @Bindable
-    public CharSequence getEmojiCompatName() {
-        if(EmojiCompat.get().getLoadState() == EmojiCompat.LOAD_STATE_SUCCEEDED)
-            return EmojiCompat.get().process(name);
-        else
-            return name;
     }
 
     public void setName(String name) {
