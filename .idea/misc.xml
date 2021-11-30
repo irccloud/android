@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="res/layout/dialog_textprompt.xml" value="0.1743659420289855" />
         <entry key="res/layout/row_buffer.xml" value="0.1" />
       </map>
     </option>
