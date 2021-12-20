@@ -139,12 +139,17 @@ public class AvatarsList {
         android.util.Log.i("IRCCloud", "Pruning avatar cache");
         for (HashMap<String, Avatar> cid : avatars.values()) {
             ArrayList<Avatar> avs = new ArrayList<>(cid.values());
-            Collections.sort(avs, new Comparator<Avatar>() {
-                @Override
-                public int compare(Avatar a1, Avatar a2) {
-                    return Long.compare(a2.lastAccessTime, a1.lastAccessTime);
-                }
-            });
+            try {
+                Collections.sort(avs, new Comparator<Avatar>() {
+                    @Override
+                    public int compare(Avatar a1, Avatar a2) {
+                        return Long.compare(a2.lastAccessTime, a1.lastAccessTime);
+                    }
+                });
+            } catch (Exception e) {
+                avs.clear();
+                cid.clear();
+            }
             while(avs.size() > MAX_AVATARS) {
                 Avatar a = avs.get(0);
                 avs.remove(a);
