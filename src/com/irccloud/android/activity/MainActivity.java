@@ -887,10 +887,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private void adjustTabletLayout() {
         Toolbar toolbar = findViewById(R.id.toolbar);
+        View buffersListDocked = findViewById(R.id.BuffersListDocked);
         if(toolbar != null) {
             if (!bubble && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
                 toolbar.setNavigationIcon(null);
-                findViewById(R.id.BuffersListDocked).setVisibility(View.VISIBLE);
+                if(buffersListDocked != null)
+                    buffersListDocked.setVisibility(View.VISIBLE);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             } else {
                 if(bubble) {
@@ -903,7 +905,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     toolbar.setNavigationIcon(upDrawable);
                 }
                 toolbar.setNavigationContentDescription("Channels list");
-                findViewById(R.id.BuffersListDocked).setVisibility(View.GONE);
+                if(buffersListDocked != null)
+                    buffersListDocked.setVisibility(View.GONE);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
                 if (actionBar != null)
                     actionBar.setHomeButtonEnabled(true);
