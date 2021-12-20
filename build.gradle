@@ -16,13 +16,13 @@
 
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         google()
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.3'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.0'
+        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
         classpath 'com.google.gms:google-services:4.3.10'
         classpath 'com.google.firebase:perf-plugin:1.4.0'
     }
@@ -31,7 +31,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
@@ -48,6 +48,7 @@ tasks.withType(JavaCompile) {
 
 repositories {
     jcenter()
+    mavenCentral()
     google()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url "https://www.jitpack.io" }
@@ -68,7 +69,7 @@ android {
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 320
+        versionCode 321
         versionName "4.28"
         minSdkVersion 22
         targetSdkVersion 31
@@ -374,7 +375,7 @@ dependencies {
     implementation project(':android-websockets')
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
     implementation 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
-    implementation 'com.datatheorem.android.trustkit:trustkit:1.0.0'
+    implementation 'com.datatheorem.android.trustkit:trustkit:1.1.3'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
     implementation fileTree(include: ['*.jar'], dir: 'libs')

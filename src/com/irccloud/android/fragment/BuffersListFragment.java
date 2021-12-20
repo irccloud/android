@@ -700,10 +700,12 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 }
             }
 
-            Buffer add_network = new Buffer();
-            add_network.setName("Add a network");
-            add_network.setType(Buffer.TYPE_ADD_NETWORK);
-            entries.add(add_network);
+            if(!readOnly) {
+                Buffer add_network = new Buffer();
+                add_network.setName("Add a network");
+                add_network.setType(Buffer.TYPE_ADD_NETWORK);
+                entries.add(add_network);
+            }
 
             IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Buffers list adapter contains " + entries.size() + " entries");
             return null;

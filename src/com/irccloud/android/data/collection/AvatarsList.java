@@ -147,8 +147,8 @@ public class AvatarsList {
                     }
                 });
             } catch (Exception e) {
-                avs.clear();
-                cid.clear();
+                avatars.clear();
+                return;
             }
             while(avs.size() > MAX_AVATARS) {
                 Avatar a = avs.get(0);
