@@ -19,12 +19,15 @@ package com.irccloud.android.data.collection;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.graphics.Matrix;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.damnhandy.uri.template.UriTemplate;
@@ -249,10 +252,24 @@ public class ImageList {
             return bitmap;
 
         if(cacheFile(url).exists() && !activeDownloads.contains(url.toString())) {
-            if(width > 0)
+            if (width > 0) {
                 bitmap = loadScaledBitmap(cacheFile(url), width);
-            else
-                bitmap = BitmapFactory.decodeFile(cacheFile(url).getAbsolutePath());
+            } else {
+                if (Build.VERSION.SDK_INT >= 28) {
+                    ImageDecoder.Source source = ImageDecoder.createSource(cacheFile(url));
+                    bitmap = ImageDecoder.decodeBitmap(source, new ImageDecoder.OnHeaderDecodedListener() {
+                        @Override
+                        public void onHeaderDecoded(@NonNull ImageDecoder imageDecoder, @NonNull ImageDecoder.ImageInfo imageInfo, @NonNull ImageDecoder.Source source) {
+                            if (imageInfo.getSize().getWidth() > 2048) {
+                                int ratio = (int) (((float) imageInfo.getSize().getWidth()) / ((float) 2048));
+                                imageDecoder.setTargetSampleSize(ratio);
+                            }
+                        }
+                    });
+                } else {
+                    bitmap = BitmapFactory.decodeFile(cacheFile(url).getAbsolutePath());
+                }
+            }
 
             try {
                 ExifInterface exif = new ExifInterface(cacheFile(url).getPath());
@@ -294,6 +311,7 @@ public class ImageList {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
             if (bitmap != null)
                 images.put(MD5(url.toString()), bitmap);
             else
@@ -314,7 +332,7 @@ public class ImageList {
     public Bitmap getImage(String fileID, int width) throws OutOfMemoryError, FileNotFoundException {
         try {
             if(NetworkConnection.file_uri_template != null)
-                return getImage(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()));
+                return getImage(new URL(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", fileID).set("modifiers", "w" + width).expand()), width);
         } catch (Exception e) {
         }
         return null;
@@ -332,6 +350,18 @@ public class ImageList {
     }
 
     public static Bitmap loadScaledBitmap(File path, int width) throws FileNotFoundException, IOException, OutOfMemoryError {
+        if (Build.VERSION.SDK_INT >= 28) {
+            ImageDecoder.Source source = ImageDecoder.createSource(path);
+            return ImageDecoder.decodeBitmap(source, new ImageDecoder.OnHeaderDecodedListener() {
+                @Override
+                public void onHeaderDecoded(@NonNull ImageDecoder imageDecoder, @NonNull ImageDecoder.ImageInfo imageInfo, @NonNull ImageDecoder.Source source) {
+                    if (imageInfo.getSize().getWidth() > width) {
+                        int ratio = (int)(((float)imageInfo.getSize().getWidth()) / ((float) width));
+                        imageDecoder.setTargetSampleSize(ratio);
+                    }
+                }
+            });
+        }
         FileInputStream is = new FileInputStream(path);
         BitmapFactory.Options dbo = new BitmapFactory.Options();
         dbo.inJustDecodeBounds = true;

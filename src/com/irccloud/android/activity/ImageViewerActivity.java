@@ -354,6 +354,10 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
 
     private void loadImage(String urlStr) {
         try {
+            if(urlStr.toLowerCase().endsWith("heic")) {
+                fail();
+                return;
+            }
             if(urlStr.toLowerCase().endsWith("gif"))
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             if(mCustomTabsSession != null)

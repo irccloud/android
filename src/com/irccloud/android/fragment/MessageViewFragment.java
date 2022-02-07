@@ -1053,8 +1053,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             final int width = lp.width;
                             final String avatarURL_string = avatarURL.toString();
                             try {
-                                b = ImageList.getInstance().getImage(avatarURL);
-                                ImageList.getInstance().fetchImage(avatarURL, 0, new ImageList.OnImageFetchedListener() {
+                                b = ImageList.getInstance().getImage(avatarURL, width);
+                                ImageList.getInstance().fetchImage(avatarURL, width, new ImageList.OnImageFetchedListener() {
                                     @Override
                                     public void onImageFetched(Bitmap image) {
                                         if(image != null) {
@@ -2609,11 +2609,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                     uri = UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", event.entities.get("id").asText()).set("name", event.entities.get("name").asText()).expand();
                                                 else
                                                     uri = event.entities.get("url").asText();
-                                                if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
-                                                    if (uri.toLowerCase().startsWith("http://"))
-                                                        uri = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + uri.substring(7);
-                                                    else if (uri.toLowerCase().startsWith("https://"))
-                                                        uri = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + uri.substring(8);
+
+                                                if (event.entities == null || !event.entities.has("mime_type") || !event.entities.get("mime_type").asText().equalsIgnoreCase("image/heic")) {
+                                                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
+                                                        if (uri.toLowerCase().startsWith("http://"))
+                                                            uri = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + uri.substring(7);
+                                                        else if (uri.toLowerCase().startsWith("https://"))
+                                                            uri = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + uri.substring(8);
+                                                    }
                                                 }
                                                 IRCCloudLinkMovementMethod.launchURI(Uri.parse(uri), getActivity());
                                             } catch (Exception ex) {
