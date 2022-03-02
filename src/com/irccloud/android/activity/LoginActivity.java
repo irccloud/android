@@ -769,12 +769,12 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         protected JSONObject doInBackground(Void... arg0) {
             if (name.getVisibility() == View.VISIBLE) {
                 if (name.getText() != null && name.getText().length() > 0 && email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
-                    return NetworkConnection.getInstance().signup(name.getText().toString(), email.getText().toString(), password.getText().toString());
+                    return NetworkConnection.getInstance().signup(name.getText().toString().trim(), email.getText().toString().trim(), password.getText().toString());
                 else
                     return null;
             } else {
                 if (email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
-                    return NetworkConnection.getInstance().login(email.getText().toString(), password.getText().toString());
+                    return NetworkConnection.getInstance().login(email.getText().toString().trim(), password.getText().toString());
                 else
                     return null;
             }
@@ -1098,7 +1098,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
 
         @Override
         protected JSONObject doInBackground(Void... arg0) {
-            return NetworkConnection.getInstance().request_password(email.getText().toString());
+            return NetworkConnection.getInstance().request_password(email.getText().toString().trim());
         }
 
         @Override
@@ -1129,7 +1129,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             } catch (JSONException e) {
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-            builder.setTitle("Reset Failed");
+            builder.setTitle("Request Failed");
             builder.setMessage("Unable to request an access link.  Please try again later.");
             builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
