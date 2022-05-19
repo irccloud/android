@@ -1166,6 +1166,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     return false;
                 }
             });
+            ((TextView) v.findViewById(R.id.channel_url)).setMovementMethod(new IRCCloudLinkMovementMethod() {
+                @Override
+                public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
+                    if (super.onTouchEvent(widget, buffer, event) && event.getAction() == MotionEvent.ACTION_UP) {
+                        dialog.dismiss();
+                        return true;
+                    }
+                    return false;
+                }
+            });
         }
     }
 
