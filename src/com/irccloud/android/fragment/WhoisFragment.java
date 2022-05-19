@@ -164,48 +164,54 @@ public class WhoisFragment extends DialogFragment {
         }
     }
 
+    private void appendField(StringBuilder text, String field, String nick) {
+        if(event.has(field))
+            text.append(nick).append(" ").append(event.getString(field)).append("\n\n");
+    }
+
     public void onResume() {
         super.onResume();
 
         if (event != null) {
-            String nick = event.getString("user_nick");
-            String extratxt = "";
+            String nick = event.has("user_nick") ? event.getString("user_nick") : event.getString("nick");
+            StringBuilder extratxt = new StringBuilder();
+            appendField(extratxt, "bot_msg", nick);
             if (event.has("op_nick")) {
-                extratxt += nick + " " + event.getString("op_msg") + "\n\n";
+                extratxt.append(nick).append(" ").append(event.getString("op_msg")).append("\n\n");
             }
             if (event.has("opername")) {
-                extratxt += nick + " " + event.getString("opername_msg") + " " + event.getString("opername") + "\n\n";
+                extratxt.append(nick).append(" ").append(event.getString("opername_msg")).append(" ").append(event.getString("opername")).append("\n\n");
             }
-            if (event.has("stats_dline")) {
-                extratxt += nick + " " + event.getString("stats_dline") + "\n\n";
+            appendField(extratxt, "userip", nick);
+            appendField(extratxt, "host", nick);
+            appendField(extratxt, "country", nick);
+            appendField(extratxt, "secure", nick);
+            appendField(extratxt, "client_cert", nick);
+            appendField(extratxt, "cgi", nick);
+            appendField(extratxt, "help", nick);
+            if (event.has("staff")) {
+                extratxt.append(nick).append(" is staff: ").append(event.getString("staff")).append("\n\n");
             }
-            if (event.has("userip")) {
-                extratxt += nick + " " + event.getString("userip") + "\n\n";
+            if (event.has("special")) {
+                JsonNode s = event.getJsonNode("special");
+                for (int i = 0; i < s.size(); i++) {
+                    String line = s.get(i).asText();
+                    extratxt.append(nick).append(" ").append(line).append("\n\n");
+                }
             }
-            if (event.has("host")) {
-                extratxt += nick + " " + event.getString("host") + "\n\n";
-            }
-            if (event.has("bot_msg")) {
-                extratxt += nick + " " + event.getString("bot_msg") + "\n\n";
-            }
-            if (event.has("cgi")) {
-                extratxt += nick + " " + event.getString("cgi") + "\n\n";
-            }
-            if (event.has("help")) {
-                extratxt += nick + " " + event.getString("help") + "\n\n";
-            }
-            if (event.has("vworld")) {
-                extratxt += nick + " " + event.getString("vworld") + "\n\n";
-            }
-            if (event.has("modes")) {
-                extratxt += nick + " " + event.getString("modes") + "\n\n";
-            }
-            if (event.has("client_cert")) {
-                extratxt += nick + " " + event.getString("client_cert") + "\n\n";
-            }
-            if (event.has("secure")) {
-                extratxt += nick + " " + event.getString("secure") + "\n\n";
-            }
+            appendField(extratxt, "modes", nick);
+            appendField(extratxt, "callerid", nick);
+            appendField(extratxt, "stats_dline", nick);
+            appendField(extratxt, "btn_metadata", nick);
+            appendField(extratxt, "text", nick);
+            appendField(extratxt, "msg_only_reg", nick);
+            appendField(extratxt, "suspend", nick);
+            appendField(extratxt, "chanop", nick);
+            appendField(extratxt, "kill", nick);
+            appendField(extratxt, "helper", nick);
+            appendField(extratxt, "admin", nick);
+            appendField(extratxt, "codepage", nick);
+
             if (extratxt.length() > 0) {
                 extra.setVisibility(View.VISIBLE);
                 extra.setText(extratxt.substring(0, extratxt.length() - 2));
