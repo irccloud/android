@@ -4,6 +4,11 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/irccloud-android.iml" filepath="$PROJECT_DIR$/irccloud-android.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/-943384999/irccloud-android.android-websockets.iml" filepath="$PROJECT_DIR$/.idea/modules/-943384999/irccloud-android.android-websockets.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-943384999/irccloud-android.android-websockets.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/-943384999/irccloud-android.android-websockets.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-943384999/irccloud-android.android-websockets.main.iml" filepath="$PROJECT_DIR$/.idea/modules/-943384999/irccloud-android.android-websockets.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-943384999/irccloud-android.android-websockets.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/-943384999/irccloud-android.android-websockets.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/irccloud-android.main.iml" filepath="$PROJECT_DIR$/.idea/modules/irccloud-android.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/irccloud-android.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/irccloud-android.unitTest.iml" />
     </modules>
   </component>
 </project>
