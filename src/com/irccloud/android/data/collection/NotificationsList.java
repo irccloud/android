@@ -73,6 +73,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -557,6 +559,12 @@ public class NotificationsList {
         String uid = prefs.getString("uid", "");
         int defaults = 0;
         String channelId = prefs.getBoolean("notify_channels", false) ? (uid + String.valueOf(bid)) : "highlight";
+        Collections.sort(messages, new Comparator<Notification>() {
+            @Override
+            public int compare(Notification notification, Notification t1) {
+                return Long.compare(notification.getEid(), t1.getEid());
+            }
+        });
         if(prefs.getBoolean("notify_channels", false))
             createChannel(uid + String.valueOf(bid), title, NotificationManagerCompat.IMPORTANCE_HIGH, String.valueOf(cid));
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), channelId)
@@ -815,6 +823,13 @@ public class NotificationsList {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         String text = "";
         final List<Notification> notifications = getMessageNotifications();
+        Collections.sort(notifications, new Comparator<Notification>() {
+            @Override
+            public int compare(Notification notification, Notification t1) {
+                return Long.compare(notification.getEid(), t1.getEid());
+            }
+        });
+
         boolean pref_avatarsOff = !prefs.getBoolean("avatars-off", true);
         boolean pref_avatarImages = prefs.getBoolean("avatar-images", false);
 
