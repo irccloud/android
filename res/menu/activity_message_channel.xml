@@ -18,6 +18,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_pin"
+        android:title="@string/menu_pin_channel"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_remove_pin"
+        android:title="@string/menu_remove_pin"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_buffer_options"
         android:title="@string/menu_display_options"
         app:showAsAction="never" />

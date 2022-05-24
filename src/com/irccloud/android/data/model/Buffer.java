@@ -30,6 +30,7 @@ import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ChannelsList;
 import com.irccloud.android.data.collection.ServersList;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -331,6 +332,27 @@ public class Buffer extends BaseObservable {
 
     public boolean isSpam() {
         return type_int == Type.SPAM;
+    }
+
+    public boolean isPinned() {
+        boolean pinned = false;
+        try {
+            JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+            if (prefs != null && prefs.has("pinnedBuffers")) {
+                JSONArray pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
+                if (pinnedBuffers.length() > 0) {
+                    for (int i = 0; i < pinnedBuffers.length(); i++) {
+                        if (getBid() == pinnedBuffers.getInt(i)) {
+                            pinned = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pinned;
     }
 
     @Bindable

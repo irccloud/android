@@ -6,6 +6,9 @@
         <entry key="res/layout/dialog_textprompt.xml" value="0.1743659420289855" />
         <entry key="res/layout/row_buffer.xml" value="0.1" />
         <entry key="res/layout/row_user.xml" value="0.23007246376811594" />
+        <entry key="res/menu/activity_main.xml" value="0.3385416666666667" />
+        <entry key="res/menu/activity_message_channel.xml" value="0.3385416666666667" />
+        <entry key="res/menu/activity_message_conversation.xml" value="0.3385416666666667" />
       </map>
     </option>
   </component>

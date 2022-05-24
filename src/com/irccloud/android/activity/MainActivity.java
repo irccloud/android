@@ -3839,9 +3839,32 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (buffer.getArchived() == 0) {
                 if (menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
+                if(buffer.isPinned()) {
+                    if (menu.findItem(R.id.menu_pin) != null) {
+                        menu.findItem(R.id.menu_pin).setVisible(false);
+                        menu.findItem(R.id.menu_pin).setEnabled(false);
+                    }
+                    if (menu.findItem(R.id.menu_remove_pin) != null) {
+                        menu.findItem(R.id.menu_remove_pin).setVisible(true);
+                        menu.findItem(R.id.menu_remove_pin).setEnabled(true);
+                    }
+                } else {
+                    if (menu.findItem(R.id.menu_pin) != null) {
+                        menu.findItem(R.id.menu_pin).setVisible(true);
+                        menu.findItem(R.id.menu_pin).setEnabled(true);
+                    }
+                    if (menu.findItem(R.id.menu_remove_pin) != null) {
+                        menu.findItem(R.id.menu_remove_pin).setVisible(false);
+                        menu.findItem(R.id.menu_remove_pin).setEnabled(false);
+                    }
+                }
             } else {
                 if (menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
+                if (menu.findItem(R.id.menu_pin) != null) {
+                    menu.findItem(R.id.menu_pin).setVisible(false);
+                    menu.findItem(R.id.menu_pin).setEnabled(false);
+                }
             }
             if (buffer.isChannel()) {
                 if (ChannelsList.getInstance().getChannelForBuffer(buffer.getBid()) == null) {
@@ -4644,6 +4667,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 startActivity(i);
                 return true;
+            case R.id.menu_pin:
+                addPin(buffer);
+                return true;
+            case R.id.menu_remove_pin:
+                removePin(buffer);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -5000,28 +5029,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             itemList.add("Add A Network");
             itemList.add("Reorder Connections");
+            itemList.add("Reorder Pins");
 
             if(b.isChannel() || b.isConversation()) {
-                boolean pinned = false;
-                try {
-                    JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-                    if (prefs != null && prefs.has("pinnedBuffers")) {
-                        JSONArray pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
-                        if (pinnedBuffers.length() > 0) {
-                            for (int i = 0; i < pinnedBuffers.length(); i++) {
-                                if (b.getBid() == pinnedBuffers.getInt(i)) {
-                                    itemList.add("Reorder Pins");
-                                    pinned = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
                 if (b.getArchived() == 0)
-                    itemList.add(pinned ? "Remove Pin" : (b.isChannel() ? "Pin Channel" : "Pin Conversation"));
+                    itemList.add(b.isPinned() ? "Remove Pin" : (b.isChannel() ? "Pin Channel" : "Pin Conversation"));
             }
         }
 
@@ -5225,61 +5237,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else if (items[item].equals("Reorder Pins")) {
                     reorder_pins();
                 } else if (items[item].startsWith("Pin ")) {
-                    if (NetworkConnection.getInstance().getUserInfo() != null) {
-                        JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-                        if (prefs == null) {
-                            prefs = new JSONObject();
-                        }
-                        JSONArray pinnedBuffers = null;
-                        try {
-                            if (prefs.has("pinnedBuffers")) {
-                                pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        if (pinnedBuffers == null)
-                            pinnedBuffers = new JSONArray();
-
-                        try {
-                            pinnedBuffers.put(b.getBid());
-                            prefs.put("pinnedBuffers", pinnedBuffers);
-                            conn.set_prefs(prefs.toString(), null);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Toast.makeText(MainActivity.this, "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                    addPin(b);
                 } else if (items[item].equals("Remove Pin")) {
-                    if (NetworkConnection.getInstance().getUserInfo() != null) {
-                        JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-                        if (prefs == null) {
-                            prefs = new JSONObject();
-                        }
-                        JSONArray pinnedBuffers = null;
-                        try {
-                            if (prefs.has("pinnedBuffers")) {
-                                pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        if (pinnedBuffers == null)
-                            pinnedBuffers = new JSONArray();
-
-                        try {
-                            ArrayList<Integer> l = new ArrayList<>();
-                            for(int i = 0; i < pinnedBuffers.length(); i++) {
-                                l.add(pinnedBuffers.getInt(i));
-                            }
-                            l.remove(Integer.valueOf(b.getBid()));
-                            prefs.put("pinnedBuffers", new JSONArray(l));
-                            conn.set_prefs(prefs.toString(), null);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Toast.makeText(MainActivity.this, "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                    removePin(b);
                 }
             }
         });
@@ -5288,6 +5248,66 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         dialog.setOwnerActivity(this);
         dialog.show();
         return true;
+    }
+
+    private void addPin(Buffer b) {
+        if (NetworkConnection.getInstance().getUserInfo() != null) {
+            JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+            if (prefs == null) {
+                prefs = new JSONObject();
+            }
+            JSONArray pinnedBuffers = null;
+            try {
+                if (prefs.has("pinnedBuffers")) {
+                    pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (pinnedBuffers == null)
+                pinnedBuffers = new JSONArray();
+
+            try {
+                pinnedBuffers.put(b.getBid());
+                prefs.put("pinnedBuffers", pinnedBuffers);
+                conn.set_prefs(prefs.toString(), null);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void removePin(Buffer b) {
+        if (NetworkConnection.getInstance().getUserInfo() != null) {
+            JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+            if (prefs == null) {
+                prefs = new JSONObject();
+            }
+            JSONArray pinnedBuffers = null;
+            try {
+                if (prefs.has("pinnedBuffers")) {
+                    pinnedBuffers = prefs.getJSONArray("pinnedBuffers");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (pinnedBuffers == null)
+                pinnedBuffers = new JSONArray();
+
+            try {
+                ArrayList<Integer> l = new ArrayList<>();
+                for(int i = 0; i < pinnedBuffers.length(); i++) {
+                    l.add(pinnedBuffers.getInt(i));
+                }
+                l.remove(Integer.valueOf(b.getBid()));
+                prefs.put("pinnedBuffers", new JSONArray(l));
+                conn.set_prefs(prefs.toString(), null);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
@@ -6089,6 +6109,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (conn != null && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow())) {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
         }
+        reportFullyDrawn();
     }
 
     @Override

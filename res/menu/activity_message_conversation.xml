@@ -16,13 +16,25 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_pin"
+        android:title="@string/menu_pin_conversation"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_remove_pin"
+        android:title="@string/menu_remove_pin"
+        app:showAsAction="never" />
+
     <item android:id="@+id/menu_buffer_options"
         android:title="@string/menu_display_options"
         app:showAsAction="never" />
+
     <item
         android:id="@+id/menu_ignore_list"
         android:title="@string/menu_ignore_list"
         app:showAsAction="never" />
+
     <item android:id="@+id/menu_whois"
         android:title="@string/menu_whois"
         app:showAsAction="ifRoom" />

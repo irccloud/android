@@ -37,6 +37,9 @@
     <string name="menu_create_shortcut">Create Shortcut</string>
     <string name="menu_download_logs">Download Logs</string>
     <string name="menu_rename">Rename</string>
+    <string name="menu_pin_channel">Pin Channel</string>
+    <string name="menu_pin_conversation">Pin Conversation</string>
+    <string name="menu_remove_pin">Remove Pin</string>
     <string name="title_activity_message">IRCCloud</string>
     <string name="title_activity_login">Login</string>
     <string name="email">Email Address</string>
