@@ -3836,34 +3836,27 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (menu != null && buffer != null && buffer.getType() != null && NetworkConnection.getInstance().ready) {
+            if (menu.findItem(R.id.menu_pin) != null) {
+                menu.findItem(R.id.menu_pin).setVisible(!buffer.isPinned());
+                menu.findItem(R.id.menu_pin).setEnabled(!buffer.isPinned());
+            }
+            if (menu.findItem(R.id.menu_remove_pin) != null) {
+                menu.findItem(R.id.menu_remove_pin).setVisible(buffer.isPinned());
+                menu.findItem(R.id.menu_remove_pin).setEnabled(buffer.isPinned());
+            }
             if (buffer.getArchived() == 0) {
                 if (menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
-                if(buffer.isPinned()) {
-                    if (menu.findItem(R.id.menu_pin) != null) {
-                        menu.findItem(R.id.menu_pin).setVisible(false);
-                        menu.findItem(R.id.menu_pin).setEnabled(false);
-                    }
-                    if (menu.findItem(R.id.menu_remove_pin) != null) {
-                        menu.findItem(R.id.menu_remove_pin).setVisible(true);
-                        menu.findItem(R.id.menu_remove_pin).setEnabled(true);
-                    }
-                } else {
-                    if (menu.findItem(R.id.menu_pin) != null) {
-                        menu.findItem(R.id.menu_pin).setVisible(true);
-                        menu.findItem(R.id.menu_pin).setEnabled(true);
-                    }
-                    if (menu.findItem(R.id.menu_remove_pin) != null) {
-                        menu.findItem(R.id.menu_remove_pin).setVisible(false);
-                        menu.findItem(R.id.menu_remove_pin).setEnabled(false);
-                    }
-                }
             } else {
                 if (menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
                 if (menu.findItem(R.id.menu_pin) != null) {
                     menu.findItem(R.id.menu_pin).setVisible(false);
                     menu.findItem(R.id.menu_pin).setEnabled(false);
+                }
+                if (menu.findItem(R.id.menu_remove_pin) != null) {
+                    menu.findItem(R.id.menu_remove_pin).setVisible(false);
+                    menu.findItem(R.id.menu_remove_pin).setEnabled(false);
                 }
             }
             if (buffer.isChannel()) {
