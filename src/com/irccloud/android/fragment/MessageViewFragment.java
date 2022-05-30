@@ -3099,7 +3099,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (precomputedTextParams != null && formatted != null)
                             formatted = PrecomputedTextCompat.create(formatted, precomputedTextParams);
                     }
-                    ev.formatted = formatted;
+
+                    if(!isCancelled())
+                        ev.formatted = formatted;
                 }
             } catch (Exception e) {
                 IRCCloudLog.LogException(e);

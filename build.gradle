@@ -22,7 +22,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.0.4'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.0'
         classpath 'com.google.gms:google-services:4.3.10'
         classpath 'com.google.firebase:perf-plugin:1.4.1'
     }
@@ -69,8 +69,8 @@ android {
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 326
-        versionName "4.28"
+        versionCode 327
+        versionName "4.28.1"
         minSdkVersion 22
         targetSdkVersion 31
         applicationId "com.irccloud.android"
@@ -363,10 +363,10 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:18.0.1"
     implementation "com.google.android.gms:play-services-auth:20.2.0"
     implementation "com.google.android.gms:play-services-identity:18.0.1"
-    implementation 'com.google.firebase:firebase-messaging:23.0.4'
+    implementation 'com.google.firebase:firebase-messaging:23.0.5'
     implementation 'com.google.firebase:firebase-analytics:21.0.0'
-    implementation 'com.google.firebase:firebase-perf:20.0.6'
-    implementation 'com.google.firebase:firebase-crashlytics:18.2.10'
+    implementation 'com.google.firebase:firebase-perf:20.1.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.2.11'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.7'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
