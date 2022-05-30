@@ -559,12 +559,14 @@ public class NotificationsList {
         String uid = prefs.getString("uid", "");
         int defaults = 0;
         String channelId = prefs.getBoolean("notify_channels", false) ? (uid + String.valueOf(bid)) : "highlight";
-        Collections.sort(messages, new Comparator<Notification>() {
-            @Override
-            public int compare(Notification notification, Notification t1) {
-                return Long.compare(notification.getEid(), t1.getEid());
-            }
-        });
+        if(messages != null) {
+            Collections.sort(messages, new Comparator<Notification>() {
+                @Override
+                public int compare(Notification notification, Notification t1) {
+                    return Long.compare(notification.getEid(), t1.getEid());
+                }
+            });
+        }
         if(prefs.getBoolean("notify_channels", false))
             createChannel(uid + String.valueOf(bid), title, NotificationManagerCompat.IMPORTANCE_HIGH, String.valueOf(cid));
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), channelId)

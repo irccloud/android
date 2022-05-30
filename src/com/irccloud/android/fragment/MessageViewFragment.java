@@ -3002,7 +3002,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             break;
                         if (e != null) {
                             this.adapter.format(e, true);
-                            linkifyTask.e = e;
+                            linkifyTask.setEvent(e);
                             linkifyTask.doInBackground((Void)null);
                         }
                     }
@@ -3021,11 +3021,25 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private class LinkifyTask extends AsyncTaskEx<Void, Void, Void> {
-        public Event e;
+        private Event ev;
         private boolean notify = false;
+        private Spanned formatted;
+        private JsonNode entities;
+        private String from;
 
         public LinkifyTask(Event event) {
-            e = event;
+            setEvent(event);
+        }
+
+        public void setEvent(Event event) {
+            ev = event;
+            if(ev != null) {
+                formatted = event.formatted;
+                entities = event.entities;
+                from = event.from;
+                if (from == null)
+                    from = event.nick;
+            }
         }
 
         @Override
@@ -3034,64 +3048,58 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 return null;
 
             try {
-                if (e != null) {
-                    synchronized (e) {
-                        if (!e.linkified) {
-                            if (e.formatted != null && e.linkify) {
-                                ColorFormatter.detectLinks((Spannable) e.formatted);
-                                if(isCancelled())
-                                    return null;
-                                if(pref_chatOneLine || e.type.equals("buffer_me_msg")) {
-                                    String from = e.from;
-                                    if (from == null)
-                                        from = e.nick;
-                                    if (from != null) {
-                                        Matcher m = Pattern.compile("(^|\\s)" + Pattern.quote(from) + "($|\\s)").matcher(e.formatted);
-                                        if (m.find() && m.start() < 4) {
-                                            ClickableSpan[] spans = e.formatted.getSpans(m.start(), m.end(), ClickableSpan.class);
-                                            if (spans != null) {
-                                                for (ClickableSpan span : spans)
-                                                    ((Spannable) e.formatted).removeSpan(span);
-                                            }
+                if (ev != null) {
+                    if (!ev.linkified) {
+                        if (formatted != null && ev.linkify) {
+                            ColorFormatter.detectLinks((Spannable)formatted);
+                            if(isCancelled())
+                                return null;
+                            if(pref_chatOneLine || ev.type.equals("buffer_me_msg")) {
+                                if (from != null) {
+                                    Matcher m = Pattern.compile("(^|\\s)" + Pattern.quote(from) + "($|\\s)").matcher(formatted);
+                                    if (m.find() && m.start() < 4) {
+                                        ClickableSpan[] spans = formatted.getSpans(m.start(), m.end(), ClickableSpan.class);
+                                        if (spans != null) {
+                                            for (ClickableSpan span : spans)
+                                                ((Spannable)formatted).removeSpan(span);
                                         }
                                     }
                                 }
-                                notify = true;
                             }
-
-                            if (e.contentDescription != null && e.linkify) {
-                                ColorFormatter.detectLinks((Spannable) e.contentDescription);
-                                notify = true;
-                            }
-
-                            if (e.formatted_realname != null) {
-                                ColorFormatter.detectLinks((Spannable) e.formatted_realname);
-                                notify = true;
-                            }
-
+                            notify = true;
                         }
-                        e.linkified = true;
 
-                        if (e.formatted != null && !isCancelled()) {
-                            synchronized (e.formatted) {
-                                if (e.entities != null && NetworkConnection.file_uri_template != null && e.entities.has("files")) {
-                                    UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
-                                    String file_url_prefix = template.expand().toLowerCase();
-                                    URLSpan[] urls = e.formatted.getSpans(0, e.formatted.length(), URLSpan.class);
-                                    for (URLSpan url : urls) {
-                                        for (JsonNode file : e.entities.get("files")) {
-                                            if (url.getURL().toLowerCase().startsWith(file_url_prefix) && url.getURL().contains(file.get("id").asText())) {
-                                                IRCCloudLinkMovementMethod.addFileID(url.getURL(), file.get("id").asText());
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (precomputedTextParams != null)
-                                    e.formatted = PrecomputedTextCompat.create(e.formatted, precomputedTextParams);
-                            }
+                        if (ev.contentDescription != null && ev.linkify) {
+                            ColorFormatter.detectLinks((Spannable) ev.contentDescription);
+                            notify = true;
                         }
+
+                        if (ev.formatted_realname != null) {
+                            ColorFormatter.detectLinks((Spannable) ev.formatted_realname);
+                            notify = true;
+                        }
+
                     }
+                    ev.linkified = true;
+
+                    if (formatted != null && !isCancelled()) {
+                        if (entities != null && NetworkConnection.file_uri_template != null && entities.has("files")) {
+                            UriTemplate template = UriTemplate.fromTemplate(NetworkConnection.file_uri_template);
+                            String file_url_prefix = template.expand().toLowerCase();
+                            URLSpan[] urls = formatted.getSpans(0, formatted.length(), URLSpan.class);
+                            for (URLSpan url : urls) {
+                                for (JsonNode file : entities.get("files")) {
+                                    if (url.getURL().toLowerCase().startsWith(file_url_prefix) && url.getURL().contains(file.get("id").asText())) {
+                                        IRCCloudLinkMovementMethod.addFileID(url.getURL(), file.get("id").asText());
+                                    }
+                                }
+                            }
+                        }
+
+                        if (precomputedTextParams != null && formatted != null)
+                            formatted = PrecomputedTextCompat.create(formatted, precomputedTextParams);
+                    }
+                    ev.formatted = formatted;
                 }
             } catch (Exception e) {
                 IRCCloudLog.LogException(e);
@@ -3105,7 +3113,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if(!isCancelled()) {
                 if(adapter != null && notify)
                     adapter.notifyDataSetChanged();
-                linkifyTasks.remove(e.eid);
+                linkifyTasks.remove(ev.eid);
             }
         }
     }
