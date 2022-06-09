@@ -757,7 +757,7 @@ public class NotificationsList {
 
             wearableExtender.addAction(actionBuilder.extend(actionExtender).build());
 
-            NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
+            /*NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
                     new NotificationCompat.CarExtender.UnreadConversation.Builder(title + ((network != null) ? (" (" + network + ")") : ""))
                             .setReadPendingIntent(dismissPendingIntent)
                             .setReplyAction(replyPendingIntent, new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build());
@@ -783,7 +783,7 @@ public class NotificationsList {
             }
             unreadConvBuilder.setLatestTimestamp(eids[count - 1] / 1000);
 
-            builder.extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build()));
+            builder.extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build()));*/
         }
 
         if (replyIntent != null && prefs.getBoolean("notify_quickreply", true) && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
