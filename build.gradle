@@ -69,7 +69,7 @@ android {
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 331
+        versionCode 332
         versionName "4.28.3"
         minSdkVersion 22
         targetSdkVersion 31
@@ -366,7 +366,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:23.1.0'
     implementation 'com.google.firebase:firebase-analytics:21.2.0'
     implementation 'com.google.firebase:firebase-perf:20.2.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.3.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.2.13'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.7'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
