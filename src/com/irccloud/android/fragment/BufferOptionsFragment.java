@@ -53,6 +53,7 @@ public class BufferOptionsFragment extends DialogFragment {
     private SwitchCompat expandDisco;
     private SwitchCompat muted;
     private SwitchCompat formatColors;
+    private SwitchCompat typing;
     private int cid;
     private int bid;
     private String type;
@@ -129,6 +130,8 @@ public class BufferOptionsFragment extends DialogFragment {
                         prefs = updatePref(prefs, !replyCollapse.isChecked(), pref_type + "-reply-collapse");
                         prefs = updatePref(prefs, inlineImages.isChecked(), pref_type + "-inlineimages-disable");
                         prefs = updatePref(prefs, !inlineImages.isChecked(), pref_type + "-inlineimages");
+                        prefs = updatePref(prefs, typing.isChecked(), pref_type + "-disableTypingStatus");
+                        prefs = updatePref(prefs, !typing.isChecked(), pref_type + "-enableTypingStatus");
                     }
                     NetworkConnection.getInstance().set_prefs(prefs.toString(), null);
                 } else {
@@ -159,6 +162,7 @@ public class BufferOptionsFragment extends DialogFragment {
             expandDisco.setChecked(true);
             muted.setChecked(false);
             formatColors.setChecked(true);
+            typing.setChecked(true);
 
             if (NetworkConnection.getInstance().getUserInfo() != null) {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -306,6 +310,18 @@ public class BufferOptionsFragment extends DialogFragment {
                             enabled = false;
                     }
                     formatColors.setChecked(enabled);
+                    enabled = !(prefs.has("disableTypingStatus") && prefs.get("disableTypingStatus") instanceof Boolean && prefs.getBoolean("disableTypingStatus"));
+                    if (prefs.has(pref_type + "-enableTypingStatus")) {
+                        JSONObject enableTypingStatusMap = prefs.getJSONObject(pref_type + "-enableTypingStatus");
+                        if (enableTypingStatusMap.has(String.valueOf(bid)) && enableTypingStatusMap.getBoolean(String.valueOf(bid)))
+                            enabled = true;
+                    }
+                    if (prefs.has(pref_type + "-disableTypingStatus")) {
+                        JSONObject disableTypingStatusMap = prefs.getJSONObject(pref_type + "-disableTypingStatus");
+                        if (disableTypingStatusMap.has(String.valueOf(bid)) && disableTypingStatusMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
+                    }
+                    typing.setChecked(enabled);
                 }
             }
             if (!getActivity().getResources().getBoolean(R.bool.isTablet))
@@ -334,6 +350,7 @@ public class BufferOptionsFragment extends DialogFragment {
         readOnSelect = v.findViewById(R.id.readOnSelect);
         inlineFiles = v.findViewById(R.id.inlineFiles);
         formatColors = v.findViewById(R.id.formatColors);
+        typing = v.findViewById(R.id.typing);
         inlineImages = v.findViewById(R.id.inlineImages);
         inlineImages.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -384,6 +401,7 @@ public class BufferOptionsFragment extends DialogFragment {
             inlineFiles.setVisibility(View.GONE);
             inlineImages.setVisibility(View.GONE);
             replyCollapse.setVisibility(View.GONE);
+            typing.setVisibility(View.GONE);
         } else {
             expandDisco.setVisibility(View.GONE);
             if(type.equals("conversation")) {

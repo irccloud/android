@@ -289,6 +289,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         findPreference("chat-nocodeblock").setOnPreferenceChangeListener(prefstoggle);
         findPreference("chat-noquote").setOnPreferenceChangeListener(prefstoggle);
         findPreference("chat-nocolor").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("disableTypingStatus").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-left").setOnPreferenceChangeListener(messagelayouttoggle);
         findPreference("avatars-off").setOnPreferenceChangeListener(messagelayouttoggle);
         findPreference("chat-oneline").setOnPreferenceChangeListener(messagelayouttoggle);
@@ -672,7 +673,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     return false;
                 }
 
-                if (preference.getKey().equals("disableTrackUnread") || preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left") || preference.getKey().equals("avatars-off") || preference.getKey().equals("chat-oneline") || preference.getKey().equals("chat-norealname") || preference.getKey().equals("emoji-nobig") || preference.getKey().equals("files-disableinline") || preference.getKey().equals("chat-nocodespan") || preference.getKey().equals("chat-nocodeblock") || preference.getKey().equals("chat-noquote") || preference.getKey().equals("chat-nocolor"))
+                if (preference.getKey().equals("disableTrackUnread") || preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left") || preference.getKey().equals("avatars-off") || preference.getKey().equals("chat-oneline") || preference.getKey().equals("chat-norealname") || preference.getKey().equals("emoji-nobig") || preference.getKey().equals("files-disableinline") || preference.getKey().equals("chat-nocodespan") || preference.getKey().equals("chat-nocodeblock") || preference.getKey().equals("chat-noquote") || preference.getKey().equals("chat-nocolor") || preference.getKey().equals("disableTypingStatus"))
                     prefs.put(preference.getKey(), !(Boolean) newValue);
                 else if(preference.getKey().equals("monospace"))
                     prefs.put("font", ((Boolean)newValue)?"mono":"sans");

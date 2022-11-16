@@ -117,5 +117,12 @@
             android:layout_height="48dp"
             android:text="Format colours"
             android:textSize="16sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/typing"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Share typing status"
+            android:textSize="16sp" />
     </LinearLayout>
 </ScrollView>

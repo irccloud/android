@@ -1071,6 +1071,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             case NetworkConnection.EVENT_DISPLAYNAMECHANGE:
             case NetworkConnection.EVENT_AVATARCHANGE:
             case NetworkConnection.EVENT_MESSAGECHANGE:
+            case NetworkConnection.EVENT_USERTYPING:
                 break;
             case NetworkConnection.EVENT_BACKLOG_START:
                 if (refreshTask != null)

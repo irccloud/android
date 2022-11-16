@@ -30,6 +30,10 @@
             android:dependency="hideJoinPart"
             android:title="Collapse nick changes, joins, parts"/>
 		<SwitchPreference
+			android:key="disableTypingStatus"
+			android:defaultValue="true"
+			android:title="Share typing status"/>
+		<SwitchPreference
 			android:key="files-disableinline"
 			android:defaultValue="true"
 			android:summary="Not including 3rd party images"

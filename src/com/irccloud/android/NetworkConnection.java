@@ -219,6 +219,7 @@ public class NetworkConnection {
     public static final int EVENT_WATCHSTATUS = 58;
     public static final int EVENT_TEXTLIST = 59;
     public static final int EVENT_CHANFILTERLIST = 60;
+    public static final int EVENT_USERTYPING = 61;
 
     public static final int EVENT_BACKLOG_START = 100;
     public static final int EVENT_BACKLOG_END = 101;
@@ -1965,6 +1966,19 @@ public class NetworkConnection {
         }
     }
 
+    public int typing(int cid, String to, String value, IRCResultCallback callback) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("cid", cid);
+            o.put("to", to);
+            o.put("value", value);
+            return send("typing", o, callback);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
     public void request_backlog(int cid, int bid, long beforeId) {
         try {
             synchronized (oobTasks) {
@@ -2427,6 +2441,9 @@ public class NetworkConnection {
 
                 if(object.has("avatar_url"))
                     server.setAvatarURL(object.getString("avatar_url"));
+
+                if(object.has("caps"))
+                    server.caps = object.getJsonNode("caps");
 
                 String avatar_url = null;
                 if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
@@ -3149,6 +3166,17 @@ public class NetworkConnection {
                 if (!backlog) {
                     notifyHandlers(EVENT_WATCHSTATUS, object);
                     notifyHandlers(EVENT_BUFFERMSG, e);
+                }
+            }
+        });
+        put("user_typing", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object, boolean backlog) throws JSONException {
+                Buffer b = mBuffers.getBuffer(object.bid());
+                if(b != null)
+                    b.addTyping(object.getString("from"));
+                if (!backlog) {
+                    notifyHandlers(EVENT_USERTYPING, object);
                 }
             }
         });

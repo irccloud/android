@@ -73,6 +73,8 @@ public class Server extends BaseObservable implements Comparable<Server> {
 
     public JsonNode raw_ignores;
 
+    public JsonNode caps;
+
     //@Column(name = "server_order")
     private int order;
 
@@ -344,6 +346,16 @@ public class Server extends BaseObservable implements Comparable<Server> {
                     MODE_OPER = "";
             }
         }
+    }
+
+    public boolean hasCap(String cap) {
+        if(caps != null) {
+            for (int i = 0; i < caps.size(); i++) {
+                if (caps.get(i).asText().equals(cap))
+                    return true;
+            }
+        }
+        return false;
     }
 
     public boolean clientTagDeny(String tagname) {

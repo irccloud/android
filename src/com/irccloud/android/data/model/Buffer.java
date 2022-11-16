@@ -38,6 +38,7 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class Buffer extends BaseObservable {
     public static final String TYPE_CONSOLE = "console";
@@ -113,6 +114,26 @@ public class Buffer extends BaseObservable {
     private boolean muted;
 
     private boolean showServerSuffix;
+
+    private final HashMap<String, Long> typingIndicators = new HashMap<>();
+
+    public void purgeExpiredTypingIndicators() {
+        long now = System.currentTimeMillis();
+
+        for(String nick : typingIndicators.keySet()) {
+            if(now - typingIndicators.get(nick) > 6500)
+                typingIndicators.remove(nick);
+        }
+    }
+
+    public void addTyping(String nick) {
+        typingIndicators.put(nick, System.currentTimeMillis());
+        purgeExpiredTypingIndicators();
+    }
+
+    public HashMap<String, Long> getTypingIndicators() {
+        return typingIndicators;
+    }
 
     public String toString() {
         return "{cid:" + getCid() + ", bid:" + getBid() + ", name: " + getName() + ", type: " + getType() + ", archived: " + getArchived() + "}";

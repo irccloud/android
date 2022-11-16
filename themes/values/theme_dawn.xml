@@ -43,7 +43,7 @@
 		<item name="navBarColor">#F2F7FC</item>
 		<item name="navBarBorderColor">#D9E7FF</item>
 		<item name="textareaTextColor">#000</item>
-		<item name="textareaBackgroundColor">#fff</item>
+		<item name="textareaBackgroundColor">#eee</item>
 		<item name="navBarHeadingColor">#000</item>
 		<item name="lightLinkColor">#9CC7FF</item>
 		<item name="unreadBufferTextColor">#1d40ff</item>
@@ -127,7 +127,7 @@
 		<item name="navBarColor">#F2F7FC</item>
 		<item name="navBarBorderColor">#D9E7FF</item>
 		<item name="textareaTextColor">#000</item>
-		<item name="textareaBackgroundColor">#fff</item>
+		<item name="textareaBackgroundColor">#eee</item>
 		<item name="navBarHeadingColor">#000</item>
 		<item name="lightLinkColor">#9CC7FF</item>
 		<item name="unreadBufferTextColor">#1d40ff</item>
@@ -208,7 +208,7 @@
 		<item name="navBarColor">#F2F7FC</item>
 		<item name="navBarBorderColor">#D9E7FF</item>
 		<item name="textareaTextColor">#000</item>
-		<item name="textareaBackgroundColor">#fff</item>
+		<item name="textareaBackgroundColor">#eee</item>
 		<item name="navBarHeadingColor">#000</item>
 		<item name="lightLinkColor">#9CC7FF</item>
 		<item name="unreadBufferTextColor">#1d40ff</item>
@@ -289,7 +289,7 @@
 		<item name="navBarColor">#F2F7FC</item>
 		<item name="navBarBorderColor">#D9E7FF</item>
 		<item name="textareaTextColor">#000</item>
-		<item name="textareaBackgroundColor">#fff</item>
+		<item name="textareaBackgroundColor">#eee</item>
 		<item name="navBarHeadingColor">#000</item>
 		<item name="lightLinkColor">#9CC7FF</item>
 		<item name="unreadBufferTextColor">#1d40ff</item>
@@ -372,7 +372,7 @@
 		<item name="navBarColor">#F2F7FC</item>
 		<item name="navBarBorderColor">#D9E7FF</item>
 		<item name="textareaTextColor">#000</item>
-		<item name="textareaBackgroundColor">#fff</item>
+		<item name="textareaBackgroundColor">#eee</item>
 		<item name="navBarHeadingColor">#000</item>
 		<item name="lightLinkColor">#9CC7FF</item>
 		<item name="unreadBufferTextColor">#1d40ff</item>

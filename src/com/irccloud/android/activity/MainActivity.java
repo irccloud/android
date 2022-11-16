@@ -16,6 +16,9 @@
 
 package com.irccloud.android.activity;
 
+import static android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -37,6 +40,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -123,6 +127,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.exifinterface.media.ExifInterface;
@@ -134,6 +139,9 @@ import com.damnhandy.uri.template.UriTemplate;
 import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.shape.CornerFamily;
+import com.google.android.material.shape.MaterialShapeDrawable;
+import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.irccloud.android.ActionEditText;
@@ -232,6 +240,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private TextView title;
     private TextView subtitle;
     private TextView key;
+    private TextView typingLabel;
     private DrawerLayout drawerLayout;
     private NetworkConnection conn;
     private boolean shouldFadeIn = false;
@@ -501,6 +510,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         super.onCreate(savedInstanceState);
         theme = ColorScheme.getTheme(ColorScheme.getUserTheme(), false);
         setTheme(theme);
+        getWindow().setNavigationBarColor(colorScheme.contentBackgroundColor);
+        if(!ColorScheme.getInstance().isDarkTheme)
+            getWindow().getDecorView().setSystemUiVisibility(SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR | SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         suggestionsTimer = new Timer("suggestions-timer");
         countdownTimer = new Timer("messsage-countdown-timer");
 
@@ -528,9 +540,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         errorMsg = findViewById(R.id.errorMsg);
         buffersListView = findViewById(R.id.BuffersList);
         drawerLayout = findViewById(R.id.drawerLayout);
+        typingLabel = findViewById(R.id.typingLabel);
 
         mColorPickerFragment = (IRCColorPickerFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment).getChildFragmentManager().findFragmentById(R.id.colorPickerFragmet);
         mColorPickerFragment.getView().setVisibility(View.GONE);
+
+        ShapeAppearanceModel shapeAppearanceModel = new ShapeAppearanceModel()
+                .toBuilder()
+                .setAllCorners(CornerFamily.ROUNDED,90)
+                .build();
 
         final ImageButton formatBtn = findViewById(R.id.formatBtn);
         formatBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
@@ -544,7 +562,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     startFormatActionMode();
             }
         });
+        ViewCompat.setBackground(formatBtn, new MaterialShapeDrawable(shapeAppearanceModel));
+
         messageTxt = findViewById(R.id.messageTxt);
+
+        ViewCompat.setBackground(messageTxt, new MaterialShapeDrawable(shapeAppearanceModel));
+
         formattingCallback = new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
@@ -589,7 +612,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(formattingActionMode != null)
                     formattingActionMode.invalidate();
                 formatBtn.setColorFilter(messageTxt.hasEffect(RichEditText.FOREGROUND) ? messageTxt.getEffectValue(RichEditText.FOREGROUND) : colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
-                formatBtn.setBackgroundColor(messageTxt.hasEffect(RichEditText.BACKGROUND) ? messageTxt.getEffectValue(RichEditText.BACKGROUND) : colorScheme.textareaBackgroundColor);
+                formatBtn.setBackgroundTintList(ColorStateList.valueOf(messageTxt.hasEffect(RichEditText.BACKGROUND) ? messageTxt.getEffectValue(RichEditText.BACKGROUND) : colorScheme.textareaBackgroundColor));
             }
         });
         messageTxt.setKeyboardShortcutsEnabled(false);
@@ -673,6 +696,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 if (s.length() > 0 && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
                     sendBtn.setEnabled(true);
+                    sendTypingStatus();
                 } else {
                     sendBtn.setEnabled(false);
                 }
@@ -721,6 +745,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     runOnUiThread(new SendTask());
             }
         });
+        ViewCompat.setBackground(sendBtn, new MaterialShapeDrawable(shapeAppearanceModel));
 
         photoBtn = findViewById(R.id.photoBtn);
         if (photoBtn != null) {
@@ -732,6 +757,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     insertPhoto();
                 }
             });
+            ViewCompat.setBackground(photoBtn, new MaterialShapeDrawable(shapeAppearanceModel));
         }
         userListView = findViewById(R.id.usersListFragment);
 
@@ -874,6 +900,52 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if(BuildConfig.MOCK_DATA)
             conn.request_mock_data();
+    }
+
+    private void sendTypingStatus() {
+        JSONObject channelDisabledMap = null;
+        JSONObject bufferDisabledMap = null;
+        JSONObject channelEnabledMap = null;
+        JSONObject bufferEnabledMap = null;
+        if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
+            try {
+                if (NetworkConnection.getInstance().getUserInfo().prefs.has("channel-disableTypingStatus"))
+                    channelDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("channel-disableTypingStatus");
+                if (NetworkConnection.getInstance().getUserInfo().prefs.has("buffer-disableTypingStatus"))
+                    bufferDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("buffer-disableTypingStatus");
+                if (NetworkConnection.getInstance().getUserInfo().prefs.has("channel-enableTypingStatus"))
+                    channelEnabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("channel-enableTypingStatus");
+                if (NetworkConnection.getInstance().getUserInfo().prefs.has("buffer-enableTypingStatus"))
+                    bufferEnabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("buffer-enableTypingStatus");
+            } catch (Exception e1) {
+                NetworkConnection.printStackTraceToCrashlytics(e1);
+            }
+        }
+
+        try {
+            boolean enabled = !(conn.getUserInfo().prefs.has("disableTypingStatus") && conn.getUserInfo().prefs.get("disableTypingStatus") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("disableTypingStatus"));
+            if (buffer.isChannel() && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(buffer.getBid())) && channelDisabledMap.getBoolean(String.valueOf(buffer.getBid())))
+                enabled = false;
+            else if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(buffer.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(buffer.getBid())))
+                enabled = false;
+            else if (buffer.isChannel() && channelEnabledMap != null && channelEnabledMap.has(String.valueOf(buffer.getBid())) && channelEnabledMap.getBoolean(String.valueOf(buffer.getBid())))
+                enabled = true;
+            else if (bufferEnabledMap != null && bufferEnabledMap.has(String.valueOf(buffer.getBid())) && bufferEnabledMap.getBoolean(String.valueOf(buffer.getBid())))
+                enabled = true;
+
+            if (!server.hasCap("message-tags"))
+                enabled = false;
+
+            if (server.blocksTyping)
+                enabled = false;
+
+            if(enabled) {
+                conn.typing(buffer.getCid(), buffer.getName(), "active", null);
+            }
+        } catch (Exception e1) {
+            NetworkConnection.printStackTraceToCrashlytics(e1);
+        }
+
     }
 
     @Override
@@ -2448,6 +2520,38 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         return false;
     }
 
+    private void updateTypingIndicators() {
+        String typing = "";
+        buffer.purgeExpiredTypingIndicators();
+
+        int count = buffer.getTypingIndicators().size();
+        if (count > 5) {
+            typing = String.valueOf(count) + " people are typing";
+        } else if(count == 1) {
+            typing = buffer.getTypingIndicators().keySet().toArray(new String[1])[0] + " is typing";
+        } else if(count > 0) {
+            int i = 0;
+            for (String nick : buffer.getTypingIndicators().keySet()) {
+                if(++i == count)
+                    typing += "and ";
+                typing += nick;
+                if(count != 2 && i > 0 && i < count)
+                    typing += " ";
+            }
+            typing += " are typing";
+        }
+
+        typingLabel.setText(typing);
+
+        if(count > 0)
+            typingLabel.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateTypingIndicators();
+                }
+            }, 500);
+    }
+
     private void update_subtitle() {
         if (server == null || buffer == null) {
             title.setText(bufferToOpen);
@@ -3723,6 +3827,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         updateReconnecting();
+                    }
+                });
+                break;
+            case NetworkConnection.EVENT_USERTYPING:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateTypingIndicators();
                     }
                 });
                 break;
@@ -6072,6 +6184,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         if(sendBtn != null && conn != null && messageTxt != null)
             sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
+        updateTypingIndicators();
     }
 
     @Override
