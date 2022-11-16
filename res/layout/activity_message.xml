@@ -91,15 +91,14 @@
                         android:background="?contentBackgroundColor"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingTop="8dp"
-                        android:gravity="bottom"
-                        android:paddingBottom="8dp">
+                        android:paddingTop="12dp"
+                        android:gravity="bottom">
 
                         <ImageButton
                             style="@style/Widget.Styled.ImageButton"
                             android:id="@+id/photoBtn"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:scaleType="center"
                             android:contentDescription="Insert Photo"
                             app:srcCompat="@drawable/ic_action_photo"
@@ -116,7 +115,8 @@
                             android:layout_weight="1"
                             android:paddingLeft="16dp"
                             android:paddingRight="16dp"
-                            android:ems="10"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
                             android:maxLines="@integer/max_input_lines"
                             android:hint="Message"
                             android:theme="?editTextTheme"
@@ -125,13 +125,13 @@
                             android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
                             android:importantForAutofill="no"
                             android:backgroundTint="?attr/textareaBackgroundColor"
-                            android:minHeight="48dp"/>
+                            android:minHeight="40dp"/>
 
                         <ImageButton
                             style="@style/Widget.Styled.ImageButton"
                             android:id="@+id/formatBtn"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:scaleType="center"
                             android:contentDescription="Format Text"
                             app:srcCompat="@drawable/ic_text_format"
@@ -141,8 +141,8 @@
                         <ImageButton
                             style="@style/Widget.Styled.ImageButton"
                             android:id="@+id/sendBtn"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:scaleType="center"
                             android:contentDescription="Send"
                             app:srcCompat="@drawable/ic_action_send"
@@ -154,8 +154,8 @@
                         android:id="@+id/typingLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="68dp"
-                        android:paddingRight="68dp"
+                        android:paddingLeft="60dp"
+                        android:paddingRight="60dp"
                         android:textColor="?attr/timestampColor"
                         android:background="?attr/contentBackgroundColor"
                         android:singleLine="true"
