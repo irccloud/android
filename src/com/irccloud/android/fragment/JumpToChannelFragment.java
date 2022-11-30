@@ -45,11 +45,10 @@ import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.databinding.RowJumpresultBinding;
 
+import org.everpeace.StringScore;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
 import java.util.ArrayList;
-
-import me.xdrop.fuzzywuzzy.FuzzySearch;
 
 public class JumpToChannelFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     EditText query;
@@ -90,6 +89,8 @@ public class JumpToChannelFragment extends DialogFragment implements NetworkConn
             Buffer current = null;
             boolean loading = false;
 
+            String q = query.toLowerCase();
+
             results.clear();
 
             for (int i = 0; i < servers.size(); i++) {
@@ -100,7 +101,7 @@ public class JumpToChannelFragment extends DialogFragment implements NetworkConn
                 }
                 for(Buffer b : BuffersList.getInstance().getBuffersForServer(s.getCid())) {
                     if(!b.isConsole()) {
-                        if (FuzzySearch.weightedRatio(query.toLowerCase(), b.normalizedName()) > 50) {
+                        if (StringScore.score(b.normalizedName(), q) > 0) {
                             if(b.getBid() == currentBid)
                                 current = b;
                             else if(b.getArchived() == 1)
