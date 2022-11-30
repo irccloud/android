@@ -489,6 +489,9 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                             return;
                         case Buffer.TYPE_PINNED:
                             return;
+                        case Buffer.TYPE_JUMP_TO_CHANNEL:
+                            mListener.jumpToChannel();
+                            return;
                         case Buffer.TYPE_ADD_NETWORK:
                             mListener.addNetwork();
                             return;
@@ -562,6 +565,14 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             firstFailurePosition = -1;
             lastFailurePosition = -1;
             int position = 0;
+
+            if(!readOnly) {
+                Buffer jump_to_channel = new Buffer();
+                jump_to_channel.setType(Buffer.TYPE_JUMP_TO_CHANNEL);
+                jump_to_channel.setName("Jump to channel");
+                entries.add(jump_to_channel);
+                position++;
+            }
 
             HashSet<Integer> pinned = new HashSet<>();
             try {
@@ -1185,5 +1196,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
         void addNetwork();
 
         void reorder();
+
+        void jumpToChannel();
     }
 }

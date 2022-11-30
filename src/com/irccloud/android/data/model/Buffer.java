@@ -50,10 +50,11 @@ public class Buffer extends BaseObservable {
     public static final String TYPE_COLLAPSED = "collapsed";
     public static final String TYPE_PINNED = "pinned";
     public static final String TYPE_ADD_NETWORK = "add_network";
+    public static final String TYPE_JUMP_TO_CHANNEL = "jump_to_channel";
     public static final String DEFAULT_CHANTYPES = "#&!+";
 
     private enum Type {
-        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, SPAM, COLLAPSED, PINNED, ADD_NETWORK, OTHER
+        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, SPAM, COLLAPSED, PINNED, ADD_NETWORK, JUMP_TO_CHANNEL, OTHER
     }
 
     private Server server = null;
@@ -296,6 +297,9 @@ public class Buffer extends BaseObservable {
                 break;
             case TYPE_ADD_NETWORK:
                 this.type_int = Type.ADD_NETWORK;
+                break;
+            case TYPE_JUMP_TO_CHANNEL:
+                this.type_int = Type.JUMP_TO_CHANNEL;
                 break;
             default:
                 this.type_int = Type.OTHER;
@@ -580,6 +584,8 @@ public class Buffer extends BaseObservable {
             return colorScheme.inactiveBufferTextColor;
         } else if (isSpam()) {
             return colorScheme.networkErrorColor;
+        } else if (type_int == Type.JUMP_TO_CHANNEL) {
+            return colorScheme.inactiveBufferTextColor;
         } else {
             return colorScheme.bufferTextColor;
         }
@@ -599,6 +605,8 @@ public class Buffer extends BaseObservable {
             return FontAwesome.THUMB_TACK;
         } else if(type_int == Type.ADD_NETWORK) {
             return FontAwesome.PLUS_CIRCLE;
+        } else if(type_int == Type.JUMP_TO_CHANNEL) {
+            return FontAwesome.SEARCH;
         }
         return null;
     }

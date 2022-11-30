@@ -181,6 +181,7 @@ import com.irccloud.android.fragment.ChannelModeListFragment;
 import com.irccloud.android.fragment.EditConnectionFragment;
 import com.irccloud.android.fragment.IRCColorPickerFragment;
 import com.irccloud.android.fragment.IgnoreListFragment;
+import com.irccloud.android.fragment.JumpToChannelFragment;
 import com.irccloud.android.fragment.LinksListFragment;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.irccloud.android.fragment.NamesListFragment;
@@ -228,7 +229,7 @@ import javax.net.ssl.HttpsURLConnection;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_FILE;
 import static com.irccloud.android.fragment.MessageViewFragment.ROW_THUMBNAIL;
 
-public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler, IRCColorPickerFragment.OnColorPickedListener {
+public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler, IRCColorPickerFragment.OnColorPickedListener, JumpToChannelFragment.JumpToChannelListener {
     private Buffer buffer;
     private Server server;
     private ActionEditText messageTxt;
@@ -1524,14 +1525,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (event.isCtrlPressed()) {
             switch(keyCode) {
                 case KeyEvent.KEYCODE_K:
-                    Bundle b = new Bundle();
-                    b.putBoolean(IRCColorPickerFragment.ARG_BACKGROUND, false);
-                    mColorPickerFragment.setArguments(b);
-                    if (mColorPickerFragment.getView().getVisibility() == View.GONE) {
-                        mColorPickerFragment.getView().setAlpha(0);
-                        mColorPickerFragment.getView().animate().alpha(1.0f);
-                        mColorPickerFragment.getView().setVisibility(View.VISIBLE);
-                    }
+                    jumpToChannel();
                     return true;
                 case KeyEvent.KEYCODE_B:
                     messageTxt.toggleTypingEffect(RichEditText.BOLD);
@@ -4086,7 +4080,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         group.addItem(new KeyboardShortcutInfo("Toggle bold", KeyEvent.KEYCODE_B, KeyEvent.META_CTRL_ON));
         group.addItem(new KeyboardShortcutInfo("Toggle italics", KeyEvent.KEYCODE_I, KeyEvent.META_CTRL_ON));
         group.addItem(new KeyboardShortcutInfo("Toggle underline", KeyEvent.KEYCODE_U, KeyEvent.META_CTRL_ON));
-        group.addItem(new KeyboardShortcutInfo("Change text color", KeyEvent.KEYCODE_K, KeyEvent.META_CTRL_ON));
+        group.addItem(new KeyboardShortcutInfo("Jump to channel", KeyEvent.KEYCODE_K, KeyEvent.META_CTRL_ON));
 
         data.add(group);
     }
@@ -6258,6 +6252,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 startActivity(i);
             }
         }
+    }
+
+    @Override
+    public void jumpToChannel() {
+        if (drawerLayout != null) {
+            drawerLayout.closeDrawers();
+        }
+        JumpToChannelFragment f = new JumpToChannelFragment();
+        f.show(getSupportFragmentManager(), "jumpToChannel");
     }
 
     public void reorder_pins() {
