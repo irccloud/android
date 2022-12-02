@@ -800,6 +800,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
             if(savedInstanceState.containsKey("msgid"))
                 msgid = savedInstanceState.getString("msgid");
+
+            if(buffer == null)
+                launchBid = savedInstanceState.getInt("bid");
         } else if(NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getUserInfo() != null) {
             buffer = BuffersList.getInstance().getBuffer(NetworkConnection.getInstance().getUserInfo().last_selected_bid);
             if(buffer != null)
