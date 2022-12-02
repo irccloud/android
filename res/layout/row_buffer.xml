@@ -30,7 +30,6 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:background="?buffersDrawerBackgroundDrawable"
-		android:descendantFocusability="blocksDescendants"
 		android:minHeight="@{ buffer.isSpam ? @dimen/spam_min_height : (( buffer.isGroupHeading ) ? @dimen/buffergroup_min_height : buffer.isCollapsed ? @dimen/collapsed_min_height : @dimen/buffer_min_height) }"
 		android:orientation="horizontal" >
 
@@ -49,9 +48,11 @@
 					android:layout_height="match_parent"
 					android:background="@{ selected == buffer.bid ? buffer.selectedBackgroundResource : buffer.backgroundResource }"
 					android:gravity="center_vertical"
+					android:orientation="horizontal"
 					android:layout_weight="1">
 
 					<TextView
+						android:id="@+id/icon"
 						android:layout_width="16dp"
 						android:layout_height="16dp"
 						android:layout_marginTop="1dp"
@@ -76,8 +77,22 @@
 						android:text='@{(buffer.isConsole ? (server.name ?? server.hostname) : buffer.displayName) + buffer.serverSuffix}'
 						android:textColor="@{ (selected == buffer.bid || (buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader) ) ? buffer.selectedTextColor : buffer.textColor }"
 						android:typeface="@{( !readOnly &amp;&amp; !buffer.isCollapsed &amp;&amp; (selected == buffer.bid || buffer.unread > 0)) ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT }"
+						android:visibility="@{buffer.isJumpToChannel ? View.GONE : View.VISIBLE }"
 						android:textSize="16sp" />
 
+					<EditText android:id="@+id/jumpToChannel"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:background="?serverBackgroundColor"
+						android:textColor="?bufferTextColor"
+						android:textColorHint="?inactiveBufferTextColor"
+						android:singleLine="true"
+						android:imeOptions="actionGo"
+						android:inputType="text"
+						android:layout_marginTop="1dp"
+						android:hint="Jump to channel"
+						android:visibility="@{buffer.isJumpToChannel ? View.VISIBLE : View.GONE }"
+						/>
 					<TextView
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"

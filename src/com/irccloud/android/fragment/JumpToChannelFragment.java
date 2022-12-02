@@ -83,15 +83,11 @@ public class JumpToChannelFragment extends DialogFragment implements NetworkConn
 
         public void filter(String query) {
             SparseArray<Server> servers = ServersList.getInstance().getServers();
-            ArrayList<Buffer> active = new ArrayList<>();
-            ArrayList<Buffer> inactive = new ArrayList<>();
-            ArrayList<Buffer> archived = new ArrayList<>();
-            Buffer current = null;
             boolean loading = false;
 
             String q = query.toLowerCase();
 
-            results.clear();
+            results = BuffersList.getInstance().getBuffers(q, currentBid);
 
             for (int i = 0; i < servers.size(); i++) {
                 Server s = servers.valueAt(i);
@@ -99,29 +95,7 @@ public class JumpToChannelFragment extends DialogFragment implements NetworkConn
                     loading = true;
                     NetworkConnection.getInstance().request_archives(s.getCid());
                 }
-                for(Buffer b : BuffersList.getInstance().getBuffersForServer(s.getCid())) {
-                    if(!b.isConsole()) {
-                        if (StringScore.score(b.normalizedName(), q) > 0) {
-                            if(b.getBid() == currentBid)
-                                current = b;
-                            else if(b.getArchived() == 1)
-                                archived.add(b);
-                            else if(b.isChannel() && !b.isJoined())
-                                inactive.add(b);
-                            else if(!s.getStatus().equals("connected_ready"))
-                                inactive.add(b);
-                            else
-                                active.add(b);
-                        }
-                    }
-                }
             }
-
-            results.addAll(active);
-            if(current != null)
-                results.add(current);
-            results.addAll(inactive);
-            results.addAll(archived);
 
             loadingArchives.setVisibility(loading ? View.VISIBLE : View.GONE);
 

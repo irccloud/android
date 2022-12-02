@@ -291,9 +291,4 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     public void reorder() {
 
     }
-
-    @Override
-    public void jumpToChannel() {
-
-    }
 }

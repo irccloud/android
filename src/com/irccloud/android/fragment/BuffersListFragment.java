@@ -19,15 +19,19 @@ package com.irccloud.android.fragment;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
@@ -40,6 +44,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.IRCCloudLog;
@@ -79,6 +84,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
     private RefreshTask refreshTask = null;
     private boolean ready = false;
     private boolean requestingArchives = false;
+    private String filter = null;
     public boolean readOnly = false;
 
     private int firstUnreadPosition = -1;
@@ -446,10 +452,17 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
             row.setBuffer(b);
             row.setServer(b.getServer());
-            row.setSelected(selected_bid);
-            row.setReadOnly(readOnly);
+            if(filter != null && filter.length() > 0) {
+                row.setSelected(0);
+                row.setReadOnly(true);
+            } else {
+                row.setSelected(selected_bid);
+                row.setReadOnly(readOnly);
+            }
             if(b.getType().equals(Buffer.TYPE_ARCHIVES_HEADER))
                 row.setShowSpinner(requestingArchives && b.getArchived() > 0 && b.getServer() != null && b.getServer().deferred_archives > 0);
+            else if(b.getType().equals(Buffer.TYPE_LOADING_ARCHIVES))
+                row.setShowSpinner(true);
             else
                 row.setShowSpinner(!readOnly && b.getShowSpinner());
 
@@ -490,7 +503,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                         case Buffer.TYPE_PINNED:
                             return;
                         case Buffer.TYPE_JUMP_TO_CHANNEL:
-                            mListener.jumpToChannel();
                             return;
                         case Buffer.TYPE_ADD_NETWORK:
                             mListener.addNetwork();
@@ -506,6 +518,46 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                     return (b.isChannel() || b.isConversation() || b.isConsole()) && mListener.onBufferLongClicked(b);
                 }
             });
+
+            if(b.getIsJumpToChannel()) {
+                row.jumpToChannel.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                        if(data.size() > 1) {
+                            Buffer b = data.get(1);
+                            if(b.getType().equals(Buffer.TYPE_LOADING_ARCHIVES)) {
+                                if(data.size() > 2)
+                                    b = data.get(2);
+                                else
+                                    b = null;
+                            }
+                            if(b != null) {
+                                row.jumpToChannel.clearFocus();
+                                mListener.onBufferSelected(b.getBid());
+                            }
+                        }
+                        return false;
+                    }
+                });
+                row.jumpToChannel.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        filter = editable.toString();
+                        row.icon.setTextColor(filter.length() > 0 ? ColorScheme.getInstance().bufferTextColor : ColorScheme.getInstance().inactiveBufferTextColor);
+                        refresh();
+                    }
+                });
+            }
 
             row.executePendingBindings();
         }
@@ -535,6 +587,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
         @Override
         protected synchronized Void doInBackground(Void... params) {
+            boolean loading = false;
             if (!NetworkConnection.getInstance().ready || !ready || isCancelled() || NetworkConnection.getInstance().getUserInfo() == null) {
                 IRCCloudLog.Log(Log.WARN, "IRCCloud", "BuffersListFragment not ready or cancelled " + ready + " " + isCancelled());
                 return null;
@@ -546,8 +599,14 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
             for (int i = 0; i < serversArray.size(); i++) {
                 Server s = serversArray.valueAt(i);
-                if(s != null)
+                if(s != null) {
                     servers.add(s);
+                    if(filter != null && filter.length() > 0 && s.deferred_archives > 0) {
+                        loading = true;
+                        requestingArchives = true;
+                        NetworkConnection.getInstance().request_archives(s.getCid());
+                    }
+                }
             }
             Collections.sort(servers);
             if (adapter == null) {
@@ -572,6 +631,17 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 jump_to_channel.setName("Jump to channel");
                 entries.add(jump_to_channel);
                 position++;
+            }
+
+            if(filter != null && filter.length() > 0) {
+                if(loading) {
+                    Buffer loading_archives = new Buffer();
+                    loading_archives.setType(Buffer.TYPE_LOADING_ARCHIVES);
+                    loading_archives.setName("Loading archives");
+                    entries.add(loading_archives);
+                }
+                entries.addAll(BuffersList.getInstance().getBuffers(filter, selected_bid));
+                return null;
             }
 
             HashSet<Integer> pinned = new HashSet<>();
@@ -734,12 +804,17 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             if (adapter == null)
                 return;
 
+            boolean hasLoading = (entries.size() > 1 && entries.get(1).getType().equals(Buffer.TYPE_LOADING_ARCHIVES)) && (adapter.getItemCount() > 1 && ((Buffer)adapter.getItem(1)).getType().equals(Buffer.TYPE_LOADING_ARCHIVES));
+
             adapter.setItems(entries);
 
             if (recyclerView.getAdapter() == null && entries.size() > 0) {
                 recyclerView.setAdapter(adapter);
-            } else
+            } else if(filter != null && filter.length() > 0) {
+                adapter.notifyItemRangeChanged(hasLoading ? 2 : 1, adapter.getItemCount() - (hasLoading ? 2 : 1));
+            } else {
                 adapter.notifyDataSetChanged();
+            }
 
             if (layoutManager != null)
                 updateUnreadIndicators(layoutManager.findFirstVisibleItemPosition(), layoutManager.findLastVisibleItemPosition());
@@ -755,6 +830,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
     }
 
     public void setSelectedBid(final int bid) {
+        filter = null;
         int last_bid = selected_bid;
         selected_bid = bid;
         if (adapter != null) {
@@ -1196,7 +1272,5 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
         void addNetwork();
 
         void reorder();
-
-        void jumpToChannel();
     }
 }

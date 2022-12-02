@@ -19,8 +19,12 @@ package com.irccloud.android.data.collection;
 import android.util.SparseArray;
 
 import com.irccloud.android.AlphanumComparator;
+import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Channel;
+import com.irccloud.android.data.model.Server;
+
+import org.everpeace.StringScore;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -209,6 +213,52 @@ public class BuffersList {
             list.add(b);
         }
         return list;
+    }
+
+    public synchronized ArrayList<Buffer> getBuffers(String filter, int currentBid) {
+        ArrayList<Buffer> active = new ArrayList<>();
+        ArrayList<Buffer> inactive = new ArrayList<>();
+        ArrayList<Buffer> archived = new ArrayList<>();
+        Buffer current = null;
+
+        String q = filter.toLowerCase();
+
+        for(Buffer b : buffers) {
+            if (!b.isConsole()) {
+                b.score = StringScore.score(b.normalizedName(), q);
+                if (b.score > 0) {
+                    if (b.getBid() == currentBid)
+                        current = b;
+                    else if (b.getArchived() == 1)
+                        archived.add(b);
+                    else if (b.isChannel() && !b.isJoined())
+                        inactive.add(b);
+                    else if (!b.getServer().getStatus().equals("connected_ready"))
+                        inactive.add(b);
+                    else
+                        active.add(b);
+                }
+            }
+        }
+
+        Comparator<Buffer> c = new Comparator<Buffer>() {
+            @Override
+            public int compare(Buffer buffer, Buffer t1) {
+                return Double.compare(t1.score, buffer.score);
+            }
+        };
+
+        ArrayList<Buffer> results = new ArrayList<>(active);
+        Collections.sort(results, c);
+        Collections.sort(inactive, c);
+        Collections.sort(archived, c);
+
+        if(current != null)
+            results.add(current);
+        results.addAll(inactive);
+        results.addAll(archived);
+
+        return results;
     }
 
     public synchronized void invalidate() {

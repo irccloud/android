@@ -51,10 +51,12 @@ public class Buffer extends BaseObservable {
     public static final String TYPE_PINNED = "pinned";
     public static final String TYPE_ADD_NETWORK = "add_network";
     public static final String TYPE_JUMP_TO_CHANNEL = "jump_to_channel";
+    public static final String TYPE_LOADING_ARCHIVES = "loading_archives";
     public static final String DEFAULT_CHANTYPES = "#&!+";
+    public double score;
 
     private enum Type {
-        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, SPAM, COLLAPSED, PINNED, ADD_NETWORK, JUMP_TO_CHANNEL, OTHER
+        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, SPAM, COLLAPSED, PINNED, ADD_NETWORK, JUMP_TO_CHANNEL, LOADING_ARCHIVES, OTHER
     }
 
     private Server server = null;
@@ -301,6 +303,9 @@ public class Buffer extends BaseObservable {
             case TYPE_JUMP_TO_CHANNEL:
                 this.type_int = Type.JUMP_TO_CHANNEL;
                 break;
+            case TYPE_LOADING_ARCHIVES:
+                this.type_int = Type.LOADING_ARCHIVES;
+                break;
             default:
                 this.type_int = Type.OTHER;
                 break;
@@ -534,6 +539,11 @@ public class Buffer extends BaseObservable {
         this.valid = valid;
     }
 
+    public boolean isJumpToChannel() { return type_int == Type.JUMP_TO_CHANNEL; }
+
+    @Bindable
+    public boolean getIsJumpToChannel() { return isJumpToChannel(); }
+
     /*@Override
     public void save() {
         if(bid != -1)
@@ -579,7 +589,7 @@ public class Buffer extends BaseObservable {
             else
                 return colorScheme.bufferTextColor;
         } else if (getArchived() == 1) {
-            return (type_int == Type.CHANNEL) ? colorScheme.archivedChannelTextColor : colorScheme.archivedBufferTextColor;
+            return colorScheme.inactiveBufferTextColor;
         } else if (isChannel() && !isJoined()) {
             return colorScheme.inactiveBufferTextColor;
         } else if (isSpam()) {
@@ -619,16 +629,10 @@ public class Buffer extends BaseObservable {
             return R.drawable.row_failed_bg;
         else if(isConsole())
             return (getServer() != null && getServer().isFailed()) ? R.drawable.row_failed_bg : colorScheme.serverBackgroundDrawable;
-        else if(type_int == Type.JOIN_CHANNEL)
-            return colorScheme.bufferBackgroundDrawable;
-        else if(type_int == Type.COLLAPSED)
+        else if(type_int == Type.JOIN_CHANNEL || type_int == Type.COLLAPSED || type_int == Type.PINNED || type_int == Type.ADD_NETWORK || type_int == Type.LOADING_ARCHIVES)
             return colorScheme.bufferBackgroundDrawable;
         else if(type_int == Type.ARCHIVES_HEADER)
             return (getArchived() == 0)?colorScheme.bufferBackgroundDrawable:R.drawable.archived_bg_selected;
-        else if(type_int == Type.PINNED)
-            return colorScheme.bufferBackgroundDrawable;
-        else if(type_int == Type.ADD_NETWORK)
-            return colorScheme.bufferBackgroundDrawable;
         else
             return colorScheme.serverBackgroundDrawable;
     }

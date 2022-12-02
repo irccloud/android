@@ -28,7 +28,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:cacheColorHint="?attr/bufferBackgroundColor"
-        android:descendantFocusability="blocksDescendants"
         android:divider="#00000000"
         android:dividerHeight="0dip"
         android:scrollbars="vertical"

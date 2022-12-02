@@ -6254,7 +6254,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
-    @Override
     public void jumpToChannel() {
         if (drawerLayout != null) {
             drawerLayout.closeDrawers();
