@@ -1095,7 +1095,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
     }
 
     Preference.OnPreferenceClickListener ringtoneClick = new Preference.OnPreferenceClickListener() {
-        MediaPlayer mp = new MediaPlayer();
+        MediaPlayer mp;
 
         public boolean onPreferenceClick(Preference preference) {
             if (ActivityCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -1152,6 +1152,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                 builder.setSingleChoiceItems(items, selection, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        if(mp == null)
+                            mp = new MediaPlayer();
                         if (mp.isPlaying())
                             mp.stop();
                         mp.reset();

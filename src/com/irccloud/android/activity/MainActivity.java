@@ -511,9 +511,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         super.onCreate(savedInstanceState);
         theme = ColorScheme.getTheme(ColorScheme.getUserTheme(), false);
         setTheme(theme);
-        getWindow().setNavigationBarColor(colorScheme.contentBackgroundColor);
-        if(!ColorScheme.getInstance().isDarkTheme)
-            getWindow().getDecorView().setSystemUiVisibility(SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR | SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        if(Build.VERSION.SDK_INT >= 26 || ColorScheme.getInstance().isDarkTheme) {
+            getWindow().setNavigationBarColor(colorScheme.contentBackgroundColor);
+            if (!ColorScheme.getInstance().isDarkTheme)
+                getWindow().getDecorView().setSystemUiVisibility(SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR | SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
         suggestionsTimer = new Timer("suggestions-timer");
         countdownTimer = new Timer("messsage-countdown-timer");
 
@@ -3683,9 +3687,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Backlog loaded and we're waiting for a buffer, switching now");
                                     if (launchURI == null || !open_uri(launchURI)) {
                                         if (launchBid == -1 || !open_bid(launchBid)) {
-                                            if (conn == null || conn.getUserInfo() == null) {
-                                                open_last_selected_bid();
-                                            }
+                                            open_last_selected_bid();
                                         }
                                     }
                                 }

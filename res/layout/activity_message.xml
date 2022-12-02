@@ -156,6 +156,7 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="60dp"
                         android:paddingRight="60dp"
+                        android:layout_marginBottom="2dp"
                         android:textColor="?attr/timestampColor"
                         android:background="?attr/contentBackgroundColor"
                         android:singleLine="true"
