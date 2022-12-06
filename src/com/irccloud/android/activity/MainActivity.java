@@ -2523,24 +2523,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private void updateTypingIndicators() {
         String typing = "";
-        buffer.purgeExpiredTypingIndicators();
+        int count = 0;
 
-        int count = buffer.getTypingIndicators().size();
-        if (count > 5) {
-            typing = String.valueOf(count) + " people are typing";
-        } else if(count == 1) {
-            typing = buffer.getTypingIndicators().keySet().toArray(new String[1])[0] + " is typing";
-        } else if(count > 0) {
-            int i = 0;
-            for (String nick : buffer.getTypingIndicators().keySet()) {
-                if(++i == count)
-                    typing += "and ";
-                typing += nick;
-                if(count != 2 && i > 0 && i < count)
-                    typing += ",";
-                typing += " ";
+        if(buffer != null) {
+            buffer.purgeExpiredTypingIndicators();
+
+            count = buffer.getTypingIndicators().size();
+            if (count > 5) {
+                typing = String.valueOf(count) + " people are typing";
+            } else if (count == 1) {
+                typing = buffer.getTypingIndicators().keySet().toArray(new String[1])[0] + " is typing";
+            } else if (count > 0) {
+                int i = 0;
+                for (String nick : buffer.getTypingIndicators().keySet()) {
+                    if (++i == count)
+                        typing += "and ";
+                    typing += nick;
+                    if (count != 2 && i > 0 && i < count)
+                        typing += ",";
+                    typing += " ";
+                }
+                typing += " are typing";
             }
-            typing += " are typing";
         }
 
         typingLabel.setText(typing);

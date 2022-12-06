@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Set;
 
 public class Buffer extends BaseObservable {
     public static final String TYPE_CONSOLE = "console";
@@ -121,16 +122,25 @@ public class Buffer extends BaseObservable {
     private final HashMap<String, Long> typingIndicators = new HashMap<>();
 
     public void purgeExpiredTypingIndicators() {
-        long now = System.currentTimeMillis();
+        try {
+            long now = System.currentTimeMillis();
 
-        for(String nick : typingIndicators.keySet()) {
-            if(now - typingIndicators.get(nick) > 6500)
-                typingIndicators.remove(nick);
+            synchronized (typingIndicators) {
+                Set<String> keys = typingIndicators.keySet();
+                for (String nick : keys) {
+                    if (now - typingIndicators.get(nick) > 6500)
+                        typingIndicators.remove(nick);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public void addTyping(String nick) {
-        typingIndicators.put(nick, System.currentTimeMillis());
+        synchronized (typingIndicators) {
+            typingIndicators.put(nick, System.currentTimeMillis());
+        }
         purgeExpiredTypingIndicators();
     }
 
