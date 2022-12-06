@@ -2537,7 +2537,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     typing += "and ";
                 typing += nick;
                 if(count != 2 && i > 0 && i < count)
-                    typing += " ";
+                    typing += ",";
+                typing += " ";
             }
             typing += " are typing";
         }
