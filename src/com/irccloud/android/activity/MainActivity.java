@@ -264,6 +264,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private String msgid = null;
     public TextListFragment help_fragment = null;
     protected boolean bubble = false;
+    private boolean sendingTyping = false;
 
     private ColorFilter highlightsFilter;
     private ColorFilter unreadFilter;
@@ -911,6 +912,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void sendTypingStatus() {
+        if(sendingTyping)
+            return;
+
         JSONObject channelDisabledMap = null;
         JSONObject bufferDisabledMap = null;
         JSONObject channelEnabledMap = null;
@@ -948,7 +952,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 enabled = false;
 
             if(enabled) {
-                conn.typing(buffer.getCid(), buffer.getName(), "active", null);
+                sendingTyping = true;
+                final Buffer b = buffer;
+                messageTxt.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        NetworkConnection.getInstance().typing(b.getCid(), b.getName(), "active", null);
+                        sendingTyping = false;
+                    }
+                }, 500);
             }
         } catch (Exception e1) {
             NetworkConnection.printStackTraceToCrashlytics(e1);
