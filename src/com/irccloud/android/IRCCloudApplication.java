@@ -19,7 +19,10 @@ package com.irccloud.android;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
@@ -31,8 +34,10 @@ import android.util.Log;
 
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.datatheorem.android.trustkit.TrustKit;
+import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -75,6 +80,17 @@ public class IRCCloudApplication extends Application {
         }
         FirebaseApp.initializeApp(getApplicationContext());
         TrustKit.initializeWithNetworkSecurityConfiguration(getApplicationContext(), R.xml.network_security_config);
+
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .registerReceiver(new BroadcastReceiver() {
+                    @Override
+                    public synchronized void onReceive(Context context, Intent intent) {
+                        if (intent.getExtras() != null) {
+                            IRCCloudLog.Log("TrustKit validation failure: " + intent.getExtras().get(BackgroundReporter.EXTRA_REPORT));
+                        }
+                    }
+                }, new IntentFilter(BackgroundReporter.REPORT_VALIDATION_EVENT));
+
         try {
             FirebaseAnalytics.getInstance(this).setUserId(null);
             IRCCloudLog.CrashlyticsEnabled = true;

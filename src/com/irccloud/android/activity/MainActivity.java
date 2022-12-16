@@ -220,6 +220,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -2533,7 +2534,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         return false;
     }
 
-    private void updateTypingIndicators() {
+    private synchronized void updateTypingIndicators() {
         String typing = "";
         int count = 0;
 
@@ -2547,7 +2548,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 typing = buffer.getTypingIndicators().keySet().toArray(new String[1])[0] + " is typing";
             } else if (count > 0) {
                 int i = 0;
-                for (String nick : buffer.getTypingIndicators().keySet()) {
+                HashSet<String> nicks = new HashSet<>(buffer.getTypingIndicators().keySet());
+                for (String nick : nicks) {
                     if (++i == count)
                         typing += "and ";
                     typing += nick;

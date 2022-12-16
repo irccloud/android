@@ -451,9 +451,7 @@ public class ImageList {
 
                     try {
                         if (url.getProtocol().toLowerCase().equals("https")) {
-                            HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-                            https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
-                            conn = https;
+                            conn = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
                         } else {
                             conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
                         }
