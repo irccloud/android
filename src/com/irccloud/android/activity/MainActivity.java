@@ -5538,8 +5538,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                         }
                     };
-                    if(msgid != null)
-                        e.reqid = NetworkConnection.getInstance().reply(e.cid, e.chan, e.command, msgid, callback);
+                    if(e.is_reply)
+                        e.reqid = NetworkConnection.getInstance().reply(e.cid, e.chan, e.command, e.reply, callback);
                     else
                         e.reqid = NetworkConnection.getInstance().say(e.cid, e.chan, e.command, callback);
                     if (e.reqid >= 0) {
