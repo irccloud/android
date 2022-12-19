@@ -343,7 +343,6 @@ public class NetworkConnection {
     public NetworkConnection() {
         SharedPreferences prefs = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0);
         session = prefs.getString("session_key", "");
-        IRCCloudLog.Log(Log.INFO, "IRCCloud", "Session: " + session);
         if(session.length() > 0) {
             IRCCloudLog.Log(Log.INFO, "IRCCloud", "Migrating session key");
             NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
