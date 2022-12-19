@@ -104,7 +104,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
         super.onResume();
         IRCCloudApplication.getInstance().onResume(this);
         String session = NetworkConnection.getInstance().session;
-        if (session.length() > 0) {
+        if (session != null && session.length() > 0) {
             if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING) {
                 conn.connect();
             } else {
