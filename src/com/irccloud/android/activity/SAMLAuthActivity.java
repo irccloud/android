@@ -92,7 +92,9 @@ public class SAMLAuthActivity extends AppCompatActivity {
                         for (String c : cookies) {
                             c = c.trim();
                             if(c.startsWith("session=") && c.length() > 8) {
-                                NetworkConnection.getInstance().session = c.substring(8);
+                                NetworkConnection.getInstance().set_session(c.substring(8));
+                                NetworkConnection.set_api_host(NetworkConnection.IRCCLOUD_HOST);
+                                NetworkConnection.set_api_path(NetworkConnection.IRCCLOUD_PATH);
                                 setResult(RESULT_OK);
                                 break;
                             }

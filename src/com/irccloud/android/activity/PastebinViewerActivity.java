@@ -195,7 +195,6 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         mWebView.addJavascriptInterface(new JSInterface(), "Android");
         mWebView.getSettings().setLoadWithOverviewMode(false);
         mWebView.getSettings().setUseWideViewPort(false);
-        mWebView.getSettings().setAppCacheEnabled(false);
         mWebView.getSettings().setAllowFileAccess(false);
         mWebView.setWebViewClient(new WebViewClient() {
             @Override

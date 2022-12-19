@@ -65,11 +65,11 @@ def getRevision = { ->
 }
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
     testBuildType "mockdata"
 
     defaultConfig {
-        versionCode 339
+        versionCode 340
         versionName "4.29"
         minSdkVersion 22
         targetSdkVersion 31
@@ -359,6 +359,7 @@ dependencies {
     implementation "androidx.browser:browser:1.4.0"
     implementation "androidx.exifinterface:exifinterface:1.3.5"
     implementation "androidx.room:room-runtime:2.4.3"
+    implementation "androidx.security:security-crypto:1.1.0-alpha04"
     annotationProcessor "androidx.room:room-compiler:2.4.3"
     implementation "com.google.android.gms:play-services-base:18.1.0"
     implementation "com.google.android.gms:play-services-auth:20.3.0"

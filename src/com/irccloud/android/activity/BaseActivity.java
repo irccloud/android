@@ -287,8 +287,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             f.delete();
         }
         new ImageListPruneTask().execute((Void)null);
-        String session = getSharedPreferences("prefs", 0).getString("session_key", "");
-        if (session.length() > 0 || BuildConfig.MOCK_DATA) {
+        if ((NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) || BuildConfig.MOCK_DATA) {
             if(conn.notifier) {
                 IRCCloudLog.Log(Log.INFO, "IRCCloud", "Upgrading notifier websocket");
                 conn.upgrade();
@@ -647,6 +646,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         conn.logout();
+                        IRCCloudLog.Log("LOGOUT: Logout menu item selected");
                         if(mGoogleApiClient.isConnected()) {
                             Auth.CredentialsApi.disableAutoSignIn(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
                                 @Override

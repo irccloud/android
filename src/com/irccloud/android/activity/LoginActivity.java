@@ -481,9 +481,10 @@ public class LoginActivity extends FragmentActivity {
     private void login_or_connect() {
         if (NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
             NetworkConnection.getInstance().logout();
+            IRCCloudLog.Log("LOGOUT: Access Link launched");
             new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1", "") + "&format=json");
             setIntent(new Intent(this, LoginActivity.class));
-        } else if (getSharedPreferences("prefs", 0).getString("session_key","").length() > 0) {
+        } else if (NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
             i.putExtra("nosplash", true);
             if (getIntent() != null) {
@@ -505,12 +506,6 @@ public class LoginActivity extends FragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SAML) {
             if (resultCode == RESULT_OK) {
-                SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-                editor.putString("session_key", NetworkConnection.getInstance().session);
-                editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
-                editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
-                editor.apply();
-
                 final Intent i = new Intent(LoginActivity.this, MainActivity.class);
                 i.putExtra("nosplash", true);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -620,14 +615,10 @@ public class LoginActivity extends FragmentActivity {
         public void onPostExecute(JSONObject result) {
             if (result != null && result.has("session")) {
                 try {
-                    NetworkConnection.getInstance().session = result.getString("session");
-                    SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-                    editor.putString("session_key", result.getString("session"));
+                    NetworkConnection.getInstance().set_session(result.getString("session"));
                     if (result.has("websocket_path")) {
-                        NetworkConnection.IRCCLOUD_PATH = result.getString("websocket_path");
+                        NetworkConnection.set_api_path(result.getString("websocket_path"));
                     }
-                    editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
-                    editor.apply();
 
                     if (result.has("api_host")) {
                         NetworkConnection.set_api_host(result.getString("api_host"));
@@ -808,13 +799,10 @@ public class LoginActivity extends FragmentActivity {
         public void onPostExecute(JSONObject result) {
             if (result != null && result.has("session")) {
                 try {
-                    SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-                    editor.putString("session_key", result.getString("session"));
+                    NetworkConnection.getInstance().set_session(result.getString("session"));
                     if (result.has("websocket_path")) {
-                        NetworkConnection.IRCCLOUD_PATH = result.getString("websocket_path");
+                        NetworkConnection.set_api_path(result.getString("websocket_path"));
                     }
-                    editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
-                    editor.apply();
 
                     if (result.has("api_host")) {
                         NetworkConnection.set_api_host(result.getString("api_host"));
@@ -997,6 +985,7 @@ public class LoginActivity extends FragmentActivity {
 
                     if (NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
                         NetworkConnection.getInstance().logout();
+                        IRCCloudLog.Log("LOGOUT: Access Link launched");
                         new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1", "") + "&format=json");
                         setIntent(new Intent(LoginActivity.this, LoginActivity.class));
                     } else {

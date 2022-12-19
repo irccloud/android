@@ -114,13 +114,6 @@ public class IRCCloudApplication extends Application {
         conn = NetworkConnection.getInstance();
         ColorFormatter.init();
 
-        prefs = getSharedPreferences("prefs", 0);
-        NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
-        NetworkConnection.IRCCLOUD_PATH = prefs.getString("path", "/");
-
-        if(!NetworkConnection.IRCCLOUD_HOST.endsWith(".irccloud.com"))
-            NetworkConnection.IRCCLOUD_HOST = BuildConfig.HOST;
-
         /*try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 if (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE))

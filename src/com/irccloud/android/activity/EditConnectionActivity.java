@@ -34,6 +34,7 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.ServersList;
@@ -83,6 +84,7 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
             public void onClick(View v) {
                 if (ServersList.getInstance().count() < 1) {
                     NetworkConnection.getInstance().logout();
+                    IRCCloudLog.Log("LOGOUT: EditConnectionActivity cancel button pressed");
                     Intent i = new Intent(EditConnectionActivity.this, LoginActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);

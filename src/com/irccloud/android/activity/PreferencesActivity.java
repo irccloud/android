@@ -418,7 +418,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         super.onResume();
         IRCCloudApplication.getInstance().onResume(this);
 
-        String session = getSharedPreferences("prefs", 0).getString("session_key", "");
+        String session = NetworkConnection.getInstance().session;
         if ((session != null && session.length() > 0) || BuildConfig.MOCK_DATA) {
             if (conn.getUserInfo() != null)
                 findPreference("name").setSummary(conn.getUserInfo().name);
@@ -1390,6 +1390,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                         public void onIRCResult(IRCCloudJSONObject result) {
                             if(result.getBoolean("success")) {
                                 conn.logout();
+                                IRCCloudLog.Log("LOGOUT: Account deleted");
                                 if (mGoogleApiClient.isConnected() && conn.getUserInfo() != null) {
                                     Credential.Builder builder = new Credential.Builder(conn.getUserInfo().email);
                                     if (conn.getUserInfo().name != null && conn.getUserInfo().name.length() > 0)

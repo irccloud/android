@@ -38,12 +38,15 @@ import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
 import com.codebutler.android_websockets.WebSocketClient;
 import com.datatheorem.android.trustkit.TrustKit;
@@ -91,6 +94,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -254,6 +258,7 @@ public class NetworkConnection {
 
     private HashMap<Integer, OOBFetcher> oobTasks = new HashMap<Integer, OOBFetcher>();
     private ArrayList<IRCCloudJSONObject> pendingEdits = new ArrayList<>();
+    private final SparseArray<String> reqids = new SparseArray<>();
 
     public synchronized static NetworkConnection getInstance() {
         if (instance == null) {
@@ -336,7 +341,36 @@ public class NetworkConnection {
 
     @SuppressWarnings("deprecation")
     public NetworkConnection() {
-        session = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", "");
+        SharedPreferences prefs = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0);
+        session = prefs.getString("session_key", "");
+        IRCCloudLog.Log(Log.INFO, "IRCCloud", "Session: " + session);
+        if(session.length() > 0) {
+            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Migrating session key");
+            NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
+            NetworkConnection.IRCCLOUD_PATH = prefs.getString("path", "/");
+
+            if(!NetworkConnection.IRCCLOUD_HOST.endsWith(".irccloud.com"))
+                NetworkConnection.IRCCLOUD_HOST = BuildConfig.HOST;
+
+            set_api_host(NetworkConnection.IRCCLOUD_HOST);
+            set_api_path(NetworkConnection.IRCCLOUD_PATH);
+            set_session(session);
+
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.remove("session_key");
+            editor.remove("host");
+            editor.remove("path");
+            editor.apply();
+        } else {
+            try {
+                prefs = getEncryptedSharedPrefs();
+                session = prefs.getString("session", "");
+                NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
+                NetworkConnection.IRCCLOUD_PATH = prefs.getString("path", "/");
+            } catch (Exception e) {
+                IRCCloudLog.LogException(e);
+            }
+        }
         String version;
         String network_type = null;
         try {
@@ -706,11 +740,38 @@ public class NetworkConnection {
         if (host.endsWith("/"))
             host = host.substring(0, host.length() - 1);
 
-        SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-        editor.putString("host", host);
-        editor.apply();
-        NetworkConnection.IRCCLOUD_HOST = host;
-        IRCCloudLog.Log(Log.INFO, TAG, "API host: " + NetworkConnection.IRCCLOUD_HOST);
+        try {
+            SharedPreferences.Editor editor = getEncryptedSharedPrefs().edit();
+            editor.putString("host", host);
+            editor.apply();
+            NetworkConnection.IRCCLOUD_HOST = host;
+            IRCCloudLog.Log(Log.INFO, TAG, "API host: " + NetworkConnection.IRCCLOUD_HOST);
+        } catch (Exception e) {
+            IRCCloudLog.LogException(e);
+        }
+    }
+
+    public static void set_api_path(String path) {
+        try {
+            SharedPreferences.Editor editor = getEncryptedSharedPrefs().edit();
+            editor.putString("path", path);
+            editor.apply();
+            NetworkConnection.IRCCLOUD_PATH = path;
+            IRCCloudLog.Log(Log.INFO, TAG, "API path: " + NetworkConnection.IRCCLOUD_PATH);
+        } catch (Exception e) {
+            IRCCloudLog.LogException(e);
+        }
+    }
+
+    public void set_session(String session) {
+        try {
+            SharedPreferences.Editor editor = getEncryptedSharedPrefs().edit();
+            editor.putString("session", session);
+            editor.apply();
+            this.session = session;
+        } catch (Exception e) {
+            IRCCloudLog.LogException(e);
+        }
     }
 
     public void set_pastebin_cookie() {
@@ -946,6 +1007,20 @@ public class NetworkConnection {
         saveTimer.schedule(saveTimerTask, delay);*/
     }
 
+    private static SharedPreferences getEncryptedSharedPrefs() throws GeneralSecurityException, IOException {
+        MasterKey masterKey = new MasterKey.Builder(IRCCloudApplication.getInstance().getApplicationContext())
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build();
+
+        return EncryptedSharedPreferences.create(
+                IRCCloudApplication.getInstance().getApplicationContext(),
+                "secret_shared_prefs",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        );
+    }
+
     public void connect() {
         connect(false);
     }
@@ -953,8 +1028,13 @@ public class NetworkConnection {
     @TargetApi(24)
     public synchronized void connect(boolean ignoreNetworkState) {
         IRCCloudLog.Log(Log.DEBUG, TAG, "connect()");
+        reqids.clear();
         Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
-        session = ctx.getSharedPreferences("prefs", 0).getString("session_key", "");
+        try {
+            session = getEncryptedSharedPrefs().getString("session", "");
+        } catch (Exception e) {
+            IRCCloudLog.LogException(e);
+        }
         int limit = 100;
 
         if (session.length() == 0) {
@@ -1307,6 +1387,13 @@ public class NetworkConnection {
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         editor.clear();
         editor.apply();
+        try {
+            editor = getEncryptedSharedPrefs().edit();
+            editor.clear();
+            editor.apply();
+        } catch (Exception e) {
+            IRCCloudLog.LogException(e);
+        }
         mServers.clear();
         mBuffers.clear();
         mChannels.clear();
@@ -1357,6 +1444,9 @@ public class NetworkConnection {
                 params.put("_method", method);
                 //Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method + " Params: " + params.toString());
                 client.send(params.toString());
+                reqids.put(last_reqid, method);
+                if(reqids.size() > 25)
+                    reqids.clear();
                 return last_reqid;
             } catch (Exception e) {
                 printStackTraceToCrashlytics(e);
@@ -3268,18 +3358,19 @@ public class NetworkConnection {
             if (object.has("success") && !object.getBoolean("success") && object.has("message")) {
                 IRCCloudLog.Log(Log.ERROR, TAG, "Error: " + object);
                 if(object.getString("message").equals("auth")) {
+                    int session_length = session.length();
+                    String old_host = IRCCLOUD_HOST;
+                    String old_path = IRCCLOUD_PATH;
                     logout();
                     notifyHandlers(EVENT_AUTH_FAILED, object);
+                    IRCCloudLog.Log("LOGOUT: Auth error: " + object + " method: " + reqids.get(object.getInt("_reqid")) + " host: " + old_host + " path: " + old_path +" session length: " + session_length);
                 } else if(object.getString("message").equals("set_shard")) {
                     disconnect();
                     ready = false;
-                    SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getSharedPreferences("prefs", 0).edit();
-                    editor.putString("session_key", object.getString("cookie"));
+                    set_session(object.getString("cookie"));
                     if (object.has("websocket_path")) {
-                        IRCCLOUD_PATH = object.getString("websocket_path");
+                        set_api_path(object.getString("websocket_path"));
                     }
-                    editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
-                    editor.apply();
                     if (object.has("api_host")) {
                         set_api_host(object.getString("api_host"));
                     }

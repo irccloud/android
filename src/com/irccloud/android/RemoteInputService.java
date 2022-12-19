@@ -39,7 +39,7 @@ public class RemoteInputService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         boolean success = false;
-        String sk = getSharedPreferences("prefs", 0).getString("session_key", "");
+        String sk = NetworkConnection.getInstance().session;
         if (intent != null && sk != null && sk.length() > 0) {
             if(intent.hasExtra("eid"))
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int)(intent.getLongExtra("eid", -1) / 1000));

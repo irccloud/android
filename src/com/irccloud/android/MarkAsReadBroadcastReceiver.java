@@ -47,7 +47,7 @@ public class MarkAsReadBroadcastReceiver extends BroadcastReceiver {
                 }
             }
             IRCCloudLog.Log(Log.INFO, "IRCCloud", "Mark as read bid" + bid);
-            NetworkConnection.getInstance().postHeartbeat(cid, bid, highestEid, IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
+            NetworkConnection.getInstance().postHeartbeat(cid, bid, highestEid, NetworkConnection.getInstance().session);
             IRCCloudLog.Log(Log.INFO, "IRCCloud", "Cancel bid" + bid);
             NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
         }
