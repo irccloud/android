@@ -103,7 +103,7 @@
                             android:scaleType="center"
                             android:contentDescription="Insert Photo"
                             app:srcCompat="@drawable/ic_action_photo"
-                            android:layout_marginLeft="6dp"
+                            android:layout_marginLeft="8dp"
                             android:backgroundTint="?attr/textareaBackgroundColor"/>
 
                         <LinearLayout
@@ -111,8 +111,8 @@
                             android:backgroundTint="?attr/textareaBackgroundColor"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="6dp"
-                            android:layout_marginRight="6dp"
+                            android:layout_marginLeft="8dp"
+                            android:layout_marginRight="8dp"
                             android:gravity="bottom"
                             android:padding="4dp">
                             <com.irccloud.android.ActionEditText
@@ -164,8 +164,8 @@
                         android:id="@+id/typingLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="66dp"
-                        android:paddingRight="6dp"
+                        android:paddingLeft="70dp"
+                        android:paddingRight="8dp"
                         android:paddingBottom="2dp"
                         android:textColor="?attr/timestampColor"
                         android:background="?attr/contentBackgroundColor"
