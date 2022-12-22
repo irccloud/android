@@ -67,6 +67,7 @@
                 android:baselineAligned="false">
                 <LinearLayout
                     android:orientation="vertical"
+                    android:background="?contentBackgroundColor"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
@@ -102,53 +103,62 @@
                             android:scaleType="center"
                             android:contentDescription="Insert Photo"
                             app:srcCompat="@drawable/ic_action_photo"
-                            android:layout_marginLeft="10dp"
+                            android:layout_marginLeft="6dp"
                             android:backgroundTint="?attr/textareaBackgroundColor"/>
 
-                        <com.irccloud.android.ActionEditText
-                            android:id="@+id/messageTxt"
-                            style="@style/messageTxt"
-                            android:layout_marginLeft="10dp"
+                        <LinearLayout
+                            android:id="@+id/textAreaWrapper"
+                            android:backgroundTint="?attr/textareaBackgroundColor"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="bottom"
-                            android:layout_weight="1"
-                            android:paddingLeft="16dp"
-                            android:paddingRight="16dp"
-                            android:paddingTop="4dp"
-                            android:paddingBottom="4dp"
-                            android:maxLines="@integer/max_input_lines"
-                            android:hint="Message"
-                            android:theme="?editTextTheme"
-                            android:enabled="false"
-                            android:nextFocusLeft="@id/photoBtn"
-                            android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
-                            android:importantForAutofill="no"
-                            android:backgroundTint="?attr/textareaBackgroundColor"
-                            android:minHeight="40dp"/>
+                            android:layout_marginLeft="6dp"
+                            android:layout_marginRight="6dp"
+                            android:gravity="bottom"
+                            android:padding="4dp">
+                            <com.irccloud.android.ActionEditText
+                                android:id="@+id/messageTxt"
+                                style="@style/messageTxt"
+                                android:layout_marginLeft="11dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="bottom"
+                                android:layout_weight="1"
+                                android:ems="10"
+                                android:maxLines="@integer/max_input_lines"
+                                android:hint="Message"
+                                android:theme="?editTextTheme"
+                                android:enabled="false"
+                                android:nextFocusLeft="@id/photoBtn"
+                                android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
+                                android:importantForAutofill="no"
+                                android:background="?textareaBackgroundColor"
+                                android:minHeight="32dp"/>
 
-                        <ImageButton
-                            style="@style/Widget.Styled.ImageButton"
-                            android:id="@+id/formatBtn"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:scaleType="center"
-                            android:contentDescription="Format Text"
-                            app:srcCompat="@drawable/ic_text_format"
-                            android:layout_marginLeft="10dp"
-                            android:backgroundTint="?attr/textareaBackgroundColor"/>
+                            <ImageButton
+                                style="@style/Widget.Styled.ImageButton"
+                                android:id="@+id/formatBtn"
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:scaleType="center"
+                                android:contentDescription="Format Text"
+                                app:srcCompat="@drawable/ic_text_format"
+                                android:layout_marginLeft="6dp"
+                                android:backgroundTint="?attr/textareaTextColor"/>
 
-                        <ImageButton
-                            style="@style/Widget.Styled.ImageButton"
-                            android:id="@+id/sendBtn"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:scaleType="center"
-                            android:contentDescription="Send"
-                            app:srcCompat="@drawable/ic_action_send"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
-                            android:backgroundTint="?attr/textareaBackgroundColor"/>
+                            <ImageButton
+                                style="@style/Widget.Styled.ImageButton"
+                                android:id="@+id/sendBtn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingLeft="6dp"
+                                android:paddingRight="6dp"
+                                android:paddingBottom="4dp"
+                                android:scaleType="fitEnd"
+                                android:contentDescription="Send"
+                                app:srcCompat="@drawable/ic_action_send"
+                                android:layout_marginLeft="6dp"
+                                android:paddingTop="4dp"/>
+                        </LinearLayout>
                     </LinearLayout>
                     <TextView
                         android:id="@+id/typingLabel"

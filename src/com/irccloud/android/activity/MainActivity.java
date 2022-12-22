@@ -569,11 +569,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     startFormatActionMode();
             }
         });
-        ViewCompat.setBackground(formatBtn, new MaterialShapeDrawable(shapeAppearanceModel));
 
         messageTxt = findViewById(R.id.messageTxt);
-
-        ViewCompat.setBackground(messageTxt, new MaterialShapeDrawable(shapeAppearanceModel));
 
         formattingCallback = new ActionMode.Callback() {
             @Override
@@ -752,7 +749,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     runOnUiThread(new SendTask());
             }
         });
-        ViewCompat.setBackground(sendBtn, new MaterialShapeDrawable(shapeAppearanceModel));
 
         photoBtn = findViewById(R.id.photoBtn);
         if (photoBtn != null) {
@@ -764,8 +760,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     insertPhoto();
                 }
             });
-            ViewCompat.setBackground(photoBtn, new MaterialShapeDrawable(shapeAppearanceModel));
         }
+
+        ViewCompat.setBackground(formatBtn, new MaterialShapeDrawable(shapeAppearanceModel));
+        ViewCompat.setBackground(photoBtn, new MaterialShapeDrawable(shapeAppearanceModel));
+        ViewCompat.setBackground(findViewById(R.id.textAreaWrapper), new MaterialShapeDrawable(shapeAppearanceModel));
+
         userListView = findViewById(R.id.usersListFragment);
 
         View v = getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
