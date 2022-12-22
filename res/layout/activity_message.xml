@@ -118,7 +118,7 @@
                             <com.irccloud.android.ActionEditText
                                 android:id="@+id/messageTxt"
                                 style="@style/messageTxt"
-                                android:layout_marginLeft="11dp"
+                                android:layout_marginLeft="10dp"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="bottom"
@@ -143,7 +143,7 @@
                                 android:contentDescription="Format Text"
                                 app:srcCompat="@drawable/ic_text_format"
                                 android:layout_marginLeft="6dp"
-                                android:backgroundTint="?attr/textareaTextColor"/>
+                                android:backgroundTint="?attr/textareaBackgroundColor"/>
 
                             <ImageButton
                                 style="@style/Widget.Styled.ImageButton"
@@ -164,8 +164,8 @@
                         android:id="@+id/typingLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="60dp"
-                        android:paddingRight="60dp"
+                        android:paddingLeft="66dp"
+                        android:paddingRight="6dp"
                         android:paddingBottom="2dp"
                         android:textColor="?attr/timestampColor"
                         android:background="?attr/contentBackgroundColor"
