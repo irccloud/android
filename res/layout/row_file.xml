@@ -126,8 +126,8 @@
             app:srcCompat="@drawable/ic_action_cancel"
             android:contentDescription="delete"
             android:background="@null"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp" />
+            android:padding="16dp"
+            android:layout_marginLeft="8dp" />
 
         <ProgressBar
             style="?android:attr/progressBarStyleSmall"
