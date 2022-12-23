@@ -92,7 +92,7 @@
                         android:background="?contentBackgroundColor"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingTop="12dp"
+                        android:paddingTop="8dp"
                         android:gravity="bottom">
 
                         <ImageButton

@@ -5488,7 +5488,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             boolean canEdit = event.self;
             Server s = ServersList.getInstance().getServer(event.cid);
-            if(s == null || !(s.isSlack() || s.getOrgId() > 0))
+            if(s == null || !s.hasLabeledResponse())
                 canEdit = false;
 
             showUserPopup(user, ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(timestamp + " " + html), true, ServersList.getInstance().getServer(event.cid)), null, msgid, canEdit, event);
