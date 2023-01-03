@@ -1027,7 +1027,6 @@ public class NetworkConnection {
     @TargetApi(24)
     public synchronized void connect(boolean ignoreNetworkState) {
         IRCCloudLog.Log(Log.DEBUG, TAG, "connect()");
-        reqids.clear();
         Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
         try {
             session = getEncryptedSharedPrefs().getString("session", "");
@@ -1095,6 +1094,8 @@ public class NetworkConnection {
         idle_interval = 0;
         accrued = 0;
         resultCallbacks.clear();
+        last_reqid = 0;
+        reqids.clear();
         notifyHandlers(EVENT_CONNECTIVITY, null);
 
         fetchConfig(new ConnectCallback(limit));
@@ -1211,6 +1212,8 @@ public class NetworkConnection {
                                     metric.setHttpResponseCode(200);
                                     metric.stop();
                                 }
+                                state = STATE_CONNECTING;
+                                notifyHandlers(EVENT_CONNECTIVITY, null);
                                 try {
                                     JSONObject o = new JSONObject();
                                     o.put("cookie", session);
@@ -1228,7 +1231,6 @@ public class NetworkConnection {
                                 editor.remove("highest_eid");
                                 editor.apply();
                                 //Delete.tables(Server.class, Buffer.class, Channel.class);
-                                notifyHandlers(EVENT_CONNECTIVITY, null);
                                 if (disconnectSockerTimerTask != null)
                                     disconnectSockerTimerTask.cancel();
                                 if (notifier) {
@@ -3357,12 +3359,18 @@ public class NetworkConnection {
             if (object.has("success") && !object.getBoolean("success") && object.has("message")) {
                 IRCCloudLog.Log(Log.ERROR, TAG, "Error: " + object);
                 if(object.getString("message").equals("auth")) {
-                    int session_length = session.length();
-                    String old_host = IRCCLOUD_HOST;
-                    String old_path = IRCCLOUD_PATH;
-                    logout();
-                    notifyHandlers(EVENT_AUTH_FAILED, object);
-                    IRCCloudLog.Log("LOGOUT: Auth error: " + object + " method: " + reqids.get(object.getInt("_reqid")) + " host: " + old_host + " path: " + old_path +" session length: " + session_length);
+                    if (reqids.get(object.getInt("_reqid")).equals("auth")) {
+                        int session_length = session.length();
+                        String old_host = IRCCLOUD_HOST;
+                        String old_path = IRCCLOUD_PATH;
+                        logout();
+                        notifyHandlers(EVENT_AUTH_FAILED, object);
+                        IRCCloudLog.Log("LOGOUT: Auth error: " + object + " method: " + reqids.get(object.getInt("_reqid")) + " host: " + old_host + " path: " + old_path + " session length: " + session_length);
+                    } else {
+                        IRCCloudLog.Log("RECONNECT: Auth error: " + object + " method: " + reqids.get(object.getInt("_reqid")));
+                        disconnect();
+                        fail();
+                    }
                 } else if(object.getString("message").equals("set_shard")) {
                     disconnect();
                     ready = false;
