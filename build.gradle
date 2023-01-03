@@ -261,28 +261,6 @@ android {
         mockdata {
             initWith debug
 
-            applicationIdSuffix ".mockdata"
-            versionNameSuffix "-" + getRevision()
-            buildConfigField "String", "HOST", "\"\""
-            buildConfigField "boolean", "ENTERPRISE", "false"
-            buildConfigField "String", "IMGUR_KEY", "\"\""
-            buildConfigField "String", "IMGUR_SECRET", "\"\""
-            resValue "string", "google_app_id", ""
-            resValue "string", "gcm_defaultSenderId", ""
-            resValue "string", "default_web_client_id", ""
-            resValue "string", "firebase_database_url", ""
-            resValue "string", "google_api_key", ""
-            resValue "string", "google_crash_reporting_api_key", ""
-            resValue "string", "project_id", ""
-            resValue "string", "IMAGE_SCHEME", "irccloud-mock-image"
-            resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-mock-images"
-            resValue "string", "VIDEO_SCHEME", "irccloud-mock-video"
-            resValue "string", "VIDEO_SCHEME_SECURE", "irccloud-mock-videos"
-            resValue "string", "PASTE_SCHEME", "irccloud-mock-paste"
-            resValue "string", "ACTION_REPLY", "com.irccloud.android.mock.ACTION_REPLY"
-            resValue "string", "app_name", "IRCCloud"
-            resValue "string", "IRCCLOUD_SCHEME", "irccloud-mock"
-            resValue "color", "ic_background", "#527dff"
             buildConfigField "boolean", "MOCK_DATA", "true"
 
             signingConfig signingConfigs.debug

@@ -2561,6 +2561,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
 
+        if (BuildConfig.MOCK_DATA)
+            typing = "ike and kira are typing";
+
         typingLabel.setText(typing);
 
         if(count > 0)
