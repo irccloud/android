@@ -2548,7 +2548,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 typing = buffer.getTypingIndicators().keySet().toArray(new String[1])[0] + " is typing";
             } else if (count > 0) {
                 int i = 0;
-                HashSet<String> nicks = new HashSet<>(buffer.getTypingIndicators().keySet());
+                String nicks[] = buffer.getTypingIndicators().keySet().toArray(new String[0]);
                 for (String nick : nicks) {
                     if (++i == count)
                         typing += "and ";
