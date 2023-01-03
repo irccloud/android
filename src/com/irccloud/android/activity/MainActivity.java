@@ -2535,7 +2535,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private synchronized void updateTypingIndicators() {
-        String typing = "";
+        StringBuilder typing = new StringBuilder();
         int count = 0;
 
         if(buffer != null) {
@@ -2543,28 +2543,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             count = buffer.getTypingIndicators().size();
             if (count > 5) {
-                typing = String.valueOf(count) + " people are typing";
+                typing.append(count).append(" people are typing");
             } else if (count == 1) {
-                typing = buffer.getTypingIndicators().keySet().toArray(new String[1])[0] + " is typing";
+                typing.append(buffer.getTypingIndicators().keySet().toArray(new String[1])[0]).append(" is typing");
             } else if (count > 0) {
                 int i = 0;
-                String nicks[] = buffer.getTypingIndicators().keySet().toArray(new String[0]);
+                String[] nicks = buffer.getTypingIndicators().keySet().toArray(new String[0]);
                 for (String nick : nicks) {
                     if (++i == count)
-                        typing += "and ";
-                    typing += nick;
+                        typing.append("and ");
+                    typing.append(nick);
                     if (count != 2 && i > 0 && i < count)
-                        typing += ",";
-                    typing += " ";
+                        typing.append(",");
+                    typing.append(" ");
                 }
-                typing += " are typing";
+                typing.append("are typing");
             }
         }
 
         if (BuildConfig.MOCK_DATA)
-            typing = "ike and kira are typing";
+            typing.append("ike and kira are typing");
 
-        typingLabel.setText(typing);
+        typingLabel.setText(typing.toString());
 
         if(count > 0)
             typingLabel.postDelayed(new Runnable() {
