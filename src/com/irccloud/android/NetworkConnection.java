@@ -3360,7 +3360,7 @@ public class NetworkConnection {
                 IRCCloudLog.Log(Log.ERROR, TAG, "Error: " + object);
                 if(object.getString("message").equals("auth")) {
                     if (reqids.get(object.getInt("_reqid")).equals("auth")) {
-                        int session_length = session.length();
+                        int session_length = (session != null) ? session.length() : 0;
                         String old_host = IRCCLOUD_HOST;
                         String old_path = IRCCLOUD_PATH;
                         logout();
