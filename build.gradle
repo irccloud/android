@@ -67,10 +67,11 @@ def getRevision = { ->
 android {
     compileSdkVersion 33
     testBuildType "mockdata"
+    namespace "com.irccloud.android"
 
     defaultConfig {
-        versionCode 343
-        versionName "4.29.1"
+        versionCode 344
+        versionName "4.29.2"
         minSdkVersion 22
         targetSdkVersion 31
         applicationId "com.irccloud.android"

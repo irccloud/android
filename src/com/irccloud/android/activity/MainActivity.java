@@ -213,6 +213,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2535,44 +2536,53 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private synchronized void updateTypingIndicators() {
-        StringBuilder typing = new StringBuilder();
-        int count = 0;
+        try {
+            StringBuilder typing = new StringBuilder();
+            int count = 0;
 
-        if(buffer != null) {
-            buffer.purgeExpiredTypingIndicators();
+            if (buffer != null) {
+                buffer.purgeExpiredTypingIndicators();
 
-            count = buffer.getTypingIndicators().size();
-            if (count > 5) {
-                typing.append(count).append(" people are typing");
-            } else if (count == 1) {
-                typing.append(buffer.getTypingIndicators().keySet().toArray(new String[1])[0]).append(" is typing");
-            } else if (count > 0) {
-                int i = 0;
-                String[] nicks = buffer.getTypingIndicators().keySet().toArray(new String[0]);
-                for (String nick : nicks) {
-                    if (++i == count)
-                        typing.append("and ");
-                    typing.append(nick);
-                    if (count != 2 && i > 0 && i < count)
-                        typing.append(",");
-                    typing.append(" ");
+                count = buffer.getTypingIndicators().size();
+                if (count > 5) {
+                    typing.append(count).append(" people are typing");
+                } else if (count == 1) {
+                    typing.append(buffer.getTypingIndicators().keySet().toArray(new String[1])[0]).append(" is typing");
+                } else if (count > 0) {
+                    int i = 0;
+                    String[] nicks = buffer.getTypingIndicators().keySet().toArray(new String[0]);
+                    for (String nick : nicks) {
+                        if (++i == count)
+                            typing.append("and ");
+                        typing.append(nick);
+                        if (count != 2 && i > 0 && i < count)
+                            typing.append(",");
+                        typing.append(" ");
+                    }
+                    typing.append("are typing");
                 }
-                typing.append("are typing");
             }
-        }
 
-        if (BuildConfig.MOCK_DATA)
-            typing.append("ike and kira are typing");
+            if (BuildConfig.MOCK_DATA)
+                typing.append("ike and kira are typing");
 
-        typingLabel.setText(typing.toString());
+            typingLabel.setText(typing.toString());
 
-        if(count > 0)
+            if (count > 0)
+                typingLabel.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateTypingIndicators();
+                    }
+                }, 500);
+        } catch (ConcurrentModificationException e) {
             typingLabel.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     updateTypingIndicators();
                 }
-            }, 500);
+            }, 250);
+        }
     }
 
     private void update_subtitle() {
