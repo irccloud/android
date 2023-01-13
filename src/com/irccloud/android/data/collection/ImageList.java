@@ -90,7 +90,7 @@ public class ImageList {
         try {
             Uri uri = Uri.parse(url);
             if (uri != null && (uri.getScheme().startsWith("http") || uri.getScheme().startsWith(IRCCloudApplication.getInstance().getResources().getString(R.string.IMAGE_SCHEME))) && uri.getLastPathSegment() != null && uri.getLastPathSegment().contains(".")) {
-                String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
+                String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().lastIndexOf(".") + 1).toLowerCase();
                 if (extension.equals("jpg") || extension.equals("jpeg") || extension.equals("png") || extension.equals("gif") || extension.equals("bmp") || extension.equals("webp"))
                     return true;
             }

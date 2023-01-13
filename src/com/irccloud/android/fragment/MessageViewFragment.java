@@ -2353,7 +2353,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                                             Uri uri = Uri.parse(info.thumbnail);
                                             if (uri.getLastPathSegment().contains(".")) {
-                                                String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().indexOf(".") + 1).toLowerCase();
+                                                String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().lastIndexOf(".") + 1).toLowerCase();
                                                 properties.put("mime_type", "image/" + extension);
                                             } else {
                                                 properties.put("mime_type", "image/image");
