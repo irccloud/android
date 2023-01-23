@@ -2837,6 +2837,9 @@ public class ColorFormatter {
                         if (isPunctuation(last))
                             end--;
 
+                        if (end < 1)
+                            continue;
+
                         String text = output.toString().substring(start, end);
 
                         //The phone number detector is a little too aggressive

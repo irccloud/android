@@ -5823,7 +5823,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 public void onIRCResult(IRCCloudJSONObject result) {
                                     if(!result.getBoolean("success")) {
                                         IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to delete message: " + result.toString());
-                                        Toast.makeText(MainActivity.this, "Unable to delete message, please try again.", Toast.LENGTH_LONG).show();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(MainActivity.this, "Unable to delete message, please try again.", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
                                     }
                                 }
                             });
@@ -5849,7 +5854,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 public void onIRCResult(IRCCloudJSONObject result) {
                                     if(!result.getBoolean("success")) {
                                         IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to edit message: " + result.toString());
-                                        Toast.makeText(MainActivity.this, "Unable to edit message, please try again.", Toast.LENGTH_LONG).show();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Toast.makeText(MainActivity.this, "Unable to edit message, please try again.", Toast.LENGTH_LONG).show();
+                                            }
+                                        });
                                     }
                                 }
                             });
@@ -6246,7 +6256,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (conn != null && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow())) {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
         }
-        reportFullyDrawn();
+        try {
+            reportFullyDrawn();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
