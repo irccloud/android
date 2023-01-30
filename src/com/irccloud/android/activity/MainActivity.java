@@ -914,6 +914,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void sendTypingStatus() {
+        if(buffer == null || buffer.isConsole())
+            return;
+
         if(sendingTyping)
             return;
 
