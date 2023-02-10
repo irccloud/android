@@ -21,10 +21,10 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'com.android.tools.build:gradle:7.4.1'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.2'
-        classpath 'com.google.gms:google-services:4.3.14'
-        classpath 'com.google.firebase:perf-plugin:1.4.1'
+        classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.google.firebase:perf-plugin:1.4.2'
     }
 }
 
@@ -77,8 +77,8 @@ android {
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        resConfigs 'en'
 
-        resConfigs "en"
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -96,9 +96,6 @@ android {
         }
     }
 
-    lintOptions {
-        abortOnError false
-    }
 
     buildFeatures {
         dataBinding = true
@@ -290,16 +287,18 @@ android {
             resources.srcDirs = ['tests/src']
         }
     }
-
     packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/ASL-2.0.txt'
-        exclude 'META-INF/LGPL-3.0.txt'
+        resources {
+            excludes += ['META-INF/LICENSE', 'META-INF/NOTICE', 'META-INF/ASL-2.0.txt', 'META-INF/LGPL-3.0.txt']
+        }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lint {
+        abortOnError false
     }
 }
 
@@ -328,25 +327,25 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
-    implementation 'androidx.work:work-runtime:2.7.1'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.work:work-runtime:2.8.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
     implementation 'androidx.sharetarget:sharetarget:1.2.0'
     implementation "androidx.cardview:cardview:1.0.0"
-    implementation "com.google.android.material:material:1.6.1"
+    implementation "com.google.android.material:material:1.8.0"
     implementation "androidx.recyclerview:recyclerview:1.2.1"
-    implementation "androidx.browser:browser:1.4.0"
-    implementation "androidx.exifinterface:exifinterface:1.3.5"
-    implementation "androidx.room:room-runtime:2.4.3"
+    implementation "androidx.browser:browser:1.5.0"
+    implementation "androidx.exifinterface:exifinterface:1.3.6"
+    implementation "androidx.room:room-runtime:2.5.0"
     implementation "androidx.security:security-crypto:1.1.0-alpha04"
-    annotationProcessor "androidx.room:room-compiler:2.4.3"
+    annotationProcessor "androidx.room:room-compiler:2.5.0"
     implementation "com.google.android.gms:play-services-base:18.1.0"
-    implementation "com.google.android.gms:play-services-auth:20.3.0"
+    implementation "com.google.android.gms:play-services-auth:20.4.1"
     implementation "com.google.android.gms:play-services-identity:18.0.1"
-    implementation 'com.google.firebase:firebase-messaging:23.1.0'
+    implementation 'com.google.firebase:firebase-messaging:23.1.1'
     implementation 'com.google.firebase:firebase-analytics:21.2.0'
-    implementation 'com.google.firebase:firebase-perf:20.2.0'
-    implementation 'com.google.firebase:firebase-crashlytics:18.3.2'
+    implementation 'com.google.firebase:firebase-perf:20.3.1'
+    implementation 'com.google.firebase:firebase-crashlytics:18.3.4'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.7'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
@@ -360,7 +359,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test:rules:1.2.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
     androidTestImplementation 'tools.fastlane:screengrab:1.2.0'
 }
