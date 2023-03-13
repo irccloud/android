@@ -5712,16 +5712,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else if ((items[item].equals("Copy URL to clipboard") || items[item].equals("Share URL…") ) && text_to_copy != null) {
                     final ArrayList<String> urlListItems = new ArrayList<String>();
 
-                    for (URLSpan o : text_to_copy.getSpans(0, text_to_copy.length(), URLSpan.class)) {
-                        String url = o.getURL();
-                        url = url.replace(getResources().getString(R.string.IMAGE_SCHEME) + "://", "http://");
-                        url = url.replace(getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://", "https://");
-                        url = url.replace(getResources().getString(R.string.VIDEO_SCHEME) + "://", "http://");
-                        url = url.replace(getResources().getString(R.string.VIDEO_SCHEME_SECURE) + "://", "https://");
-                        if (server != null) {
-                            url = url.replace(getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + server.getCid() + "/", ((server.getSsl() >0)?"ircs://":"irc://") + server.getHostname() + ":" + server.getPort() + "/");
+                    if(entities.has("url")) {
+                        urlListItems.add(entities.get("url").asText());
+                    } else {
+                        for (URLSpan o : text_to_copy.getSpans(0, text_to_copy.length(), URLSpan.class)) {
+                            String url = o.getURL();
+                            url = url.replace(getResources().getString(R.string.IMAGE_SCHEME) + "://", "http://");
+                            url = url.replace(getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://", "https://");
+                            url = url.replace(getResources().getString(R.string.VIDEO_SCHEME) + "://", "http://");
+                            url = url.replace(getResources().getString(R.string.VIDEO_SCHEME_SECURE) + "://", "https://");
+                            if (server != null) {
+                                url = url.replace(getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + server.getCid() + "/", ((server.getSsl() > 0) ? "ircs://" : "irc://") + server.getHostname() + ":" + server.getPort() + "/");
+                            }
+                            urlListItems.add(url);
                         }
-                        urlListItems.add(url);
                     }
                     if (urlListItems.size() == 1) {
                         if(items[item].equals("Copy URL to clipboard")) {
