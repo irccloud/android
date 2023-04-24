@@ -16,16 +16,22 @@
 
 package com.irccloud.android.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,12 +41,268 @@ import androidx.core.view.ViewCompat;
 import com.google.android.material.tabs.TabLayout;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorScheme;
+import com.irccloud.android.FontAwesome;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.OnErrorListener;
 import com.irccloud.android.data.model.Pastebin;
+import com.irccloud.android.fragment.EditConnectionFragment;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 
 public class PastebinEditorActivity extends BaseActivity {
+    private static HashMap<String, String> pastebinTypeExtensions = new HashMap<String, String>() {
+        {
+            put("ABAP", "abap");
+            put("ABC", "abc");
+            put("ActionScript", "as");
+            put("ADA", "ada");
+            put("Apache Conf", "htaccess");
+            put("AsciiDoc", "asciidoc");
+            put("Assembly x86", "asm");
+            put("AutoHotKey", "ahk");
+            put("BatchFile", "bat");
+            put("Bro", "bro");
+            put("C and C++", "cpp");
+            put("C9Search", "c9search_results");
+            put("Cirru", "cirru");
+            put("Clojure", "clj");
+            put("Cobol", "CBL");
+            put("CoffeeScript", "coffee");
+            put("ColdFusion", "cfm");
+            put("C#", "cs");
+            put("Csound Document", "csd");
+            put("Csound", "orc");
+            put("Csound Score", "sco");
+            put("CSS", "css");
+            put("Curly", "curly");
+            put("D", "d");
+            put("Dart", "dart");
+            put("Diff", "diff");
+            put("Dockerfile", "Dockerfile");
+            put("Dot", "dot");
+            put("Drools", "drl");
+            put("Dummy", "dummy");
+            put("DummySyntax", "dummy");
+            put("Eiffel", "e");
+            put("EJS", "ejs");
+            put("Elixir", "ex");
+            put("Elm", "elm");
+            put("Erlang", "erl");
+            put("Forth", "frt");
+            put("Fortran", "f");
+            put("FreeMarker", "ftl");
+            put("Gcode", "gcode");
+            put("Gherkin", "feature");
+            put("Gitignore", "gitignore");
+            put("Glsl", "glsl");
+            put("Gobstones", "gbs");
+            put("Go", "go");
+            put("GraphQLSchema", "gql");
+            put("Groovy", "groovy");
+            put("HAML", "haml");
+            put("Handlebars", "hbs");
+            put("Haskell", "hs");
+            put("Haskell Cabal", "cabal");
+            put("haXe", "hx");
+            put("Hjson", "hjson");
+            put("HTML", "html");
+            put("HTML (Elixir)", "eex");
+            put("HTML (Ruby)", "erb");
+            put("INI", "ini");
+            put("Io", "io");
+            put("Jack", "jack");
+            put("Jade", "jade");
+            put("Java", "java");
+            put("JavaScript", "js");
+            put("JSON", "json");
+            put("JSONiq", "jq");
+            put("JSP", "jsp");
+            put("JSSM", "jssm");
+            put("JSX", "jsx");
+            put("Julia", "jl");
+            put("Kotlin", "kt");
+            put("LaTeX", "tex");
+            put("LESS", "less");
+            put("Liquid", "liquid");
+            put("Lisp", "lisp");
+            put("LiveScript", "ls");
+            put("LogiQL", "logic");
+            put("LSL", "lsl");
+            put("Lua", "lua");
+            put("LuaPage", "lp");
+            put("Lucene", "lucene");
+            put("Makefile", "Makefile");
+            put("Markdown", "md");
+            put("Mask", "mask");
+            put("MATLAB", "matlab");
+            put("Maze", "mz");
+            put("MEL", "mel");
+            put("MUSHCode", "mc");
+            put("MySQL", "mysql");
+            put("Nix", "nix");
+            put("NSIS", "nsi");
+            put("Objective-C", "m");
+            put("OCaml", "ml");
+            put("Pascal", "pas");
+            put("Perl", "pl");
+            put("pgSQL", "pgsql");
+            put("PHP", "php");
+            put("Pig", "pig");
+            put("Powershell", "ps1");
+            put("Praat", "praat");
+            put("Prolog", "plg");
+            put("Properties", "properties");
+            put("Protobuf", "proto");
+            put("Python", "py");
+            put("R", "r");
+            put("Razor", "cshtml");
+            put("RDoc", "Rd");
+            put("Red", "red");
+            put("RHTML", "Rhtml");
+            put("RST", "rst");
+            put("Ruby", "rb");
+            put("Rust", "rs");
+            put("SASS", "sass");
+            put("SCAD", "scad");
+            put("Scala", "scala");
+            put("Scheme", "scm");
+            put("SCSS", "scss");
+            put("SH", "sh");
+            put("SJS", "sjs");
+            put("Smarty", "smarty");
+            put("snippets", "snippets");
+            put("Soy Template", "soy");
+            put("Space", "space");
+            put("SQL", "sql");
+            put("SQLServer", "sqlserver");
+            put("Stylus", "styl");
+            put("SVG", "svg");
+            put("Swift", "swift");
+            put("Tcl", "tcl");
+            put("Tex", "tex");
+            put("Plain Text", "txt");
+            put("Textile", "textile");
+            put("Toml", "toml");
+            put("TSX", "tsx");
+            put("Twig", "twig");
+            put("Typescript", "ts");
+            put("Vala", "vala");
+            put("VBScript", "vbs");
+            put("Velocity", "vm");
+            put("Verilog", "v");
+            put("VHDL", "vhd");
+            put("Wollok", "wlk");
+            put("XML", "xml");
+            put("XQuery", "xq");
+            put("YAML", "yaml");
+            put("Django", "html");
+        }
+    };
+
+    private class PastebinTypesAdapter extends BaseAdapter {
+        private Activity ctx;
+
+        private class PastebinType {
+            String type;
+            String extension;
+
+            public PastebinType(String type, String extension) {
+                this.type = type;
+                this.extension = extension;
+            }
+        }
+
+        private ArrayList<PastebinType> data;
+
+        public PastebinTypesAdapter(Activity context) {
+            ctx = context;
+            data = new ArrayList<PastebinType>();
+
+            for(String key : pastebinTypeExtensions.keySet()) {
+                data.add(new PastebinType(key, pastebinTypeExtensions.get(key)));
+            }
+
+            Collections.sort(data, new Comparator<PastebinType>() {
+                @Override
+                public int compare(PastebinType pastebinType, PastebinType t1) {
+                    return pastebinType.type.compareTo(t1.type);
+                }
+            });
+        }
+
+        @Override
+        public int getCount() {
+            return data.size();
+        }
+
+        @Override
+        public Object getItem(int pos) {
+            return data.get(pos);
+        }
+
+        @Override
+        public long getItemId(int pos) {
+            return pos;
+        }
+
+        public int getPosition(String extension) {
+            for(int i = 0; i < data.size(); i++) {
+                if (data.get(i).extension.equalsIgnoreCase(extension))
+                    return i;
+            }
+            return -1;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View row = convertView;
+            TextView label;
+
+            if (row == null) {
+                LayoutInflater inflater = ctx.getLayoutInflater();
+                row = inflater.inflate(android.R.layout.simple_spinner_item, null);
+
+                label = row.findViewById(android.R.id.text1);
+                row.setTag(label);
+            } else {
+                label = (TextView) row.getTag();
+            }
+
+            label.setText(data.get(position).type);
+
+            return row;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            View row = convertView;
+            TextView label;
+
+            if (row == null) {
+                LayoutInflater inflater = ctx.getLayoutInflater();
+                row = inflater.inflate(android.R.layout.simple_spinner_dropdown_item, null);
+                label = row.findViewById(android.R.id.text1);
+                row.setTag(label);
+            } else {
+                label = (TextView) row.getTag();
+            }
+
+            label.setText(data.get(position).type);
+
+            return row;
+        }
+    }
+
+    PastebinTypesAdapter adapter;
+
 
     private OnErrorListener<Pastebin> pastebinOnErrorListener = new OnErrorListener<Pastebin>() {
         @Override
@@ -74,15 +336,19 @@ public class PastebinEditorActivity extends BaseActivity {
         @Override
         protected void onPostExecute(Pastebin p) {
             if (p != null) {
+                String extension = p.getExtension();
                 pastebin = p;
                 paste.setText(p.getBody());
                 filename.setText(p.getName());
+                pastebin.setExtension(extension);
+                pastebinType.setSelection(adapter.getPosition(pastebin.getExtension()));
             }
         }
     }
 
     private EditText paste;
     private EditText filename;
+    private Spinner pastebinType;
     private EditText message;
     private TextView messages_count;
     private Pastebin pastebin = new Pastebin();
@@ -114,6 +380,36 @@ public class PastebinEditorActivity extends BaseActivity {
 
         paste = findViewById(R.id.paste);
         filename = findViewById(R.id.filename);
+        filename.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                pastebin.setExtension(extension());
+                pastebinType.setSelection(adapter.getPosition(extension()));
+            }
+        });
+        pastebinType = findViewById(R.id.pastebinType);
+        adapter = new PastebinTypesAdapter(this);
+        pastebinType.setAdapter(adapter);
+        pastebinType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                pastebin.setExtension(((PastebinTypesAdapter.PastebinType)adapter.getItem(position)).extension);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
         message = findViewById(R.id.message);
         messages_count = findViewById(R.id.messages_count);
         final TabLayout tabHost = findViewById(android.R.id.tabhost);
@@ -207,6 +503,7 @@ public class PastebinEditorActivity extends BaseActivity {
             });
             if (savedInstanceState != null && savedInstanceState.containsKey("tab"))
                 tabHost.getTabAt(savedInstanceState.getInt("tab")).select();
+            pastebinType.setSelection(adapter.getPosition(pastebin.getExtension()));
         }
 
         NetworkConnection.getInstance().addHandler(this);
@@ -291,14 +588,12 @@ public class PastebinEditorActivity extends BaseActivity {
             case R.id.action_save:
                 pastebin.setBody(paste.getText().toString());
                 pastebin.setName(filename.getText().toString());
-                pastebin.setExtension(extension());
                 pastebin.save(pastebinOnErrorListener);
                 break;
             case R.id.action_send:
                 pastebin.setBody(paste.getText().toString());
                 if(current_tab == 0) {
                     pastebin.setName(filename.getText().toString());
-                    pastebin.setExtension(extension());
                     pastebin.save(pastebinOnErrorListener);
                 } else {
                     result(RESULT_OK);

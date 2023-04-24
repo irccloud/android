@@ -71,23 +71,37 @@
                 android:layout_gravity="center_horizontal"
                 android:gravity="center" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/filename_heading"
-                android:hint="Filename (optional)"
+            <LinearLayout
                 android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/filename"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/filename_heading"
+                    android:hint="Filename (optional)"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:lines="1"
-                    android:theme="?editTextTheme"
-                    android:nextFocusDown="@+id/message"
-                    android:inputType="textUri"/>
+                    android:layout_weight="1">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/filename"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:lines="1"
+                        android:theme="?editTextTheme"
+                        android:nextFocusDown="@+id/message"
+                        android:inputType="textUri"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <Spinner
+                    android:id="@+id/pastebinType"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="@dimen/activity_vertical_margin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/message_heading"
