@@ -329,7 +329,7 @@ public class Pastebin extends BaseObservable implements Serializable {
 
     public static Pastebin fetch(String pasteID) throws IOException {
         try {
-            JSONObject o = NetworkConnection.getInstance().fetchJSON(UriTemplate.fromTemplate(NetworkConnection.pastebin_uri_template).set("id", pasteID).set("type", "json").expand());
+            JSONObject o = NetworkConnection.getInstance().fetchJSON(UriTemplate.fromTemplate(NetworkConnection.pastebin_uri_template).set("id", pasteID).set("type", "json").expand().replace("https://www.irccloud.com/", "https://" + NetworkConnection.IRCCLOUD_HOST + "/"));
             if(o != null) {
                 return new Pastebin(o);
             }
