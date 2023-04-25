@@ -418,8 +418,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             Toast.makeText(PastebinViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
         } else if(item.getItemId() == R.id.action_share) {
             if (getIntent() != null && getIntent().getDataString() != null) {
-                Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(url));
-                intent.setDataAndType(Uri.parse(url), "text/plain");
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
                 if(url.contains("?"))
                     intent.putExtra(Intent.EXTRA_TEXT, url.substring(0, url.indexOf("?")));
                 else

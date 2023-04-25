@@ -501,7 +501,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Video");
             FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
         } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && item.getItemId() == R.id.action_share) {
-            Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
+            Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http"));
             intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());

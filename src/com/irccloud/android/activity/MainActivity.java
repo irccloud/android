@@ -4407,7 +4407,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
             case REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO:
-                i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.addCategory(Intent.CATEGORY_OPENABLE);
                 i.setType("image/*");
                 startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
@@ -4528,7 +4528,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             if(!mediaPermissionsGranted()) {
                                 requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO);
                             } else {
-                                i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                i = new Intent(Intent.ACTION_GET_CONTENT);
                                 i.addCategory(Intent.CATEGORY_OPENABLE);
                                 i.setType("image/*");
                                 startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
@@ -5734,7 +5734,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             clipboard.setPrimaryClip(clip);
                             Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                         } else {
-                            Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(urlListItems.get(0)));
+                            Intent intent = new Intent(Intent.ACTION_SEND);
                             intent.setType("text/plain");
                             intent.putExtra(Intent.EXTRA_TEXT, urlListItems.get(0));
                             intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
@@ -5758,7 +5758,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     clipboard.setPrimaryClip(clip);
                                     Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(urlListItems.get(i)));
+                                    Intent intent = new Intent(Intent.ACTION_SEND);
                                     intent.setType("text/plain");
                                     intent.putExtra(Intent.EXTRA_TEXT, urlListItems.get(i));
                                     intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());

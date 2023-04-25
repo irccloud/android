@@ -453,7 +453,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                 }
                 break;
             case REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO:
-                i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.addCategory(Intent.CATEGORY_OPENABLE);
                 i.setType("image/*");
                 startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
@@ -530,7 +530,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                         if(!mediaPermissionsGranted()) {
                             requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO);
                         } else {
-                            i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            i = new Intent(Intent.ACTION_GET_CONTENT);
                             i.addCategory(Intent.CATEGORY_OPENABLE);
                             i.setType("image/*");
                             startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
