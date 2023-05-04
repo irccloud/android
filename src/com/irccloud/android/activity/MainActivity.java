@@ -6199,8 +6199,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (mvf != null)
                 mvf.setArguments(b);
             messageTxt.setText("");
-            if (buffer != null && buffer.getDraft() != null)
-                messageTxt.append(buffer.getDraft());
+            try {
+                if (buffer != null && buffer.getDraft() != null && buffer.getDraft().length() > 0)
+                    messageTxt.append(buffer.getDraft());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         adjustTabletLayout();
