@@ -53,7 +53,6 @@ import com.datatheorem.android.trustkit.TrustKit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.HttpMetric;
@@ -1409,7 +1408,6 @@ public class NetworkConnection {
         AvatarsList.getInstance().clear();
         mRecentConversations.clear();
         LogExportsList.getInstance().clear();
-        FirebaseAnalytics.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).resetAnalyticsData();
         IRCCloudLog.clear();
         if(!BuildConfig.ENTERPRISE)
             IRCCLOUD_HOST = BuildConfig.HOST;

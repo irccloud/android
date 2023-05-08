@@ -50,10 +50,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.irccloud.android.AsyncTaskEx;
-import com.irccloud.android.BackgroundTaskWorker;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
@@ -634,20 +631,6 @@ public class LoginActivity extends FragmentActivity {
                             i.putExtras(getIntent().getExtras());
                     }
 
-                    if (!BuildConfig.ENTERPRISE) {
-                        if (name.getVisibility() == View.VISIBLE) {
-                            Bundle b = new Bundle();
-                            b.putString(FirebaseAnalytics.Param.METHOD, "email");
-                            b.putBoolean(FirebaseAnalytics.Param.SUCCESS, true);
-                            FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.SIGN_UP, b);
-                        } else {
-                            Bundle b = new Bundle();
-                            b.putString(FirebaseAnalytics.Param.METHOD, "email");
-                            b.putBoolean(FirebaseAnalytics.Param.SUCCESS, true);
-                            FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.LOGIN, b);
-                        }
-                    }
-
                     startActivity(i);
                     finish();
                 } catch (JSONException e) {
@@ -674,21 +657,6 @@ public class LoginActivity extends FragmentActivity {
                     try {
                         if (result.has("message")) {
                             IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Failure: " + result.getString("message"));
-                            if (!BuildConfig.ENTERPRISE) {
-                                if (name.getVisibility() == View.VISIBLE) {
-                                    Bundle b = new Bundle();
-                                    b.putString(FirebaseAnalytics.Param.METHOD, "email");
-                                    b.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
-                                    b.putString("failure", result.getString("message"));
-                                    FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.SIGN_UP, b);
-                                } else {
-                                    Bundle b = new Bundle();
-                                    b.putString(FirebaseAnalytics.Param.METHOD, "email");
-                                    b.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
-                                    b.putString("failure", result.getString("message"));
-                                    FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.LOGIN, b);
-                                }
-                            }
                             message = result.getString("message");
                             if (message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("email") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
                                 if (name.getVisibility() == View.VISIBLE)
@@ -732,20 +700,6 @@ public class LoginActivity extends FragmentActivity {
                         message = "Please enter your name, email address, and password.";
                     else
                         message = "Please enter your username and password.";
-                } else {
-                    if (!BuildConfig.ENTERPRISE) {
-                        if (name.getVisibility() == View.VISIBLE) {
-                            Bundle b = new Bundle();
-                            b.putString(FirebaseAnalytics.Param.METHOD, "email");
-                            b.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
-                            FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.SIGN_UP, b);
-                        } else {
-                            Bundle b = new Bundle();
-                            b.putString(FirebaseAnalytics.Param.METHOD, "email");
-                            b.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
-                            FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.LOGIN, b);
-                        }
-                    }
                 }
                 builder.setMessage(message);
                 builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
@@ -818,22 +772,10 @@ public class LoginActivity extends FragmentActivity {
                     }
                     startActivity(i);
                     finish();
-                    if (!BuildConfig.ENTERPRISE) {
-                        Bundle b = new Bundle();
-                        b.putString(FirebaseAnalytics.Param.METHOD, "access-link");
-                        b.putBoolean(FirebaseAnalytics.Param.SUCCESS, true);
-                        FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.LOGIN, b);
-                    }
                 } catch (JSONException e) {
                     NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             } else {
-                if (!BuildConfig.ENTERPRISE) {
-                    Bundle b = new Bundle();
-                    b.putString(FirebaseAnalytics.Param.METHOD, "access-link");
-                    b.putBoolean(FirebaseAnalytics.Param.SUCCESS, false);
-                    FirebaseAnalytics.getInstance(LoginActivity.this).logEvent(FirebaseAnalytics.Event.LOGIN, b);
-                }
                 name.setEnabled(true);
                 email.setEnabled(true);
                 password.setEnabled(true);

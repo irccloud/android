@@ -45,7 +45,6 @@ import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -338,19 +337,16 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
                         requestCid = cid;
                         requestBid = bid;
                         b.putString("type", "buffer");
-                        FirebaseAnalytics.getInstance(LogExportsActivity.this).logEvent("export_logs", b);
                         break;
                     case 1:
                         requestCid = cid;
                         requestBid = -1;
                         b.putString("type", "network");
-                        FirebaseAnalytics.getInstance(LogExportsActivity.this).logEvent("export_logs", b);
                         break;
                     case 2:
                         requestCid = -1;
                         requestBid = -1;
                         b.putString("type", "all");
-                        FirebaseAnalytics.getInstance(LogExportsActivity.this).logEvent("export_logs", b);
                         break;
                 }
 

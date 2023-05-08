@@ -40,7 +40,6 @@ import com.datatheorem.android.trustkit.TrustKit;
 import com.datatheorem.android.trustkit.reporting.BackgroundReporter;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
@@ -92,7 +91,6 @@ public class IRCCloudApplication extends Application {
                 }, new IntentFilter(BackgroundReporter.REPORT_VALIDATION_EVENT));
 
         try {
-            FirebaseAnalytics.getInstance(this).setUserId(null);
             IRCCloudLog.CrashlyticsEnabled = true;
             IRCCloudLog.Log(Log.INFO, "IRCCloud", "Crashlytics Initialized");
         } catch (Exception e) {

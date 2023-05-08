@@ -62,7 +62,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
 import androidx.core.view.MenuItemCompat;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.irccloud.android.ChromeCopyLinkBroadcastReceiver;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
@@ -309,9 +308,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             if(mCustomTabsSession != null)
                 mCustomTabsSession.mayLaunchUrl(Uri.parse(urlStr), null, null);
-            Bundle b = new Bundle();
-            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Animation");
-            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, b);
             player = new MediaPlayer();
             findViewById(R.id.video).setVisibility(View.VISIBLE);
 
@@ -362,9 +358,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             if(mCustomTabsSession != null)
                 mCustomTabsSession.mayLaunchUrl(Uri.parse(urlStr), null, null);
-            Bundle b = new Bundle();
-            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Image");
-            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, b);
             URL url = new URL(urlStr);
 
             mImage.loadDataWithBaseURL(null, "<!DOCTYPE html>\n" +
@@ -529,10 +522,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                     } catch (PackageManager.NameNotFoundException e) {
                         NetworkConnection.printStackTraceToCrashlytics(e);
                     }
-                    Bundle b = new Bundle();
-                    b.putString(FirebaseAnalytics.Param.METHOD, name);
-                    b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, (player != null) ? "Animation" : "Image");
-                    FirebaseAnalytics.getInstance(ImageViewerActivity.this).logEvent(FirebaseAnalytics.Event.SHARE, b);
                     return false;
                 }
             });
@@ -559,10 +548,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if (item.getItemId() == R.id.action_browser) {
-            Bundle b = new Bundle();
-            b.putString(FirebaseAnalytics.Param.METHOD, "Open in Browser");
-            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, (player != null) ? "Animation" : "Image");
-            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
             if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false)) {
                 CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
                 builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
@@ -598,10 +583,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                             r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                             r.allowScanningByMediaScanner();
                             d.enqueue(r);
-                            Bundle b = new Bundle();
-                            b.putString(FirebaseAnalytics.Param.METHOD, "Download");
-                            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, (player != null) ? "Animation" : "Image");
-                            FirebaseAnalytics.getInstance(ImageViewerActivity.this).logEvent(FirebaseAnalytics.Event.SHARE, b);
                         }
                     }
                 });
@@ -613,10 +594,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 android.content.ClipData clip = android.content.ClipData.newRawUri("IRCCloud Image URL", Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
                 clipboard.setPrimaryClip(clip);
                 Toast.makeText(ImageViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
-                Bundle b = new Bundle();
-                b.putString(FirebaseAnalytics.Param.METHOD, "Copy to Clipboard");
-                b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, (player != null) ? "Animation" : "Image");
-                FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
             } else {
                 Toast.makeText(ImageViewerActivity.this, "Clipboard service unavailable, please try again", Toast.LENGTH_SHORT).show();
             }
@@ -628,9 +605,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(Intent.createChooser(intent, "Share Image"));
-            Bundle b = new Bundle();
-            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, (player != null) ? "Animation" : "Image");
-            FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -654,10 +628,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                 r.allowScanningByMediaScanner();
                 d.enqueue(r);
-                Bundle b = new Bundle();
-                b.putString(FirebaseAnalytics.Param.METHOD, "Download");
-                b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, (player != null) ? "Animation" : "Image");
-                FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
             }
         } else {
             Toast.makeText(this, "Unable to download: permission denied", Toast.LENGTH_SHORT).show();

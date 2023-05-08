@@ -142,7 +142,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
@@ -5299,9 +5298,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 i.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
                                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                                Bundle b = new Bundle();
-                                b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Channel");
-                                FirebaseAnalytics.getInstance(MainActivity.this).logEvent(FirebaseAnalytics.Event.SHARE, b);
                                 startActivity(Intent.createChooser(i, "Share URL"));
                             } catch (Exception e) {
 
@@ -5741,9 +5737,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(Intent.createChooser(intent, "Share URL"));
-                            Bundle b = new Bundle();
-                            b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "URL");
-                            FirebaseAnalytics.getInstance(MainActivity.this).logEvent(FirebaseAnalytics.Event.SHARE, b);
                         }
                     } else {
                         builder = new AlertDialog.Builder(MainActivity.this);
@@ -5765,9 +5758,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
                                     startActivity(Intent.createChooser(intent, "Share URL"));
-                                    Bundle b = new Bundle();
-                                    b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "URL");
-                                    FirebaseAnalytics.getInstance(MainActivity.this).logEvent(FirebaseAnalytics.Event.SHARE, b);
                                 }
                             }
                         });

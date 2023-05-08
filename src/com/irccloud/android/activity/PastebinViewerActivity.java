@@ -50,7 +50,6 @@ import androidx.browser.customtabs.CustomTabsServiceConnection;
 import androidx.browser.customtabs.CustomTabsSession;
 import androidx.core.app.ShareCompat;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
@@ -251,9 +250,6 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 } catch (PackageManager.NameNotFoundException e) {
                 }
                 new FetchPastebinTask().execute();
-                Bundle b = new Bundle();
-                b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Pastebin");
-                FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.VIEW_ITEM, b);
             } else {
                 finish();
             }
@@ -429,9 +425,6 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
 
                 startActivity(Intent.createChooser(intent, "Share Snippet"));
-                Bundle b = new Bundle();
-                b.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Pastebin");
-                FirebaseAnalytics.getInstance(this).logEvent(FirebaseAnalytics.Event.SHARE, b);
             }
         } else if(item.getItemId() == R.id.action_edit) {
             mSpinner.setVisibility(View.VISIBLE);
