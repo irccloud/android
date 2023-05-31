@@ -494,11 +494,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             @Override
             public void onDestroyActionMode(ActionMode actionMode) {
                 formattingActionMode = null;
-                if(mColorPickerFragment != null) {
+                if(mColorPickerFragment != null && mColorPickerFragment.getView() != null) {
                     mColorPickerFragment.getView().animate().alpha(0).withEndAction(new Runnable() {
                         @Override
                         public void run() {
-                            mColorPickerFragment.getView().setVisibility(View.GONE);
+                            if(mColorPickerFragment != null && mColorPickerFragment.getView() != null) {
+                                mColorPickerFragment.getView().setVisibility(View.GONE);
+                            }
                         }
                     });
                 }
@@ -2449,7 +2451,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             i.setData(uri);
             startActivity(i);
             return false;
-        } else if (uri != null && conn != null && conn.ready) {
+        } else if (uri != null && uri.getHost() != null && conn != null && conn.ready) {
             launchURI = null;
             Server s = null;
             try {
@@ -2472,7 +2474,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (uri.getPath() != null && uri.getPath().length() > 1) {
                     String key = null;
                     String channel = uri.getLastPathSegment();
-                    if (channel.contains(",")) {
+                    if (channel != null && channel.contains(",")) {
                         key = channel.substring(channel.indexOf(",") + 1);
                         channel = channel.substring(0, channel.indexOf(","));
                     }
@@ -2486,7 +2488,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         actionBar.setTitle(channel);
                         actionBar.setSubtitle(null);
                         bufferToOpen = channel;
-                        if(channel.substring(0,1).matches("[a-zA-Z0-9]"))
+                        if(channel != null && channel.substring(0,1).matches("[a-zA-Z0-9]"))
                             conn.say(s.getCid(), null, "/query " + channel, null);
                         else
                             promptToJoin(channel, key, s);
@@ -5712,15 +5714,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         urlListItems.add(entities.get("url").asText());
                     } else {
                         for (URLSpan o : text_to_copy.getSpans(0, text_to_copy.length(), URLSpan.class)) {
-                            String url = o.getURL();
-                            url = url.replace(getResources().getString(R.string.IMAGE_SCHEME) + "://", "http://");
-                            url = url.replace(getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://", "https://");
-                            url = url.replace(getResources().getString(R.string.VIDEO_SCHEME) + "://", "http://");
-                            url = url.replace(getResources().getString(R.string.VIDEO_SCHEME_SECURE) + "://", "https://");
-                            if (server != null) {
-                                url = url.replace(getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + server.getCid() + "/", ((server.getSsl() > 0) ? "ircs://" : "irc://") + server.getHostname() + ":" + server.getPort() + "/");
+                            if (o != null && o.getURL() != null) {
+                                String url = o.getURL();
+                                url = url.replace(getResources().getString(R.string.IMAGE_SCHEME) + "://", "http://");
+                                url = url.replace(getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://", "https://");
+                                url = url.replace(getResources().getString(R.string.VIDEO_SCHEME) + "://", "http://");
+                                url = url.replace(getResources().getString(R.string.VIDEO_SCHEME_SECURE) + "://", "https://");
+                                if (server != null) {
+                                    url = url.replace(getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + server.getCid() + "/", ((server.getSsl() > 0) ? "ircs://" : "irc://") + server.getHostname() + ":" + server.getPort() + "/");
+                                }
+                                urlListItems.add(url);
                             }
-                            urlListItems.add(url);
                         }
                     }
                     if (urlListItems.size() == 1) {

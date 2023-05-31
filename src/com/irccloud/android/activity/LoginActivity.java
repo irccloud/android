@@ -493,9 +493,12 @@ public class LoginActivity extends FragmentActivity {
             startActivity(i);
             finish();
         } else {
-            loading.setVisibility(View.GONE);
-            connecting.setVisibility(View.GONE);
-            login.setVisibility(View.VISIBLE);
+            if (loading != null)
+                loading.setVisibility(View.GONE);
+            if (connecting != null)
+                connecting.setVisibility(View.GONE);
+            if (login != null)
+                login.setVisibility(View.VISIBLE);
         }
     }
 
