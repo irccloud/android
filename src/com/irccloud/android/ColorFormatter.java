@@ -2605,6 +2605,7 @@ public class ColorFormatter {
             };
 
             Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:", noOverlapFilter, null);
+            Linkify.addLinks(output, Pattern.compile("geo:[^<>\"\\s]+"), null, noOverlapFilter, null);
             Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\",\\s]+"), null, noOverlapFilter, new TransformFilter() {
                 public final String transformUrl(final Matcher match, String url) {
                     char last = url.charAt(url.length() - 1);
