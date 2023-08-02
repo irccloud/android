@@ -918,6 +918,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(buffer == null || buffer.isConsole())
             return;
 
+        if(buffer.isChannel() && !buffer.isJoined())
+            return;
+
         if(sendingTyping)
             return;
 
