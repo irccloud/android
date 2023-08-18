@@ -278,6 +278,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private static final int REQUEST_EXTERNAL_MEDIA_RECORD_VIDEO = 4;
     private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO = 5;
     private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT = 6;
+    private static final int REQUEST_NOTIFICATIONS = 7;
 
     private int theme;
 
@@ -2292,6 +2293,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
         photoBtn.setVisibility(bubble ? View.GONE : View.VISIBLE);
         IRCCloudLinkMovementMethod.bubble = bubble;
+
+        if(!notificationPermissionsGranted())
+            requestNotificationPermissions(REQUEST_NOTIFICATIONS);
     }
 
     CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
@@ -4440,7 +4444,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private boolean mediaPermissionsGranted() {
-        return ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        } else {
+            return true;
+        }
     }
     
     private void requestMediaPermissions(int requestCode) {
@@ -4448,7 +4456,23 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 requestCode);
     }
-    
+
+    private boolean notificationPermissionsGranted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+        } else {
+            return true;
+        }
+    }
+
+    private void requestNotificationPermissions(int requestCode) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    requestCode);
+        }
+    }
+
     private void insertPhoto() {
         if(buffer == null)
             return;

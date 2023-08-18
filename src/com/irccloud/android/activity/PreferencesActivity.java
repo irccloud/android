@@ -1095,7 +1095,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         MediaPlayer mp;
 
         public boolean onPreferenceClick(Preference preference) {
-            if (ActivityCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && ActivityCompat.checkSelfPermission(PreferencesActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(PreferencesActivity.this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
                 return false;

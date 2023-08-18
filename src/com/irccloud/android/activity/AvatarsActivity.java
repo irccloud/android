@@ -482,7 +482,11 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
     }
 
     private boolean mediaPermissionsGranted() {
-        return ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(AvatarsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        } else {
+            return true;
+        }
     }
 
     private void requestMediaPermissions(int requestCode) {

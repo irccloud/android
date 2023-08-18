@@ -298,7 +298,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                         .setPositiveButton("Download", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                if(ActivityCompat.checkSelfPermission(VideoPlayerActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && ActivityCompat.checkSelfPermission(VideoPlayerActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                     ActivityCompat.requestPermissions(VideoPlayerActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
                                 } else {
                                     DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
