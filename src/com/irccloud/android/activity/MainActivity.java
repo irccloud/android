@@ -170,6 +170,7 @@ import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Channel;
 import com.irccloud.android.data.model.Event;
+import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.model.User;
 import com.irccloud.android.fragment.AcceptListFragment;
@@ -2277,7 +2278,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         try {
-            if (NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
+            if (notificationPermissionsGranted() && NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
                 FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
                     @Override
                     public void onSuccess(@NonNull String s) {
@@ -2293,9 +2294,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
         photoBtn.setVisibility(bubble ? View.GONE : View.VISIBLE);
         IRCCloudLinkMovementMethod.bubble = bubble;
-
-        if(!notificationPermissionsGranted())
-            requestNotificationPermissions(REQUEST_NOTIFICATIONS);
     }
 
     CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
@@ -3591,6 +3589,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         @Override
                         public void run() {
                             recreate();
+                            if(!notificationPermissionsGranted())
+                                requestNotificationPermissions(REQUEST_NOTIFICATIONS);
                         }
                     });
                 } else {
@@ -3607,6 +3607,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                     if (launchBid == -1 && server == null && conn != null && conn.getUserInfo() != null)
                         launchBid = conn.getUserInfo().last_selected_bid;
+                    if(!notificationPermissionsGranted())
+                        requestNotificationPermissions(REQUEST_NOTIFICATIONS);
                 }
                 break;
             case NetworkConnection.EVENT_STATUSCHANGED:
@@ -4361,22 +4363,29 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         for(int j = 0; j < grantResults.length; j++) {
             if(grantResults[j] != PackageManager.PERMISSION_GRANTED) {
                 IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Permission denied: " + permissions[j]);
-                if(fileUploadTask != null) {
-                    if(fileUploadTask.metadataDialog != null) {
-                        try {
-                            fileUploadTask.metadataDialog.cancel();
-                        } catch (Exception e) {
+                if(requestCode == REQUEST_NOTIFICATIONS) {
+                    SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+                    prefs.putString("notify_type", "0");
+                    prefs.commit();
+                    Toast.makeText(this, "Highlight and mention notifications have been disabled", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (fileUploadTask != null) {
+                        if (fileUploadTask.metadataDialog != null) {
+                            try {
+                                fileUploadTask.metadataDialog.cancel();
+                            } catch (Exception e) {
 
+                            }
                         }
+                        fileUploadTask.cancel(true);
+                        fileUploadTask = null;
                     }
-                    fileUploadTask.cancel(true);
-                    fileUploadTask = null;
+                    if (imgurTask != null) {
+                        imgurTask.cancel(true);
+                        imgurTask = null;
+                    }
+                    Toast.makeText(this, "Upload cancelled: permission denied", Toast.LENGTH_SHORT).show();
                 }
-                if(imgurTask != null) {
-                    imgurTask.cancel(true);
-                    imgurTask = null;
-                }
-                Toast.makeText(this, "Upload cancelled: permission denied", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -4466,6 +4475,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void requestNotificationPermissions(int requestCode) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+        if(Integer.parseInt(prefs.getString("notify_type", "1")) == 0)
+            return;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.POST_NOTIFICATIONS},
