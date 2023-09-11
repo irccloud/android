@@ -39,7 +39,13 @@ public class DownloadCompletedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        LogExport e = LogExportsList.getInstance().getDownload(intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1));
+        LogExport e = null;
+
+        try {
+            e = LogExportsList.getInstance().getDownload(intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         if(e != null) {
             DownloadManager d = (DownloadManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.DOWNLOAD_SERVICE);
