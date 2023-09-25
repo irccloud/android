@@ -2229,8 +2229,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         e.timestamp = "";
                                         e.html = msg;
                                         e.parent_eid = event.eid;
+                                        e.msgid = event.msgid;
+                                        e.edited = event.edited;
+                                        event.edited = false;
                                         html = null;
                                         event.html = msg = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
+                                        event.mention_offset = -999;
                                         messageAdapter.addItem(event.eid, event);
                                         e.day = event.day;
                                         messageAdapter.insertBelow(event.eid, e, backlog);

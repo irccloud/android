@@ -3043,7 +3043,7 @@ public class ColorFormatter {
             return "";
 
         HashMap<String, ArrayList<Mention>> mentions_map = new HashMap<>();
-        if(mentions != null) {
+        if(mentions != null && mention_offset != -999) {
             Iterator<Map.Entry<String, JsonNode>> i = mentions.fields();
             while(i.hasNext()) {
                 Map.Entry<String, JsonNode> entry = i.next();
