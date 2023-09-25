@@ -667,7 +667,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         try {
                             String html = e.html;
                             html = ColorFormatter.emojify(ColorFormatter.irc_to_html(html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0, pref_noColor));
-                            if(e.edited)
+                            if(e.edited && e.mention_offset != -999)
                                 html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
                             e.formatted = ColorFormatter.html_to_spanned(html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
                             if(e.formatted != null && !pref_disableQuote && e.type.equals("buffer_msg") && ColorFormatter.is_blockquote(e.formatted.toString())) {
@@ -2231,7 +2231,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         e.parent_eid = event.eid;
                                         e.msgid = event.msgid;
                                         e.edited = event.edited;
-                                        event.edited = false;
                                         html = null;
                                         event.html = msg = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
                                         event.mention_offset = -999;
