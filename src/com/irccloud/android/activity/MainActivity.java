@@ -2584,7 +2584,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         updateTypingIndicators();
                     }
                 }, 500);
-        } catch (ConcurrentModificationException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             typingLabel.postDelayed(new Runnable() {
                 @Override
                 public void run() {
