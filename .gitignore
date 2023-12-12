@@ -25,13 +25,7 @@ build-*.*
 branded.gradle
 google-services.json
 
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/libraries
-.idea/caches
-.idea/codeStyles
-.idea/modules/
-.idea/deploymentTargetDropDown.xml
+.idea/
 .gradle/
 res/values/com_crashlytics_export_strings.xml
 assets/crashlytics-build.properties
