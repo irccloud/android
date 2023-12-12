@@ -333,14 +333,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             player.setLooping(true);
             player.setVolume(0, 0);
 
-            try {
-                NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-                if (nfc != null) {
-                    nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(urlStr)), this);
-                }
-            } catch (Exception e) {
-            }
-
             mVideoURL = urlStr;
         } catch (Exception e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
@@ -369,13 +361,6 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                     "</body>\n" +
                     "</html>", "text/html", "UTF-8", null);
 
-            try {
-                NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-                if (nfc != null) {
-                    nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(urlStr)), this);
-                }
-            } catch (Exception e) {
-            }
             mImageURL = urlStr;
         } catch (Exception e) {
             fail();

@@ -111,14 +111,6 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 if (html != null) {
                     PastebinViewerActivity.this.html = html;
                     mWebView.loadDataWithBaseURL(url, html, "text/html", "UTF-8", null);
-
-                    try {
-                        NfcAdapter nfc = NfcAdapter.getDefaultAdapter(PastebinViewerActivity.this);
-                        if (nfc != null) {
-                            nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(url)), PastebinViewerActivity.this);
-                        }
-                    } catch (Exception e) {
-                    }
                 } else {
                     fail();
                 }

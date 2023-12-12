@@ -6164,26 +6164,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
             editor.putInt("last_selected_bid", buffer.getBid());
             editor.apply();
-
-            try {
-                if (buffer != null && server != null) {
-                    NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
-                    if (nfc != null) {
-                        String uri = "irc";
-                        if (server.getSsl() > 0)
-                            uri += "s";
-                        uri += "://" + server.getHostname() + ":" + server.getPort();
-                        uri += "/" + URLEncoder.encode(buffer.getName(), "UTF-8");
-                        if (buffer.isChannel()) {
-                            Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
-                            if (c != null && c.hasMode("k"))
-                                uri += "," + c.paramForMode("k");
-                        }
-                        nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(uri)), this);
-                    }
-                }
-            } catch (Exception e) {
-            }
         } else {
             IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "Buffer selected but not found: bid" + bid + " shouldFadeIn: " + shouldFadeIn);
             server = null;
