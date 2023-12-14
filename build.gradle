@@ -21,7 +21,7 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.4'
+        classpath 'com.android.tools.build:gradle:8.2.0'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
         classpath 'com.google.gms:google-services:4.4.0'
         classpath 'com.google.firebase:perf-plugin:1.4.2'
@@ -42,7 +42,7 @@ if (rootProject.file('private.properties').exists()) {
     apply plugin: 'com.google.firebase.crashlytics'
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
 }
 
@@ -291,7 +291,7 @@ android {
     }
 }
 
-task __filteredResources(type: Copy) {
+tasks.register('__filteredResources', Copy) {
     from('res/') {
         exclude 'drawable-mdpi/ic_launcher.png'
         exclude 'drawable-hdpi/ic_launcher.png'
@@ -309,7 +309,7 @@ task __filteredResources(type: Copy) {
     includeEmptyDirs = true
 }
 
-tasks.whenTaskAdded { task ->
+tasks.configureEach { task ->
     if (task.name == 'mergeEnterprisedebugResources' || task.name == 'mergeEnterprisereleaseResources') {
         task.dependsOn __filteredResources
     }
