@@ -16,12 +16,12 @@
 
 buildscript {
     repositories {
-        mavenCentral()
         google()
+        mavenCentral()
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.0'
+        classpath 'com.android.tools.build:gradle:8.2.1'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
         classpath 'com.google.gms:google-services:4.4.0'
         classpath 'com.google.firebase:perf-plugin:1.4.2'
@@ -47,12 +47,12 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 repositories {
-    jcenter()
-    mavenCentral()
     google()
+    mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url "https://www.jitpack.io" }
     maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
+    jcenter()
 }
 
 android {
@@ -61,7 +61,7 @@ android {
     namespace "com.irccloud.android"
 
     defaultConfig {
-        versionCode 357
+        versionCode 359
         versionName "4.32"
         minSdkVersion 22
         targetSdkVersion 33
@@ -321,28 +321,28 @@ dependencies {
     implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
     implementation 'androidx.sharetarget:sharetarget:1.2.0'
     implementation "androidx.cardview:cardview:1.0.0"
-    implementation "com.google.android.material:material:1.10.0"
+    implementation "com.google.android.material:material:1.11.0"
     implementation "androidx.recyclerview:recyclerview:1.3.2"
     implementation "androidx.browser:browser:1.7.0"
-    implementation "androidx.exifinterface:exifinterface:1.3.6"
+    implementation "androidx.exifinterface:exifinterface:1.3.7"
     implementation "androidx.room:room-runtime:2.6.1"
     implementation "androidx.security:security-crypto:1.1.0-alpha06"
     annotationProcessor "androidx.room:room-compiler:2.6.1"
-    implementation "com.google.android.gms:play-services-base:18.2.0"
+    implementation "com.google.android.gms:play-services-base:18.3.0"
     implementation "com.google.android.gms:play-services-auth:20.7.0"
     implementation "com.google.android.gms:play-services-identity:18.0.1"
     implementation 'com.google.firebase:firebase-messaging:23.4.0'
     implementation 'com.google.firebase:firebase-perf:20.5.1'
-    implementation 'com.google.firebase:firebase-crashlytics:18.6.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.6.1'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
-    implementation 'com.damnhandy:handy-uri-templates:2.1.7'
+    implementation 'com.damnhandy:handy-uri-templates:2.1.8'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation project(':android-websockets')
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8' //Newer versions don't work on Android SDK
     implementation 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
-    implementation 'com.datatheorem.android.trustkit:trustkit:1.1.3'
+    implementation 'com.datatheorem.android.trustkit:trustkit:1.1.5'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
     implementation fileTree(include: ['*.jar'], dir: 'libs')

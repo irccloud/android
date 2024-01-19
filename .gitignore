@@ -24,6 +24,8 @@ irccloud.keystore
 build-*.*
 branded.gradle
 google-services.json
+gradle/*.keys
+gradle/*.gpg
 
 .idea/
 .gradle/
