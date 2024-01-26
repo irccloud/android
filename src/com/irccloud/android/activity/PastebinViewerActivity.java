@@ -230,6 +230,16 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         } else {
             if (getIntent() != null && getIntent().getDataString() != null) {
                 url = getIntent().getDataString().replace(getResources().getString(R.string.PASTE_SCHEME), "https");
+
+                try {
+                    if (!url.startsWith("https://" + NetworkConnection.IRCCLOUD_HOST + "/pastebin/") && !url.startsWith("https://www.irccloud.com/pastebin/")) {
+                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unsupported URL", Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
+                    }
+                } catch (Exception e) {
+                }
+
                 if(url.contains("/raw/")) {
                     IRCCloudLinkMovementMethod.forwardToBrowser(getIntent(), this);
                     finish();
