@@ -106,6 +106,16 @@ public class IRCCloudApplication extends Application {
             editor.apply();
         }
 
+        if(prefs.getString("imgur_account_username", null) != null) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.remove("imgur_account_username");
+            editor.remove("imgur_access_token");
+            editor.remove("imgur_refresh_token");
+            editor.remove("imgur_token_type");
+            editor.remove("imgur_expires_in");
+            editor.apply();
+        }
+
         NetworkConnection.getInstance().registerForConnectivity();
 
         //Allocate all the shared objects at launch

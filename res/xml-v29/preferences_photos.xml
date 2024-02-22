@@ -19,17 +19,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title="Photo Sharing" android:key="photos">
-        <com.irccloud.android.AppCompatListPreference app:entries="@array/pref_image_service_values"
-            android:title="Image Service" android:key="image_service"
-            app:entryValues="@array/pref_image_service_values"
-            android:defaultValue="IRCCloud" />
         <com.irccloud.android.AppCompatListPreference app:entries="@array/pref_photo_size_names"
             android:title="Image Size" android:key="photo_size"
             app:entryValues="@array/pref_photo_size_values"
             android:defaultValue="1024" />
-        <Preference
-            android:title="Imgur.com Account"
-            android:key="imgur_account_username"
-            />
     </PreferenceCategory>
 </PreferenceScreen>

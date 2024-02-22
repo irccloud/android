@@ -47,8 +47,4 @@
         <item>Large</item>
         <item>Original</item>
     </string-array>
-    <string-array name="pref_image_service_values">
-        <item>IRCCloud</item>
-        <item>imgur</item>
-    </string-array>
 </resources>

@@ -273,13 +273,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ColorFilter normalFilter;
     private ColorFilter upDrawableFilter;
 
-    private static final int REQUEST_EXTERNAL_MEDIA_IMGUR = 1;
-    private static final int REQUEST_EXTERNAL_MEDIA_IRCCLOUD = 2;
-    private static final int REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO = 3;
-    private static final int REQUEST_EXTERNAL_MEDIA_RECORD_VIDEO = 4;
-    private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO = 5;
-    private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT = 6;
-    private static final int REQUEST_NOTIFICATIONS = 7;
+    private static final int REQUEST_EXTERNAL_MEDIA_IRCCLOUD = 1;
+    private static final int REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO = 2;
+    private static final int REQUEST_EXTERNAL_MEDIA_RECORD_VIDEO = 3;
+    private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO = 4;
+    private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT = 5;
+    private static final int REQUEST_NOTIFICATIONS = 6;
 
     private int theme;
 
@@ -325,7 +324,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private TimerTask suggestionsTimerTask = null;
     private ArrayList<User> sortedUsers = null;
     private ArrayList<Channel> sortedChannels = null;
-    private ImgurUploadTask imgurTask = null;
     private FileUploadTask fileUploadTask = null;
     private ActionBar actionBar = null;
 
@@ -647,15 +645,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     messageTxt.getText().append(info.getLinkUri().toString());
                 } else {
                     Uri uri = (info.getLinkUri() != null) ? makeTempCopy(info.getContentUri(), MainActivity.this, info.getLinkUri().getLastPathSegment()) : makeTempCopy(info.getContentUri(), MainActivity.this);
-                    if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
-                        new ImgurRefreshTask(uri).execute((Void) null);
+                    fileUploadTask = new FileUploadTask(uri, MainActivity.this);
+                    if (!mediaPermissionsGranted()) {
+                        requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
                     } else {
-                        fileUploadTask = new FileUploadTask(uri, MainActivity.this);
-                        if (!mediaPermissionsGranted()) {
-                            requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                        } else {
-                            fileUploadTask.execute((Void) null);
-                        }
+                        fileUploadTask.execute((Void) null);
                     }
                 }
                 return true;
@@ -822,7 +816,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         ConfigInstance config = (ConfigInstance) getLastCustomNonConfigurationInstance();
         if (config != null) {
-            imgurTask = config.imgurUploadTask;
             fileUploadTask = config.fileUploadTask;
         }
 
@@ -876,15 +869,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 String type = getMimeType(item.getUri());
                                 if(type != null) {
                                     Uri uri = makeTempCopy(item.getUri(), MainActivity.this);
-                                    if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
-                                        new ImgurRefreshTask(uri).execute((Void) null);
+                                    fileUploadTask = new FileUploadTask(uri, MainActivity.this);
+                                    if (!mediaPermissionsGranted()) {
+                                        requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
                                     } else {
-                                        fileUploadTask = new FileUploadTask(uri, MainActivity.this);
-                                        if (!mediaPermissionsGranted()) {
-                                            requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                                        } else {
-                                            fileUploadTask.execute((Void) null);
-                                        }
+                                        fileUploadTask.execute((Void) null);
                                     }
                                     return true;
                                 }
@@ -1042,7 +1031,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         textWatcher = null;
         fileUploadTask = null;
-        imgurTask = null;
         for (Event e : pendingEvents.values()) {
             try {
                 if(e.expiration_timer != null)
@@ -2016,52 +2004,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     } else {
                         String type = getMimeType(uri);
                         uri = makeTempCopy(uri, this);
-
-                        if (type != null && type.startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
-                            final Uri file_uri = uri;
-                            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                            final View view = getLayoutInflater().inflate(R.layout.dialog_upload, null);
-                            view.findViewById(R.id.filename).setVisibility(View.GONE);
-                            view.findViewById(R.id.message).setVisibility(View.GONE);
-                            view.findViewById(R.id.filesize).setVisibility(View.GONE);
-                            final ImageView thumbnail = view.findViewById(R.id.thumbnail);
-
-                            try {
-                                thumbnail.setImageBitmap(loadThumbnail(IRCCloudApplication.getInstance().getApplicationContext(), uri));
-                                thumbnail.setVisibility(View.VISIBLE);
-                            } catch (OutOfMemoryError e) {
-                                thumbnail.setVisibility(View.GONE);
-                            } catch (Exception e) {
-                                NetworkConnection.printStackTraceToCrashlytics(e);
-                            }
-
-                            builder.setTitle("Upload An Image To Imgur");
-                            builder.setView(view);
-                            builder.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    new ImgurRefreshTask(file_uri).execute((Void) null);
-                                    dialog.dismiss();
-                                }
-                            });
-                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
-                            AlertDialog d = builder.create();
-                            d.setOwnerActivity(this);
-                            d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                            if(!isFinishing())
-                                d.show();
+                        fileUploadTask = new FileUploadTask(uri, this);
+                        if(!mediaPermissionsGranted()) {
+                            requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
                         } else {
-                            fileUploadTask = new FileUploadTask(uri, this);
-                            if(!mediaPermissionsGranted()) {
-                                requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                            } else {
-                                fileUploadTask.execute((Void) null);
-                            }
+                            fileUploadTask.execute((Void) null);
                         }
                     }
                 } catch (IOException e) {
@@ -2249,9 +2196,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         updateReconnecting();
 
-        if (imgurTask != null)
-            imgurTask.setActivity(this);
-
         if (fileUploadTask != null) {
             fileUploadTask.setActivity(this);
             if(fileUploadTask.metadataDialog == null && !fileUploadTask.filenameSet && mediaPermissionsGranted())
@@ -2328,8 +2272,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     protected void onStop() {
         super.onStop();
-        if (imgurTask != null)
-            imgurTask.setActivity(null);
         if (fileUploadTask != null)
             fileUploadTask.setActivity(null);
         try {
@@ -2353,8 +2295,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             buffer.setDraft(messageTxt.getText());
 
         if(isFinishing()) {
-            if (imgurTask != null)
-                imgurTask.setActivity(null);
             if (fileUploadTask != null)
                 fileUploadTask.setActivity(null);
 
@@ -2401,13 +2341,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     public static class ConfigInstance {
-        public ImgurUploadTask imgurUploadTask;
         public FileUploadTask fileUploadTask;
     }
 
     public Object onRetainCustomNonConfigurationInstance() {
         ConfigInstance config = new ConfigInstance();
-        config.imgurUploadTask = imgurTask;
         config.fileUploadTask = fileUploadTask;
         if(fileUploadTask != null) {
             if(fileUploadTask.metadataDialog != null)
@@ -4299,15 +4237,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (buffer != null) {
             if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
                 if (imageCaptureURI != null && isValidUploadPath(this,imageCaptureURI)) {
-                    if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
-                        new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
+                    fileUploadTask = new FileUploadTask(imageCaptureURI, this);
+                    if(!mediaPermissionsGranted()) {
+                        requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
                     } else {
-                        fileUploadTask = new FileUploadTask(imageCaptureURI, this);
-                        if(!mediaPermissionsGranted()) {
-                            requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                        } else {
-                            fileUploadTask.execute((Void) null);
-                        }
+                        fileUploadTask.execute((Void) null);
                     }
 
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && imageCaptureURI.toString().startsWith("file://")) {
@@ -4320,15 +4254,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 Uri selectedImage = imageReturnedIntent.getData();
                 if (selectedImage != null && isValidUploadPath(this,selectedImage)) {
                     selectedImage = makeTempCopy(selectedImage, this);
-                    if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
-                        new ImgurRefreshTask(selectedImage).execute((Void) null);
+                    fileUploadTask = new FileUploadTask(selectedImage, this);
+                    if(!mediaPermissionsGranted()) {
+                        requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
                     } else {
-                        fileUploadTask = new FileUploadTask(selectedImage, this);
-                        if(!mediaPermissionsGranted()) {
-                            requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                        } else {
-                            fileUploadTask.execute((Void) null);
-                        }
+                        fileUploadTask.execute((Void) null);
                     }
                 }
             } else if (requestCode == REQUEST_DOCUMENT && resultCode == RESULT_OK) {
@@ -4380,10 +4310,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                         fileUploadTask.cancel(true);
                         fileUploadTask = null;
-                    }
-                    if (imgurTask != null) {
-                        imgurTask.cancel(true);
-                        imgurTask = null;
                     }
                     Toast.makeText(this, "Upload cancelled: permission denied", Toast.LENGTH_SHORT).show();
                 }
@@ -4442,12 +4368,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     fileUploadTask.execute((Void) null);
                     if(fileUploadTask.metadataDialog == null && !fileUploadTask.filenameSet)
                         fileUploadTask.show_dialog();
-                }
-                break;
-            case REQUEST_EXTERNAL_MEDIA_IMGUR:
-                if(imgurTask != null && imgurTask.getStatus() == AsyncTaskEx.Status.PENDING) {
-                    imgurTask.setActivity(this);
-                    imgurTask.execute((Void)null);
                 }
                 break;
         }
@@ -6498,7 +6418,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 try {
                     bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
                 } catch (OutOfMemoryError e) {
-                    Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
+                    Log.e("IRCCloud", "Out of memory rotating the photo");
                 }
             }
 
@@ -6512,7 +6432,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } catch (Exception e) {
             IRCCloudLog.LogException(e);
         } catch (OutOfMemoryError e) {
-            Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
+            Log.e("IRCCloud", "Out of memory rotating the photo");
         }
         if (!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("keep_photos", false) && in.toString().contains("irccloudcapture")) {
             try {
@@ -6532,349 +6452,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             return out;
         } else {
             return in;
-        }
-    }
-
-    public class ImgurRefreshTask extends AsyncTaskEx<Void, Void, JSONObject> {
-        private final String REFRESH_URL = "https://api.imgur.com/oauth2/token";
-        private Uri mImageUri;  // local Uri to upload
-
-        public ImgurRefreshTask(Uri imageUri) {
-            mImageUri = imageUri;
-        }
-
-        @Override
-        protected JSONObject doInBackground(Void... params) {
-            try {
-                if (getSharedPreferences("prefs", 0).contains("imgur_refresh_token")) {
-                    JSONObject o = NetworkConnection.getInstance().fetchJSON(REFRESH_URL,
-                            "client_id=" + BuildConfig.IMGUR_KEY
-                                    + "&client_secret=" + BuildConfig.IMGUR_SECRET
-                                    + "&grant_type=refresh_token"
-                                    + "&refresh_token=" + getSharedPreferences("prefs", 0).getString("imgur_refresh_token", "")
-                    );
-                    return o;
-                }
-            } catch (IOException e) {
-                NetworkConnection.printStackTraceToCrashlytics(e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject o) {
-            try {
-                if (getSharedPreferences("prefs", 0).contains("imgur_refresh_token")) {
-                    if (o == null || (o.has("success") && !o.getBoolean("success"))) {
-                        startActivity(new Intent(MainActivity.this, ImgurAuthActivity.class));
-                    } else {
-                        SharedPreferences.Editor prefs = getSharedPreferences("prefs", 0).edit();
-                        Iterator<String> i = o.keys();
-                        while (i.hasNext()) {
-                            String k = i.next();
-                            prefs.putString("imgur_" + k, o.getString(k));
-                        }
-                        prefs.apply();
-                        if (mImageUri != null) {
-                            imgurTask = new ImgurUploadTask(mImageUri);
-                            if(!mediaPermissionsGranted()) {
-                                requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IMGUR);
-                            } else {
-                                imgurTask.execute((Void) null);
-                            }
-                        }
-                    }
-                } else {
-                    if (mImageUri != null) {
-                        imgurTask = new ImgurUploadTask(mImageUri);
-                        if(!mediaPermissionsGranted()) {
-                            requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IMGUR);
-                        } else {
-                            imgurTask.execute((Void) null);
-                        }
-                    }
-                }
-            } catch (JSONException e) {
-                NetworkConnection.printStackTraceToCrashlytics(e);
-            }
-        }
-    }
-
-    public class ImgurUploadTask extends AsyncTaskEx<Void, Float, String> {
-        private final String UPLOAD_URL = "https://api.imgur.com/3/image";
-        private Uri mImageUri;  // local Uri to upload
-        private int total = 0;
-        public Activity activity;
-        private String error;
-        private Buffer mBuffer;
-
-        public ImgurUploadTask(Uri imageUri) {
-            IRCCloudLog.Log(Log.INFO, "IRCCloud", "Uploading image to " + UPLOAD_URL);
-            mImageUri = imageUri;
-            mBuffer = buffer;
-            setActivity(MainActivity.this);
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            InputStream imageIn;
-            try {
-                while (activity == null)
-                    Thread.sleep(100);
-                String type = getMimeType(mImageUri);
-                if ((type != null && !type.equals("image/gif")) || Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024")) > 0) {
-                    mImageUri = resize(mImageUri);
-                }
-                imageIn = activity.getContentResolver().openInputStream(mImageUri);
-                total = imageIn.available();
-            } catch (Exception e) {
-                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
-                return null;
-            }
-
-            HttpURLConnection conn = null;
-            InputStream responseIn = null;
-
-            try {
-                conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
-                conn.setReadTimeout(60000);
-                conn.setConnectTimeout(60000);
-                conn.setDoOutput(true);
-                conn.setFixedLengthStreamingMode(total);
-                if (getSharedPreferences("prefs", 0).contains("imgur_access_token")) {
-                    conn.setRequestProperty("Authorization", "Bearer " + getSharedPreferences("prefs", 0).getString("imgur_access_token", ""));
-                } else {
-                    conn.setRequestProperty("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
-                }
-
-                OutputStream out = conn.getOutputStream();
-                copy(imageIn, out);
-                out.flush();
-                out.close();
-                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    responseIn = conn.getInputStream();
-                    return onInput(responseIn);
-                } else {
-                    IRCCloudLog.Log(Log.INFO, "IRCCloud", "responseCode=" + conn.getResponseCode());
-                    responseIn = conn.getErrorStream();
-                    StringBuilder sb = new StringBuilder();
-                    Scanner scanner = new Scanner(responseIn).useDelimiter("\\A");
-                    while (scanner.hasNext()) {
-                        sb.append(scanner.next());
-                    }
-                    JSONObject root = new JSONObject(sb.toString());
-                    if (root.has("data") && root.getJSONObject("data").has("error"))
-                        error = root.getJSONObject("data").getString("error");
-                    else
-                        error = null;
-                    IRCCloudLog.Log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
-                    return null;
-                }
-            } catch (Exception ex) {
-                IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Error during POST: " + ex);
-                return null;
-            } finally {
-                try {
-                    responseIn.close();
-                } catch (Exception ignore) {
-                }
-                try {
-                    conn.disconnect();
-                } catch (Exception ignore) {
-                }
-                try {
-                    imageIn.close();
-                } catch (Exception ignore) {
-                }
-                String path = mImageUri.getPath();
-                try {
-                    path = new File(path).getCanonicalPath();
-                    if(path.startsWith(getCacheDir().getCanonicalPath())) {
-                        Log.i("IRCCloud", "Removing temporary file: " + path);
-                        new File(path).delete();
-                    }
-                } catch (IOException e) {
-                }
-            }
-        }
-
-        public void setActivity(Activity a) {
-            activity = a;
-            if (a != null) {
-                if (total > 0) {
-                    actionBar.setTitle("Uploading");
-                    actionBar.setSubtitle(null);
-                    actionBar.setDisplayShowCustomEnabled(false);
-                    actionBar.setDisplayShowTitleEnabled(true);
-                    progressBar.setProgress(0);
-                    progressBar.setIndeterminate(true);
-                    if (progressBar.getVisibility() != View.VISIBLE) {
-                        progressBar.setAlpha(0);
-                        progressBar.animate().alpha(1).setDuration(200);
-                        progressBar.setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-        }
-
-        @Override
-        protected void onProgressUpdate(Float... values) {
-            if (activity != null) {
-                try {
-                    if (progressBar.getVisibility() != View.VISIBLE) {
-                        actionBar.setTitle("Uploading");
-                        actionBar.setSubtitle(null);
-                        actionBar.setDisplayShowCustomEnabled(false);
-                        actionBar.setDisplayShowTitleEnabled(true);
-                        progressBar.setAlpha(0);
-                        progressBar.animate().alpha(1).setDuration(200);
-                        progressBar.setVisibility(View.VISIBLE);
-                    }
-                    if (values[0] < 1.0f) {
-                        progressBar.setIndeterminate(false);
-                        progressBar.setProgress((int) (values[0] * 1000));
-                    } else {
-                        progressBar.setIndeterminate(true);
-                    }
-                } catch (Exception e) {
-                }
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            if (mImageUri != null && mImageUri.toString().contains("irccloudcapture") && s != null && s.length() > 0) {
-                if (!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("keep_photos", false) || mImageUri.toString().contains("irccloudcapture-resized")) {
-                    try {
-                        new File(new URI(mImageUri.toString())).delete();
-                    } catch (Exception e) {
-                    }
-                }
-            }
-            if (activity != null) {
-                if (progressBar.getVisibility() == View.VISIBLE) {
-                    progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
-                }
-                if(actionBar != null) {
-                    actionBar.setDisplayShowCustomEnabled(true);
-                    actionBar.setDisplayShowTitleEnabled(false);
-                }
-                if(activity != null && ((MainActivity)activity).imgurTask == this)
-                    ((MainActivity)activity).imgurTask = null;
-            }
-            setText(s);
-        }
-
-        private void setText(final String s) {
-            //If the user rotated the screen, we might not be attached to an activity yet.  Keep trying until we reattach
-            if (s == null) {
-                try {
-                    if (error != null) {
-                        JSONObject root = new JSONObject(error);
-                        if (root.has("status") && root.getInt("status") == 403) {
-                            new ImgurRefreshTask(mImageUri).execute((Void) null);
-                            return;
-                        }
-                    }
-                } catch (JSONException e) {
-                }
-            }
-            if (activity != null) {
-                IRCCloudLog.Log(Log.INFO, "IRCCloud", "Upload finished");
-                if (s != null) {
-                    if (mBuffer != null) {
-                        if (mBuffer.getDraft() == null)
-                            mBuffer.setDraft("");
-                        if (mBuffer.getDraft().length() > 0 && !mBuffer.getDraft().toString().endsWith(" "))
-                            mBuffer.setDraft(mBuffer.getDraft() + " ");
-                        mBuffer.setDraft(mBuffer.getDraft() + s);
-                    }
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ActionEditText messageTxt = activity.findViewById(R.id.messageTxt);
-                            String txt = messageTxt.getText().toString();
-                            if (txt.length() > 0 && !txt.endsWith(" "))
-                                txt += " ";
-                            txt += s.replace("http://", "https://");
-                            messageTxt.setText(txt);
-                        }
-                    });
-                } else {
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (activity != null) {
-                                if (Looper.myLooper() == null)
-                                    Looper.prepare();
-                                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                                builder.setTitle("Upload Failed");
-                                builder.setMessage("Unable to upload photo to imgur.  Please try again." + ((error != null) ? ("\n\n" + error) : ""));
-                                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                                AlertDialog dialog = builder.create();
-                                dialog.setOwnerActivity(activity);
-                                if(!activity.isFinishing())
-                                    dialog.show();
-                            }
-                        }
-                    });
-                }
-                imgurTask = null;
-            } else if (mBuffer != null && s != null) {
-                IRCCloudLog.Log(Log.INFO, "IRCCloud", "Upload finished, updating draft");
-                if (mBuffer.getDraft() == null)
-                    mBuffer.setDraft("");
-                if (mBuffer.getDraft().length() > 0 && !mBuffer.getDraft().toString().endsWith(" "))
-                    mBuffer.setDraft(mBuffer.getDraft() + " ");
-                mBuffer.setDraft(mBuffer.getDraft() + s);
-            } else {
-                if(suggestionsTimer != null)
-                    suggestionsTimer.schedule(new TimerTask() {
-
-                    @Override
-                    public void run() {
-                        setText(s);
-                    }
-                }, 500);
-            }
-        }
-
-        private int copy(InputStream input, OutputStream output) throws IOException {
-            byte[] buffer = new byte[8192];
-            int count = 0;
-            int n = 0;
-            while (-1 != (n = input.read(buffer))) {
-                output.write(buffer, 0, n);
-                count += n;
-                publishProgress((float) count / (float) total);
-            }
-            return count;
-        }
-
-        protected String onInput(InputStream in) throws Exception {
-            StringBuilder sb = new StringBuilder();
-            Scanner scanner = new Scanner(in).useDelimiter("\\A");
-            while (scanner.hasNext()) {
-                sb.append(scanner.next());
-            }
-
-            JSONObject root = new JSONObject(sb.toString());
-            if (root.has("data") && root.getJSONObject("data").has("error"))
-                error = root.getJSONObject("data").getString("error");
-            else
-                error = null;
-            total = 0;
-            return root.getJSONObject("data").getString("link");
         }
     }
 

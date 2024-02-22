@@ -297,7 +297,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         findPreference("feedback").setOnPreferenceClickListener(urlClick);
         findPreference("licenses").setOnPreferenceClickListener(licensesClick);
         findPreference("imageviewer").setOnPreferenceChangeListener(imageviewertoggle);
-        findPreference("imgur_account_username").setOnPreferenceClickListener(imgurClick);
         findPreference("theme").setOnPreferenceClickListener(themesClick);
         if(findPreference("notify_ringtone") != null)
             findPreference("notify_ringtone").setOnPreferenceClickListener(ringtoneClick);
@@ -314,18 +313,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         if(findPreference("notify_led_color") != null)
             findPreference("notify_led_color").setOnPreferenceChangeListener(ledtoggle);
         findPreference("photo_size").setOnPreferenceChangeListener(photosizetoggle);
-
-        imgurPreference = findPreference("imgur_account_username");
-        if (NetworkConnection.getInstance().uploadsAvailable()) {
-            if (!PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
-                PreferenceCategory c = (PreferenceCategory) findPreference("photos");
-                c.removePreference(imgurPreference);
-            }
-            findPreference("image_service").setOnPreferenceChangeListener(imageservicetoggle);
-        } else {
-            PreferenceCategory c = (PreferenceCategory) findPreference("photos");
-            c.removePreference(findPreference("image_service"));
-        }
 
         if(BuildConfig.ENTERPRISE) {
             if(findPreference("public_avatar") != null) {
@@ -768,23 +755,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         }
     };
 
-    private Preference imgurPreference;
-
-    Preference.OnPreferenceChangeListener imageservicetoggle = new Preference.OnPreferenceChangeListener() {
-        @SuppressWarnings("deprecation")
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if (newValue.equals("imgur")) {
-                PreferenceCategory c = (PreferenceCategory) findPreference("photos");
-                c.addPreference(imgurPreference);
-            } else {
-                PreferenceCategory c = (PreferenceCategory) findPreference("photos");
-                c.removePreference(imgurPreference);
-            }
-            findPreference("image_service").setSummary((String) newValue);
-            return true;
-        }
-    };
-
     private class SavePreferencesTask extends AsyncTaskEx<Void, Void, Void> {
 
         @Override
@@ -862,21 +832,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         }
 
     }
-
-    Preference.OnPreferenceClickListener imgurClick = new Preference.OnPreferenceClickListener() {
-
-        public boolean onPreferenceClick(Preference preference) {
-            SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-            editor.remove("imgur_account_username");
-            editor.remove("imgur_access_token");
-            editor.remove("imgur_refresh_token");
-            editor.remove("imgur_token_type");
-            editor.remove("imgur_expires_in");
-            editor.apply();
-            startActivity(new Intent(PreferencesActivity.this, ImgurAuthActivity.class));
-            return false;
-        }
-    };
 
     Preference.OnPreferenceClickListener licensesClick = new Preference.OnPreferenceClickListener() {
 

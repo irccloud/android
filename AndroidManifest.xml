@@ -385,13 +385,6 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".activity.ImgurAuthActivity"
-            android:label="@string/title_activity_imgur_auth"
-            android:exported="false"
-            android:theme="@style/ImgurAuthTheme"
-            android:windowSoftInputMode="adjustResize">
-        </activity>
-        <activity
             android:name=".activity.SAMLAuthActivity"
             android:exported="false"
             android:theme="@style/dawn"
