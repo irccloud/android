@@ -22,7 +22,6 @@ import static android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -53,9 +52,6 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -170,7 +166,6 @@ import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Channel;
 import com.irccloud.android.data.model.Event;
-import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.model.User;
 import com.irccloud.android.fragment.AcceptListFragment;
@@ -213,7 +208,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -221,7 +215,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -6554,7 +6547,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + ".cancel_upload");
-            IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(cancelListener, intentFilter, BuildConfig.APPLICATION_ID + ".permission.BROADCAST", null);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(cancelListener, intentFilter, BuildConfig.APPLICATION_ID + ".permission.BROADCAST", null, Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(cancelListener, intentFilter, BuildConfig.APPLICATION_ID + ".permission.BROADCAST", null);
+            }
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel c = new NotificationChannel("upload_progress", "Upload Progress", NotificationManager.IMPORTANCE_LOW);

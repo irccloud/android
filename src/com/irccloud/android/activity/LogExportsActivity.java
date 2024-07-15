@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -390,7 +391,11 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
         NetworkConnection.getInstance().addHandler(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        registerReceiver(downloadComplete, intentFilter);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            registerReceiver(downloadComplete, intentFilter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(downloadComplete, intentFilter);
+        }
     }
 
     private TimerTask updateTimerTask;

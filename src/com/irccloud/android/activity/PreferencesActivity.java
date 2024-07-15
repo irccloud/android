@@ -19,7 +19,6 @@ package com.irccloud.android.activity;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -50,17 +49,11 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ActivityCompat;
 
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.credentials.Credential;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.irccloud.android.AppCompatEditTextPreference;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
@@ -88,7 +81,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
     private SaveSettingsTask saveSettingsTask = null;
     private SavePreferencesTask savePreferencesTask = null;
     private String newpassword;
-    private GoogleApiClient mGoogleApiClient;
     private SettingsFragment mSettingsFragment;
 
     public static class SettingsFragment extends PreferenceFragment {
@@ -103,14 +95,11 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if(mGoogleApiClient.isConnected())
-            mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -167,10 +156,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
 
         conn = NetworkConnection.getInstance();
         conn.addHandler(this);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Auth.CREDENTIALS_API)
-                .build();
     }
 
     @Override
@@ -1164,31 +1149,8 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                     conn.change_password(null, oldPassword.getText().toString(), newpassword, new NetworkConnection.IRCResultCallback() {
                         @Override
                         public void onIRCResult(IRCCloudJSONObject result) {
+                            newpassword = null;
                             if(result.getBoolean("success")) {
-                                if (mGoogleApiClient.isConnected()) {
-                                    Credential.Builder builder = new Credential.Builder(conn.getUserInfo().email).setPassword(newpassword);
-                                    if (conn.getUserInfo().name != null && conn.getUserInfo().name.length() > 0)
-                                        builder.setName(conn.getUserInfo().name);
-                                    Auth.CredentialsApi.save(mGoogleApiClient, builder.build()).setResultCallback(new ResultCallback<Status>() {
-                                        @Override
-                                        public void onResult(com.google.android.gms.common.api.Status status) {
-                                            if (status.isSuccess()) {
-                                                Log.e("IRCCloud", "Credentials saved");
-                                            } else if (status.hasResolution()) {
-                                                Log.e("IRCCloud", "Credentials require resolution");
-                                                try {
-                                                    startIntentSenderForResult(status.getResolution().getIntentSender(), 1000, null, 0, 0, 0);
-                                                } catch (IntentSender.SendIntentException e) {
-                                                }
-                                            } else {
-                                                Log.e("IRCCloud", "Credentials request failed");
-                                            }
-                                            newpassword = null;
-                                        }
-                                    });
-                                } else {
-                                    newpassword = null;
-                                }
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -1197,7 +1159,6 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                                 });
                             } else {
                                 String error;
-                                newpassword = null;
                                 IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Password not changed: " + result.getString("message"));
                                 switch(result.getString("message")) {
                                     case "oldpassword":
@@ -1341,30 +1302,10 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
                             if(result.getBoolean("success")) {
                                 conn.logout();
                                 IRCCloudLog.Log("LOGOUT: Account deleted");
-                                if (mGoogleApiClient.isConnected() && conn.getUserInfo() != null) {
-                                    Credential.Builder builder = new Credential.Builder(conn.getUserInfo().email);
-                                    if (conn.getUserInfo().name != null && conn.getUserInfo().name.length() > 0)
-                                        builder.setName(conn.getUserInfo().name);
-                                    Auth.CredentialsApi.delete(mGoogleApiClient, builder.build()).setResultCallback(new ResultCallback<Status>() {
-                                        @Override
-                                        public void onResult(com.google.android.gms.common.api.Status status) {
-                                            Auth.CredentialsApi.disableAutoSignIn(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-                                                @Override
-                                                public void onResult(@NonNull Status status) {
-                                                    Intent i = new Intent(PreferencesActivity.this, LoginActivity.class);
-                                                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                    startActivity(i);
-                                                    finish();
-                                                }
-                                            });
-                                        }
-                                    });
-                                } else {
-                                    Intent i = new Intent(PreferencesActivity.this, LoginActivity.class);
-                                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(i);
-                                    finish();
-                                }
+                                Intent i = new Intent(PreferencesActivity.this, LoginActivity.class);
+                                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(i);
+                                finish();
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {

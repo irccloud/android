@@ -23,12 +23,10 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,20 +44,12 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.content.FileProvider;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.material.snackbar.Snackbar;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
@@ -80,14 +70,10 @@ import com.samsung.android.sdk.multiwindow.SMultiWindow;
 import com.samsung.android.sdk.multiwindow.SMultiWindowActivity;
 
 import java.io.File;
-import java.io.FileOutputStream;
 
-public class BaseActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class BaseActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler {
     NetworkConnection conn;
     private View dialogTextPrompt;
-    private GoogleApiClient mGoogleApiClient;
-    private boolean mResolvingError;
-    private static final int REQUEST_RESOLVE_ERROR = 1001;
 
     private SMultiWindow mMultiWindow = null;
     private SMultiWindowActivity mMultiWindowActivity = null;
@@ -137,12 +123,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Auth.CREDENTIALS_API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
         conn = NetworkConnection.getInstance();
         conn.addHandler(this);
         if(ServersList.getInstance().count() == 0)
@@ -179,77 +159,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             return (mMultiWindowActivity != null && !mMultiWindowActivity.isNormalWindow());
         else
             return isInMultiWindowMode();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        try {
-            if (!mResolvingError) {
-                mGoogleApiClient.connect();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        try {
-            mGoogleApiClient.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            super.onStop();
-        } catch (IllegalStateException e) {
-            //Android Support Library bug
-        }
-    }
-
-    @Override
-    public void onConnected(Bundle connectionHint) {
-    }
-
-    @Override
-    public void onConnectionSuspended(int cause) {
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        if (mResolvingError) {
-            // Already attempting to resolve an error.
-            return;
-        } else if (result.hasResolution()) {
-            try {
-                mResolvingError = true;
-                result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
-            } catch (IntentSender.SendIntentException e) {
-                // There was an error with the resolution intent. Try again.
-                mGoogleApiClient.connect();
-            }
-        } else {
-            if (GooglePlayServicesUtil.isUserRecoverableError(result.getErrorCode())) {
-                try {
-                    GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, REQUEST_RESOLVE_ERROR).show();
-                    mResolvingError = true;
-                } catch (Exception e) {
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_RESOLVE_ERROR) {
-            mResolvingError = false;
-            if (resultCode == RESULT_OK) {
-                if (!mGoogleApiClient.isConnecting() && !mGoogleApiClient.isConnected()) {
-                    mGoogleApiClient.connect();
-                }
-            }
-        }
     }
 
     public View getDialogTextPrompt() {
@@ -647,26 +556,12 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         dialog.dismiss();
                         conn.logout();
                         IRCCloudLog.Log("LOGOUT: Logout menu item selected");
-                        if(mGoogleApiClient.isConnected()) {
-                            Auth.CredentialsApi.disableAutoSignIn(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
-                                @Override
-                                public void onResult(Status status) {
-                                    Intent i = new Intent(BaseActivity.this, LoginActivity.class);
-                                    i.addFlags(
-                                            Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                                                    Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(i);
-                                    finish();
-                                }
-                            });
-                        } else {
-                            Intent i = new Intent(BaseActivity.this, LoginActivity.class);
-                            i.addFlags(
-                                    Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                                            Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(i);
-                            finish();
-                        }
+                        Intent i = new Intent(BaseActivity.this, LoginActivity.class);
+                        i.addFlags(
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                        Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(i);
+                        finish();
                     }
                 });
                 AlertDialog dialog = builder.create();
