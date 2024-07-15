@@ -447,6 +447,7 @@ public class NotificationsList {
                         ticker = n.getNick() + " is trying to contact you on " + n.getNetwork();
 
                         Intent i = new Intent(RemoteInputService.ACTION_REPLY);
+                        i.setPackage(IRCCloudApplication.getInstance().getPackageName());
                         i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), RemoteInputService.class.getName()));
                         i.putExtra("cid", n.getCid());
                         i.putExtra("eid", n.getEid());
@@ -461,6 +462,7 @@ public class NotificationsList {
                         text = n.getNick() + " has been added to your accept list";
                         ticker = n.getNick() + " has been added to your accept list on " + n.getNetwork();
                         Intent i = new Intent(RemoteInputService.ACTION_REPLY);
+                        i.setPackage(IRCCloudApplication.getInstance().getPackageName());
                         i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), RemoteInputService.class.getName()));
                         i.putExtra("cid", n.getCid());
                         i.putExtra("eid", n.getEid());
@@ -861,6 +863,7 @@ public class NotificationsList {
                             title = last.getNetwork();
 
                         Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
+                        replyIntent.setPackage(IRCCloudApplication.getInstance().getPackageName());
                         replyIntent.putExtra("bid", last.getBid());
                         replyIntent.putExtra("cid", last.getCid());
                         replyIntent.putExtra("eids", eids);
@@ -1011,6 +1014,7 @@ public class NotificationsList {
                     title = last.getNetwork();
 
                 Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
+                replyIntent.setPackage(IRCCloudApplication.getInstance().getPackageName());
                 replyIntent.putExtra("bid", last.getBid());
                 replyIntent.putExtra("cid", last.getCid());
                 replyIntent.putExtra("network", last.getNetwork());

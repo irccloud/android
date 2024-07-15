@@ -220,6 +220,7 @@ public class QuickReplyActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (message.getText() != null && message.getText().length() > 0) {
                     Intent i = new Intent(RemoteInputService.ACTION_REPLY);
+                    i.setPackage(getPackageName());
                     i.setComponent(new ComponentName(getPackageName(), RemoteInputService.class.getName()));
                     i.putExtras(getIntent());
                     i.putExtra("reply", message.getText().toString());
