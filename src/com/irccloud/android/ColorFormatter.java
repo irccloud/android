@@ -2841,18 +2841,10 @@ public class ColorFormatter {
                         if (end < 1)
                             continue;
 
-                        String text = output.toString().substring(start, end);
 
-                        //The phone number detector is a little too aggressive
-                        if(text.matches("[0-9()\\-%+. ]+")) {
-                            String digits = text.replaceAll("[()\\-%+. ]","");
-
-                            //Skip matches that contain less than 7 digits
-                            if (digits.length() < 7)
-                                continue;
-
-                            //Skip matches that include a percent sign
-                            if (text.contains("%"))
+                        if (span instanceof TextLinks.TextLinkSpan) {
+                            TextLinks.TextLinkSpan tls = (TextLinks.TextLinkSpan)span;
+                            if(tls.getTextLink().getConfidenceScore(TextClassifier.TYPE_URL) < 1.0 && tls.getTextLink().getConfidenceScore(TextClassifier.TYPE_EMAIL) < 1.0)
                                 continue;
                         }
 
