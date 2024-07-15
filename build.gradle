@@ -22,8 +22,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.5.1'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
-        classpath 'com.google.gms:google-services:4.4.0'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.2'
+        classpath 'com.google.gms:google-services:4.4.2'
         classpath 'com.google.firebase:perf-plugin:1.4.2'
     }
 }
@@ -61,8 +61,8 @@ android {
     namespace "com.irccloud.android"
 
     defaultConfig {
-        versionCode 359
-        versionName "4.32"
+        versionCode 360
+        versionName "4.33"
         minSdkVersion 22
         targetSdkVersion 34
         applicationId "com.irccloud.android"
