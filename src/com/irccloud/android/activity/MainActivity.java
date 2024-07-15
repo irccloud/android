@@ -154,6 +154,7 @@ import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.IRCEditText;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ChannelsList;
@@ -2231,6 +2232,24 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
         photoBtn.setVisibility(bubble ? View.GONE : View.VISIBLE);
         IRCCloudLinkMovementMethod.bubble = bubble;
+
+        if(prefs.getBoolean("imgur_removed", false)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("Imgur Uploading Unavailable");
+            builder.setMessage("Uploading images to imgur is no longer available due to limitations in imgur's API.\n\nNew images will be stored on IRCCloud, and your existing images will remain available on imgur.\n\nImages from imgur can still be shared by using the 'share' button in an external application.");
+            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.remove("imgur_removed");
+                    editor.apply();
+                    dialogInterface.dismiss();
+                }
+            });
+            AlertDialog d = builder.create();
+            d.setOwnerActivity(MainActivity.this);
+            d.show();
+        }
     }
 
     CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {

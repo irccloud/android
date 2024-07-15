@@ -113,6 +113,7 @@ public class IRCCloudApplication extends Application {
             editor.remove("imgur_refresh_token");
             editor.remove("imgur_token_type");
             editor.remove("imgur_expires_in");
+            editor.putBoolean("imgur_removed", true);
             editor.apply();
         }
 
