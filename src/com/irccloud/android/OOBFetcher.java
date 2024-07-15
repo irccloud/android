@@ -23,8 +23,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.firebase.perf.FirebasePerformance;
-import com.google.firebase.perf.metrics.Trace;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -75,13 +73,6 @@ public class OOBFetcher extends HTTPFetcher {
             conn.cancel_idle_timer();
             //android.os.Debug.startMethodTracing("/sdcard/oob", 16*1024*1024);
             IRCCloudLog.Log(Log.DEBUG, TAG, "Beginning backlog...");
-            Trace trace = null;
-            try {
-                trace = FirebasePerformance.getInstance().newTrace("parseOOB");
-                trace.start();
-            } catch (IllegalStateException e) {
-
-            }
             synchronized (conn.parserLock) {
                 conn.notifyHandlers(NetworkConnection.EVENT_OOB_START, mBid);
                 int count = 0;
@@ -109,13 +100,9 @@ public class OOBFetcher extends HTTPFetcher {
                     }
                     totalParseTime += t;
                     count++;
-                    if(trace != null)
-                        trace.incrementMetric("object", 1);
                 }
                 //android.os.Debug.stopMethodTracing();
                 totalTime = (System.currentTimeMillis() - totalTime);
-                if(trace != null)
-                    trace.stop();
                 IRCCloudLog.Log(Log.DEBUG, TAG, "Backlog complete: " + count + " events");
                 IRCCloudLog.Log(Log.DEBUG, TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime / (float) count) + "ms / object)");
                 IRCCloudLog.Log(Log.DEBUG, TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime / (float) count) + "ms / object)");

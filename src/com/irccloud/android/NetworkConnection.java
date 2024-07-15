@@ -54,8 +54,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.google.firebase.perf.FirebasePerformance;
-import com.google.firebase.perf.metrics.HttpMetric;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ChannelsList;
@@ -1192,25 +1190,12 @@ public class NetworkConnection {
                     TrustManager[] trustManagers = new TrustManager[1];
                     trustManagers[0] = TrustKit.getInstance().getTrustManager(config.getString("socket_host"));
                     WebSocketClient.setTrustManagers(trustManagers);
-                    HttpMetric m = null;
 
-                    try {
-                        m = FirebasePerformance.getInstance().newHttpMetric(url.replace("wss://", "https://"), FirebasePerformance.HttpMethod.GET);
-                        m.start();
-                    } catch (Exception e) {
-
-                    }
-
-                    final HttpMetric metric = m;
                     client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
                         @Override
                         public void onConnect() {
                             if (client != null && client.getListener() == this) {
                                 IRCCloudLog.Log(Log.DEBUG, TAG, "WebSocket connected");
-                                if (metric != null) {
-                                    metric.setHttpResponseCode(200);
-                                    metric.stop();
-                                }
                                 state = STATE_CONNECTING;
                                 notifyHandlers(EVENT_CONNECTIVITY, null);
                                 try {
@@ -3487,12 +3472,6 @@ public class NetworkConnection {
             IRCCloudLog.Log(Log.DEBUG, TAG, "Requesting via proxy: " + host);
         }
 
-        HttpMetric metric = null;
-        try {
-            metric = FirebasePerformance.getInstance().newHttpMetric(url, postdata != null ? FirebasePerformance.HttpMethod.POST : FirebasePerformance.HttpMethod.GET);
-        } catch (Exception e) {
-
-        }
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
             https.setSSLSocketFactory(TrustKit.getInstance().getSSLSocketFactory(url.getHost()));
@@ -3529,8 +3508,6 @@ public class NetworkConnection {
                 if (ostr != null)
                     ostr.close();
             }
-            if(metric != null)
-                metric.setRequestPayloadSize(postdata.length());
         }
         InputStream is = null;
         String response = "";
@@ -3545,9 +3522,6 @@ public class NetworkConnection {
             }
         } catch (Exception e) {
         }
-
-        if(metric != null)
-            metric.start();
 
         try {
             if (conn.getInputStream() != null) {
@@ -3569,12 +3543,6 @@ public class NetworkConnection {
                 os.write(buffer, 0, len);
             }
             response = os.toString("UTF-8");
-        }
-        if(metric != null) {
-            metric.setResponsePayloadSize(response.length());
-            metric.setHttpResponseCode(conn.getResponseCode());
-            metric.setResponseContentType(conn.getContentType());
-            metric.stop();
         }
         conn.disconnect();
         return response;

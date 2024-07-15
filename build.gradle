@@ -24,7 +24,6 @@ buildscript {
         classpath 'com.android.tools.build:gradle:8.5.1'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.2'
         classpath 'com.google.gms:google-services:4.4.2'
-        classpath 'com.google.firebase:perf-plugin:1.4.2'
     }
 }
 
@@ -38,7 +37,6 @@ allprojects {
 apply plugin: 'com.android.application'
 if (rootProject.file('private.properties').exists()) {
     apply plugin: 'com.google.gms.google-services'
-    apply plugin: 'com.google.firebase.firebase-perf'
     apply plugin: 'com.google.firebase.crashlytics'
 }
 
@@ -332,7 +330,6 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth:21.2.0"
     implementation "com.google.android.gms:play-services-identity:18.1.0"
     implementation 'com.google.firebase:firebase-messaging:24.0.0'
-    implementation 'com.google.firebase:firebase-perf:21.0.1'
     implementation 'com.google.firebase:firebase-crashlytics:19.0.3'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.8'

@@ -69,8 +69,6 @@ import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.firebase.perf.FirebasePerformance;
-import com.google.firebase.perf.metrics.Trace;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.CollapsedEventsList;
@@ -3357,13 +3355,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 });
             } else if (events.size() > 0) {
-                Trace trace = null;
-                try {
-                    trace = FirebasePerformance.getInstance().newTrace("loadBacklog");
-                    trace.start();
-                } catch (IllegalStateException e) {
-
-                }
                 if (server != null) {
                     ignore = server.ignores;
                 } else {
@@ -3390,12 +3381,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         } else {
                             insertEvent(adapter, e, true, false);
                         }
-                        if(trace != null)
-                            trace.incrementMetric("insertEvent", 1);
                     }
                     adapter.insertLastSeenEIDMarker();
-                    if(trace != null)
-                        trace.stop();
                     Log.i("IRCCloud", "Backlog rendering took: " + (System.currentTimeMillis() - start) + "ms");
                     //Debug.stopMethodTracing();
                     avgInsertTime = 0;
