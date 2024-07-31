@@ -21,7 +21,6 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.DownloadManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -30,14 +29,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,15 +50,12 @@ import android.widget.Toast;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.appcompat.widget.Toolbar;
 import androidx.browser.customtabs.CustomTabsClient;
-import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.browser.customtabs.CustomTabsServiceConnection;
 import androidx.browser.customtabs.CustomTabsSession;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
 import androidx.core.view.MenuItemCompat;
 
-import com.irccloud.android.ChromeCopyLinkBroadcastReceiver;
-import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
@@ -533,24 +525,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if (item.getItemId() == R.id.action_browser) {
-            if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("browser", false)) {
-                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-                builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
-                builder.addDefaultShareMenuItem();
-                builder.addMenuItem("Copy URL", PendingIntent.getBroadcast(this, 0, new Intent(this, ChromeCopyLinkBroadcastReceiver.class), Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
-
-                CustomTabsIntent intent = builder.build();
-                intent.intent.setData(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
-                if(Build.VERSION.SDK_INT >= 22)
-                    intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
-                if (intent.startAnimationBundle != null) {
-                    startActivity(intent.intent, intent.startAnimationBundle);
-                } else {
-                    startActivity(intent.intent);
-                }
-            } else {
-                IRCCloudLinkMovementMethod.launchBrowser(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")), this);
-            }
+            IRCCloudLinkMovementMethod.launchBrowser(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")), this);
             finish();
             return true;
         } else if (item.getItemId() == R.id.action_save) {

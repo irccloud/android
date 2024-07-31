@@ -243,23 +243,25 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
                 } else {
                     context.startActivity(intent.intent);
                 }
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
-                Toast.makeText(context, "An error occurred while launching this URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                launchViewIntent(uri, context);
             }
         } else {
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            if(!uri.toString().startsWith("irccloud-") || bubble)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
-            try {
-                context.startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                Toast.makeText(context, "An error occurred while launching this URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+            launchViewIntent(uri, context);
+        }
+    }
+
+    public static void launchViewIntent(Uri uri, Context context) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        if(!uri.toString().startsWith("irccloud-") || bubble)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+        try {
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(context, "Unable to find an application to handle this URL scheme", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(context, "An error occurred while launching this URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
