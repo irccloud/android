@@ -59,8 +59,8 @@ android {
     namespace "com.irccloud.android"
 
     defaultConfig {
-        versionCode 361
-        versionName "4.33"
+        versionCode 362
+        versionName "4.33.1"
         minSdkVersion 22
         targetSdkVersion 34
         applicationId "com.irccloud.android"
@@ -314,7 +314,7 @@ tasks.configureEach { task ->
 }
 
 dependencies {
-    implementation 'androidx.work:work-runtime:2.9.0'
+    implementation 'androidx.work:work-runtime:2.9.1'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
     implementation 'androidx.sharetarget:sharetarget:1.2.0'
