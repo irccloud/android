@@ -59,8 +59,8 @@ android {
     namespace "com.irccloud.android"
 
     defaultConfig {
-        versionCode 362
-        versionName "4.33.1"
+        versionCode 363
+        versionName "4.33.2"
         minSdkVersion 22
         targetSdkVersion 34
         applicationId "com.irccloud.android"
@@ -329,7 +329,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:18.5.0"
     implementation "com.google.android.gms:play-services-auth:21.2.0"
     implementation "com.google.android.gms:play-services-identity:18.1.0"
-    implementation 'com.google.firebase:firebase-messaging:24.0.0'
+    implementation 'com.google.firebase:firebase-messaging:24.0.1'
     implementation 'com.google.firebase:firebase-crashlytics:19.0.3'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.8'

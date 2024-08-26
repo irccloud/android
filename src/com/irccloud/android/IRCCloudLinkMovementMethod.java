@@ -43,6 +43,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.activity.ImageViewerActivity;
+import com.irccloud.android.activity.VideoPlayerActivity;
 import com.irccloud.android.data.collection.ImageList;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
@@ -255,6 +256,10 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         if(!uri.toString().startsWith("irccloud-") || bubble)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if(uri.toString().startsWith("irccloud-image"))
+            intent.setComponent(new ComponentName(context, ImageViewerActivity.class));
+        if(uri.toString().startsWith("irccloud-video"))
+            intent.setComponent(new ComponentName(context, VideoPlayerActivity.class));
         intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
         try {
             context.startActivity(intent);
