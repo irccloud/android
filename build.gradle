@@ -60,8 +60,8 @@ android {
 
     defaultConfig {
         versionCode 363
-        versionName "4.33.2"
-        minSdkVersion 22
+        versionName "4.33.3"
+        minSdkVersion 26
         targetSdkVersion 34
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"

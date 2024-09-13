@@ -18,13 +18,7 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">irccloud.com</domain>
-        <pin-set expiration="2020-10-09">
-            <pin digest="SHA-256">Y9mvm0exBk1JoQ57f9Vm28jKo5lFm/woKcVxrYxu80o=</pin>
-            <pin digest="SHA-256">5kJvNEMw0KjrCAu7eXY5HZdvyCS13BbA0VJG1RSP91w=</pin>
-            <pin digest="SHA-256">grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=</pin>
-            <pin digest="SHA-256">47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</pin>
-        </pin-set>
-        <trustkit-config enforcePinning="true"/>
+        <trustkit-config enforcePinning="false"/>
     </domain-config>
     <base-config cleartextTrafficPermitted="true" />
 </network-security-config>
