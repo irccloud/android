@@ -59,7 +59,7 @@ android {
     namespace "com.irccloud.android"
 
     defaultConfig {
-        versionCode 363
+        versionCode 364
         versionName "4.33.3"
         minSdkVersion 26
         targetSdkVersion 34
