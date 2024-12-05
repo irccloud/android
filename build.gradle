@@ -21,7 +21,7 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.1'
+        classpath 'com.android.tools.build:gradle:8.5.2'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.2'
         classpath 'com.google.gms:google-services:4.4.2'
     }
@@ -329,8 +329,8 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:18.5.0"
     implementation "com.google.android.gms:play-services-auth:21.2.0"
     implementation "com.google.android.gms:play-services-identity:18.1.0"
-    implementation 'com.google.firebase:firebase-messaging:24.0.1'
-    implementation 'com.google.firebase:firebase-crashlytics:19.0.3'
+    implementation 'com.google.firebase:firebase-messaging:24.1.0'
+    implementation 'com.google.firebase:firebase-crashlytics:19.3.0'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.8'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
@@ -340,7 +340,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8' //Newer versions don't work on Android SDK
     implementation 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     implementation 'com.datatheorem.android.trustkit:trustkit:1.1.5'
-    implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+    implementation 'com.vanniktech:android-image-cropper:4.3.3'
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 

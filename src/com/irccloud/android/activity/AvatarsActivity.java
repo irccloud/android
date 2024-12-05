@@ -47,11 +47,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import com.canhub.cropper.CropImageContract;
+import com.canhub.cropper.CropImageContractOptions;
+import com.canhub.cropper.CropImageOptions;
+import com.canhub.cropper.CropImageView;
 import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorScheme;
@@ -62,7 +68,7 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.collection.ImageList;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Server;
-import com.theartofdev.edmodo.cropper.CropImage;
+import com.canhub.cropper.CropImage;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,6 +89,9 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
     private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO = 2;
     private final int REQUEST_CAMERA = 1;
     private final int REQUEST_PHOTO = 2;
+
+    private final ActivityResultLauncher<CropImageContractOptions> cropImage =
+            registerForActivityResult(new CropImageContract(), this::onCropImageResult);
 
     private class AvatarsAdapterEntry {
         public String id;
@@ -381,33 +390,34 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
         NetworkConnection.getInstance().removeHandler(this);
     }
 
+    public void onCropImageResult(@NonNull CropImageView.CropResult result) {
+        if (result.isSuccessful()) {
+            fileUploadTask = new MainActivity.FileUploadTask(result.getUriContent(), null);
+            fileUploadTask.avatar = true;
+            fileUploadTask.orgId = orgId;
+            fileUploadTask.cid = cid;
+            fileUploadTask.execute((Void) null);
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-            Uri uri = CropImage.getActivityResult(imageReturnedIntent).getUri();
-            if (uri != null) {
-                fileUploadTask = new MainActivity.FileUploadTask(uri, null);
-                fileUploadTask.avatar = true;
-                fileUploadTask.orgId = orgId;
-                fileUploadTask.cid = cid;
-                fileUploadTask.execute((Void) null);
-            }
-        } else if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
             if (imageCaptureURI != null) {
-                CropImage.activity(imageCaptureURI)
+                CropImageContractOptions options = new CropImageContractOptions(imageCaptureURI, new CropImageOptions())
                         .setInitialCropWindowPaddingRatio(0)
-                        .setAspectRatio(1, 1)
-                        .start(this);
+                        .setAspectRatio(1,1);
+                cropImage.launch(options);
             }
         } else if (requestCode == REQUEST_PHOTO && resultCode == RESULT_OK) {
             Uri selectedImage = imageReturnedIntent.getData();
             if (selectedImage != null) {
                 selectedImage = MainActivity.makeTempCopy(selectedImage, this);
-                CropImage.activity(selectedImage)
+                CropImageContractOptions options = new CropImageContractOptions(selectedImage, new CropImageOptions())
                         .setInitialCropWindowPaddingRatio(0)
-                        .setAspectRatio(1, 1)
-                        .start(this);
+                        .setAspectRatio(1,1);
+                cropImage.launch(options);
             }
         }
     }
