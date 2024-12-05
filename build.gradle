@@ -50,7 +50,6 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url "https://www.jitpack.io" }
     maven { url "https://s3.amazonaws.com/repo.commonsware.com" }
-    jcenter()
 }
 
 android {
