@@ -21,7 +21,7 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.2'
+        classpath 'com.android.tools.build:gradle:8.7.3'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.2'
         classpath 'com.google.gms:google-services:4.4.2'
     }
@@ -53,7 +53,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion 34
+    compileSdk 35
     testBuildType "mockdata"
     namespace "com.irccloud.android"
 
