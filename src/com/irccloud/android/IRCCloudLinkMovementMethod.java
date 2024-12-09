@@ -235,7 +235,7 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
             builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
             builder.addDefaultShareMenuItem();
             Intent i = new Intent(context, ChromeCopyLinkBroadcastReceiver.class);
-            builder.addMenuItem("Copy URL", PendingIntent.getBroadcast(context, 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE)));
+            builder.addMenuItem("Copy URL", PendingIntent.getBroadcast(context, 0, i, (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE)));
             CustomTabsIntent intent = builder.build();
             intent.intent.setData(uri);
             try {

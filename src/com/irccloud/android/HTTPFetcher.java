@@ -120,8 +120,6 @@ public class HTTPFetcher {
             try {
                 IRCCloudLog.Log(Log.INFO, TAG, "Connecting to address: " + mAddress.getAddress() + " port: " + mAddress.getPort() + " (attempt " + mAttempts + ")");
                 Socket socket = mSocketFactory.createSocket();
-                if(Build.VERSION.SDK_INT < 24)
-                    socket.getClass().getMethod("setHostname", String.class).invoke(socket, mURI.getHost());
                 socket.connect(mAddress, 30000);
                 if(mSocket == null) {
                     mSocket = socket;

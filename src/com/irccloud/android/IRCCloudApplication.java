@@ -165,13 +165,11 @@ public class IRCCloudApplication extends Application {
             @Override
             public void run() {
                 notifierSockerTimerTask = null;
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-                    if(am != null && am.getRunningAppProcesses() != null) {
-                        for (ActivityManager.RunningAppProcessInfo info : am.getRunningAppProcesses()) {
-                            if (info.processName.equals(context.getPackageName()) && info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
-                                return;
-                        }
+                ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+                if(am != null && am.getRunningAppProcesses() != null) {
+                    for (ActivityManager.RunningAppProcessInfo info : am.getRunningAppProcesses()) {
+                        if (info.processName.equals(context.getPackageName()) && info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+                            return;
                     }
                 }
                 if(!conn.notifier && conn.getState() == NetworkConnection.STATE_CONNECTED) {
@@ -180,7 +178,7 @@ public class IRCCloudApplication extends Application {
                         IRCCloudLog.Log(Log.DEBUG, "IRCCloud", "No servers configured, not connecting notifier socket");
                         return;
                     }
-                    if(!(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)) {
+                    if(!(cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)) {
                         try {
                             Thread.sleep(1000);
                             conn.notifier = true;
@@ -192,7 +190,7 @@ public class IRCCloudApplication extends Application {
             }
         };
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+        if(cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
             android.util.Log.d("IRCCloud", "notifier timer scheduled for 5000 seconds");
             notifierTimer.schedule(notifierSockerTimerTask, 5000);
         } else {

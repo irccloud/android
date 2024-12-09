@@ -391,11 +391,7 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
         NetworkConnection.getInstance().addHandler(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            registerReceiver(downloadComplete, intentFilter, Context.RECEIVER_NOT_EXPORTED);
-        } else {
-            registerReceiver(downloadComplete, intentFilter);
-        }
+        registerReceiver(downloadComplete, intentFilter, Context.RECEIVER_NOT_EXPORTED);
     }
 
     private TimerTask updateTimerTask;

@@ -400,14 +400,6 @@
                 <data android:mimeType="video/*" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.QuickReplyActivity"
-            android:excludeFromRecents="true"
-            android:launchMode="singleInstance"
-            android:taskAffinity=""
-            android:theme="@style/dawnDialog"
-            android:exported="false"
-            android:windowSoftInputMode="stateVisible|adjustResize"/>
 
         <activity android:name=".activity.BubbleActivity"
             android:excludeFromRecents="true"

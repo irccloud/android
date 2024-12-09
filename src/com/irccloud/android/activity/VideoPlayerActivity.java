@@ -151,9 +151,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         }
         getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
         getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
-        if(Build.VERSION.SDK_INT >= 23) {
-            getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
+        getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
             @Override
@@ -415,35 +413,10 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_videoplayer, menu);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && getIntent() != null && getIntent().getDataString() != null) {
-            Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TEXT, getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http"));
-            intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
-            intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
+        MenuItem shareItem = menu.findItem(R.id.action_share);
+        if(shareItem != null && shareItem.getIcon() != null)
+            shareItem.getIcon().mutate().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
 
-            MenuItem shareItem = menu.findItem(R.id.action_share);
-            share = (ShareActionProviderHax) MenuItemCompat.getActionProvider(shareItem);
-            share.onShareActionProviderSubVisibilityChangedListener = this;
-            share.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
-                @Override
-                public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
-                    String name = intent.getComponent().getPackageName();
-                    try {
-                        name = String.valueOf(getPackageManager().getActivityInfo(intent.getComponent(), 0).loadLabel(getPackageManager()));
-                    } catch (PackageManager.NameNotFoundException e) {
-                        NetworkConnection.printStackTraceToCrashlytics(e);
-                    }
-                    return false;
-                }
-            });
-            share.setShareIntent(intent);
-        } else {
-            MenuItem shareItem = menu.findItem(R.id.action_share);
-            if(shareItem != null && shareItem.getIcon() != null)
-                shareItem.getIcon().mutate().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
-        }
         return true;
     }
 
@@ -484,7 +457,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             android.content.ClipData clip = android.content.ClipData.newRawUri("IRCCloud Video URL", Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
             clipboard.setPrimaryClip(clip);
             Toast.makeText(VideoPlayerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
-        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && item.getItemId() == R.id.action_share) {
+        } else if(item.getItemId() == R.id.action_share) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http"));

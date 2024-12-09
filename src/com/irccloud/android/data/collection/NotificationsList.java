@@ -36,8 +36,6 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.View;
-import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.WearableExtender;
@@ -60,7 +58,6 @@ import com.irccloud.android.NotificationDismissBroadcastReceiver;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
 import com.irccloud.android.activity.BubbleActivity;
-import com.irccloud.android.activity.QuickReplyActivity;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Notification;
@@ -456,7 +453,7 @@ public class NotificationsList {
                         i.putExtra("network", n.getNetwork());
                         i.putExtra("to", n.getNick());
                         i.putExtra("reply", "/accept " + n.getNick());
-                        action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Accept", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
+                        action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Accept", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
                     } else if(n.getMessage_type().equals("callerid_success")) {
                         title = n.getNetwork();
                         text = n.getNick() + " has been added to your accept list";
@@ -470,7 +467,7 @@ public class NotificationsList {
                         i.putExtra("buffer_type", n.getBuffer_type());
                         i.putExtra("network", n.getNetwork());
                         i.putExtra("to", n.getNick());
-                        action = new NotificationCompat.Action.Builder(R.drawable.ic_wearable_reply, "Message", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)))
+                        action = new NotificationCompat.Action.Builder(R.drawable.ic_wearable_reply, "Message", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)))
                                 .setAllowGeneratedReplies(true)
                                 .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Message to " + n.getNick()).build()).build();
                     } else if(n.getMessage_type().equals("channel_invite")) {
@@ -482,7 +479,7 @@ public class NotificationsList {
                             i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
                             i.setData(Uri.parse(IRCCloudApplication.getInstance().getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + n.getCid() + "/" + URLEncoder.encode(n.getChan(), "UTF-8")));
                             i.putExtra("eid", n.getEid());
-                            action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Join", PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
+                            action = new NotificationCompat.Action(R.drawable.ic_wearable_add, "Join", PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.getEid() / 1000), i, (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
                         } catch (Exception e) {
                             action = null;
                         }
@@ -526,32 +523,30 @@ public class NotificationsList {
 
     public void createChannel(String id, String title, int importance, String group) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager nm = ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
-            String ringtone = "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/raw/digit";
-            NotificationChannel defaults = nm.getNotificationChannel("highlight");
-            NotificationChannel c = new NotificationChannel(id, title, importance);
-            if(defaults != null && defaults.getSound() != null) {
-                c.setSound(defaults.getSound(), defaults.getAudioAttributes());
-            } else {
-                if (ringtone.length() > 0)
-                    c.setSound(Uri.parse(ringtone), new AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
-                            .build());
-            }
-            if(defaults != null) {
-                c.enableLights(defaults.shouldShowLights());
-                c.setLightColor(defaults.getLightColor());
-                c.enableVibration(defaults.shouldVibrate());
-                c.setVibrationPattern(defaults.getVibrationPattern());
-            } else {
-                c.enableLights(true);
-                c.enableVibration(true);
-            }
-            if(group != null)
-                c.setGroup(group);
-            nm.createNotificationChannel(c);
+        NotificationManager nm = ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
+        String ringtone = "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/raw/digit";
+        NotificationChannel defaults = nm.getNotificationChannel("highlight");
+        NotificationChannel c = new NotificationChannel(id, title, importance);
+        if(defaults != null && defaults.getSound() != null) {
+            c.setSound(defaults.getSound(), defaults.getAudioAttributes());
+        } else {
+            if (ringtone.length() > 0)
+                c.setSound(Uri.parse(ringtone), new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT)
+                        .build());
         }
+        if(defaults != null) {
+            c.enableLights(defaults.shouldShowLights());
+            c.setLightColor(defaults.getLightColor());
+            c.enableVibration(defaults.shouldVibrate());
+            c.setVibrationPattern(defaults.getVibrationPattern());
+        } else {
+            c.enableLights(true);
+            c.enableVibration(true);
+        }
+        if(group != null)
+            c.setGroup(group);
+        nm.createNotificationChannel(c);
     }
 
     @SuppressLint("NewApi")
@@ -583,16 +578,6 @@ public class NotificationsList {
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .setOnlyAlertOnce(ticker == null);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            builder.setLargeIcon(largeIcon);
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 2000) {
-            if (ringtone.length() > 0)
-                builder.setSound(Uri.parse(ringtone));
-        }
-        if (!hasTouchWiz() && Build.VERSION.SDK_INT < Build.VERSION_CODES.O && ticker != null)
-            builder.setPriority(NotificationCompat.PRIORITY_HIGH);
-
         int led_color = Integer.parseInt(prefs.getString("notify_led_color", "1"));
         if (led_color == 1) {
             defaults = android.app.Notification.DEFAULT_LIGHTS;
@@ -619,7 +604,7 @@ public class NotificationsList {
 
         PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, Build.VERSION.SDK_INT < 31 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE));
 
-        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
+        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
         builder.setDeleteIntent(dismissPendingIntent);
 
         WearableExtender wearableExtender = new WearableExtender();
@@ -694,58 +679,15 @@ public class NotificationsList {
             if(messages.size() > 1) {
                 wearableExtender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(Html.fromHtml(weartext.toString())).extend(new WearableExtender().setStartScrollBottom(true)).build());
             }
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                weartext.setLength(0);
-                int j = 0;
-                for(Notification n : messages) {
-                    if(messages.size() - ++j < 3) {
-                        if (n != null && n.getMessage() != null && n.getMessage().length() > 0) {
-                            if (weartext.length() > 0)
-                                weartext.append("<br/>");
-                            if (n.getMessage_type().equals("buffer_me_msg")) {
-                                weartext.append("<b>— ").append((n.getNick() == null) ? servernick : n.getNick()).append("</b> ").append(n.getMessage());
-                            } else {
-                                weartext.append("<b>&lt;").append((n.getNick() == null) ? servernick : n.getNick()).append("&gt;</b> ").append(n.getMessage());
-                            }
-                        }
-                    }
-                }
-
-                RemoteViews bigContentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification_expanded);
-                bigContentView.setTextViewText(R.id.title, title + (!title.equals(network) ? (" (" + network + ")") : ""));
-                bigContentView.setTextViewText(R.id.text, Html.fromHtml(weartext.toString()));
-                bigContentView.setImageViewBitmap(R.id.image, largeIcon);
-                bigContentView.setLong(R.id.time, "setTime", eids[0] / 1000);
-                if (count > 3) {
-                    bigContentView.setViewVisibility(R.id.more, View.VISIBLE);
-                    bigContentView.setTextViewText(R.id.more, "+" + (count - 3) + " more");
-                } else {
-                    bigContentView.setViewVisibility(R.id.more, View.GONE);
-                }
-                if(replyIntent != null && prefs.getBoolean("notify_quickreply", true)) {
-                    bigContentView.setViewVisibility(R.id.actions, View.VISIBLE);
-                    bigContentView.setViewVisibility(R.id.action_divider, View.VISIBLE);
-                    i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);
-                    i.setData(Uri.parse("irccloud-bid://" + bid));
-                    i.putExtras(replyIntent);
-                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE));
-                    bigContentView.setOnClickPendingIntent(R.id.action_reply, quickReplyIntent);
-                }
-                builder.setCustomBigContentView(bigContentView);
-            }
         }
 
         if (replyIntent != null) {
             PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, Build.VERSION.SDK_INT < 31 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE));
 
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                builder.addAction(new NotificationCompat.Action.Builder(0,
-                        "Reply", replyPendingIntent)
-                        .setAllowGeneratedReplies(true)
-                        .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build()).build());
-            }
+            builder.addAction(new NotificationCompat.Action.Builder(0,
+                    "Reply", replyPendingIntent)
+                    .setAllowGeneratedReplies(true)
+                    .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build()).build());
 
             NotificationCompat.Action.Builder actionBuilder = new NotificationCompat.Action.Builder(R.drawable.ic_wearable_reply,
                     "Reply", replyPendingIntent)
@@ -786,15 +728,6 @@ public class NotificationsList {
             unreadConvBuilder.setLatestTimestamp(eids[count - 1] / 1000);
 
             builder.extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build()));*/
-        }
-
-        if (replyIntent != null && prefs.getBoolean("notify_quickreply", true) && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);
-            i.setData(Uri.parse("irccloud-bid://" + bid));
-            i.putExtras(replyIntent);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(R.drawable.ic_action_reply, "Quick Reply", quickReplyIntent);
         }
 
         /*if (replyIntent != null) {
@@ -1098,7 +1031,7 @@ public class NotificationsList {
         i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
         i.putExtra("bid", bid);
         i.setData(Uri.parse("bid://" + bid));
-        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
+        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
 
         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(bid, builder.build());
 
@@ -1124,45 +1057,41 @@ public class NotificationsList {
     }
 
     public void addNotificationGroup(int id, String name) {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE))
-                    .createNotificationChannelGroup(new NotificationChannelGroup(String.valueOf(id), name));
-        }
+        ((NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE))
+                .createNotificationChannelGroup(new NotificationChannelGroup(String.valueOf(id), name));
     }
 
     public void pruneNotificationChannels() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager nm = ((NotificationManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
+        NotificationManager nm = ((NotificationManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE));
 
-            createChannel("alert", "Alerts", NotificationManagerCompat.IMPORTANCE_DEFAULT, null);
-            createChannel("highlight", "Highlights and PMs", NotificationManagerCompat.IMPORTANCE_HIGH, null);
+        createChannel("alert", "Alerts", NotificationManagerCompat.IMPORTANCE_DEFAULT, null);
+        createChannel("highlight", "Highlights and PMs", NotificationManagerCompat.IMPORTANCE_HIGH, null);
 
-            for (NotificationChannelGroup c : nm.getNotificationChannelGroups()) {
-                try {
-                    if (ServersList.getInstance().getServer(Integer.valueOf(c.getId())) == null)
-                        nm.deleteNotificationChannelGroup(c.getId());
-                } catch(NumberFormatException e) {
-                }
+        for (NotificationChannelGroup c : nm.getNotificationChannelGroups()) {
+            try {
+                if (ServersList.getInstance().getServer(Integer.valueOf(c.getId())) == null)
+                    nm.deleteNotificationChannelGroup(c.getId());
+            } catch(NumberFormatException e) {
+            }
+        }
+
+        String uid = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("uid", "uid");
+        for (NotificationChannel c : nm.getNotificationChannels()) {
+            try {
+                if (c.getId().startsWith("uid") && BuffersList.getInstance().getBuffer(Integer.valueOf(c.getId().substring(uid.length()))) == null)
+                    nm.deleteNotificationChannel(c.getId());
+            } catch(NumberFormatException e) {
+            }
+            try {
+                if (Integer.valueOf(c.getId()) > 0)
+                    nm.deleteNotificationChannelGroup(c.getId());
+            } catch(NumberFormatException e) {
             }
 
-            String uid = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("uid", "uid");
-            for (NotificationChannel c : nm.getNotificationChannels()) {
-                try {
-                    if (c.getId().startsWith("uid") && BuffersList.getInstance().getBuffer(Integer.valueOf(c.getId().substring(uid.length()))) == null)
-                        nm.deleteNotificationChannel(c.getId());
-                } catch(NumberFormatException e) {
-                }
-                try {
-                    if (Integer.valueOf(c.getId()) > 0)
-                        nm.deleteNotificationChannelGroup(c.getId());
-                } catch(NumberFormatException e) {
-                }
-
-                if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_channels", false) && c.getId().startsWith("uid")) {
-                    nm.deleteNotificationChannel(c.getId());
-                    if(c.getGroup() != null)
-                        nm.deleteNotificationChannelGroup(c.getGroup());
-                }
+            if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_channels", false) && c.getId().startsWith("uid")) {
+                nm.deleteNotificationChannel(c.getId());
+                if(c.getGroup() != null)
+                    nm.deleteNotificationChannelGroup(c.getGroup());
             }
         }
     }

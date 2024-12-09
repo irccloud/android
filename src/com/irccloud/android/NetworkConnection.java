@@ -322,7 +322,7 @@ public class NetworkConnection {
         @Override
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+            if(cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
                 IRCCloudLog.Log(Log.INFO, TAG, "Data Saver was enabled");
                 if(!isVisible() && state == STATE_CONNECTED) {
                     notifier = false;
@@ -883,18 +883,12 @@ public class NetworkConnection {
     @TargetApi(24)
     public void registerForConnectivity() {
         try {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                IntentFilter intentFilter = new IntentFilter();
-                intentFilter.addAction(ConnectivityManager.ACTION_RESTRICT_BACKGROUND_CHANGED);
-                IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(dataSaverListener, intentFilter);
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(ConnectivityManager.ACTION_RESTRICT_BACKGROUND_CHANGED);
+            IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(dataSaverListener, intentFilter);
 
-                ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-                cm.registerDefaultNetworkCallback(connectivityCallback);
-            } else {
-                IntentFilter intentFilter = new IntentFilter();
-                intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-                IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
-            }
+            ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            cm.registerDefaultNetworkCallback(connectivityCallback);
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
         }
@@ -902,12 +896,8 @@ public class NetworkConnection {
 
     public void unregisterForConnectivity() {
         try {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-                cm.unregisterNetworkCallback(connectivityCallback);
-            } else {
-                IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
-            }
+            ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            cm.unregisterNetworkCallback(connectivityCallback);
         } catch (IllegalArgumentException e) {
             //The broadcast receiver hasn't been registered yet
         }

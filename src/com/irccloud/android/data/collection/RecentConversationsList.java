@@ -135,51 +135,49 @@ public class RecentConversationsList {
     }
 
     public void publishShortcuts() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int MAX_SHORTCUTS = ShortcutManagerCompat.getMaxShortcutCountPerActivity(IRCCloudApplication.getInstance().getApplicationContext());
+        int MAX_SHORTCUTS = ShortcutManagerCompat.getMaxShortcutCountPerActivity(IRCCloudApplication.getInstance().getApplicationContext());
 
-            HashSet<String> categories = new HashSet<>();
-            categories.add("com.irccloud.android.SHARE_TARGET");
+        HashSet<String> categories = new HashSet<>();
+        categories.add("com.irccloud.android.SHARE_TARGET");
 
-            ArrayList<ShortcutInfoCompat> shortcuts = new ArrayList<>();
-            List<RecentConversation> conversations = getConversations();
-            for(RecentConversation c : conversations) {
-                IconCompat avatar = null;
+        ArrayList<ShortcutInfoCompat> shortcuts = new ArrayList<>();
+        List<RecentConversation> conversations = getConversations();
+        for(RecentConversation c : conversations) {
+            IconCompat avatar = null;
 
-                try {
-                    avatar = AvatarsList.getIconForBuffer(c.getBuffer(), new ImageList.OnImageFetchedListener() {
-                        @Override
-                        public void onImageFetched(Bitmap image) {
-                            RecentConversationsList.getInstance().publishShortcuts();
-                        }
-                    });
-                } catch (Exception e) {
+            try {
+                avatar = AvatarsList.getIconForBuffer(c.getBuffer(), new ImageList.OnImageFetchedListener() {
+                    @Override
+                    public void onImageFetched(Bitmap image) {
+                        RecentConversationsList.getInstance().publishShortcuts();
+                    }
+                });
+            } catch (Exception e) {
 
-                }
-
-                if(avatar != null) {
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
-                    i.putExtra("bid", c.getBid());
-
-                    ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(c.getBid()))
-                            .setShortLabel(c.getName())
-                            .setIcon(avatar)
-                            .setIntent(i)
-                            .setLongLived(true)
-                            .setCategories(categories);
-
-                    if (people.containsKey(c.getBid()))
-                        builder.setPersons(people.get(c.getBid()));
-                    else if (c.getBuffer().isConversation())
-                        builder.setPerson(new Person.Builder().setName(c.getBuffer().getDisplayName()).build());
-
-                    shortcuts.add(builder.build());
-                }
-
-                if(shortcuts.size() >= MAX_SHORTCUTS)
-                    break;
             }
+
+            if(avatar != null) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+                i.putExtra("bid", c.getBid());
+
+                ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext(), String.valueOf(c.getBid()))
+                        .setShortLabel(c.getName())
+                        .setIcon(avatar)
+                        .setIntent(i)
+                        .setLongLived(true)
+                        .setCategories(categories);
+
+                if (people.containsKey(c.getBid()))
+                    builder.setPersons(people.get(c.getBid()));
+                else if (c.getBuffer().isConversation())
+                    builder.setPerson(new Person.Builder().setName(c.getBuffer().getDisplayName()).build());
+
+                shortcuts.add(builder.build());
+            }
+
+            if(shortcuts.size() >= MAX_SHORTCUTS)
+                break;
 
             ShortcutManagerCompat.removeAllDynamicShortcuts(IRCCloudApplication.getInstance().getApplicationContext());
             ShortcutManagerCompat.addDynamicShortcuts(IRCCloudApplication.getInstance().getApplicationContext(), shortcuts);

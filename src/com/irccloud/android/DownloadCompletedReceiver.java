@@ -85,10 +85,13 @@ public class DownloadCompletedReceiver extends BroadcastReceiver {
                 notification.setDefaults(defaults);
 
                 Intent i = new Intent(context, LogExportsActivity.class);
-                notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
+                notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
 
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) e.getDownload_id(), notification.build());
+                try {
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) e.getDownload_id(), notification.build());
+                } catch (SecurityException e1) {
 
+                }
             }
         }
     }

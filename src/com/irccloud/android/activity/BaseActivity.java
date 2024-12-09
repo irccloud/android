@@ -116,12 +116,11 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
         if(ColorScheme.getInstance().windowBackgroundDrawable != 0)
             getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
-        if(Build.VERSION.SDK_INT >= 23) {
-            if(theme.equals("dawn"))
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            else
-                getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
+
+        if(theme.equals("dawn"))
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        else
+            getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         conn = NetworkConnection.getInstance();
         conn.addHandler(this);
@@ -155,10 +154,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     }
 
     public boolean isMultiWindow() {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-            return (mMultiWindowActivity != null && !mMultiWindowActivity.isNormalWindow());
-        else
-            return isInMultiWindowMode();
+        return isInMultiWindowMode();
     }
 
     public View getDialogTextPrompt() {

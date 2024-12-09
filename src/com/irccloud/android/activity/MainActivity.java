@@ -513,13 +513,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         super.onCreate(savedInstanceState);
         theme = ColorScheme.getTheme(ColorScheme.getUserTheme(), false);
         setTheme(theme);
-        if(Build.VERSION.SDK_INT >= 26 || ColorScheme.getInstance().isDarkTheme) {
-            getWindow().setNavigationBarColor(colorScheme.contentBackgroundColor);
-            if (!ColorScheme.getInstance().isDarkTheme)
-                getWindow().getDecorView().setSystemUiVisibility(SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR | SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
+        getWindow().setNavigationBarColor(colorScheme.contentBackgroundColor);
+        if (!ColorScheme.getInstance().isDarkTheme)
+            getWindow().getDecorView().setSystemUiVisibility(SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR | SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         suggestionsTimer = new Timer("suggestions-timer");
         countdownTimer = new Timer("messsage-countdown-timer");
 
@@ -597,8 +593,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if(currentActionMode != null)
                         currentActionMode.finish();
                     startFormatActionMode();
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-                        messageTxt.setCurrentActionMode(formattingActionMode);
                     messageTxt.setSelection(selectionStart, selectionEnd);
                     return true;
                 }
@@ -858,8 +852,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                         break;
                     case DragEvent.ACTION_DROP:
-                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                            requestDragAndDropPermissions(dragEvent);
+                        requestDragAndDropPermissions(dragEvent);
                         ClipData c = dragEvent.getClipData();
                         for(int i = 0; i < c.getItemCount(); i++) {
                             ClipData.Item item = c.getItemAt(i);
@@ -4728,34 +4721,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     shortcutIntent.setAction(Intent.ACTION_VIEW);
                     shortcutIntent.setData(Uri.parse(uri));
 
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                        final Intent intent = new Intent();
-                        intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-                        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, buffer.getName());
-                        intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(this, R.mipmap.ic_launcher));
-                        intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
-                        sendBroadcast(intent);
-                    } else {
-                        ShortcutManager mShortcutManager = getSystemService(ShortcutManager.class);
+                    ShortcutManager mShortcutManager = getSystemService(ShortcutManager.class);
 
-                        if (mShortcutManager != null && mShortcutManager.isRequestPinShortcutSupported()) {
-                            ShortcutInfo.Builder pinShortcutInfo = new ShortcutInfo.Builder(this, String.valueOf(buffer.getBid()))
-                                    .setIntent(shortcutIntent)
-                                    .setShortLabel(buffer.getName())
-                                    .setLongLabel(buffer.getName() + " (" + ((server.getName() != null && server.getName().length() > 0) ? server.getName() : server.getHostname()) + ")");
+                    if (mShortcutManager != null && mShortcutManager.isRequestPinShortcutSupported()) {
+                        ShortcutInfo.Builder pinShortcutInfo = new ShortcutInfo.Builder(this, String.valueOf(buffer.getBid()))
+                                .setIntent(shortcutIntent)
+                                .setShortLabel(buffer.getName())
+                                .setLongLabel(buffer.getName() + " (" + ((server.getName() != null && server.getName().length() > 0) ? server.getName() : server.getHostname()) + ")");
 
-                            IconCompat icon = AvatarsList.getIconForBuffer(buffer, new ImageList.OnImageFetchedListener() {
-                                @Override
-                                public void onImageFetched(Bitmap image) {
-                                    if (image != null) {
-                                        pinShortcutInfo.setIcon(Icon.createWithAdaptiveBitmap(image));
-                                        mShortcutManager.requestPinShortcut(pinShortcutInfo.build(), null);
-                                    }
+                        IconCompat icon = AvatarsList.getIconForBuffer(buffer, new ImageList.OnImageFetchedListener() {
+                            @Override
+                            public void onImageFetched(Bitmap image) {
+                                if (image != null) {
+                                    pinShortcutInfo.setIcon(Icon.createWithAdaptiveBitmap(image));
+                                    mShortcutManager.requestPinShortcut(pinShortcutInfo.build(), null);
                                 }
-                            });
-                            pinShortcutInfo.setIcon(icon.toIcon(this));
-                            mShortcutManager.requestPinShortcut(pinShortcutInfo.build(), null);
-                        }
+                            }
+                        });
+                        pinShortcutInfo.setIcon(icon.toIcon(this));
+                        mShortcutManager.requestPinShortcut(pinShortcutInfo.build(), null);
                     }
                     moveTaskToBack(true);
                 } catch (Exception e) {
