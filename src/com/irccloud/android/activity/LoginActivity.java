@@ -45,6 +45,10 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
@@ -88,9 +92,49 @@ public class LoginActivity extends FragmentActivity {
     private LinearLayout enterpriseHint = null;
     private LinearLayout loginSignupHint = null;
 
-    private static final int REQUEST_SAML = 1;
-
     private String auth_url = null;
+
+    ActivityResultLauncher<Intent> samlLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult o) {
+            if (o.getResultCode() == RESULT_OK) {
+                final Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                i.putExtra("nosplash", true);
+                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (getIntent() != null) {
+                    if (getIntent().getData() != null)
+                        i.setData(getIntent().getData());
+                    if (getIntent().getExtras() != null)
+                        i.putExtras(getIntent().getExtras());
+                }
+
+                startActivity(i);
+                finish();
+            } else {
+                NetworkConnection.IRCCLOUD_HOST = null;
+                name.setVisibility(View.GONE);
+                email.setVisibility(View.GONE);
+                password.setVisibility(View.GONE);
+                loginBtn.setVisibility(View.GONE);
+                signupBtn.setVisibility(View.GONE);
+                TOS.setVisibility(View.GONE);
+                signupHint.setVisibility(View.GONE);
+                loginHint.setVisibility(View.GONE);
+                forgotPassword.setVisibility(View.GONE);
+                loginSignupHint.setVisibility(View.GONE);
+                EnterYourEmail.setVisibility(View.GONE);
+                sendAccessLinkBtn.setVisibility(View.GONE);
+                notAProblem.setVisibility(View.GONE);
+                enterpriseLearnMore.setVisibility(View.VISIBLE);
+                enterpriseHint.setVisibility(View.VISIBLE);
+                host.setVisibility(View.VISIBLE);
+                nextBtn.setVisibility(View.VISIBLE);
+                hostHint.setVisibility(View.VISIBLE);
+                host.requestFocus();
+                ((TextView) findViewById(R.id.enterpriseHintText)).setText("Enterprise Edition");
+            }
+        }
+    });
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -185,7 +229,7 @@ public class LoginActivity extends FragmentActivity {
                             Intent i = new Intent(LoginActivity.this, SAMLAuthActivity.class);
                             i.putExtra("auth_url", auth_url);
                             i.putExtra("title", loginBtn.getText().toString());
-                            startActivityForResult(i, REQUEST_SAML);
+                            samlLauncher.launch(i);
                         } else {
                             login();
                         }
@@ -499,48 +543,6 @@ public class LoginActivity extends FragmentActivity {
                 connecting.setVisibility(View.GONE);
             if (login != null)
                 login.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_SAML) {
-            if (resultCode == RESULT_OK) {
-                final Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                i.putExtra("nosplash", true);
-                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (getIntent() != null) {
-                    if (getIntent().getData() != null)
-                        i.setData(getIntent().getData());
-                    if (getIntent().getExtras() != null)
-                        i.putExtras(getIntent().getExtras());
-                }
-
-                startActivity(i);
-                finish();
-            } else {
-                NetworkConnection.IRCCLOUD_HOST = null;
-                name.setVisibility(View.GONE);
-                email.setVisibility(View.GONE);
-                password.setVisibility(View.GONE);
-                loginBtn.setVisibility(View.GONE);
-                signupBtn.setVisibility(View.GONE);
-                TOS.setVisibility(View.GONE);
-                signupHint.setVisibility(View.GONE);
-                loginHint.setVisibility(View.GONE);
-                forgotPassword.setVisibility(View.GONE);
-                loginSignupHint.setVisibility(View.GONE);
-                EnterYourEmail.setVisibility(View.GONE);
-                sendAccessLinkBtn.setVisibility(View.GONE);
-                notAProblem.setVisibility(View.GONE);
-                enterpriseLearnMore.setVisibility(View.VISIBLE);
-                enterpriseHint.setVisibility(View.VISIBLE);
-                host.setVisibility(View.VISIBLE);
-                nextBtn.setVisibility(View.VISIBLE);
-                hostHint.setVisibility(View.VISIBLE);
-                host.requestFocus();
-                ((TextView) findViewById(R.id.enterpriseHintText)).setText("Enterprise Edition");
-            }
         }
     }
 

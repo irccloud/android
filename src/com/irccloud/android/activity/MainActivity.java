@@ -111,6 +111,11 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -154,7 +159,6 @@ import com.irccloud.android.IRCCloudLog;
 import com.irccloud.android.IRCEditText;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.ChannelsList;
@@ -243,7 +247,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private boolean shouldFadeIn = false;
     private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
     private ExcludeBIDTask excludeBIDTask = null;
-    private ArrayList<Integer> backStack = new ArrayList<Integer>();
+    private ArrayList<Integer> backStack = new ArrayList<>();
     private int launchBid = -1;
     private Uri launchURI = null;
     private String bufferToOpen = null;
@@ -1134,7 +1138,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private void show_pastebin_prompt() {
         Intent i = new Intent(this, PastebinEditorActivity.class);
         i.putExtra("paste_contents", messageTxt.getText().toString());
-        startActivityForResult(i, REQUEST_PASTEBIN);
+        requestPastebin.launch(i);
     }
 
     private void show_topic_popup(final Channel c) {
@@ -4129,12 +4133,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private ToggleListener mDrawerListener = new ToggleListener();
 
-    private final int REQUEST_CAMERA = 1;
-    private final int REQUEST_PHOTO = 2;
-    private final int REQUEST_DOCUMENT = 3;
-    private final int REQUEST_UPLOADS = 4;
-    private final int REQUEST_PASTEBIN = 5;
-
     public static Uri makeTempCopy(Uri fileUri, Context context) {
         if(fileUri == null)
             return null;
@@ -4243,60 +4241,80 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        if (buffer != null) {
-            if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
-                if (imageCaptureURI != null && isValidUploadPath(this,imageCaptureURI)) {
-                    fileUploadTask = new FileUploadTask(imageCaptureURI, this);
+    ActivityResultLauncher<Uri> requestCamera = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
+        @Override
+        public void onActivityResult(Boolean success) {
+            if(success) {
+                if (imageCaptureURI != null && isValidUploadPath(MainActivity.this,imageCaptureURI)) {
+                    fileUploadTask = new FileUploadTask(imageCaptureURI, MainActivity.this);
                     if(!mediaPermissionsGranted()) {
                         requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
                     } else {
                         fileUploadTask.execute((Void) null);
                     }
 
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && imageCaptureURI.toString().startsWith("file://")) {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getBoolean("keep_photos", false) && imageCaptureURI.toString().startsWith("file://")) {
                         ContentValues image = new ContentValues();
                         image.put(MediaStore.Images.Media.DATA, imageCaptureURI.toString().substring(7));
                         getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image);
                     }
                 }
-            } else if (requestCode == REQUEST_PHOTO && resultCode == RESULT_OK) {
-                Uri selectedImage = imageReturnedIntent.getData();
-                if (selectedImage != null && isValidUploadPath(this,selectedImage)) {
-                    selectedImage = makeTempCopy(selectedImage, this);
-                    fileUploadTask = new FileUploadTask(selectedImage, this);
-                    if(!mediaPermissionsGranted()) {
-                        requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                    } else {
-                        fileUploadTask.execute((Void) null);
-                    }
-                }
-            } else if (requestCode == REQUEST_DOCUMENT && resultCode == RESULT_OK) {
-                Uri selectedFile = imageReturnedIntent.getData();
-                if (selectedFile != null && isValidUploadPath(this,selectedFile)) {
-                    selectedFile = makeTempCopy(selectedFile, this);
-                    fileUploadTask = new FileUploadTask(selectedFile, this);
-                    if(!mediaPermissionsGranted()) {
-                        requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
-                    } else {
-                        fileUploadTask.execute((Void) null);
-                    }
-                }
-            } else if (requestCode == REQUEST_UPLOADS && resultCode == RESULT_OK) {
-                buffer.setDraft("");
-                messageTxt.setText("");
-            } else if (requestCode == REQUEST_PASTEBIN) {
-                if(resultCode == RESULT_OK) {
-                    pastebinResult = imageReturnedIntent;
-                } else if(resultCode == RESULT_CANCELED) {
-                    buffer.setDraft(imageReturnedIntent.getStringExtra("paste_contents"));
-                    messageTxt.setText(buffer.getDraft());
+            }
+        }
+    });
+
+    ActivityResultLauncher<PickVisualMediaRequest> requestPhoto = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), new ActivityResultCallback<Uri>() {
+        @Override
+        public void onActivityResult(Uri selectedImage) {
+            if (selectedImage != null && isValidUploadPath(MainActivity.this,selectedImage)) {
+                selectedImage = makeTempCopy(selectedImage, MainActivity.this);
+                fileUploadTask = new FileUploadTask(selectedImage, MainActivity.this);
+                if(!mediaPermissionsGranted()) {
+                    requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                } else {
+                    fileUploadTask.execute((Void) null);
                 }
             }
         }
-    }
+    });
+
+    ActivityResultLauncher<String[]> requestDocument = registerForActivityResult(new ActivityResultContracts.OpenDocument(), new ActivityResultCallback<Uri>() {
+        @Override
+        public void onActivityResult(Uri selectedFile) {
+            if (selectedFile != null && isValidUploadPath(MainActivity.this,selectedFile)) {
+                selectedFile = makeTempCopy(selectedFile, MainActivity.this);
+                fileUploadTask = new FileUploadTask(selectedFile, MainActivity.this);
+                if(!mediaPermissionsGranted()) {
+                    requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                } else {
+                    fileUploadTask.execute((Void) null);
+                }
+            }
+        }
+    });
+
+    ActivityResultLauncher<Intent> requestUploads = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult o) {
+            if(o.getResultCode() == RESULT_OK) {
+                buffer.setDraft("");
+                messageTxt.setText("");
+            }
+        }
+    });
+
+    ActivityResultLauncher<Intent> requestPastebin = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult o) {
+            if(o.getResultCode() == RESULT_OK) {
+                pastebinResult = o.getData();
+            } else if (o.getResultCode() == RESULT_CANCELED) {
+                buffer.setDraft(o.getData().getStringExtra("paste_contents"));
+                messageTxt.setText(buffer.getDraft());
+            }
+        }
+    });
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -4337,12 +4355,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     new File(imageDir, ".nomedia").createNewFile();
                     File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
                     imageCaptureURI = Uri.fromFile(tempFile);
-                    i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                    else
-                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
-                    startActivityForResult(i, REQUEST_CAMERA);
+                    requestCamera.launch(FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
                 } catch (IOException e) {
                 }
                 break;
@@ -4353,26 +4366,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     new File(imageDir, ".nomedia").createNewFile();
                     File tempFile = File.createTempFile("irccloudcapture", ".mp4", imageDir);
                     imageCaptureURI = Uri.fromFile(tempFile);
-                    i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                    else
-                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
-                    startActivityForResult(i, REQUEST_CAMERA);
+                    requestCamera.launch(FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
                 } catch (IOException e) {
                 }
                 break;
             case REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO:
-                i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.addCategory(Intent.CATEGORY_OPENABLE);
-                i.setType("image/*");
-                startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
+                requestPhoto.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build());
                 break;
             case REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT:
-                i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.addCategory(Intent.CATEGORY_OPENABLE);
-                i.setType("*/*");
-                startActivityForResult(Intent.createChooser(i, "Select A Document"), REQUEST_DOCUMENT);
+                requestDocument.launch(new String[]{"*/*"});
                 break;
             case REQUEST_EXTERNAL_MEDIA_IRCCLOUD:
                 if(fileUploadTask != null && fileUploadTask.getStatus() == AsyncTaskEx.Status.PENDING) {
@@ -4462,12 +4466,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     new File(imageDir, ".nomedia").createNewFile();
                                     File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
                                     imageCaptureURI = Uri.fromFile(tempFile);
-                                    i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                                    else
-                                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
-                                    startActivityForResult(i, REQUEST_CAMERA);
+                                    requestCamera.launch(FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -4486,12 +4485,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     new File(imageDir, ".nomedia").createNewFile();
                                     File tempFile = File.createTempFile("irccloudcapture", ".mp4", imageDir);
                                     imageCaptureURI = Uri.fromFile(tempFile);
-                                    i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                                    else
-                                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
-                                    startActivityForResult(i, REQUEST_CAMERA);
+                                    requestCamera.launch(FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -4502,20 +4496,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             if(!mediaPermissionsGranted()) {
                                 requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO);
                             } else {
-                                i = new Intent(Intent.ACTION_GET_CONTENT);
-                                i.addCategory(Intent.CATEGORY_OPENABLE);
-                                i.setType("image/*");
-                                startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
+                                requestPhoto.launch(new PickVisualMediaRequest.Builder()
+                                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                                        .build());
                             }
                             break;
                         case "Choose Existing Document":
                             if(!mediaPermissionsGranted()) {
                                 requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT);
                             } else {
-                                i = new Intent(Intent.ACTION_GET_CONTENT);
-                                i.addCategory(Intent.CATEGORY_OPENABLE);
-                                i.setType("*/*");
-                                startActivityForResult(Intent.createChooser(i, "Select A Document"), REQUEST_DOCUMENT);
+                                requestDocument.launch(new String[]{"*/*"});
                             }
                             break;
                         case "Post a Text Snippet":
@@ -4530,7 +4520,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             i.putExtra("cid", buffer.getCid());
                             i.putExtra("to", buffer.getName());
                             i.putExtra("msg", messageTxt.getText().toString());
-                            startActivityForResult(i, REQUEST_UPLOADS);
+                            requestUploads.launch(i);
                             break;
                         case "Change Avatar":
                         case "Change Public Avatar":
@@ -6838,7 +6828,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 filesize = String.format("%.1f ", total / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
             }
             notification.setContentText(filesize + " • " + type);
-            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(notification_id, notification.build());
+            try {
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(notification_id, notification.build());
+            } catch (SecurityException e) {
+
+            }
             if(activity != null) {
                 activity.runOnUiThread(new Runnable() {
                     @Override
@@ -6967,7 +6961,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 notification.setProgress(1000, (int) (values[0] * 1000), false);
             else
                 notification.setProgress(0, 0, true);
-            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(notification_id, notification.build());
+
+            try {
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(notification_id, notification.build());
+            } catch (SecurityException e) {
+
+            }
 
             if (activity != null) {
                 try {

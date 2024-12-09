@@ -17,6 +17,7 @@
 package com.irccloud.android.activity;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,7 +48,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -87,8 +91,6 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
 
     private static final int REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO = 1;
     private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO = 2;
-    private final int REQUEST_CAMERA = 1;
-    private final int REQUEST_PHOTO = 2;
 
     private final ActivityResultLauncher<CropImageContractOptions> cropImage =
             registerForActivityResult(new CropImageContract(), this::onCropImageResult);
@@ -400,31 +402,37 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
-            if (imageCaptureURI != null) {
-                CropImageContractOptions options = new CropImageContractOptions(imageCaptureURI, new CropImageOptions())
-                        .setInitialCropWindowPaddingRatio(0)
-                        .setAspectRatio(1,1);
-                cropImage.launch(options);
+    ActivityResultLauncher<Uri> requestCamera = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
+        @Override
+        public void onActivityResult(Boolean success) {
+            if(success) {
+                if (imageCaptureURI != null) {
+                    CropImageContractOptions options = new CropImageContractOptions(imageCaptureURI, new CropImageOptions())
+                            .setInitialCropWindowPaddingRatio(0)
+                            .setAspectRatio(1,1);
+                    cropImage.launch(options);
+                }
             }
-        } else if (requestCode == REQUEST_PHOTO && resultCode == RESULT_OK) {
-            Uri selectedImage = imageReturnedIntent.getData();
+        }
+    });
+
+    ActivityResultLauncher<PickVisualMediaRequest> requestPhoto = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), new ActivityResultCallback<Uri>() {
+        @Override
+        public void onActivityResult(Uri selectedImage) {
             if (selectedImage != null) {
-                selectedImage = MainActivity.makeTempCopy(selectedImage, this);
+                selectedImage = MainActivity.makeTempCopy(selectedImage, AvatarsActivity.this);
                 CropImageContractOptions options = new CropImageContractOptions(selectedImage, new CropImageOptions())
                         .setInitialCropWindowPaddingRatio(0)
                         .setAspectRatio(1,1);
                 cropImage.launch(options);
             }
         }
-    }
+    });
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        Intent i;
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         for(int j = 0; j < grantResults.length; j++) {
             if(grantResults[j] != PackageManager.PERMISSION_GRANTED) {
@@ -453,20 +461,14 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                     new File(imageDir, ".nomedia").createNewFile();
                     File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
                     imageCaptureURI = Uri.fromFile(tempFile);
-                    i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                    else
-                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(AvatarsActivity.this,getPackageName() + ".fileprovider",tempFile));
-                    startActivityForResult(i, REQUEST_CAMERA);
+                    requestCamera.launch(FileProvider.getUriForFile(AvatarsActivity.this,getPackageName() + ".fileprovider",tempFile));
                 } catch (IOException e) {
                 }
                 break;
             case REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO:
-                i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.addCategory(Intent.CATEGORY_OPENABLE);
-                i.setType("image/*");
-                startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
+                requestPhoto.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build());
                 break;
         }
     }
@@ -514,7 +516,6 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
         builder.setItems(dialogItems, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent i;
                 switch(dialogItems[which]) {
                     case "Take a Photo":
                         if(!mediaPermissionsGranted()) {
@@ -529,12 +530,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                                 new File(imageDir, ".nomedia").createNewFile();
                                 File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
                                 imageCaptureURI = Uri.fromFile(tempFile);
-                                i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-                                    i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                                else
-                                    i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(AvatarsActivity.this,getPackageName() + ".fileprovider",tempFile));
-                                startActivityForResult(i, REQUEST_CAMERA);
+                                requestCamera.launch(FileProvider.getUriForFile(AvatarsActivity.this,getPackageName() + ".fileprovider",tempFile));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -544,10 +540,9 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
                         if(!mediaPermissionsGranted()) {
                             requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO);
                         } else {
-                            i = new Intent(Intent.ACTION_GET_CONTENT);
-                            i.addCategory(Intent.CATEGORY_OPENABLE);
-                            i.setType("image/*");
-                            startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
+                            requestPhoto.launch(new PickVisualMediaRequest.Builder()
+                                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                                    .build());
                         }
                         break;
                 }

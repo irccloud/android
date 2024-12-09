@@ -19,6 +19,7 @@ package com.irccloud.android.activity;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -43,6 +44,12 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.browser.customtabs.CustomTabsClient;
@@ -61,6 +68,7 @@ import com.irccloud.android.ShareActionProviderHax;
 import com.irccloud.android.data.model.Pastebin;
 
 import org.chromium.customtabsclient.shared.CustomTabsHelper;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -432,20 +440,16 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             mSpinner.setVisibility(View.VISIBLE);
             Intent i = new Intent(this, PastebinEditorActivity.class);
             i.putExtra("paste_id", Uri.parse(url).getQueryParameter("id"));
-            startActivityForResult(i, 1);
+
+            editPastebinLauncher.launch(i);
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onShareActionProviderSubVisibilityChanged(boolean visible) {
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1) {
-            if(resultCode == RESULT_OK) {
+    ActivityResultLauncher<Intent> editPastebinLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult o) {
+            if(o.getResultCode() == RESULT_OK) {
                 mWebView.clearCache(true);
                 mWebView.reload();
                 getSupportActionBar().setTitle("Snippet");
@@ -457,5 +461,10 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 mSpinner.setVisibility(View.GONE);
             }
         }
+    });
+
+    @Override
+    public void onShareActionProviderSubVisibilityChanged(boolean visible) {
     }
+
 }
