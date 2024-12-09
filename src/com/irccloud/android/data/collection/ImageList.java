@@ -28,6 +28,7 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.damnhandy.uri.template.UriTemplate;
@@ -655,7 +656,7 @@ public class ImageList {
     }
 
     public static abstract class OnImageFetchedListener {
-        public abstract void onImageFetched(Bitmap image);
+        public abstract void onImageFetched(@Nullable Bitmap image);
     }
 
     public static abstract class OnImageInfoListener {

@@ -43,4 +43,5 @@ fastlane/metadata/enterprise/en-US/images
 fastlane/metadata/enterprise/en-US/changelogs
 fastlane/metadata/android/screenshots.html
 Gemfile.lock
+.kotlin
 
