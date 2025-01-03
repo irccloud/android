@@ -372,7 +372,7 @@ public class Server extends BaseObservable implements Comparable<Server> {
         for(String tag : tags) {
             if(tag.equals("*") || tag.equals(tagname))
                 denied = true;
-            if(tag.equals("~" + tagname))
+            if(tag.equals("-" + tagname))
                 denied = false;
         }
 
