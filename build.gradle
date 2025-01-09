@@ -285,14 +285,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     lint {
         abortOnError false
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 }
 
@@ -335,9 +335,6 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.15.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
     annotationProcessor "androidx.room:room-compiler:2.6.1"
-    implementation "com.google.android.gms:play-services-base:18.5.0"
-    implementation "com.google.android.gms:play-services-auth:21.2.0"
-    implementation "com.google.android.gms:play-services-identity:18.1.0"
     implementation 'com.google.firebase:firebase-messaging:24.1.0'
     implementation 'com.google.firebase:firebase-crashlytics:19.3.0'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
