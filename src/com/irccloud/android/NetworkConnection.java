@@ -594,13 +594,53 @@ public class NetworkConnection {
         return null;
     }
 
-    public JSONObject request_password(String email) {
+    public JSONObject request_access_link(String email) {
         try {
             String tokenResponse = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null, null);
             JSONObject token = new JSONObject(tokenResponse);
             if (token.has("token")) {
                 String postdata = "email=" + URLEncoder.encode(email, "UTF-8") + "&token=" + token.getString("token") + "&mobile=1";
                 String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/request-access-link"), postdata, null, token.getString("token"), null);
+                if (response.length() < 1) {
+                    JSONObject o = new JSONObject();
+                    o.put("message", "empty_response");
+                    return o;
+                } else if (response.charAt(0) != '{') {
+                    JSONObject o = new JSONObject();
+                    o.put("message", "invalid_response");
+                    return o;
+                }
+                return new JSONObject(response);
+            } else {
+                return null;
+            }
+        } catch (UnknownHostException e) {
+            printStackTraceToCrashlytics(e);
+            return null;
+        } catch (IOException e) {
+            printStackTraceToCrashlytics(e);
+            return null;
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            JSONObject o = new JSONObject();
+            try {
+                o.put("message", "json_error");
+            } catch (JSONException e1) {
+            }
+            return o;
+        } catch (Exception e) {
+            printStackTraceToCrashlytics(e);
+        }
+        return null;
+    }
+
+    public JSONObject request_password_reset(String email) {
+        try {
+            String tokenResponse = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null, null);
+            JSONObject token = new JSONObject(tokenResponse);
+            if (token.has("token")) {
+                String postdata = "email=" + URLEncoder.encode(email, "UTF-8") + "&token=" + token.getString("token") + "&mobile=1";
+                String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/request-password-reset"), postdata, null, token.getString("token"), null);
                 if (response.length() < 1) {
                     JSONObject o = new JSONObject();
                     o.put("message", "empty_response");

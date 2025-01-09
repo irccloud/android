@@ -315,7 +315,7 @@
                     android:id="@+id/sendAccessLink"
                     android:layout_width="match_parent"
                     android:layout_height="38dp"
-                    android:text="Send an access link"
+                    android:text="Request access link"
                     android:background="@drawable/login_button"
                     android:textColor="#fff"
                     android:visibility="gone"
@@ -336,12 +336,23 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
+                android:layout_height="24dp"
                 android:text="@string/forgotPassword"
                 android:id="@+id/forgotPassword"
                 android:textColor="#9CC7FF"
-                android:gravity="center|top"
+                android:gravity="center"
                 android:layout_marginTop="6dp"
+                android:textColorLink="#fff"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:text="@string/resetPassword"
+                android:id="@+id/resetPassword"
+                android:textColor="#9CC7FF"
+                android:gravity="center"
                 android:textColorLink="#fff"
                 android:textSize="14sp"
                 android:visibility="gone" />

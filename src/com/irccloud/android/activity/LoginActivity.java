@@ -81,6 +81,7 @@ public class LoginActivity extends FragmentActivity {
     private TextView connectingMsg = null;
     private TextView TOS = null;
     private TextView forgotPassword = null;
+    private TextView resetPassword = null;
     private TextView enterpriseLearnMore = null;
     private TextView EnterYourEmail = null;
     private TextView hostHint = null;
@@ -93,6 +94,8 @@ public class LoginActivity extends FragmentActivity {
     private LinearLayout loginSignupHint = null;
 
     private String auth_url = null;
+
+    private boolean is_resetting_password = false;
 
     ActivityResultLauncher<Intent> samlLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
@@ -121,6 +124,7 @@ public class LoginActivity extends FragmentActivity {
                 signupHint.setVisibility(View.GONE);
                 loginHint.setVisibility(View.GONE);
                 forgotPassword.setVisibility(View.GONE);
+                resetPassword.setVisibility(View.GONE);
                 loginSignupHint.setVisibility(View.GONE);
                 EnterYourEmail.setVisibility(View.GONE);
                 sendAccessLinkBtn.setVisibility(View.GONE);
@@ -244,7 +248,10 @@ public class LoginActivity extends FragmentActivity {
         sendAccessLinkBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ResetPasswordTask().execute((Void) null);
+                if (is_resetting_password)
+                    new RequestPasswordResetTask().execute((Void) null);
+                else
+                    new RequestAccessLinkTask().execute((Void) null);
             }
         });
 
@@ -266,6 +273,9 @@ public class LoginActivity extends FragmentActivity {
 
         forgotPassword = findViewById(R.id.forgotPassword);
         forgotPassword.setOnClickListener(forgotPasswordClickListener);
+
+        resetPassword = findViewById(R.id.resetPassword);
+        resetPassword.setOnClickListener(resetPasswordClickListener);
 
         enterpriseLearnMore = findViewById(R.id.enterpriseLearnMore);
         enterpriseLearnMore.setOnClickListener(new OnClickListener() {
@@ -376,6 +386,7 @@ public class LoginActivity extends FragmentActivity {
             signupHint.setVisibility(View.GONE);
             loginHint.setVisibility(View.GONE);
             forgotPassword.setVisibility(View.GONE);
+            resetPassword.setVisibility(View.GONE);
             loginSignupHint.setVisibility(View.GONE);
             EnterYourEmail.setVisibility(View.GONE);
             sendAccessLinkBtn.setVisibility(View.GONE);
@@ -397,7 +408,11 @@ public class LoginActivity extends FragmentActivity {
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey("forgotPassword") && savedInstanceState.getBoolean("forgotPassword")) {
-            forgotPasswordClickListener.onClick(null);
+            is_resetting_password = savedInstanceState.getBoolean("is_resetting_password", false);
+            if (is_resetting_password)
+                resetPasswordClickListener.onClick(null);
+            else
+                forgotPasswordClickListener.onClick(null);
         }
     }
 
@@ -414,6 +429,7 @@ public class LoginActivity extends FragmentActivity {
             signupHint.setVisibility(View.GONE);
             loginHint.setVisibility(View.VISIBLE);
             forgotPassword.setVisibility(View.GONE);
+            resetPassword.setVisibility(View.GONE);
             loginSignupHint.setVisibility(View.GONE);
             EnterYourEmail.setVisibility(View.GONE);
             sendAccessLinkBtn.setVisibility(View.GONE);
@@ -435,10 +451,12 @@ public class LoginActivity extends FragmentActivity {
                 email.setVisibility(View.GONE);
                 password.setVisibility(View.GONE);
                 forgotPassword.setVisibility(View.GONE);
+                resetPassword.setVisibility(View.GONE);
             } else {
                 email.setVisibility(View.VISIBLE);
                 password.setVisibility(View.VISIBLE);
                 forgotPassword.setVisibility(View.VISIBLE);
+                resetPassword.setVisibility(View.VISIBLE);
                 email.requestFocus();
             }
             loginBtn.setVisibility(View.VISIBLE);
@@ -476,6 +494,7 @@ public class LoginActivity extends FragmentActivity {
             sendAccessLinkBtn.setVisibility(View.VISIBLE);
             EnterYourEmail.setVisibility(View.VISIBLE);
             forgotPassword.setVisibility(View.GONE);
+            resetPassword.setVisibility(View.GONE);
             name.setVisibility(View.GONE);
             email.setBackgroundResource(R.drawable.login_only_input);
             host.setVisibility(View.GONE);
@@ -483,6 +502,19 @@ public class LoginActivity extends FragmentActivity {
             enterpriseLearnMore.setVisibility(View.GONE);
             enterpriseHint.setVisibility(View.GONE);
             hostHint.setVisibility(View.GONE);
+            is_resetting_password = false;
+            sendAccessLinkBtn.setText("Request access link");
+            ((TextView)findViewById(R.id.enterYourEmail)).setText("Just enter your email address you signed up with and we'll send you a link to log straight in.");
+        }
+    };
+
+    private OnClickListener resetPasswordClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            forgotPasswordClickListener.onClick(null);
+            is_resetting_password = true;
+            sendAccessLinkBtn.setText("Request password reset");
+            ((TextView)findViewById(R.id.enterYourEmail)).setText("Just enter your email address you signed up with and we'll send you a link to reset your password.");
         }
     };
 
@@ -505,6 +537,7 @@ public class LoginActivity extends FragmentActivity {
             if (sendAccessLinkBtn != null)
                 state.putBoolean("forgotPassword", sendAccessLinkBtn.getVisibility() == View.VISIBLE);
         }
+        state.putBoolean("is_resetting_password", is_resetting_password);
     }
 
     @Override
@@ -808,7 +841,7 @@ public class LoginActivity extends FragmentActivity {
         }
     }
 
-    private class ResetPasswordTask extends AsyncTaskEx<Void, Void, JSONObject> {
+    private class RequestAccessLinkTask extends AsyncTaskEx<Void, Void, JSONObject> {
         @Override
         public void onPreExecute() {
             email.setEnabled(false);
@@ -822,7 +855,7 @@ public class LoginActivity extends FragmentActivity {
 
         @Override
         protected JSONObject doInBackground(Void... arg0) {
-            return NetworkConnection.getInstance().request_password(email.getText().toString().trim());
+            return NetworkConnection.getInstance().request_access_link(email.getText().toString().trim());
         }
 
         @Override
@@ -855,6 +888,66 @@ public class LoginActivity extends FragmentActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
             builder.setTitle("Request Failed");
             builder.setMessage("Unable to request an access link.  Please try again later.");
+            builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.setOwnerActivity(LoginActivity.this);
+            if(!isFinishing())
+                dialog.show();
+        }
+    }
+
+    private class RequestPasswordResetTask extends AsyncTaskEx<Void, Void, JSONObject> {
+        @Override
+        public void onPreExecute() {
+            email.setEnabled(false);
+            sendAccessLinkBtn.setEnabled(false);
+            connectingMsg.setText("Requesting Password Reset");
+            progressBar.setIndeterminate(true);
+            connecting.setVisibility(View.VISIBLE);
+            login.setVisibility(View.GONE);
+            loading.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected JSONObject doInBackground(Void... arg0) {
+            return NetworkConnection.getInstance().request_password_reset(email.getText().toString().trim());
+        }
+
+        @Override
+        public void onPostExecute(JSONObject result) {
+            email.setEnabled(true);
+            sendAccessLinkBtn.setEnabled(true);
+            progressBar.setIndeterminate(false);
+            connecting.setVisibility(View.GONE);
+            login.setVisibility(View.VISIBLE);
+            try {
+                if (result != null && result.has("success") && result.getBoolean("success")) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                    builder.setTitle("Password Reset");
+                    builder.setMessage("We've sent you a password reset link.  Check your email and follow the instructions to sign in.");
+                    builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            loginHintClickListener.onClick(null);
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.setOwnerActivity(LoginActivity.this);
+                    if(!isFinishing())
+                        dialog.show();
+                    return;
+                }
+            } catch (JSONException e) {
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+            builder.setTitle("Request Failed");
+            builder.setMessage("Unable to request a password reset.  Please try again later.");
             builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

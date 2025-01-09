@@ -51,6 +51,7 @@
     <string name="action_settings">Settings</string>
     <string name="TOS">By signing up, you agree to our <a href="https://www.irccloud.com/terms">Terms\u00A0of\u00A0Service</a></string>
     <string name="forgotPassword">Forgotten your password? <a href="#">Get\u00A0an\u00A0access\u00A0link</a></string>
+    <string name="resetPassword">or <a href="#">request\u00A0a\u00A0password\u00A0reset</a></string>
     <string name="enterpriseLearnMore">Looking for the Standard Edition? <a href="#">Get\u00A0it\u00A0here</a></string>
     <string name="title_activity_uploads">File Uploads</string>
     <string name="title_activity_pastebin">Text Snippet</string>
@@ -64,7 +65,7 @@
     <string name="leak_canary_display_activity_label">IRCCloud Leaks</string>
     <string name="theme_auto">Set by Battery Saver</string>
     <string name="licenses">IRCCloud\
-Copyright &#169; 2022 IRCCloud, Ltd.\
+Copyright &#169; 2025 IRCCloud, Ltd.\
 \
 Licensed under the Apache License, Version 2.0 (the "License");\
 you may not use this file except in compliance with the License.\
