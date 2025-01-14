@@ -1103,7 +1103,7 @@ public class EventsList {
                 e.from = TextUtils.htmlEncode(e.from);
 
             if (e.msg != null) {
-                e.msg = TextUtils.htmlEncode(e.msg).replace("  ", "&nbsp; ");
+                e.msg = TextUtils.htmlEncode(e.msg).replace("  ", " &nbsp;");
                 if(e.msg.startsWith(" "))
                     e.msg = "&nbsp;" + e.msg.substring(1);
             }
