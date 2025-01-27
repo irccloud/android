@@ -15,40 +15,20 @@
   -->
 
 <resources>
-    <style name="LoginTheme" parent="Theme.AppCompat.Light">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/loginBackgroundColor</item>
-        <item name="android:navigationBarColor">#4480FA</item>
-        <item name="android:colorPrimaryDark">#0b2e60</item>
-        <item name="colorPrimaryDark">#0b2e60</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-        <item name="android:forceDarkAllowed">false</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
-    </style>
     <style name="LoginThemeSpinner" parent="LoginTheme">
         <item name="colorAccent">#fff</item>
         <item name="android:colorAccent">#fff</item>
     </style>
-    <style name="LaunchTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:statusBarColor">@color/loginTopBackgroundColor</item>
-        <item name="android:navigationBarColor">@color/loginTopBackgroundColor</item>
-        <item name="android:windowBackground">@drawable/splash</item>
-    </style>
+
     <style name="PrefsWindowTitleBackground">
         <item name="android:background">@android:color/transparent</item>
         <item name="android:padding">0px</item>
     </style>
-    <style name="ImageViewerTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:colorAccent">#fff</item>
-        <item name="colorAccent">#fff</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
+
     <style name="messageTxt">
         <item name="android:imeOptions">flagNoExtractUi|actionSend</item>
     </style>
+
     <style name="Widget.Styled.ImageButton" parent="android:Widget.Holo.Light.ImageButton">
         <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
     </style>
@@ -62,9 +42,11 @@
     <style name="ActionBarTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">?navBarHeadingColor</item>
     </style>
+
     <style name="AutoCompleteTextViewLight" parent="@android:style/Widget.AutoCompleteTextView">
 		<item name="android:textColor">@android:color/primary_text_light</item>
 	</style>
+
 	<style name="EditEventCustomActionButton" parent="Widget.AppCompat.Light.ActionButton">
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_width">0dp</item>

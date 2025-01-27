@@ -1,4 +1,32 @@
 <resources>
+    <style name="LoginTheme" parent="Theme.AppCompat.Light">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/loginBackgroundColor</item>
+        <item name="android:navigationBarColor">#4480FA</item>
+        <item name="android:colorPrimaryDark">#0b2e60</item>
+        <item name="colorPrimaryDark">#0b2e60</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+    </style>
+
+    <style name="LaunchTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:statusBarColor">@color/loginTopBackgroundColor</item>
+        <item name="android:navigationBarColor">@color/loginTopBackgroundColor</item>
+        <item name="android:windowBackground">@drawable/splash</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+
+    <style name="ImageViewerTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:colorAccent">#fff</item>
+        <item name="colorAccent">#fff</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
 
     <style name="dawn.NoActionBar">
         <item name="windowActionBar">false</item>
