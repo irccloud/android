@@ -396,6 +396,9 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         case "cannot_send_to_chan":
                             showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
                             break;
+                        case "cant_send_to_user":
+                            showAlert(o.cid(), o.getString("nick") + ": " + o.getString("msg"));
+                            break;
                         case "user_on_channel":
                             showAlert(o.cid(), o.getString("nick") + " is already a member of " + o.getString("channel"));
                             break;

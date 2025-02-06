@@ -2504,7 +2504,7 @@ public class NetworkConnection {
                 "need_more_params", "users_dont_match", "users_disabled",
                 "invalid_operator_password", "flood_warning", "privs_needed",
                 "operator_fail", "not_on_channel", "ban_on_chan",
-                "cannot_send_to_chan", "user_on_channel", "no_nick_given",
+                "cannot_send_to_chan", "cant_send_to_user", "user_on_channel", "no_nick_given",
                 "no_text_to_send", "no_origin", "only_servers_can_change_mode",
                 "silence", "no_channel_topic", "invite_only_chan", "channel_full", "channel_key_set",
                 "blocked_channel","unknown_error","channame_in_use","pong",
