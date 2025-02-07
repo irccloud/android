@@ -265,6 +265,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public TextListFragment help_fragment = null;
     protected boolean bubble = false;
     private boolean sendingTyping = false;
+    private long lastTypingStatus = 0;
 
     private ColorFilter highlightsFilter;
     private ColorFilter unreadFilter;
@@ -942,8 +943,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (server.blocksTyping)
                 enabled = false;
 
+            if (lastTypingStatus > 0 && System.currentTimeMillis() - lastTypingStatus < 3000)
+                enabled = false;
+
             if(enabled) {
                 sendingTyping = true;
+                lastTypingStatus = System.currentTimeMillis();
                 final Buffer b = buffer;
                 messageTxt.postDelayed(new Runnable() {
                     @Override
@@ -6158,6 +6163,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(sendBtn != null && conn != null && messageTxt != null)
             sendBtn.setEnabled(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0);
         updateTypingIndicators();
+        lastTypingStatus = 0;
     }
 
     @Override
