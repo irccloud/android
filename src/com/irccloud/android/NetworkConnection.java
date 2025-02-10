@@ -2549,6 +2549,9 @@ public class NetworkConnection {
                 if(object.has("caps"))
                     server.caps = object.getJsonNode("caps");
 
+                if(object.has("account"))
+                    server.setAccount(object.getString("account"));
+
                 String avatar_url = null;
                 if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("avatar-images", false)) {
                     Event e = new Event();
@@ -3327,7 +3330,7 @@ public class NetworkConnection {
                 } else if(entities.has("edit")) {
                     Event e = mEvents.getEvent(o.bid(), entities.get("edit").asText());
                     if(e != null) {
-                        if (o.eid() >= e.lastEditEID) {
+                        if (o.eid() >= e.lastEditEID && e.hasSameAccount(o.getString("from_account"))) {
                             if (entities.has("edit_text")) {
                                 e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
                                 if (e.msg.startsWith(" "))
@@ -3641,6 +3644,7 @@ public class NetworkConnection {
                     oobTasks.remove(bid);
                     if(oobTasks.size() > 0)
                         oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
+                    process_pending_edits(true);
                     break;
                 case EVENT_OOB_FAILED:
                     bid = ((OOBFetcher)object).getBid();

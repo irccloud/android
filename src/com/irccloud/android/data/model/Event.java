@@ -116,6 +116,8 @@ public class Event {
 
     public String msgid;
 
+    public String account;
+
     public String timestamp;
     public String html;
     public String html_prefix;
@@ -175,6 +177,7 @@ public class Event {
         day = e.day;
         contentDescription = e.contentDescription;
         entities = e.entities;
+        account = e.account;
     }
 
     public String toString() {
@@ -193,6 +196,8 @@ public class Event {
                 ", group_msg: " + group_msg +
                 ", pending: " + pending +
                 ", self: " + self +
+                ", msgid: " + msgid +
+                ", account: " + account +
                 ", header: " + header +
                 ", avatar: " + avatar +
                 ", avatar_url: " + avatar_url +
@@ -362,5 +367,9 @@ public class Event {
         if(entities != null && entities.has("known_client_tags") && !entities.get("known_client_tags").isNull() && entities.get("known_client_tags").has("reply"))
             return entities.get("known_client_tags").get("reply").asText();
         return null;
+    }
+
+    public boolean hasSameAccount(String account) {
+        return this.account != null && !this.account.equals("*") && this.account.equals(account);
     }
 }

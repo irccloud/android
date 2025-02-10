@@ -1088,6 +1088,13 @@ public class EventsList {
             e.avatar_url = event.getString("avatar_url");
             e.msgid = event.getString("msgid");
 
+            if (event.has("target_account"))
+                e.account = event.getString("target_account");
+            else if (event.has("from_account"))
+                e.account = event.getString("from_account");
+            else
+                e.account = event.getString("account");
+
             if((e.type.equals("buffer_msg") || e.type.equals("buffer_me_msg")) && (e.from == null || e.from.length() == 0))
                 e.from = e.from_nick = e.server;
 

@@ -69,6 +69,8 @@ public class Server extends BaseObservable implements Comparable<Server> {
 
     private int slack;
 
+    private String account;
+
     public ObjectNode isupport = new ObjectMapper().createObjectNode();
 
     public JsonNode raw_ignores;
@@ -336,6 +338,14 @@ public class Server extends BaseObservable implements Comparable<Server> {
 
     public void setSlack(int slack) {
         this.slack = slack;
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
     }
 
     public void updateUserModes(String modes) {
