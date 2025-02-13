@@ -3615,6 +3615,20 @@ public class NetworkConnection {
     }
 
     public void notifyHandlers(int message, final Object object, IRCEventHandler exclude) {
+        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
+            if (BuildConfig.DEBUG) {
+                Log.w("IRCCloud", "notifyHandlers called on main thread");
+                Thread.dumpStack();
+            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    notifyHandlers(message, object, exclude);
+                }
+            }).start();
+            return;
+        }
+
         synchronized (handlers) {
             int bid;
 
