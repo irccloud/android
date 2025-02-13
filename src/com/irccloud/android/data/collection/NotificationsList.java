@@ -546,7 +546,12 @@ public class NotificationsList {
         }
         if(group != null)
             c.setGroup(group);
-        nm.createNotificationChannel(c);
+
+        try {
+            nm.createNotificationChannel(c);
+        } catch (Exception e) {
+
+        }
     }
 
     @SuppressLint("NewApi")

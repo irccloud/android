@@ -2758,6 +2758,10 @@ public class NetworkConnection {
                                     } catch (Exception e) {
                                         show = true;
                                     }
+
+                                    if (b.getServer() == null)
+                                        show = false;
+
                                     if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
                                         String message = ColorFormatter.strip(event.msg).toString();
                                         String server_name = b.getServer().getName();
@@ -3375,7 +3379,7 @@ public class NetworkConnection {
             if (object.has("success") && !object.getBoolean("success") && object.has("message")) {
                 IRCCloudLog.Log(Log.ERROR, TAG, "Error: " + object);
                 if(object.getString("message").equals("auth")) {
-                    if (reqids.get(object.getInt("_reqid")).equals("auth")) {
+                    if (reqids.get(object.getInt("_reqid")) != null && reqids.get(object.getInt("_reqid")).equals("auth")) {
                         int session_length = (session != null) ? session.length() : 0;
                         String old_host = IRCCLOUD_HOST;
                         String old_path = IRCCLOUD_PATH;
