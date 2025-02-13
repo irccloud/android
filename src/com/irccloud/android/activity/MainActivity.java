@@ -253,6 +253,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private String bufferToOpen = null;
     private int cidToOpen = -1;
     private Uri imageCaptureURI = null;
+    private Buffer imageCaptureBuffer = null;
     private ProgressBar progressBar;
     private TextView errorMsg = null;
     private static Timer countdownTimer = null;
@@ -806,6 +807,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             imageCaptureURI = Uri.parse(savedInstanceState.getString("imagecaptureuri"));
         else
             imageCaptureURI = null;
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("imagecapturebid"))
+            imageCaptureBuffer = BuffersList.getInstance().getBuffer(savedInstanceState.getInt("imagecapturebid"));
+        else
+            imageCaptureBuffer = null;
 
         ConfigInstance config = (ConfigInstance) getLastCustomNonConfigurationInstance();
         if (config != null) {
@@ -1500,6 +1506,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         if (imageCaptureURI != null)
             state.putString("imagecaptureuri", imageCaptureURI.toString());
+        if (imageCaptureBuffer != null)
+            state.putInt("imagecapturebid", imageCaptureBuffer.getBid());
     }
 
     @Override
@@ -1723,15 +1731,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (e.msg != null)
                     pendingEvents.put(e.reqid, e);
             }
-            return null;
-        }
-
-        protected void onPostExecute(Void result) {
             if (e != null && e.msg != null) {
                 e.msg = TextUtils.htmlEncode(e.msg);
                 EventsList.getInstance().addEvent(e);
                 if(conn != null)
                     conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
+            }
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            if (e != null && e.msg != null) {
                 Buffer b = BuffersList.getInstance().getBuffer(e.bid);
                 if(b != null)
                     RecentConversationsList.getInstance().updateConversation(e.cid, e.bid, b.getName(), b.getType(), System.currentTimeMillis());
@@ -4537,6 +4547,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         dialog = builder.create();
         dialog.setOwnerActivity(MainActivity.this);
         dialog.show();
+        imageCaptureBuffer = buffer;
     }
 
     @Override
@@ -6492,8 +6503,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         public FileUploadTask(Uri fileUri, final MainActivity activity) {
             if(activity != null) {
-                mBuffer = activity.buffer;
-                notification_id = mBuffer.getBid();
+                mBuffer = activity.imageCaptureBuffer;
+                if (mBuffer != null)
+                    notification_id = mBuffer.getBid();
                 msgid = activity.msgid;
             }
             mFileUri = fileUri;
@@ -6569,11 +6581,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     .setSmallIcon(android.R.drawable.stat_sys_upload);
 
             if(activity != null) {
-                Intent i = new Intent();
-                i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
-                i.putExtra("bid", mBuffer.getBid());
-                i.setData(Uri.parse("bid://" + mBuffer.getBid()));
-                notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
+                if (mBuffer != null) {
+                    Intent i = new Intent();
+                    i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+                    i.putExtra("bid", mBuffer.getBid());
+                    i.setData(Uri.parse("bid://" + mBuffer.getBid()));
+                    notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
+                }
                 notification.addAction(R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), Build.VERSION.SDK_INT < 23 ? PendingIntent.FLAG_UPDATE_CURRENT : (PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)));
 
 

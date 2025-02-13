@@ -2918,7 +2918,8 @@ public class ColorFormatter {
                             }
                         }
 
-                        output.setSpan(span, start, end, 0);
+                        if (start < end)
+                            output.setSpan(span, start, end, 0);
                     }
                 }
             } catch (Exception ex) {
