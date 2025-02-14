@@ -3589,10 +3589,10 @@ public class NetworkConnection {
         synchronized (handlers) {
             if (!handlers.contains(handler))
                 handlers.add(handler);
-            if (saveTimerTask != null)
-                saveTimerTask.cancel();
-            saveTimerTask = null;
         }
+        if (saveTimerTask != null)
+            saveTimerTask.cancel();
+        saveTimerTask = null;
     }
 
     @TargetApi(24)
@@ -3629,88 +3629,88 @@ public class NetworkConnection {
             return;
         }
 
-        synchronized (handlers) {
-            int bid;
+        int bid;
 
-            switch(message) {
-                case EVENT_OOB_START:
-                    numbuffers = 0;
-                    totalbuffers = 0;
-                    currentBid = -1;
-                    break;
-                case EVENT_OOB_END:
-                    bid = ((OOBFetcher)object).getBid();
-                    ArrayList<Buffer> buffers = mBuffers.getBuffers();
-                    for (Buffer b : buffers) {
-                        if (b.getTimeout() > 0) {
-                            IRCCloudLog.Log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: bid" + b.getBid());
-                            request_backlog(b.getCid(), b.getBid(), 0);
-                        }
-
-                        if(oobTasks.size() > 10)
-                            break;
+        switch(message) {
+            case EVENT_OOB_START:
+                numbuffers = 0;
+                totalbuffers = 0;
+                currentBid = -1;
+                break;
+            case EVENT_OOB_END:
+                bid = ((OOBFetcher)object).getBid();
+                ArrayList<Buffer> buffers = mBuffers.getBuffers();
+                for (Buffer b : buffers) {
+                    if (b.getTimeout() > 0) {
+                        IRCCloudLog.Log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: bid" + b.getBid());
+                        request_backlog(b.getCid(), b.getBid(), 0);
                     }
-                    NotificationsList.getInstance().deleteOldNotifications();
-                    NotificationsList.getInstance().pruneNotificationChannels();
-                    if (bid != -1) {
-                        Buffer b = mBuffers.getBuffer(bid);
-                        if(b != null) {
-                            b.setTimeout(0);
-                            b.setDeferred(0);
-                        }
-                    }
-                    oobTasks.remove(bid);
-                    if(oobTasks.size() > 0)
-                        oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
-                    process_pending_edits(true);
-                    break;
-                case EVENT_OOB_FAILED:
-                    bid = ((OOBFetcher)object).getBid();
-                    if (bid == -1) {
-                        IRCCloudLog.Log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
-                        /*try {
-                            IRCCloudDatabase.getInstance().endTransaction();
-                        } catch (IllegalStateException e) {
 
-                        }*/
-                        streamId = null;
-                        highest_eid = 0;
-                        if (client != null)
-                            client.disconnect();
-                        return;
-                    } else {
-                        Buffer b = mBuffers.getBuffer(bid);
-                        if (b != null && b.getTimeout() == 1) {
-                            //TODO: move this
-                            int retryDelay = 1000;
-                            IRCCloudLog.Log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
-                            idleTimer.schedule(new TimerTask() {
-                                public void run() {
-                                    ((OOBFetcher)object).connect();
-                                }
-                            }, retryDelay);
-                            retryDelay *= 2;
-                        } else {
-                            IRCCloudLog.Log(Log.ERROR, TAG, "Failed to fetch backlog");
-                            synchronized (oobTasks) {
-                                oobTasks.remove(bid);
-                                if(oobTasks.size() > 0)
-                                    oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
-                            }
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            if (message == EVENT_PROGRESS || accrued == 0) {
-                for (int i = 0; i < handlers.size(); i++) {
-                    IRCEventHandler handler = handlers.get(i);
-                    if (handler != exclude) {
-                        handler.onIRCEvent(message, object);
+                    if(oobTasks.size() > 10)
+                        break;
+                }
+                NotificationsList.getInstance().deleteOldNotifications();
+                NotificationsList.getInstance().pruneNotificationChannels();
+                if (bid != -1) {
+                    Buffer b = mBuffers.getBuffer(bid);
+                    if(b != null) {
+                        b.setTimeout(0);
+                        b.setDeferred(0);
                     }
                 }
+                oobTasks.remove(bid);
+                if(oobTasks.size() > 0)
+                    oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
+                process_pending_edits(true);
+                break;
+            case EVENT_OOB_FAILED:
+                bid = ((OOBFetcher)object).getBid();
+                if (bid == -1) {
+                    IRCCloudLog.Log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
+                    /*try {
+                        IRCCloudDatabase.getInstance().endTransaction();
+                    } catch (IllegalStateException e) {
+
+                    }*/
+                    streamId = null;
+                    highest_eid = 0;
+                    if (client != null)
+                        client.disconnect();
+                    return;
+                } else {
+                    Buffer b = mBuffers.getBuffer(bid);
+                    if (b != null && b.getTimeout() == 1) {
+                        //TODO: move this
+                        int retryDelay = 1000;
+                        IRCCloudLog.Log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
+                        idleTimer.schedule(new TimerTask() {
+                            public void run() {
+                                ((OOBFetcher)object).connect();
+                            }
+                        }, retryDelay);
+                        retryDelay *= 2;
+                    } else {
+                        IRCCloudLog.Log(Log.ERROR, TAG, "Failed to fetch backlog");
+                        synchronized (oobTasks) {
+                            oobTasks.remove(bid);
+                            if(oobTasks.size() > 0)
+                                oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        if (message == EVENT_PROGRESS || accrued == 0) {
+            ArrayList<IRCEventHandler> eventHandlers = new ArrayList<>();
+            synchronized (handlers) {
+                eventHandlers.addAll(handlers);
+            }
+            for(IRCEventHandler h : eventHandlers) {
+                if (h != exclude)
+                    h.onIRCEvent(message, object);
             }
         }
     }
