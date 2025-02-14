@@ -3595,7 +3595,6 @@ public class NetworkConnection {
         saveTimerTask = null;
     }
 
-    @TargetApi(24)
     public void removeHandler(IRCEventHandler handler) {
         synchronized (handlers) {
             handlers.remove(handler);
@@ -3691,11 +3690,9 @@ public class NetworkConnection {
                         retryDelay *= 2;
                     } else {
                         IRCCloudLog.Log(Log.ERROR, TAG, "Failed to fetch backlog");
-                        synchronized (oobTasks) {
-                            oobTasks.remove(bid);
-                            if(oobTasks.size() > 0)
-                                oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
-                        }
+                        oobTasks.remove(bid);
+                        if(oobTasks.size() > 0)
+                            oobTasks.values().toArray(new OOBFetcher[oobTasks.values().size()])[0].connect();
                     }
                 }
                 break;
