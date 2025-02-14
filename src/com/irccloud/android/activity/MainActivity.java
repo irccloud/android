@@ -6507,7 +6507,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 mBuffer = activity.imageCaptureBuffer;
                 if (mBuffer == null)
                     mBuffer = activity.buffer;
-                
+
                 if (mBuffer != null)
                     notification_id = mBuffer.getBid();
                 msgid = activity.msgid;
@@ -6602,6 +6602,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         public void show_dialog() {
+            if (mBuffer == null)
+                mBuffer = activity.buffer;
+
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
