@@ -639,6 +639,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     messageTxt.getText().append(info.getLinkUri().toString());
                 } else {
                     Uri uri = (info.getLinkUri() != null) ? makeTempCopy(info.getContentUri(), MainActivity.this, info.getLinkUri().getLastPathSegment()) : makeTempCopy(info.getContentUri(), MainActivity.this);
+                    imageCaptureBuffer = buffer;
                     fileUploadTask = new FileUploadTask(uri, MainActivity.this);
                     if (!mediaPermissionsGranted()) {
                         requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
@@ -6504,6 +6505,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         public FileUploadTask(Uri fileUri, final MainActivity activity) {
             if(activity != null) {
                 mBuffer = activity.imageCaptureBuffer;
+                if (mBuffer == null)
+                    mBuffer = activity.buffer;
+                
                 if (mBuffer != null)
                     notification_id = mBuffer.getBid();
                 msgid = activity.msgid;
