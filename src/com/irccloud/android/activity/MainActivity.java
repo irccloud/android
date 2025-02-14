@@ -2008,8 +2008,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                         });
                     } else {
-                        String type = getMimeType(uri);
                         uri = makeTempCopy(uri, this);
+                        imageCaptureBuffer = buffer;
                         fileUploadTask = new FileUploadTask(uri, this);
                         if(!mediaPermissionsGranted()) {
                             requestMediaPermissions(REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
