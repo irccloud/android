@@ -474,7 +474,12 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
         switch (what) {
             case NetworkConnection.EVENT_LOGEXPORTFINISHED:
             case NetworkConnection.EVENT_BACKLOG_END:
-                new RefreshTask().execute((Void)null);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new RefreshTask().execute((Void)null);
+                    }
+                });
                 break;
         }
     }
