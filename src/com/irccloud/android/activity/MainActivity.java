@@ -6613,8 +6613,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     final EditText fileinput = view.findViewById(R.id.filename);
                     final EditText messageinput = view.findViewById(R.id.message);
                     final ImageView thumbnail = view.findViewById(R.id.thumbnail);
-                    messageinput.setText(activity.buffer.getDraft());
-                    activity.buffer.setDraft("");
+                    messageinput.setText(mBuffer.getDraft());
+                    mBuffer.setDraft("");
                     activity.messageTxt.setText("");
 
                     view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -6707,8 +6707,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     activity.fileUploadTask.cancel(true);
                                 activity.fileUploadTask = null;
                                 hide_progress();
-                                if (activity.buffer != null)
-                                    activity.buffer.setDraft(messageinput.getText());
+                                mBuffer.setDraft(messageinput.getText());
                                 if (activity.messageTxt != null)
                                     activity.messageTxt.setText(messageinput.getText());
                             }
