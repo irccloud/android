@@ -1883,584 +1883,583 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    private void insertEvent(final MessageAdapter messageAdapter, final Event event, final boolean backlog, boolean nextIsGrouped) {
-        synchronized (MessageViewFragment.class) {
-            event.ready_for_display = false;
-            try {
-                long start = System.currentTimeMillis();
-                if (event.eid <= buffer.getMin_eid() || (msgid != null && msgids.containsKey(msgid))) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            headerView.setVisibility(View.GONE);
-                            backlogFailed.setVisibility(View.GONE);
-                            loadBacklogButton.setVisibility(View.GONE);
-                        }
-                    });
-                }
-                if (earliest_eid == 0 || event.eid < earliest_eid)
-                    earliest_eid = event.eid;
-
-                if(msgid != null && msgid.length() > 0 && !(msgid.equals(event.msgid) || msgid.equals(event.reply())))
-                    return;
-
-                if(buffer.getType() != null && buffer.getType().equals("conversation") && !buffer.isMPDM() && !event.self) {
-                    buffer_usermask = event.from_nick + "!" + event.hostmask;
-                }
-
-                String type = event.type;
-                long eid = event.eid;
-
-                if (type.startsWith("you_"))
-                    type = type.substring(4);
-
-                if (type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode") || type.equals("socket_closed") || type.equals("connecting_cancelled") || type.equals("connecting_failed")) {
-                    collapsedEvents.showChan = !buffer.isChannel();
-                    if (pref_hideJoinPart && !type.equals("socket_closed") && !type.equals("connecting_cancelled") && !type.equals("connecting_failed") && !event.self) {
-                        messageAdapter.removeItem(event.eid);
-                        if (!backlog)
-                            messageAdapter.notifyDataSetChanged();
-                        return;
+    private synchronized void insertEvent(final MessageAdapter messageAdapter, final Event event, final boolean backlog, boolean nextIsGrouped) {
+        event.ready_for_display = false;
+        try {
+            long start = System.currentTimeMillis();
+            if (event.eid <= buffer.getMin_eid() || (msgid != null && msgids.containsKey(msgid))) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerView.setVisibility(View.GONE);
+                        backlogFailed.setVisibility(View.GONE);
+                        loadBacklogButton.setVisibility(View.GONE);
                     }
+                });
+            }
+            if (earliest_eid == 0 || event.eid < earliest_eid)
+                earliest_eid = event.eid;
 
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(event.getTime());
+            if(msgid != null && msgid.length() > 0 && !(msgid.equals(event.msgid) || msgid.equals(event.reply())))
+                return;
 
-                    if (pref_expandJoinPart)
-                        expandedSectionEids.clear();
+            if(buffer.getType() != null && buffer.getType().equals("conversation") && !buffer.isMPDM() && !event.self) {
+                buffer_usermask = event.from_nick + "!" + event.hostmask;
+            }
 
-                    if (event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
-                        Event last = EventsList.getInstance().getEvent(lastCollapsedEid, buffer.getBid());
-                        if (last != null && !last.type.equals("socket_closed") && !last.type.equals("connecting_failed") && !last.type.equals("connecting_cancelled"))
-                            currentCollapsedEid = -1;
-                    } else {
-                        Event last = EventsList.getInstance().getEvent(lastCollapsedEid, buffer.getBid());
-                        if (last != null && (last.type.equals("socket_closed") || last.type.equals("connecting_failed") || last.type.equals("connecting_cancelled")))
-                            currentCollapsedEid = -1;
-                    }
+            String type = event.type;
+            long eid = event.eid;
 
-                    if (currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || pref_expandJoinPart || event.type.equals("you_parted_channel")) {
-                        collapsedEvents.clear();
-                        currentCollapsedEid = eid;
-                        lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
-                    }
+            if (type.startsWith("you_"))
+                type = type.substring(4);
 
-                    if (!collapsedEvents.showChan)
-                        event.chan = buffer.getName();
-
-                    if (!collapsedEvents.addEvent(event))
-                        collapsedEvents.clear();
-
-                    if ((currentCollapsedEid == event.eid || pref_expandJoinPart) && type.equals("user_channel_mode")) {
-                        event.color = colorScheme.messageTextColor;
-                        event.bg_color = colorScheme.collapsedHeadingBackgroundColor;
-                    } else {
-                        event.color = colorScheme.collapsedRowTextColor;
-                        event.bg_color = colorScheme.contentBackgroundColor;
-                    }
-
-                    String msg;
-                    if (expandedSectionEids.contains(currentCollapsedEid)) {
-                        CollapsedEventsList c = new CollapsedEventsList();
-                        c.showChan = collapsedEvents.showChan;
-                        c.setServer(server);
-                        c.addEvent(event);
-                        msg = c.getCollapsedMessage();
-                        if (!nextIsGrouped) {
-                            event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(c.getCollapsedMessage(true)), true, server);
-                            String group_msg = collapsedEvents.getCollapsedMessage();
-                            if (group_msg == null && type.equals("nickchange")) {
-                                group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
-                            }
-                            if (group_msg == null && type.equals("user_channel_mode")) {
-                                if (event.from != null && event.from.length() > 0)
-                                    msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + collapsedEvents.formatNick(event.from, null, event.from_mode, false) + "</b>";
-                                else
-                                    msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
-                                currentCollapsedEid = eid;
-                            }
-                            Event heading = new Event();
-                            heading.type = "__expanded_group_heading__";
-                            heading.cid = event.cid;
-                            heading.bid = event.bid;
-                            heading.eid = currentCollapsedEid - 1;
-                            heading.group_msg = group_msg;
-                            heading.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(collapsedEvents.getCollapsedMessage(true)), true, server);
-                            heading.color = colorScheme.timestampColor;
-                            heading.bg_color = colorScheme.contentBackgroundColor;
-                            heading.linkify = false;
-                            heading.html = ColorFormatter.irc_to_html(group_msg);
-                            heading.formatted = ColorFormatter.html_to_spanned(heading.html);
-                            messageAdapter.addItem(currentCollapsedEid - 1, heading);
-                            if (event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
-                                Event last = EventsList.getInstance().getEvent(lastCollapsedEid, buffer.getBid());
-                                if (last != null)
-                                    last.row_type = ROW_MESSAGE;
-                                event.row_type = ROW_SOCKETCLOSED;
-                            }
-                        }
-                        event.timestamp = null;
-                    } else {
-                        msg = (nextIsGrouped && currentCollapsedEid != event.eid) ? "" : collapsedEvents.getCollapsedMessage();
-                    }
-
-                    if (!nextIsGrouped && !expandedSectionEids.contains(currentCollapsedEid))
-                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(collapsedEvents.getCollapsedMessage(true)), false, server);
-                    if (msg == null && type.equals("nickchange")) {
-                        msg = event.old_nick + " → <b>" + event.nick + "</b>";
-                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(event.old_nick + " notify nickname to " + event.nick));
-                    }
-                    if (msg == null && type.equals("user_channel_mode")) {
-                        if (event.from != null && event.from.length() > 0)
-                            msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + collapsedEvents.formatNick(event.from, null, event.from_mode, false) + "</b>";
-                        else
-                            msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
-                        currentCollapsedEid = eid;
-                        event.contentDescription = ColorFormatter.html_to_spanned(msg);
-                    }
-                    if (!expandedSectionEids.contains(currentCollapsedEid)) {
-                        if (eid != currentCollapsedEid) {
-                            event.color = colorScheme.timestampColor;
-                            event.bg_color = colorScheme.contentBackgroundColor;
-                        }
-                        eid = currentCollapsedEid;
-                    }
-                    event.group_msg = msg;
-                    event.html = null;
-                    event.formatted = null;
-                    event.linkify = false;
-                    lastCollapsedEid = event.eid;
-                    if ((buffer.isConsole() && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) || event.type.equals("you_parted_channel")) {
-                        currentCollapsedEid = -1;
-                        lastCollapsedEid = -1;
-                        collapsedEvents.clear();
-                    }
-                } else {
-                    currentCollapsedEid = -1;
-                    lastCollapsedEid = -1;
-                    collapsedEvents.clear();
-
-                    synchronized(formatLock) {
-                        if (event.html == null) {
-                            String msg = event.msg;
-                            if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
-                                msg = "<large>" + msg + "</large>";
-
-                            if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
-                                event.html_prefix = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> ";
-                            else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
-                                event.html_prefix = "<b>" + event.server + "</b> ";
-                            event.html = msg;
-                            if (event.html != null && event.msg != null)
-                                event.mention_offset = event.html.length() - event.msg.length();
-                            if (event.type.equals("channel_topic") && event.msg.startsWith("set the topic: "))
-                                event.mention_offset += 15;
-                        }
-                    }
-                }
-
-                String collapsedNickColor = Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2);
-                String msg;
-                String from = event.from_nick;
-                if (from == null || from.length() == 0)
-                    from = event.nick;
-
-                if (from != null && event.hostmask != null && event.isMessage() && buffer.getType() != null && !buffer.isConversation()) {
-                    String usermask = from + "!" + event.hostmask;
-                    if (ignore.match(usermask)) {
-                        if (unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
-                            if (heartbeatTask != null)
-                                heartbeatTask.cancel(true);
-                            heartbeatTask = new HeartbeatTask();
-                            heartbeatTask.execute((Void) null);
-                        }
-                        return;
-                    }
-                }
-
-                if(event.row_type == ROW_THUMBNAIL) {
-                    event.html = event.msg;
-                } else {
-                    synchronized (formatLock) {
-                        switch (type) {
-                            case "channel_mode":
-                                if (event.nick != null && event.nick.length() > 0)
-                                    event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false) + "</b>";
-                                else if (event.server != null && event.server.length() > 0)
-                                    event.html = event.msg + " by the server <b>" + event.server + "</b>";
-                                break;
-                            case "buffer_me_msg":
-                                msg = event.msg;
-                                if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
-                                    msg = "<large>" + msg + "</large>";
-                                event.html_prefix = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> ";
-                                event.html = "<i>" + msg;
-                                event.mention_offset += 3;
-                                break;
-                            case "buffer_msg":
-                            case "notice":
-                                event.code_block = false;
-                                event.mention_offset = type.equals("notice") ? 5 : 0;
-                                event.color = ColorScheme.getInstance().messageTextColor;
-                                msg = event.msg;
-                                if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
-                                    msg = "<large>" + msg + "</large>";
-
-                                if (!pref_disableCodeBlock) {
-                                    String original_msg = msg;
-                                    Matcher m = IS_CODE_BLOCK.matcher(original_msg);
-                                    int pos = -1;
-                                    String lastChunk = "";
-
-                                    while (m.find()) {
-                                        if (pos == -1)
-                                            pos = 0;
-
-                                        if (m.start() > 0)
-                                            lastChunk = original_msg.substring(pos, m.start());
-                                        boolean strippedSpace = false;
-                                        if (lastChunk.startsWith(" ") && lastChunk.length() > 1) {
-                                            lastChunk = lastChunk.substring(1);
-                                            strippedSpace = true;
-                                        }
-
-                                        if (pos > 0) {
-                                            Event e = new Event(event);
-                                            e.html = lastChunk;
-                                            e.timestamp = "";
-                                            e.header = false;
-                                            e.parent_eid = eid;
-                                            if (!pref_disableCodeSpan) {
-                                                e.html = ColorFormatter.insert_codespans(e.html);
-                                            }
-                                            e.mention_offset = -pos;
-                                            if (strippedSpace)
-                                                e.mention_offset--;
-                                            e.ready_for_display = true;
-                                            messageAdapter.insertBelow(eid, e, backlog);
-                                        } else {
-                                            msg = lastChunk;
-                                            messageAdapter.addItem(event.eid, event);
-                                        }
-
-                                        if (m.start() == 0 && !pref_chatOneLine) {
-                                            msg = original_msg.substring(3, m.end() - 3);
-                                            if(msg.startsWith("\n"))
-                                                msg = msg.substring(1);
-                                            if(msg.endsWith("\n"))
-                                                msg = msg.substring(0, msg.length() - 1);
-                                            event.code_block = true;
-                                            event.color = ColorScheme.getInstance().codeSpanForegroundColor;
-                                            event.mention_offset = -3;
-                                            messageAdapter.addItem(event.eid, event);
-                                        } else {
-                                            Event e = new Event(event);
-                                            e.html = original_msg.substring(m.start() + 3, m.end() - 3);
-                                            if(e.html.startsWith("\n"))
-                                                e.html = e.html.substring(1);
-                                            if(e.html.endsWith("\n"))
-                                                e.html = e.html.substring(0, e.html.length() - 1);
-                                            e.timestamp = "";
-                                            e.code_block = true;
-                                            e.color = ColorScheme.getInstance().codeSpanForegroundColor;
-                                            e.header = false;
-                                            e.parent_eid = eid;
-                                            e.mention_offset = -(m.start() + 3);
-                                            e.ready_for_display = true;
-                                            messageAdapter.insertBelow(eid, e, backlog);
-                                        }
-
-                                        pos = m.end();
-                                    }
-
-                                    if (pos > 0 && pos < original_msg.length()) {
-                                        Event e = new Event(event);
-                                        e.html = original_msg.substring(pos);
-                                        boolean strippedSpace = false;
-                                        if (e.html.startsWith(" ")) {
-                                            e.html = e.html.substring(1);
-                                            strippedSpace = true;
-                                        }
-                                        if (!pref_disableCodeSpan) {
-                                            e.html = ColorFormatter.insert_codespans(e.html);
-                                        }
-                                        e.timestamp = "";
-                                        e.header = false;
-                                        e.parent_eid = eid;
-                                        e.mention_offset = -pos;
-                                        if (strippedSpace)
-                                            e.mention_offset--;
-                                        e.ready_for_display = true;
-                                        if (e.html.length() > 0)
-                                            messageAdapter.insertBelow(eid, e, backlog);
-                                    }
-                                }
-
-                                if (!pref_disableCodeSpan) {
-                                    msg = ColorFormatter.insert_codespans(msg);
-                                }
-
-                                String html = "";
-                                if (event.target_mode != null && server != null && server.PREFIX != null) {
-                                    if (server.PREFIX.has(server.MODE_OPER) && server.PREFIX.get(server.MODE_OPER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
-                                        html += collapsedEvents.formatNick("Opers", null, server.MODE_OPER, false) + " ";
-                                    else if (server.PREFIX.has(server.MODE_OWNER) && server.PREFIX.get(server.MODE_OWNER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OWNER).asText()))
-                                        html += collapsedEvents.formatNick("Owners", null, server.MODE_OWNER, false) + " ";
-                                    else if (server.PREFIX.has(server.MODE_ADMIN) && server.PREFIX.get(server.MODE_ADMIN) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_ADMIN).asText()))
-                                        html += collapsedEvents.formatNick("Admins", null, server.MODE_ADMIN, false) + " ";
-                                    else if (server.PREFIX.has(server.MODE_OP) && server.PREFIX.get(server.MODE_OP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OP).asText()))
-                                        html += collapsedEvents.formatNick("Ops", null, server.MODE_OP, false) + " ";
-                                    else if (server.PREFIX.has(server.MODE_HALFOP) && server.PREFIX.get(server.MODE_HALFOP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_HALFOP).asText()))
-                                        html += collapsedEvents.formatNick("Half Ops", null, server.MODE_HALFOP, false) + " ";
-                                    else if (server.PREFIX.has(server.MODE_VOICED) && server.PREFIX.get(server.MODE_VOICED) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_VOICED).asText()))
-                                        html += collapsedEvents.formatNick("Voiced", null, server.MODE_VOICED, false) + " ";
-                                }
-                                if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
-                                    html += "<b>" + event.chan + "</b>: ";
-                                } else if (buffer.isConsole() && event.self && event.nick != null && event.nick.length() > 0) {
-                                    html += "<b>" + event.nick + "</b>: ";
-                                }
-
-                                if (pref_chatOneLine && event.from != null && event.from.length() > 0) {
-                                    if (!pref_disableQuote && event.msg != null && event.msg.length() > 0 && ColorFormatter.is_blockquote(ColorFormatter.html_to_spanned(event.msg).toString())) {
-                                        Event e = new Event(event);
-                                        e.timestamp = "";
-                                        e.html = msg;
-                                        e.parent_eid = event.eid;
-                                        e.msgid = event.msgid;
-                                        e.edited = event.edited;
-                                        html = null;
-                                        event.html = msg = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
-                                        event.mention_offset = -999;
-                                        messageAdapter.addItem(event.eid, event);
-                                        e.day = event.day;
-                                        messageAdapter.insertBelow(event.eid, e, backlog);
-                                    } else {
-                                        html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + html;
-                                    }
-                                }
-                                event.html_prefix = html;
-                                event.html = msg;
-                                break;
-                            case "kicked_channel":
-                                event.html_prefix = "\u0004" + collapsedNickColor + "← \u000f";
-                                if (event.type.startsWith("you_"))
-                                    event.html_prefix += "You";
-                                else
-                                    event.html_prefix += "<b>" + collapsedEvents.formatNick(event.old_nick, null, null, false, collapsedNickColor) + "</b>";
-                                if (event.hostmask != null && event.hostmask.length() > 0)
-                                    event.html_prefix += " (" + event.hostmask + ")";
-                                if (event.type.startsWith("you_"))
-                                    event.html_prefix += " were";
-                                else
-                                    event.html_prefix += " was";
-                                if (event.from_hostmask != null && event.from_hostmask.length() > 0)
-                                    event.html_prefix += " kicked by " + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor);
-                                else
-                                    event.html_prefix += " kicked by the server \u0004" + collapsedNickColor + event.nick + "\u000f";
-                                if (event.msg != null && event.msg.length() > 0 && !event.msg.equals(event.nick))
-                                    event.html = ": " + (pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg);
-                                else
-                                    event.html = "";
-                                break;
-                            case "callerid":
-                                event.html_prefix = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false) + "</b> (" + event.hostmask + ") ";
-                                event.html = event.msg + " Tap to accept.";
-                                break;
-                            case "channel_mode_list_change":
-                                if (event.from.length() == 0) {
-                                    if (event.nick != null && event.nick.length() > 0)
-                                        event.html = "<b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false) + "</b> " + event.msg;
-                                    else if (event.server != null && event.server.length() > 0)
-                                        event.html = "The server <b>" + event.server + "</b> " + event.msg;
-                                }
-                                break;
-                            case "user_chghost":
-                                event.html = "<b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor) + "</b> " + event.msg;
-                                break;
-                            case "channel_name_change":
-                                if (event.from.length() == 0) {
-                                    if (event.server != null && event.server.length() > 0)
-                                        event.html = "The server <b>" + event.server + "</b> " + event.msg;
-                                    else
-                                        event.html = "The server " + event.msg;
-                                } else {
-                                    event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false, Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2)) + "</b> " + event.msg;
-                                }
-                                break;
-                        }
-                    }
-                }
-
-                if(event.msgid != null && event.msgid.length() > 0)
-                    msgids.put(event.msgid, event);
-
-                if(event.reply() != null && event.reply().length() > 0) {
-                    Event parent = msgids.get(event.reply());
-                    if(parent != null) {
-                        parent.reply_count++;
-                        if (parent.reply_nicks == null)
-                            parent.reply_nicks = new HashSet<>();
-                        parent.reply_nicks.add(event.from);
-                    }
-                }
-                event.is_reply = (event.reply() != null && event.reply().length() > 0);
-                if(event.is_reply && pref_replyCollapse) {
-                    if(!backlog)
+            if (type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode") || type.equals("socket_closed") || type.equals("connecting_cancelled") || type.equals("connecting_failed")) {
+                collapsedEvents.showChan = !buffer.isChannel();
+                if (pref_hideJoinPart && !type.equals("socket_closed") && !type.equals("connecting_cancelled") && !type.equals("connecting_failed") && !event.self) {
+                    messageAdapter.removeItem(event.eid);
+                    if (!backlog)
                         messageAdapter.notifyDataSetChanged();
                     return;
                 }
 
-                event.ready_for_display = true;
-                if(!backlog)
-                    messageAdapter.format(event);
-                messageAdapter.addItem(eid, event);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(event.getTime());
 
-                if(!event.pending && pref_inlineImages && event.type.equals("buffer_msg") && event.msg.length() > 0 && event.row_type != ROW_THUMBNAIL) {
-                    Matcher m = ColorFormatter.WEB_URL.matcher(event.msg);
+                if (pref_expandJoinPart)
+                    expandedSectionEids.clear();
 
-                    while(m.find()) {
-                        String url = event.msg.substring(m.start(), m.end());
-                        if(!url.startsWith("http://") && !url.startsWith("https://"))
-                            url = "http://" + url;
-                        if(!hiddenFileIDs.contains(url)) {
-                            boolean found = false;
-                            if (event.entities != null && event.entities.has("files")) {
-                                JsonNode files = event.entities.get("files");
+                if (event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
+                    Event last = EventsList.getInstance().getEvent(lastCollapsedEid, buffer.getBid());
+                    if (last != null && !last.type.equals("socket_closed") && !last.type.equals("connecting_failed") && !last.type.equals("connecting_cancelled"))
+                        currentCollapsedEid = -1;
+                } else {
+                    Event last = EventsList.getInstance().getEvent(lastCollapsedEid, buffer.getBid());
+                    if (last != null && (last.type.equals("socket_closed") || last.type.equals("connecting_failed") || last.type.equals("connecting_cancelled")))
+                        currentCollapsedEid = -1;
+                }
 
-                                for (int i = 0; i < files.size(); i++) {
-                                    JsonNode entity = files.get(i);
-                                    String fileID = entity.get("id").asText();
-                                    if (url.contains("/file/" + fileID + "/")) {
-                                        found = true;
-                                        break;
+                if (currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || pref_expandJoinPart || event.type.equals("you_parted_channel")) {
+                    collapsedEvents.clear();
+                    currentCollapsedEid = eid;
+                    lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
+                }
+
+                if (!collapsedEvents.showChan)
+                    event.chan = buffer.getName();
+
+                if (!collapsedEvents.addEvent(event))
+                    collapsedEvents.clear();
+
+                if ((currentCollapsedEid == event.eid || pref_expandJoinPart) && type.equals("user_channel_mode")) {
+                    event.color = colorScheme.messageTextColor;
+                    event.bg_color = colorScheme.collapsedHeadingBackgroundColor;
+                } else {
+                    event.color = colorScheme.collapsedRowTextColor;
+                    event.bg_color = colorScheme.contentBackgroundColor;
+                }
+
+                String msg;
+                if (expandedSectionEids.contains(currentCollapsedEid)) {
+                    CollapsedEventsList c = new CollapsedEventsList();
+                    c.showChan = collapsedEvents.showChan;
+                    c.setServer(server);
+                    c.addEvent(event);
+                    msg = c.getCollapsedMessage();
+                    if (!nextIsGrouped) {
+                        event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(c.getCollapsedMessage(true)), true, server);
+                        String group_msg = collapsedEvents.getCollapsedMessage();
+                        if (group_msg == null && type.equals("nickchange")) {
+                            group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
+                        }
+                        if (group_msg == null && type.equals("user_channel_mode")) {
+                            if (event.from != null && event.from.length() > 0)
+                                msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + collapsedEvents.formatNick(event.from, null, event.from_mode, false) + "</b>";
+                            else
+                                msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
+                            currentCollapsedEid = eid;
+                        }
+                        Event heading = new Event();
+                        heading.type = "__expanded_group_heading__";
+                        heading.cid = event.cid;
+                        heading.bid = event.bid;
+                        heading.eid = currentCollapsedEid - 1;
+                        heading.group_msg = group_msg;
+                        heading.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(collapsedEvents.getCollapsedMessage(true)), true, server);
+                        heading.color = colorScheme.timestampColor;
+                        heading.bg_color = colorScheme.contentBackgroundColor;
+                        heading.linkify = false;
+                        heading.html = ColorFormatter.irc_to_html(group_msg);
+                        heading.formatted = ColorFormatter.html_to_spanned(heading.html);
+                        messageAdapter.addItem(currentCollapsedEid - 1, heading);
+                        if (event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
+                            Event last = EventsList.getInstance().getEvent(lastCollapsedEid, buffer.getBid());
+                            if (last != null)
+                                last.row_type = ROW_MESSAGE;
+                            event.row_type = ROW_SOCKETCLOSED;
+                        }
+                    }
+                    event.timestamp = null;
+                } else {
+                    msg = (nextIsGrouped && currentCollapsedEid != event.eid) ? "" : collapsedEvents.getCollapsedMessage();
+                }
+
+                if (!nextIsGrouped && !expandedSectionEids.contains(currentCollapsedEid))
+                    event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(collapsedEvents.getCollapsedMessage(true)), false, server);
+                if (msg == null && type.equals("nickchange")) {
+                    msg = event.old_nick + " → <b>" + event.nick + "</b>";
+                    event.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(event.old_nick + " notify nickname to " + event.nick));
+                }
+                if (msg == null && type.equals("user_channel_mode")) {
+                    if (event.from != null && event.from.length() > 0)
+                        msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + collapsedEvents.formatNick(event.from, null, event.from_mode, false) + "</b>";
+                    else
+                        msg = collapsedEvents.formatNick(event.nick, null, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
+                    currentCollapsedEid = eid;
+                    event.contentDescription = ColorFormatter.html_to_spanned(msg);
+                }
+                if (!expandedSectionEids.contains(currentCollapsedEid)) {
+                    if (eid != currentCollapsedEid) {
+                        event.color = colorScheme.timestampColor;
+                        event.bg_color = colorScheme.contentBackgroundColor;
+                    }
+                    eid = currentCollapsedEid;
+                }
+                event.group_msg = msg;
+                event.html = null;
+                event.formatted = null;
+                event.linkify = false;
+                lastCollapsedEid = event.eid;
+                if ((buffer.isConsole() && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) || event.type.equals("you_parted_channel")) {
+                    currentCollapsedEid = -1;
+                    lastCollapsedEid = -1;
+                    collapsedEvents.clear();
+                }
+            } else {
+                currentCollapsedEid = -1;
+                lastCollapsedEid = -1;
+                collapsedEvents.clear();
+
+                synchronized(formatLock) {
+                    if (event.html == null) {
+                        String msg = event.msg;
+                        if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                            msg = "<large>" + msg + "</large>";
+
+                        if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
+                            event.html_prefix = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> ";
+                        else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
+                            event.html_prefix = "<b>" + event.server + "</b> ";
+                        event.html = msg;
+                        if (event.html != null && event.msg != null)
+                            event.mention_offset = event.html.length() - event.msg.length();
+                        if (event.type.equals("channel_topic") && event.msg.startsWith("set the topic: "))
+                            event.mention_offset += 15;
+                    }
+                }
+            }
+
+            String collapsedNickColor = Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2);
+            String msg;
+            String from = event.from_nick;
+            if (from == null || from.length() == 0)
+                from = event.nick;
+
+            if (from != null && event.hostmask != null && event.isMessage() && buffer.getType() != null && !buffer.isConversation()) {
+                String usermask = from + "!" + event.hostmask;
+                if (ignore.match(usermask)) {
+                    if (unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
+                        if (heartbeatTask != null)
+                            heartbeatTask.cancel(true);
+                        heartbeatTask = new HeartbeatTask();
+                        heartbeatTask.execute((Void) null);
+                    }
+                    return;
+                }
+            }
+
+            if(event.row_type == ROW_THUMBNAIL) {
+                event.html = event.msg;
+            } else {
+                synchronized (formatLock) {
+                    switch (type) {
+                        case "channel_mode":
+                            if (event.nick != null && event.nick.length() > 0)
+                                event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false) + "</b>";
+                            else if (event.server != null && event.server.length() > 0)
+                                event.html = event.msg + " by the server <b>" + event.server + "</b>";
+                            break;
+                        case "buffer_me_msg":
+                            msg = event.msg;
+                            if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                                msg = "<large>" + msg + "</large>";
+                            event.html_prefix = "— <i><b>" + collapsedEvents.formatNick(event.from_nick, event.nick, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> ";
+                            event.html = "<i>" + msg;
+                            event.mention_offset += 3;
+                            break;
+                        case "buffer_msg":
+                        case "notice":
+                            event.code_block = false;
+                            event.mention_offset = type.equals("notice") ? 5 : 0;
+                            event.color = ColorScheme.getInstance().messageTextColor;
+                            msg = event.msg;
+                            if (!pref_disableLargeEmoji && ColorFormatter.is_emoji(ColorFormatter.emojify(msg)))
+                                msg = "<large>" + msg + "</large>";
+
+                            if (!pref_disableCodeBlock) {
+                                String original_msg = msg;
+                                Matcher m = IS_CODE_BLOCK.matcher(original_msg);
+                                int pos = -1;
+                                String lastChunk = "";
+
+                                while (m.find()) {
+                                    if (pos == -1)
+                                        pos = 0;
+
+                                    if (m.start() > 0)
+                                        lastChunk = original_msg.substring(pos, m.start());
+                                    boolean strippedSpace = false;
+                                    if (lastChunk.startsWith(" ") && lastChunk.length() > 1) {
+                                        lastChunk = lastChunk.substring(1);
+                                        strippedSpace = true;
                                     }
+
+                                    if (pos > 0) {
+                                        Event e = new Event(event);
+                                        e.html = lastChunk;
+                                        e.timestamp = "";
+                                        e.header = false;
+                                        e.parent_eid = eid;
+                                        if (!pref_disableCodeSpan) {
+                                            e.html = ColorFormatter.insert_codespans(e.html);
+                                        }
+                                        e.mention_offset = -pos;
+                                        if (strippedSpace)
+                                            e.mention_offset--;
+                                        e.ready_for_display = true;
+                                        messageAdapter.insertBelow(eid, e, backlog);
+                                    } else {
+                                        msg = lastChunk;
+                                        messageAdapter.addItem(event.eid, event);
+                                    }
+
+                                    if (m.start() == 0 && !pref_chatOneLine) {
+                                        msg = original_msg.substring(3, m.end() - 3);
+                                        if(msg.startsWith("\n"))
+                                            msg = msg.substring(1);
+                                        if(msg.endsWith("\n"))
+                                            msg = msg.substring(0, msg.length() - 1);
+                                        event.code_block = true;
+                                        event.color = ColorScheme.getInstance().codeSpanForegroundColor;
+                                        event.mention_offset = -3;
+                                        messageAdapter.addItem(event.eid, event);
+                                    } else {
+                                        Event e = new Event(event);
+                                        e.html = original_msg.substring(m.start() + 3, m.end() - 3);
+                                        if(e.html.startsWith("\n"))
+                                            e.html = e.html.substring(1);
+                                        if(e.html.endsWith("\n"))
+                                            e.html = e.html.substring(0, e.html.length() - 1);
+                                        e.timestamp = "";
+                                        e.code_block = true;
+                                        e.color = ColorScheme.getInstance().codeSpanForegroundColor;
+                                        e.header = false;
+                                        e.parent_eid = eid;
+                                        e.mention_offset = -(m.start() + 3);
+                                        e.ready_for_display = true;
+                                        messageAdapter.insertBelow(eid, e, backlog);
+                                    }
+
+                                    pos = m.end();
+                                }
+
+                                if (pos > 0 && pos < original_msg.length()) {
+                                    Event e = new Event(event);
+                                    e.html = original_msg.substring(pos);
+                                    boolean strippedSpace = false;
+                                    if (e.html.startsWith(" ")) {
+                                        e.html = e.html.substring(1);
+                                        strippedSpace = true;
+                                    }
+                                    if (!pref_disableCodeSpan) {
+                                        e.html = ColorFormatter.insert_codespans(e.html);
+                                    }
+                                    e.timestamp = "";
+                                    e.header = false;
+                                    e.parent_eid = eid;
+                                    e.mention_offset = -pos;
+                                    if (strippedSpace)
+                                        e.mention_offset--;
+                                    e.ready_for_display = true;
+                                    if (e.html.length() > 0)
+                                        messageAdapter.insertBelow(eid, e, backlog);
                                 }
                             }
 
-                            if (!found && ImageList.isImageURL(url) && !ImageList.getInstance().isFailedURL(new URL(url))) {
-                                ImageList.getInstance().fetchImageInfo(url, new ImageList.OnImageInfoListener() {
-                                    @Override
-                                    public void onImageInfo(ImageURLInfo info) {
-                                        if(info != null) {
-                                            ObjectNode properties = new ObjectMapper().createObjectNode();
-
-                                            properties.put("url", info.original_url);
-                                            properties.put("thumbnail", info.thumbnail);
-                                            if(info.title != null)
-                                                properties.put("name", info.title);
-                                            if(info.description != null)
-                                                properties.put("description", info.description);
-
-                                            Uri uri = Uri.parse(info.thumbnail);
-                                            if (uri.getLastPathSegment().contains(".")) {
-                                                String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().lastIndexOf(".") + 1).toLowerCase();
-                                                properties.put("mime_type", "image/" + extension);
-                                            } else {
-                                                properties.put("mime_type", "image/image");
-                                            }
-
-                                            insertEntity(messageAdapter, event, properties, backlog || !ready);
-                                            try {
-                                                URL u = new URL(info.thumbnail);
-                                                int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
-                                                if(getActivity().getWindowManager().getDefaultDisplay().getHeight() < width)
-                                                    width = getActivity().getWindowManager().getDefaultDisplay().getHeight();
-                                                width /= 2;
-                                                ImageList.getInstance().fetchImage(u, width, null, 0);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    }
-                }
-
-                if (!backlog)
-                    messageAdapter.notifyDataSetChanged();
-
-                long time = (System.currentTimeMillis() - start);
-                if (avgInsertTime == 0)
-                    avgInsertTime = time;
-                avgInsertTime += time;
-                avgInsertTime /= 2.0;
-                //Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
-                if (!backlog && buffer.getScrolledUp() && !event.self && event.isImportant(type)) {
-                    if(event.row_type != ROW_THUMBNAIL && event.row_type != ROW_FILE) {
-                        if (newMsgTime == 0)
-                            newMsgTime = System.currentTimeMillis();
-                        newMsgs++;
-                        if (event.highlight && !pref_muted)
-                            newHighlights++;
-                        update_unread();
-                        messageAdapter.insertLastSeenEIDMarker();
-                    }
-                    messageAdapter.notifyDataSetChanged();
-                }
-                if (!backlog && !buffer.getScrolledUp()) {
-                    getListView().setSelection(messageAdapter.getCount() - 1);
-                    if (tapTimer != null) {
-                        tapTimer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            getListView().setSelection(messageAdapter.getCount() - 1);
-                                        } catch (Exception e) {
-                                            //List view isn't ready yet
-                                        }
-                                    }
-                                });
-                            }
-                        }, 200);
-                    }
-                }
-
-                if (!backlog && event.highlight && !getActivity().getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
-                    Toast.makeText(getActivity(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
-                    SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
-                    editor.putBoolean("mentionTip", true);
-                    editor.apply();
-                }
-                if (!backlog) {
-                    int markerPos = messageAdapter.getLastSeenEIDPosition();
-                    if (markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
-                        unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
-                    }
-                }
-
-                if(!pref_disableInlineFiles && event.entities != null && event.entities.get("files") != null) {
-                    JsonNode files = event.entities.get("files");
-
-                    for(int i = 0; i < files.size(); i++) {
-                        JsonNode entity = files.get(i);
-                        String fileID = entity.get("id").asText();
-                        if(!hiddenFileIDs.contains(fileID)) {
-                            JsonNode properties = filePropsCache.get(fileID);
-                            if(BuildConfig.MOCK_DATA) {
-                                JSONObject o = new JSONObject(entity.toString());
-                                o.remove("id");
-                                o.put("thumbnail", "https://www.irccloud.com/static/test/" + o.getString("filename"));
-                                properties = new ObjectMapper().readValue(o.toString(), JsonNode.class);;
+                            if (!pref_disableCodeSpan) {
+                                msg = ColorFormatter.insert_codespans(msg);
                             }
 
-                            if (properties != null) {
-                                insertEntity(messageAdapter, event, properties, backlog);
+                            String html = "";
+                            if (event.target_mode != null && server != null && server.PREFIX != null) {
+                                if (server.PREFIX.has(server.MODE_OPER) && server.PREFIX.get(server.MODE_OPER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
+                                    html += collapsedEvents.formatNick("Opers", null, server.MODE_OPER, false) + " ";
+                                else if (server.PREFIX.has(server.MODE_OWNER) && server.PREFIX.get(server.MODE_OWNER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OWNER).asText()))
+                                    html += collapsedEvents.formatNick("Owners", null, server.MODE_OWNER, false) + " ";
+                                else if (server.PREFIX.has(server.MODE_ADMIN) && server.PREFIX.get(server.MODE_ADMIN) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_ADMIN).asText()))
+                                    html += collapsedEvents.formatNick("Admins", null, server.MODE_ADMIN, false) + " ";
+                                else if (server.PREFIX.has(server.MODE_OP) && server.PREFIX.get(server.MODE_OP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OP).asText()))
+                                    html += collapsedEvents.formatNick("Ops", null, server.MODE_OP, false) + " ";
+                                else if (server.PREFIX.has(server.MODE_HALFOP) && server.PREFIX.get(server.MODE_HALFOP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_HALFOP).asText()))
+                                    html += collapsedEvents.formatNick("Half Ops", null, server.MODE_HALFOP, false) + " ";
+                                else if (server.PREFIX.has(server.MODE_VOICED) && server.PREFIX.get(server.MODE_VOICED) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_VOICED).asText()))
+                                    html += collapsedEvents.formatNick("Voiced", null, server.MODE_VOICED, false) + " ";
+                            }
+                            if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
+                                html += "<b>" + event.chan + "</b>: ";
+                            } else if (buffer.isConsole() && event.self && event.nick != null && event.nick.length() > 0) {
+                                html += "<b>" + event.nick + "</b>: ";
+                            }
+
+                            if (pref_chatOneLine && event.from != null && event.from.length() > 0) {
+                                if (!pref_disableQuote && event.msg != null && event.msg.length() > 0 && ColorFormatter.is_blockquote(ColorFormatter.html_to_spanned(event.msg).toString())) {
+                                    Event e = new Event(event);
+                                    e.timestamp = "";
+                                    e.html = msg;
+                                    e.parent_eid = event.eid;
+                                    e.msgid = event.msgid;
+                                    e.edited = event.edited;
+                                    html = null;
+                                    event.html = msg = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b>";
+                                    event.mention_offset = -999;
+                                    messageAdapter.addItem(event.eid, event);
+                                    e.day = event.day;
+                                    messageAdapter.insertBelow(event.eid, e, backlog);
+                                } else {
+                                    html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, !event.self && pref_nickColors, ColorScheme.getInstance().selfTextColor) + "</b> " + html;
+                                }
+                            }
+                            event.html_prefix = html;
+                            event.html = msg;
+                            break;
+                        case "kicked_channel":
+                            event.html_prefix = "\u0004" + collapsedNickColor + "← \u000f";
+                            if (event.type.startsWith("you_"))
+                                event.html_prefix += "You";
+                            else
+                                event.html_prefix += "<b>" + collapsedEvents.formatNick(event.old_nick, null, null, false, collapsedNickColor) + "</b>";
+                            if (event.hostmask != null && event.hostmask.length() > 0)
+                                event.html_prefix += " (" + event.hostmask + ")";
+                            if (event.type.startsWith("you_"))
+                                event.html_prefix += " were";
+                            else
+                                event.html_prefix += " was";
+                            if (event.from_hostmask != null && event.from_hostmask.length() > 0)
+                                event.html_prefix += " kicked by " + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor);
+                            else
+                                event.html_prefix += " kicked by the server \u0004" + collapsedNickColor + event.nick + "\u000f";
+                            if (event.msg != null && event.msg.length() > 0 && !event.msg.equals(event.nick))
+                                event.html = ": " + (pref_noColor ? ColorFormatter.strip_colors(event.msg) : event.msg);
+                            else
+                                event.html = "";
+                            break;
+                        case "callerid":
+                            event.html_prefix = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false) + "</b> (" + event.hostmask + ") ";
+                            event.html = event.msg + " Tap to accept.";
+                            break;
+                        case "channel_mode_list_change":
+                            if (event.from.length() == 0) {
+                                if (event.nick != null && event.nick.length() > 0)
+                                    event.html = "<b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false) + "</b> " + event.msg;
+                                else if (event.server != null && event.server.length() > 0)
+                                    event.html = "The server <b>" + event.server + "</b> " + event.msg;
+                            }
+                            break;
+                        case "user_chghost":
+                            event.html = "<b>" + collapsedEvents.formatNick(event.nick, null, event.from_mode, false, collapsedNickColor) + "</b> " + event.msg;
+                            break;
+                        case "channel_name_change":
+                            if (event.from.length() == 0) {
+                                if (event.server != null && event.server.length() > 0)
+                                    event.html = "The server <b>" + event.server + "</b> " + event.msg;
+                                else
+                                    event.html = "The server " + event.msg;
                             } else {
-                                new FilePropsTask(messageAdapter, fileID, event).connect();
+                                event.html = "<b>" + collapsedEvents.formatNick(event.from_nick, event.from, event.from_mode, false, Integer.toHexString(ColorScheme.getInstance().collapsedRowNickColor).substring(2)) + "</b> " + event.msg;
                             }
+                            break;
+                    }
+                }
+            }
+
+            if(event.msgid != null && event.msgid.length() > 0)
+                msgids.put(event.msgid, event);
+
+            if(event.reply() != null && event.reply().length() > 0) {
+                Event parent = msgids.get(event.reply());
+                if(parent != null) {
+                    parent.reply_count++;
+                    if (parent.reply_nicks == null)
+                        parent.reply_nicks = new HashSet<>();
+                    parent.reply_nicks.add(event.from);
+                }
+            }
+            event.is_reply = (event.reply() != null && event.reply().length() > 0);
+            if(event.is_reply && pref_replyCollapse) {
+                if(!backlog)
+                    messageAdapter.notifyDataSetChanged();
+                return;
+            }
+
+            event.ready_for_display = true;
+            if(!backlog)
+                messageAdapter.format(event);
+            messageAdapter.addItem(eid, event);
+
+            if(!event.pending && pref_inlineImages && event.type.equals("buffer_msg") && event.msg.length() > 0 && event.row_type != ROW_THUMBNAIL) {
+                Matcher m = ColorFormatter.WEB_URL.matcher(event.msg);
+
+                while(m.find()) {
+                    String url = event.msg.substring(m.start(), m.end());
+                    if(!url.startsWith("http://") && !url.startsWith("https://"))
+                        url = "http://" + url;
+                    if(!hiddenFileIDs.contains(url)) {
+                        boolean found = false;
+                        if (event.entities != null && event.entities.has("files")) {
+                            JsonNode files = event.entities.get("files");
+
+                            for (int i = 0; i < files.size(); i++) {
+                                JsonNode entity = files.get(i);
+                                String fileID = entity.get("id").asText();
+                                if (url.contains("/file/" + fileID + "/")) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!found && ImageList.isImageURL(url) && !ImageList.getInstance().isFailedURL(new URL(url))) {
+                            ImageList.getInstance().fetchImageInfo(url, new ImageList.OnImageInfoListener() {
+                                @Override
+                                public void onImageInfo(ImageURLInfo info) {
+                                    if(info != null) {
+                                        ObjectNode properties = new ObjectMapper().createObjectNode();
+
+                                        properties.put("url", info.original_url);
+                                        properties.put("thumbnail", info.thumbnail);
+                                        if(info.title != null)
+                                            properties.put("name", info.title);
+                                        if(info.description != null)
+                                            properties.put("description", info.description);
+
+                                        Uri uri = Uri.parse(info.thumbnail);
+                                        if (uri.getLastPathSegment().contains(".")) {
+                                            String extension = uri.getLastPathSegment().substring(uri.getLastPathSegment().lastIndexOf(".") + 1).toLowerCase();
+                                            properties.put("mime_type", "image/" + extension);
+                                        } else {
+                                            properties.put("mime_type", "image/image");
+                                        }
+
+                                        insertEntity(messageAdapter, event, properties, backlog || !ready);
+                                        try {
+                                            URL u = new URL(info.thumbnail);
+                                            int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
+                                            if(getActivity().getWindowManager().getDefaultDisplay().getHeight() < width)
+                                                width = getActivity().getWindowManager().getDefaultDisplay().getHeight();
+                                            width /= 2;
+                                            ImageList.getInstance().fetchImage(u, width, null, 0);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        messageAdapter.notifyDataSetChanged();
+                                    }
+                                }
+                            });
                         }
                     }
                 }
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                NetworkConnection.printStackTraceToCrashlytics(e);
             }
+
+            if (!backlog)
+                messageAdapter.notifyDataSetChanged();
+
+            long time = (System.currentTimeMillis() - start);
+            if (avgInsertTime == 0)
+                avgInsertTime = time;
+            avgInsertTime += time;
+            avgInsertTime /= 2.0;
+            //Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
+            if (!backlog && buffer.getScrolledUp() && !event.self && event.isImportant(type)) {
+                if(event.row_type != ROW_THUMBNAIL && event.row_type != ROW_FILE) {
+                    if (newMsgTime == 0)
+                        newMsgTime = System.currentTimeMillis();
+                    newMsgs++;
+                    if (event.highlight && !pref_muted)
+                        newHighlights++;
+                    update_unread();
+                    messageAdapter.insertLastSeenEIDMarker();
+                }
+                messageAdapter.notifyDataSetChanged();
+            }
+            if (!backlog && !buffer.getScrolledUp()) {
+                getListView().setSelection(messageAdapter.getCount() - 1);
+                if (tapTimer != null) {
+                    tapTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        getListView().setSelection(messageAdapter.getCount() - 1);
+                                    } catch (Exception e) {
+                                        //List view isn't ready yet
+                                    }
+                                }
+                            });
+                        }
+                    }, 200);
+                }
+            }
+
+            if (!backlog && event.highlight && !getActivity().getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
+                Toast.makeText(getActivity(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
+                SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
+                editor.putBoolean("mentionTip", true);
+                editor.apply();
+            }
+            if (!backlog) {
+                int markerPos = messageAdapter.getLastSeenEIDPosition();
+                if (markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
+                    unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
+                }
+            }
+
+            if(!pref_disableInlineFiles && event.entities != null && event.entities.get("files") != null) {
+                JsonNode files = event.entities.get("files");
+
+                for(int i = 0; i < files.size(); i++) {
+                    JsonNode entity = files.get(i);
+                    String fileID = entity.get("id").asText();
+                    if(!hiddenFileIDs.contains(fileID)) {
+                        JsonNode properties = filePropsCache.get(fileID);
+                        if(BuildConfig.MOCK_DATA) {
+                            JSONObject o = new JSONObject(entity.toString());
+                            o.remove("id");
+                            o.put("thumbnail", "https://www.irccloud.com/static/test/" + o.getString("filename"));
+                            properties = new ObjectMapper().readValue(o.toString(), JsonNode.class);;
+                        }
+
+                        if (properties != null) {
+                            insertEntity(messageAdapter, event, properties, backlog);
+                        } else {
+                            new FilePropsTask(messageAdapter, fileID, event).connect();
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
     }
 

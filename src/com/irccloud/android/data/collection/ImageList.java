@@ -25,6 +25,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -86,6 +88,7 @@ public class ImageList {
             KEEP_ALIVE_TIME,
             KEEP_ALIVE_TIME_UNIT,
             mWorkQueue);
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     public static boolean isImageURL(String url) {
         try {
@@ -340,13 +343,17 @@ public class ImageList {
     }
 
     private void notifyListeners(URL url, Bitmap result) {
+        ArrayList<OnImageFetchedListener> listeners = new ArrayList<>();
         synchronized (downloadListeners) {
             if (downloadListeners.containsKey(url.toString())) {
                 for (OnImageFetchedListener listener : downloadListeners.get(url.toString())) {
-                    listener.onImageFetched(result);
+                    listeners.add(listener);
                 }
                 downloadListeners.remove(url.toString());
             }
+        }
+        for (OnImageFetchedListener listener : listeners) {
+            listener.onImageFetched(result);
         }
     }
 
@@ -587,7 +594,12 @@ public class ImageList {
 
     public void fetchImageInfo(String URL, OnImageInfoListener listener) {
         if(urlInfo.containsKey(URL)) {
-            listener.onImageInfo(urlInfo.get(URL));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onImageInfo(urlInfo.get(URL));
+                }
+            });
         } else {
             String url = URL;
             String lower = url.toLowerCase().replace("https://", "").replace("http://", "");
@@ -613,7 +625,12 @@ public class ImageList {
                     id = id.substring(2);
                     new ImgurTask("image", URL, listener).execute(id.substring(id.indexOf("/") + 1));
                 } else {
-                    listener.onImageInfo(null);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onImageInfo(null);
+                        }
+                    });
                 }
                 return;
             } else if (lower.startsWith("i.imgur.com") && (lower.endsWith(".gifv") || lower.endsWith(".gif"))) {
@@ -651,7 +668,12 @@ public class ImageList {
             info.thumbnail = url;
             info.original_url = URL;
             putImageInfo(info);
-            listener.onImageInfo(info);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onImageInfo(info);
+                }
+            });
         }
     }
 

@@ -190,12 +190,14 @@ public class IRCCloudApplication extends Application {
             }
         };
 
-        if(cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
-            android.util.Log.d("IRCCloud", "notifier timer scheduled for 5000 seconds");
-            notifierTimer.schedule(notifierSockerTimerTask, 5000);
-        } else {
-            android.util.Log.d("IRCCloud", "notifier timer scheduled for 300000 seconds");
-            notifierTimer.schedule(notifierSockerTimerTask, 300000);
+        if (notifierSockerTimerTask != null) {
+            if (cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+                android.util.Log.d("IRCCloud", "notifier timer scheduled for 5000 seconds");
+                notifierTimer.schedule(notifierSockerTimerTask, 5000);
+            } else {
+                android.util.Log.d("IRCCloud", "notifier timer scheduled for 300000 seconds");
+                notifierTimer.schedule(notifierSockerTimerTask, 300000);
+            }
         }
     }
 
