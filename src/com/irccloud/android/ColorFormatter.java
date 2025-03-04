@@ -3407,7 +3407,7 @@ public class ColorFormatter {
             }
         }
 
-        return builder.toString();
+        return builder.toString().replace(" <", "&nbsp; <"); //preserve whitespace before opening tags
     }
 
     public static String strip_colors(String msg) {
