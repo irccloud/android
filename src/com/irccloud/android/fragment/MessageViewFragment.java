@@ -676,7 +676,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 prefix += ")</font> ";
 
                                 html = prefix + html;
-                                e.mention_offset += prefix.length();
                             }
                             e.formatted = ColorFormatter.html_to_spanned(html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
                             if(e.formatted != null && !pref_disableQuote && e.type.equals("buffer_msg") && ColorFormatter.is_blockquote(e.formatted.toString())) {
