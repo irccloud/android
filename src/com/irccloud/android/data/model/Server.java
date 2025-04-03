@@ -372,6 +372,10 @@ public class Server extends BaseObservable implements Comparable<Server> {
         return hasCap("labeled-response") || hasCap("draft/labeled-response") || hasCap("draft/labeled-response-0.2");
     }
 
+    public boolean hasRedaction() {
+        return hasCap("draft/message-redaction");
+    }
+
     public boolean clientTagDeny(String tagname) {
         if(isupport == null || !isupport.has("CLIENTTAGDENY") || !isupport.get("CLIENTTAGDENY").isTextual())
             return false;

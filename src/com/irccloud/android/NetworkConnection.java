@@ -1585,6 +1585,20 @@ public class NetworkConnection {
         }
     }
 
+    public int redact_message(int cid, String to, String reason, String msgid, IRCResultCallback callback) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("cid", cid);
+            o.put("to", to);
+            o.put("reason", reason);
+            o.put("msgid", msgid);
+            return send("redact-message", o, callback);
+        } catch (JSONException e) {
+            printStackTraceToCrashlytics(e);
+            return -1;
+        }
+    }
+
     public JSONObject postSay(int cid, String to, String message, String sk) throws IOException {
         if(to == null)
             to = "*";
@@ -2308,6 +2322,7 @@ public class NetworkConnection {
                     editor.putBoolean("chat-nocodeblock", !(userInfo.prefs.has("chat-nocodeblock") && userInfo.prefs.get("chat-nocodeblock") instanceof Boolean && userInfo.prefs.getBoolean("chat-nocodeblock")));
                     editor.putBoolean("chat-noquote", !(userInfo.prefs.has("chat-noquote") && userInfo.prefs.get("chat-noquote") instanceof Boolean && userInfo.prefs.getBoolean("chat-noquote")));
                     editor.putBoolean("chat-nocolor", !(userInfo.prefs.has("chat-nocolor") && userInfo.prefs.get("chat-nocolor") instanceof Boolean && userInfo.prefs.getBoolean("chat-nocolor")));
+                    editor.putBoolean("chat-deleted-show", (userInfo.prefs.has("chat-deleted-show") && userInfo.prefs.get("chat-deleted-show") instanceof Boolean && userInfo.prefs.getBoolean("chat-deleted-show")));
                     editor.putBoolean("inlineimages", (userInfo.prefs.has("inlineimages") && userInfo.prefs.get("inlineimages") instanceof Boolean && userInfo.prefs.getBoolean("inlineimages")));
                     if(userInfo.prefs.has("theme") && !prefs.contains("theme"))
                         editor.putString("theme", userInfo.prefs.getString("theme"));
@@ -2513,7 +2528,7 @@ public class NetworkConnection {
                 "chan_open","knock_on_chan","knock_disabled","cannotknock","ownmode",
                 "nossl","redirect_error","invalid_flood","join_flood","metadata_limit",
                 "metadata_targetinvalid","metadata_nomatchingkey","metadata_keyinvalid",
-                "metadata_keynotset","metadata_keynopermission","metadata_toomanysubs", "invalid_nick"};
+                "metadata_keynotset","metadata_keynopermission","metadata_toomanysubs", "invalid_nick", "fail"};
         for (String event : alerts) {
             put(event, alert);
         }
@@ -3164,6 +3179,7 @@ public class NetworkConnection {
                 process_pending_edits(backlog);
             }
         });
+        put("redact", get("empty_msg"));
 
         //Various lists
         put("ban_list", new BroadcastParser(EVENT_BANLIST));
@@ -3320,49 +3336,69 @@ public class NetworkConnection {
         pendingEdits = new ArrayList<>();
 
         for(IRCCloudJSONObject o : edits) {
-            JsonNode entities = o.getJsonNode("entities");
-            if(entities != null) {
-                if (entities.has("delete")) {
-                    Event e = mEvents.getEvent(o.bid(), entities.get("delete").asText());
-                    if (e != null) {
-                        mEvents.deleteEvent(e.eid, e.bid);
-                        if(!backlog)
-                            notifyHandlers(EVENT_MESSAGECHANGE, o);
-                    } else {
-                        pendingEdits.add(o);
-                    }
-                } else if(entities.has("edit")) {
-                    Event e = mEvents.getEvent(o.bid(), entities.get("edit").asText());
-                    if(e != null) {
-                        if (o.eid() >= e.lastEditEID && e.hasSameAccount(o.getString("from_account"))) {
-                            if (entities.has("edit_text")) {
-                                e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
-                                if (e.msg.startsWith(" "))
-                                    e.msg = "&nbsp;" + e.msg.substring(1);
-                                e.edited = true;
-                                if(e.entities instanceof ObjectNode) {
-                                    if(e.entities.has("mentions"))
-                                        ((ObjectNode)e.entities).remove("mentions");
-                                    if(e.entities.has("mention_data"))
-                                        ((ObjectNode)e.entities).remove("mention_data");
-                                }
-                            }
-                            if(e.entities != null) {
-                                mergeJsonNode(e.entities, entities);
-                            } else {
-                                e.entities = entities;
-                            }
-                            e.lastEditEID = o.eid();
+            if (o.type().equals("empty_msg")) {
+                JsonNode entities = o.getJsonNode("entities");
+                if (entities != null) {
+                    if (entities.has("delete")) {
+                        Event e = mEvents.getEvent(o.bid(), entities.get("delete").asText());
+                        if (e != null) {
+                            e.deleted = true;
                             e.formatted = null;
                             e.html = null;
                             e.ready_for_display = false;
                             e.linkified = false;
+                            if (!backlog)
+                                notifyHandlers(EVENT_MESSAGECHANGE, o);
+                        } else {
+                            pendingEdits.add(o);
                         }
-                        if(!backlog)
-                            notifyHandlers(EVENT_MESSAGECHANGE, o);
-                    } else {
-                        pendingEdits.add(o);
+                    } else if (entities.has("edit")) {
+                        Event e = mEvents.getEvent(o.bid(), entities.get("edit").asText());
+                        if (e != null) {
+                            if (o.eid() >= e.lastEditEID && e.hasSameAccount(o.getString("from_account"))) {
+                                if (entities.has("edit_text")) {
+                                    e.msg = TextUtils.htmlEncode(Normalizer.normalize(entities.get("edit_text").asText(), Normalizer.Form.NFC)).replace("  ", "&nbsp; ");
+                                    if (e.msg.startsWith(" "))
+                                        e.msg = "&nbsp;" + e.msg.substring(1);
+                                    e.edited = true;
+                                    if (e.entities instanceof ObjectNode) {
+                                        if (e.entities.has("mentions"))
+                                            ((ObjectNode) e.entities).remove("mentions");
+                                        if (e.entities.has("mention_data"))
+                                            ((ObjectNode) e.entities).remove("mention_data");
+                                    }
+                                }
+                                if (e.entities != null) {
+                                    mergeJsonNode(e.entities, entities);
+                                } else {
+                                    e.entities = entities;
+                                }
+                                e.lastEditEID = o.eid();
+                                e.formatted = null;
+                                e.html = null;
+                                e.ready_for_display = false;
+                                e.linkified = false;
+                            }
+                            if (!backlog)
+                                notifyHandlers(EVENT_MESSAGECHANGE, o);
+                        } else {
+                            pendingEdits.add(o);
+                        }
                     }
+                }
+            } else if (o.type().equals("redact")) {
+                Event e = mEvents.getEvent(o.bid(), o.getString("redact_msgid"));
+                if (e != null) {
+                    e.deleted = true;
+                    e.redactedReason = o.getString("reason");
+                    e.formatted = null;
+                    e.html = null;
+                    e.ready_for_display = false;
+                    e.linkified = false;
+                    if (!backlog)
+                        notifyHandlers(EVENT_MESSAGECHANGE, o);
+                } else {
+                    pendingEdits.add(o);
                 }
             }
         }

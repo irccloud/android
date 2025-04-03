@@ -274,6 +274,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         findPreference("chat-noquote").setOnPreferenceChangeListener(prefstoggle);
         findPreference("chat-nocolor").setOnPreferenceChangeListener(prefstoggle);
         findPreference("disableTypingStatus").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("chat-deleted-show").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-left").setOnPreferenceChangeListener(messagelayouttoggle);
         findPreference("avatars-off").setOnPreferenceChangeListener(messagelayouttoggle);
         findPreference("chat-oneline").setOnPreferenceChangeListener(messagelayouttoggle);

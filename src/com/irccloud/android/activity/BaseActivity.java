@@ -473,6 +473,9 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         case "metadata_toomanysubs":
                             showAlert(o.cid(), "Metadata key subscription limit reached, keys after and including '" + o.getString("key") + "' are not subscribed");
                             break;
+                        case "fail":
+                            showAlert(o.cid(), "FAIL: " + o.getString("command") + ": " + o.getString("code") + ": " + o.getString("description") + ": " + o.getString("context"));
+                            break;
                         default:
                             if(o.has("message") && o.getString("message").equals("invalid_nick"))
                                 showAlert(-1, "Invalid nickname");

@@ -5441,9 +5441,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (event.row_type == ROW_FILE || event.row_type == ROW_THUMBNAIL) {
             if(event.entities.has("id"))
-                showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)), event.entities, null, false, null);
+                showUserPopup(user, ColorFormatter.html_to_spanned(UriTemplate.fromTemplate(NetworkConnection.file_uri_template).set("id", event.entities.get("id").asText()).expand(), true, ServersList.getInstance().getServer(event.cid)), event.entities, null, false, false, null);
             else
-                showUserPopup(user, ColorFormatter.html_to_spanned(event.entities.get("url").asText(), true, ServersList.getInstance().getServer(event.cid)), event.entities, null, false, null);
+                showUserPopup(user, ColorFormatter.html_to_spanned(event.entities.get("url").asText(), true, ServersList.getInstance().getServer(event.cid)), event.entities, null, false, false, null);
         } else if (event.html != null) {
             String html = event.html;
 
@@ -5464,14 +5464,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 msgid = event.is_reply ? event.reply() : event.msgid;
             }
 
-            boolean canEdit = event.self;
             Server s = ServersList.getInstance().getServer(event.cid);
-            if(s == null || !s.hasLabeledResponse() || !event.hasSameAccount(s.getAccount()))
-                canEdit = false;
+            boolean canEdit = event.self && s != null && s.hasLabeledResponse() && event.hasSameAccount(s.getAccount()) && !s.blocksEdits;
+            boolean canDelete = event.self && s != null && s.hasLabeledResponse() && (!s.blocksDeletes || s.hasRedaction());
 
-            showUserPopup(user, ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(timestamp + " " + html), true, ServersList.getInstance().getServer(event.cid)), null, msgid, canEdit, event);
+            if(event.deleted)
+                canDelete = canEdit = false;
+
+            showUserPopup(user, ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(timestamp + " " + html), true, ServersList.getInstance().getServer(event.cid)), null, msgid, canEdit, canDelete, event);
         } else {
-            showUserPopup(user, null, null, null, false, null);
+            showUserPopup(user, null, null, null, false, false, null);
         }
         return true;
     }
@@ -5550,12 +5552,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onUserSelected(int c, String chan, String nick) {
         UsersList u = UsersList.getInstance();
-        showUserPopup(u.getUser(buffer.getBid(), nick), null, null, null, false, null);
+        showUserPopup(u.getUser(buffer.getBid(), nick), null, null, null, false, false, null);
     }
 
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
-    private void showUserPopup(User user, final Spanned message, final JsonNode entities, final String msgid, boolean canEdit, final Event event) {
+    private void showUserPopup(User user, final Spanned message, final JsonNode entities, final String msgid, boolean canEdit, boolean canDelete, final Event event) {
         ArrayList<String> itemList = new ArrayList<String>();
         final String[] items;
         SpannableStringBuilder sb;
@@ -5586,11 +5588,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 itemList.add("Close Preview");
             }
             itemList.add("Copy Message");
-            if(canEdit && !bubble) {
-                if(!server.blocksEdits)
-                    itemList.add("Edit Message…");
 
-                if(!server.blocksDeletes)
+            if (!bubble) {
+                if (canEdit)
+                    itemList.add("Edit Message…");
+                if (canDelete)
                     itemList.add("Delete Message");
             }
         }
@@ -5767,42 +5769,83 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             mvf.hideFileId(entities.get("url").asText());
                     }
                 } else if(items[item].equals("Delete Message")) {
-                    builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle("Delete Message");
-                    builder.setMessage("Are you sure you want to delete this message?");
-
-
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            NetworkConnection.getInstance().delete_message(buffer.getCid(), buffer.getName(), event.msgid, new NetworkConnection.IRCResultCallback() {
-                                @Override
-                                public void onIRCResult(IRCCloudJSONObject result) {
-                                    if(!result.getBoolean("success")) {
-                                        IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to delete message: " + result.toString());
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(MainActivity.this, "Unable to delete message, please try again.", Toast.LENGTH_LONG).show();
-                                            }
-                                        });
+                    if (server.hasRedaction()) {
+                        view = getDialogTextPrompt();
+                        prompt = view.findViewById(R.id.prompt);
+                        input = view.findViewById(R.id.textInput);
+                        input.setHint("Reason (optional)");
+                        input.setText(null);
+                        prompt.setText("Are you sure you want to delete this message?");
+                        builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                        builder.setView(view);
+                        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                NetworkConnection.getInstance().redact_message(buffer.getCid(), buffer.getName(), input.getText().toString(), event.msgid, new NetworkConnection.IRCResultCallback() {
+                                    @Override
+                                    public void onIRCResult(IRCCloudJSONObject result) {
+                                        if(!result.getBoolean("success")) {
+                                            IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to delete message: " + result.toString());
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(MainActivity.this, "Unable to delete message, please try again.", Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                        }
                                     }
-                                }
-                            });
-                            dialog.dismiss();
-                        }
-                    });
-                    dialog = builder.create();
-                    dialog.setOwnerActivity(MainActivity.this);
-                    dialog.show();
+                                });
+                                dialog.dismiss();
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                        dialog = builder.create();
+                        dialog.setOwnerActivity(MainActivity.this);
+                        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                        dialog.show();
+                    } else {
+                        builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("Delete Message");
+                        builder.setMessage("Are you sure you want to delete this message?");
+
+
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                        builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                NetworkConnection.getInstance().delete_message(buffer.getCid(), buffer.getName(), event.msgid, new NetworkConnection.IRCResultCallback() {
+                                    @Override
+                                    public void onIRCResult(IRCCloudJSONObject result) {
+                                        if (!result.getBoolean("success")) {
+                                            IRCCloudLog.Log(Log.ERROR, "IRCCloud", "Unable to delete message: " + result.toString());
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    Toast.makeText(MainActivity.this, "Unable to delete message, please try again.", Toast.LENGTH_LONG).show();
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                                dialog.dismiss();
+                            }
+                        });
+                        dialog = builder.create();
+                        dialog.setOwnerActivity(MainActivity.this);
+                        dialog.show();
+                    }
                 } else if (items[item].equals("Edit Message…")) {
                     view = getDialogTextPrompt();
                     prompt = view.findViewById(R.id.prompt);

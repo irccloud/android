@@ -136,6 +136,8 @@ public class Event {
     public boolean ready_for_display;
     public long lastEditEID;
     public boolean edited;
+    public boolean deleted;
+    public String redactedReason;
 
     public Event() {
 
@@ -213,7 +215,7 @@ public class Event {
     }
 
     public synchronized boolean isImportant(String buffer_type) {
-        if (self)
+        if (self || deleted)
             return false;
         if (type == null) {
             return false;

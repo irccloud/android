@@ -225,6 +225,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_mentionColors = false;
     private boolean pref_muted = false;
     private boolean pref_noColor = false;
+    private boolean pref_showDeleted = false;
 
     private static Pattern IS_CODE_BLOCK = Pattern.compile("```([\\s\\S]+?)```(?=(?!`)[\\W\\s\\n]|$)");
 
@@ -667,6 +668,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             html = ColorFormatter.emojify(ColorFormatter.irc_to_html(html, (e.entities != null && e.entities.has("mentions"))?e.entities.get("mentions"):null, e.mention_offset, (e.entities != null && e.entities.has("mention_data"))?e.entities.get("mention_data"):null,server!=null?server.getCid():0, pref_noColor));
                             if(e.edited && e.mention_offset != -999)
                                 html += " <font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(edited)</font>";
+
+                            if(e.deleted && e.mention_offset != -999) {
+                                String prefix = "<font color=\"#" + Integer.toHexString(ColorScheme.getInstance().timestampColor).substring(2) + "\">(deleted";
+                                if (e.redactedReason != null && e.redactedReason.length() > 0)
+                                    prefix += ": " + e.redactedReason;
+                                prefix += ")</font> ";
+
+                                html = prefix + html;
+                                e.mention_offset += prefix.length();
+                            }
                             e.formatted = ColorFormatter.html_to_spanned(html, e.linkify, (e.row_type == ROW_THUMBNAIL) ? null : server, e.entities, pref_mentionColors);
                             if(e.formatted != null && !pref_disableQuote && e.type.equals("buffer_msg") && ColorFormatter.is_blockquote(e.formatted.toString())) {
                                 e.formatted = (Spanned)e.formatted.subSequence(1, e.formatted.length());
@@ -1884,6 +1895,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private synchronized void insertEvent(final MessageAdapter messageAdapter, final Event event, final boolean backlog, boolean nextIsGrouped) {
+        if (!pref_showDeleted && event.deleted)
+            return;
+
         event.ready_for_display = false;
         try {
             long start = System.currentTimeMillis();
@@ -3149,6 +3163,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_mentionColors = false;
         pref_muted = false;
         pref_noColor = false;
+        pref_showDeleted = false;
         buffer_usermask = null;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
@@ -3167,6 +3182,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_disableCodeBlock = (prefs.has("chat-nocodeblock") && prefs.get("chat-nocodeblock") instanceof Boolean && prefs.getBoolean("chat-nocodeblock"));
                 pref_disableQuote = (prefs.has("chat-noquote") && prefs.get("chat-noquote") instanceof Boolean && prefs.getBoolean("chat-noquote"));
                 pref_mentionColors = (prefs.has("mention-colors") && prefs.get("mention-colors") instanceof Boolean && prefs.getBoolean("mention-colors"));
+                pref_showDeleted = (prefs.has("chat-deleted-show") && prefs.get("chat-deleted-show") instanceof Boolean && prefs.getBoolean("chat-deleted-show") && prefs.get("chat-deleted-show") instanceof Boolean && prefs.getBoolean("chat-deleted-show"));
 
                 if(prefs.has("channel-disableTrackUnread")) {
                     JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
