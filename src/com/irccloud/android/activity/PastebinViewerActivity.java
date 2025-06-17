@@ -167,6 +167,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
+        getWindow().setNavigationBarColor(ColorScheme.getInstance().dialogBackgroundColor);
         onMultiWindowModeChanged(isMultiWindow());
         if(savedInstanceState == null && (getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) || isMultiWindow()))
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);

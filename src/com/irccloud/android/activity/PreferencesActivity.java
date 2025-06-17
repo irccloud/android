@@ -129,6 +129,7 @@ public class PreferencesActivity extends BaseActivity implements NetworkConnecti
         ColorScheme.getInstance().setThemeFromContext(this, theme);
         if (themeChanged)
             EventsList.getInstance().clearCaches();
+        getWindow().setNavigationBarColor(ColorScheme.getInstance().dialogBackgroundColor);
         onMultiWindowModeChanged(isMultiWindow());
 
         setContentView(R.layout.activity_preferences);

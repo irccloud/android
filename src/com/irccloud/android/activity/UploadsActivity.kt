@@ -42,7 +42,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.damnhandy.uri.template.UriTemplate
 import com.google.android.material.snackbar.Snackbar
-import com.irccloud.android.AsyncTaskEx
 import com.irccloud.android.ColorScheme
 import com.irccloud.android.IRCCloudLog
 import com.irccloud.android.NetworkConnection
@@ -53,7 +52,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONException
-import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 import java.io.Serializable
@@ -435,6 +433,7 @@ class UploadsActivity : BaseActivity() {
             UriTemplate.fromTemplate(NetworkConnection.file_uri_template)
         super.onCreate(savedInstanceState)
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()))
+        window.navigationBarColor = ColorScheme.getInstance().dialogBackgroundColor
         onMultiWindowModeChanged(isMultiWindow)
 
         try {

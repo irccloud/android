@@ -288,6 +288,7 @@ public class AvatarsActivity extends BaseActivity implements NetworkConnection.I
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
+        getWindow().setNavigationBarColor(ColorScheme.getInstance().dialogBackgroundColor);
         onMultiWindowModeChanged(isMultiWindow());
 
         orgId = getIntent().getIntExtra("orgId", -1);

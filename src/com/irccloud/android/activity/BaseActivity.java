@@ -113,7 +113,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
         }
         getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
-        getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
+        getWindow().setNavigationBarColor(ColorScheme.getInstance().contentBackgroundColor);
         if(ColorScheme.getInstance().windowBackgroundDrawable != 0)
             getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
 

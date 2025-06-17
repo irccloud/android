@@ -251,6 +251,7 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
+        getWindow().setNavigationBarColor(ColorScheme.getInstance().dialogBackgroundColor);
         onMultiWindowModeChanged(isMultiWindow());
 
         final int cid = getIntent().getIntExtra("cid", -1);
