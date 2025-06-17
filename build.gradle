@@ -25,7 +25,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.8.2'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.3'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.4'
         classpath 'com.google.gms:google-services:4.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
@@ -321,22 +321,22 @@ tasks.configureEach { task ->
 }
 
 dependencies {
-    implementation 'androidx.work:work-runtime:2.10.0'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.work:work-runtime:2.10.1'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
     implementation 'androidx.sharetarget:sharetarget:1.2.0'
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "com.google.android.material:material:1.12.0"
     implementation "androidx.recyclerview:recyclerview:1.4.0"
     implementation "androidx.browser:browser:1.8.0"
-    implementation "androidx.exifinterface:exifinterface:1.4.0"
-    implementation "androidx.room:room-runtime:2.6.1"
-    implementation "androidx.security:security-crypto:1.1.0-alpha06"
-    implementation 'androidx.core:core-ktx:1.15.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7'
-    annotationProcessor "androidx.room:room-compiler:2.6.1"
-    implementation 'com.google.firebase:firebase-messaging:24.1.0'
-    implementation 'com.google.firebase:firebase-crashlytics:19.4.1'
+    implementation "androidx.exifinterface:exifinterface:1.4.1"
+    implementation "androidx.room:room-runtime:2.7.1"
+    implementation "androidx.security:security-crypto:1.1.0-beta01"
+    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1'
+    annotationProcessor "androidx.room:room-compiler:2.7.1"
+    implementation 'com.google.firebase:firebase-messaging:24.1.1'
+    implementation 'com.google.firebase:firebase-crashlytics:19.4.4'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.8'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
