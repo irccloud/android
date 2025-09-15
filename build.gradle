@@ -25,8 +25,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.8.2'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.4'
-        classpath 'com.google.gms:google-services:4.4.2'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.6'
+        classpath 'com.google.gms:google-services:4.4.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -331,16 +331,16 @@ dependencies {
     implementation "androidx.browser:browser:1.8.0"
     implementation "androidx.exifinterface:exifinterface:1.4.1"
     implementation "androidx.room:room-runtime:2.7.1"
-    implementation "androidx.security:security-crypto:1.1.0-beta01"
+    implementation "androidx.security:security-crypto:1.1.0"
     implementation 'androidx.core:core-ktx:1.16.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1'
     annotationProcessor "androidx.room:room-compiler:2.7.1"
-    implementation 'com.google.firebase:firebase-messaging:24.1.1'
-    implementation 'com.google.firebase:firebase-crashlytics:19.4.4'
+    implementation 'com.google.firebase:firebase-messaging:25.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics:20.0.1'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.8'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.29'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation project(':android-websockets')
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8' //Newer versions don't work on Android SDK
