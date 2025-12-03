@@ -377,6 +377,7 @@ public class ColorFormatter {
         put("flag-cn", "🇨🇳");
         put("flag-co", "🇨🇴");
         put("flag-cp", "🇨🇵");
+        put("flag-sark", "🇨🇶");
         put("flag-cr", "🇨🇷");
         put("flag-cu", "🇨🇺");
         put("flag-cv", "🇨🇻");
@@ -1995,6 +1996,8 @@ public class ColorFormatter {
         put("nesting_dolls", "🪆");
         put("maracas", "🪇");
         put("flute", "🪈");
+        put("harp", "🪉");
+        put("shovel", "🪏");
         put("ringed_planet", "🪐");
         put("chair", "🪑");
         put("razor", "🪒");
@@ -2041,6 +2044,7 @@ public class ColorFormatter {
         put("hyacinth", "🪻");
         put("jellyfish", "🪼");
         put("wing", "🪽");
+        put("leafless_tree", "🪾");
         put("goose", "🪿");
         put("anatomical_heart", "🫀");
         put("lungs", "🫁");
@@ -2048,6 +2052,7 @@ public class ColorFormatter {
         put("pregnant_man", "🫃");
         put("pregnant_person", "🫄");
         put("person_with_crown", "🫅");
+        put("fingerprint", "🫆");
         put("moose", "🫎");
         put("donkey", "🫏");
         put("blueberries", "🫐");
@@ -2062,6 +2067,8 @@ public class ColorFormatter {
         put("jar", "🫙");
         put("ginger_root", "🫚");
         put("pea_pod", "🫛");
+        put("root_vegetable", "🫜");
+        put("splatter", "🫟");
         put("melting_face", "🫠");
         put("saluting_face", "🫡");
         put("face_with_open_eyes_and_hand_over_mouth", "🫢");
@@ -2071,6 +2078,7 @@ public class ColorFormatter {
         put("biting_lip", "🫦");
         put("bubbles", "🫧");
         put("shaking_face", "🫨");
+        put("face_with_bags_under_eyes", "🫩");
         put("hand_with_index_finger_and_thumb_crossed", "🫰");
         put("rightwards_hand", "🫱");
         put("leftwards_hand", "🫲");
