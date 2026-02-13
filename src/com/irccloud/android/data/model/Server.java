@@ -422,7 +422,7 @@ public class Server extends BaseObservable implements Comparable<Server> {
             b.setChan_types(CHANTYPES);
         }
 
-        blocksTyping = clientTagDeny("typing") || clientTagDeny("draft/typing");
+        blocksTyping = clientTagDeny("typing");
         blocksReplies = clientTagDeny("reply") || clientTagDeny("draft/reply");
         blocksReactions = blocksReplies || clientTagDeny("draft/react");
         blocksEdits = clientTagDeny("draft/edit") || clientTagDeny("draft/edit-text");
