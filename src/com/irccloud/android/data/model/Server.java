@@ -423,7 +423,7 @@ public class Server extends BaseObservable implements Comparable<Server> {
         }
 
         blocksTyping = clientTagDeny("typing");
-        blocksReplies = clientTagDeny("reply") || clientTagDeny("draft/reply");
+        blocksReplies = clientTagDeny("reply") && clientTagDeny("draft/reply");
         blocksReactions = blocksReplies || clientTagDeny("draft/react");
         blocksEdits = clientTagDeny("draft/edit") || clientTagDeny("draft/edit-text");
         blocksDeletes = clientTagDeny("draft/delete");
