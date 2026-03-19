@@ -161,7 +161,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             ViewGroupCompat.installCompatInsetsDispatch(content);
 
             ViewCompat.setOnApplyWindowInsetsListener(content, (v, windowInsets) -> {
-                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
                 ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
                 mlp.topMargin = insets.top;
                 mlp.leftMargin = insets.left;

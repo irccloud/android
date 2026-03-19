@@ -24,10 +24,15 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
@@ -48,6 +53,22 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_connection);
+        View content = getWindow().getDecorView().findViewById(android.R.id.content);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && content != null) {
+            ViewGroupCompat.installCompatInsetsDispatch(content);
+
+            ViewCompat.setOnApplyWindowInsetsListener(content, (v, windowInsets) -> {
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                mlp.topMargin = 0;
+                mlp.leftMargin = 0;
+                mlp.bottomMargin = 0;
+                mlp.rightMargin = 0;
+                v.setLayoutParams(mlp);
+                return windowInsets;
+            });
+        }
+
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.actionbar_edit_connection);

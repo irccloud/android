@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.ActionBarOverlayLayout;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -292,10 +293,14 @@ public class EditConnectionFragment extends DialogFragment {
                 ViewGroupCompat.installCompatInsetsDispatch(v);
 
                 ViewCompat.setOnApplyWindowInsetsListener(v, (v1, windowInsets) -> {
-                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
                     ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v1.getLayoutParams();
                     mlp.topMargin = insets.top;
+                    mlp.leftMargin = insets.left;
+                    mlp.bottomMargin = insets.bottom;
+                    mlp.rightMargin = insets.right;
                     v1.setLayoutParams(mlp);
+
                     return windowInsets;
                 });
             }
