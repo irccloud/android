@@ -177,7 +177,7 @@ public class LoginActivity extends FragmentActivity {
 
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.logocontainer), (v, windowInsets) -> {
                 Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
-                v.setPadding(0, insets.top, 0, 0);
+                v.setPadding(v.getPaddingLeft(), v.getPaddingTop() + insets.top, v.getPaddingRight(), v.getPaddingBottom());
                 return windowInsets;
             });
         }
