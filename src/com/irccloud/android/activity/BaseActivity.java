@@ -51,6 +51,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -121,10 +122,13 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if(ColorScheme.getInstance().windowBackgroundDrawable != 0)
             getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
 
-        if(theme.equals("dawn"))
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        else
-            getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        if(theme.equals("dawn")) {
+            WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView()).setAppearanceLightStatusBars(true);
+            WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView()).setAppearanceLightNavigationBars(true);
+        } else {
+            WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView()).setAppearanceLightStatusBars(false);
+            WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView()).setAppearanceLightNavigationBars(false);
+        }
 
         conn = NetworkConnection.getInstance();
         conn.addHandler(this);
