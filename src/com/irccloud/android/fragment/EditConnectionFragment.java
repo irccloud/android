@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +39,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.irccloud.android.AsyncTaskEx;
@@ -282,6 +287,19 @@ public class EditConnectionFragment extends DialogFragment {
             return super.onCreateView(inflater, container, savedInstanceState);
         } else {
             final View v = inflater.inflate(R.layout.dialog_edit_connection, container, false);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ViewGroupCompat.installCompatInsetsDispatch(v);
+
+                ViewCompat.setOnApplyWindowInsetsListener(v, (v1, windowInsets) -> {
+                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v1.getLayoutParams();
+                    mlp.topMargin = insets.top;
+                    v1.setLayoutParams(mlp);
+                    return windowInsets;
+                });
+            }
+
             init(v);
             return v;
         }

@@ -24,7 +24,7 @@ buildscript {
         maven { url "https://www.jitpack.io" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.8.2'
+        classpath 'com.android.tools.build:gradle:8.13.2'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.6'
         classpath 'com.google.gms:google-services:4.4.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -58,15 +58,15 @@ repositories {
 }
 
 android {
-    compileSdk 35
+    compileSdk 36
     testBuildType "mockdata"
     namespace "com.irccloud.android"
 
     defaultConfig {
         versionCode 378
-        versionName "4.36"
+        versionName "4.37"
         minSdkVersion 26
-        targetSdkVersion 35
+        targetSdkVersion 36
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -321,26 +321,26 @@ tasks.configureEach { task ->
 }
 
 dependencies {
-    implementation 'androidx.work:work-runtime:2.10.1'
+    implementation 'androidx.work:work-runtime:2.11.1'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
     implementation 'androidx.sharetarget:sharetarget:1.2.0'
     implementation "androidx.cardview:cardview:1.0.0"
-    implementation "com.google.android.material:material:1.12.0"
+    implementation "com.google.android.material:material:1.13.0"
     implementation "androidx.recyclerview:recyclerview:1.4.0"
     implementation "androidx.browser:browser:1.8.0"
-    implementation "androidx.exifinterface:exifinterface:1.4.1"
-    implementation "androidx.room:room-runtime:2.7.1"
+    implementation "androidx.exifinterface:exifinterface:1.4.2"
+    implementation "androidx.room:room-runtime:2.8.4"
     implementation "androidx.security:security-crypto:1.1.0"
-    implementation 'androidx.core:core-ktx:1.16.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1'
-    annotationProcessor "androidx.room:room-compiler:2.7.1"
-    implementation 'com.google.firebase:firebase-messaging:25.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics:20.0.1'
+    implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0'
+    annotationProcessor "androidx.room:room-compiler:2.8.4"
+    implementation 'com.google.firebase:firebase-messaging:25.0.1'
+    implementation 'com.google.firebase:firebase-crashlytics:20.0.4'
     implementation 'com.vandalsoftware.android:dslv:0.6.3'
     implementation 'com.damnhandy:handy-uri-templates:2.1.8'
     implementation 'com.commonsware.cwac:richedit:0.5.2'
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.29'
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.31'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation project(':android-websockets')
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8' //Newer versions don't work on Android SDK

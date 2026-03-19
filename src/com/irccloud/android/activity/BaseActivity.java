@@ -48,6 +48,10 @@ import android.widget.TextView.OnEditorActionListener;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.material.snackbar.Snackbar;
@@ -142,6 +146,27 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED);
         registerReceiver(powerSaverListener, intentFilter);
+    }
+
+    @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
+        View content = getWindow().getDecorView().findViewById(android.R.id.content);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && content != null) {
+            ViewGroupCompat.installCompatInsetsDispatch(content);
+
+            ViewCompat.setOnApplyWindowInsetsListener(content, (v, windowInsets) -> {
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                mlp.topMargin = insets.top;
+                mlp.leftMargin = insets.left;
+                mlp.bottomMargin = insets.bottom;
+                mlp.rightMargin = insets.right;
+                v.setLayoutParams(mlp);
+                return windowInsets;
+            });
+        }
     }
 
     @Override
