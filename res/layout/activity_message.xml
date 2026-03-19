@@ -171,6 +171,7 @@
                         android:background="?attr/contentBackgroundColor"
                         android:singleLine="true"
                         android:ellipsize="start"
+                        android:gravity="top"
                         android:textSize="12sp" />
                 </LinearLayout>
                 <fragment
