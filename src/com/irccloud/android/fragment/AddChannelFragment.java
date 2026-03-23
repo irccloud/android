@@ -31,6 +31,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.window.core.layout.WindowSizeClass;
+import androidx.window.layout.WindowMetrics;
+import androidx.window.layout.WindowMetricsCalculator;
 
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -103,7 +106,8 @@ public class AddChannelFragment extends DialogFragment {
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!getActivity().getResources().getBoolean(R.bool.isTablet)) {
+                WindowMetrics wm = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(getActivity());
+                if (!new WindowSizeClass(wm.getWidthDp(), wm.getHeightDp()).isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)) {
                     Intent i = new Intent(getActivity(), EditConnectionActivity.class);
                     startActivity(i);
                 } else {

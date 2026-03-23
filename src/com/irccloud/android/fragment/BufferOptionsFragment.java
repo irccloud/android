@@ -29,6 +29,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.window.core.layout.WindowSizeClass;
+import androidx.window.layout.WindowMetrics;
+import androidx.window.layout.WindowMetricsCalculator;
 
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudLog;
@@ -324,7 +327,8 @@ public class BufferOptionsFragment extends DialogFragment {
                     typing.setChecked(enabled);
                 }
             }
-            if (!getActivity().getResources().getBoolean(R.bool.isTablet))
+            WindowMetrics wm = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(getActivity());
+            if (!new WindowSizeClass(wm.getWidthDp(), wm.getHeightDp()).isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND))
                 members.setVisibility(View.GONE);
         } catch (JSONException e) {
             NetworkConnection.printStackTraceToCrashlytics(e);

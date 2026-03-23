@@ -16,10 +16,15 @@
 
 package com.irccloud.android.activity;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.irccloud.android.R;
@@ -34,6 +39,21 @@ public class ReorderActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reorder_servers);
+        View content = getWindow().getDecorView().findViewById(android.R.id.content);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && content != null) {
+            ViewGroupCompat.installCompatInsetsDispatch(content);
+
+            ViewCompat.setOnApplyWindowInsetsListener(content, (v, windowInsets) -> {
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                mlp.topMargin = 0;
+                mlp.leftMargin = 0;
+                mlp.bottomMargin = 0;
+                mlp.rightMargin = 0;
+                v.setLayoutParams(mlp);
+                return windowInsets;
+            });
+        }
 
         if(savedInstanceState != null && savedInstanceState.containsKey("title")) {
             title = savedInstanceState.getString("title");

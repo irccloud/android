@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +32,12 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.window.layout.WindowMetricsCalculator;
 
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.FontAwesome;
@@ -99,8 +105,7 @@ public class PinReorderFragment extends DialogFragment implements NetworkConnect
         public PinListAdapter(DialogFragment context) {
             ctx = context;
             data = new ArrayList<>();
-            WindowManager wm = (WindowManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-            width = wm.getDefaultDisplay().getWidth();
+            width = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(getActivity()).getBounds().width();
         }
 
         public void setItems(ArrayList<Integer> items) {
@@ -245,6 +250,21 @@ public class PinReorderFragment extends DialogFragment implements NetworkConnect
             return super.onCreateView(inflater, container, savedInstanceState);
         } else {
             final View v = inflater.inflate(R.layout.reorderservers, null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ViewGroupCompat.installCompatInsetsDispatch(v);
+
+                ViewCompat.setOnApplyWindowInsetsListener(v, (v1, windowInsets) -> {
+                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v1.getLayoutParams();
+                    mlp.topMargin = insets.top;
+                    mlp.leftMargin = insets.left;
+                    mlp.bottomMargin = insets.bottom;
+                    mlp.rightMargin = insets.right;
+                    v1.setLayoutParams(mlp);
+
+                    return windowInsets;
+                });
+            }
             init(v);
             listView.setCacheColorHint(0xFFD9E7FF);
             return v;

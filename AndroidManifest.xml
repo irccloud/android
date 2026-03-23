@@ -130,6 +130,9 @@
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
+            <property
+                android:name="android.window.PROPERTY_SUPPORTS_MULTI_INSTANCE_SYSTEM_UI"
+                android:value="true"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

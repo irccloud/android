@@ -37,6 +37,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.ViewCompat;
+import androidx.window.layout.WindowMetricsCalculator;
 
 import com.google.android.material.tabs.TabLayout;
 import com.irccloud.android.AsyncTaskEx;
@@ -527,7 +528,7 @@ public class PastebinEditorActivity extends BaseActivity {
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
         super.onMultiWindowModeChanged(isInMultiWindowMode);
         WindowManager.LayoutParams params = getWindow().getAttributes();
-        if(getWindowManager().getDefaultDisplay().getWidth() > TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) && !isMultiWindow()) {
+        if(isExpandedWidthLayout() && !isMultiWindow()) {
             params.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
             params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
         } else {

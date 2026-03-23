@@ -38,6 +38,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -54,6 +55,8 @@ import androidx.browser.customtabs.CustomTabsSession;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
 import androidx.core.view.MenuItemCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
 
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -140,6 +143,21 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_video_player);
+        View content = getWindow().getDecorView().findViewById(android.R.id.content);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && content != null) {
+            ViewGroupCompat.installCompatInsetsDispatch(content);
+
+            ViewCompat.setOnApplyWindowInsetsListener(content, (v, windowInsets) -> {
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                mlp.topMargin = 0;
+                mlp.leftMargin = 0;
+                mlp.bottomMargin = 0;
+                mlp.rightMargin = 0;
+                v.setLayoutParams(mlp);
+                return windowInsets;
+            });
+        }
         toolbar = findViewById(R.id.toolbar);
         try {
             setSupportActionBar(toolbar);

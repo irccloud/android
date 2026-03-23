@@ -53,6 +53,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.window.core.layout.WindowSizeClass;
+import androidx.window.layout.WindowMetrics;
+import androidx.window.layout.WindowMetricsCalculator;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.material.snackbar.Snackbar;
@@ -161,7 +164,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             ViewGroupCompat.installCompatInsetsDispatch(content);
 
             ViewCompat.setOnApplyWindowInsetsListener(content, (v, windowInsets) -> {
-                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
                 ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
                 mlp.topMargin = insets.top;
                 mlp.leftMargin = insets.left;
@@ -184,6 +187,21 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
 
     public boolean isMultiWindow() {
         return isInMultiWindowMode();
+    }
+
+    public boolean isMediumWidthLayout() {
+        WindowMetrics wm = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this);
+        return new WindowSizeClass(wm.getWidthDp(), wm.getHeightDp()).isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND);
+    }
+
+    public boolean isExpandedWidthLayout() {
+        WindowMetrics wm = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this);
+        return new WindowSizeClass(wm.getWidthDp(), wm.getHeightDp()).isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND);
+    }
+
+    public boolean isLargeWidthLayout() {
+        WindowMetrics wm = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this);
+        return new WindowSizeClass(wm.getWidthDp(), wm.getHeightDp()).isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_LARGE_LOWER_BOUND);
     }
 
     public View getDialogTextPrompt() {

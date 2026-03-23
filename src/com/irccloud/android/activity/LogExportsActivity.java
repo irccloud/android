@@ -44,6 +44,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
+import androidx.window.layout.WindowMetricsCalculator;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.irccloud.android.AsyncTaskEx;
@@ -436,7 +437,7 @@ public class LogExportsActivity extends BaseActivity implements NetworkConnectio
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
         super.onMultiWindowModeChanged(isInMultiWindowMode);
         WindowManager.LayoutParams params = getWindow().getAttributes();
-        if(getWindowManager().getDefaultDisplay().getWidth() > TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) && !isMultiWindow()) {
+        if(isExpandedWidthLayout() && !isMultiWindow()) {
             params.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
             params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
         } else {

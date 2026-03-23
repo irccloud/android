@@ -135,6 +135,9 @@ import androidx.core.view.inputmethod.InputContentInfoCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
+import androidx.window.core.layout.WindowSizeClass;
+import androidx.window.layout.WindowMetrics;
+import androidx.window.layout.WindowMetricsCalculator;
 
 import com.commonsware.cwac.richedit.Effect;
 import com.commonsware.cwac.richedit.RichEditText;
@@ -371,7 +374,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 menu.findItem(R.id.menu_italics).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 menu.findItem(R.id.menu_underline).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 menu.findItem(R.id.menu_color).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                if(getWindowManager().getDefaultDisplay().getWidth() >= TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 400, getResources().getDisplayMetrics())) {
+                if(isMediumWidthLayout()) {
                     menu.findItem(R.id.menu_background).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     menu.findItem(R.id.menu_clear).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 }
@@ -551,7 +554,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ViewCompat.setOnApplyWindowInsetsListener(typingLabel, (v, windowInsets) -> {
-                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
                 v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), insets.bottom);
 
                 v = getWindow().getDecorView().findViewById(android.R.id.content);
@@ -1000,7 +1003,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         Toolbar toolbar = findViewById(R.id.toolbar);
         View buffersListDocked = findViewById(R.id.BuffersListDocked);
         if(toolbar != null) {
-            if (!bubble && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
+            if (!bubble && isExpandedWidthLayout() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true)) {
                 toolbar.setNavigationIcon(null);
                 if(buffersListDocked != null)
                     buffersListDocked.setVisibility(View.VISIBLE);
@@ -2484,7 +2487,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         return open_bid(b.getBid());
                 }
             } else {
-                if (!getResources().getBoolean(R.bool.isTablet)) {
+                if (!isMediumWidthLayout()) {
                     Intent i = new Intent(this, EditConnectionActivity.class);
                     i.putExtra("hostname", uri.getHost());
                     if (uri.getPort() > 0)
@@ -2719,7 +2722,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
                 }
             } else {
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
+                if (isLargeWidthLayout() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true)) {
                     usersListFragmentDocked.setVisibility(View.VISIBLE);
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
                 } else {
@@ -4035,7 +4038,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         menu.findItem(R.id.menu_rename).setVisible(false);
                         menu.findItem(R.id.menu_rename).setEnabled(false);
                     }
-                    if (menu.findItem(R.id.menu_userlist) != null && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
+                    if (menu.findItem(R.id.menu_userlist) != null && isLargeWidthLayout() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true)) {
                         boolean hide = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hiddenMembers", true);
                         try {
                             if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
@@ -4656,7 +4659,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 deleteBuffer(buffer);
                 return true;
             case R.id.menu_editconnection:
-                if (!getResources().getBoolean(R.bool.isTablet)) {
+                if (!isMediumWidthLayout()) {
                     Intent i = new Intent(this, EditConnectionActivity.class);
                     i.putExtra("cid", buffer.getCid());
                     startActivity(i);
@@ -5191,7 +5194,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     BufferOptionsFragment newFragment = new BufferOptionsFragment(b.getCid(), b.getBid(), b.getType());
                     newFragment.show(getSupportFragmentManager(), "bufferoptions");
                 } else if (items[item].equals("Edit Connection…")) {
-                    if (!getResources().getBoolean(R.bool.isTablet)) {
+                    if (!isMediumWidthLayout()) {
                         Intent i = new Intent(MainActivity.this, EditConnectionActivity.class);
                         i.putExtra("cid", b.getCid());
                         startActivity(i);
@@ -6219,7 +6222,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (drawerLayout != null)
             new RefreshUpIndicatorTask().execute((Void) null);
         if (buffer != null && buffer.getCid() != -1) {
-            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
+            if(isExpandedWidthLayout() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true)) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
@@ -6267,7 +6270,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             shouldFadeIn = false;
         }
-        if (conn != null && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow())) {
+        if (conn != null && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !(isExpandedWidthLayout() && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true))) {
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
         }
         try {
@@ -6289,7 +6292,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (drawerLayout != null) {
             drawerLayout.closeDrawers();
         }
-        if (getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics())) {
+        if (!isMediumWidthLayout()) {
             Intent i = new Intent(this, EditConnectionActivity.class);
             startActivity(i);
         } else {
@@ -6303,7 +6306,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (drawerLayout != null) {
             drawerLayout.closeDrawers();
         }
-        if (!getResources().getBoolean(R.bool.isTablet)) {
+        if (!isMediumWidthLayout()) {
             Intent i = new Intent(this, ReorderActivity.class);
             i.putExtra("title", "Connections");
             i.putExtra("servers", true);
@@ -6331,7 +6334,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (drawerLayout != null) {
             drawerLayout.closeDrawers();
         }
-        if (!getResources().getBoolean(R.bool.isTablet)) {
+        if (!isMediumWidthLayout()) {
             Intent i = new Intent(this, ReorderActivity.class);
             i.putExtra("title", "Pinned Channels");
             i.putExtra("pins", true);

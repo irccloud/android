@@ -293,7 +293,7 @@ public class EditConnectionFragment extends DialogFragment {
                 ViewGroupCompat.installCompatInsetsDispatch(v);
 
                 ViewCompat.setOnApplyWindowInsetsListener(v, (v1, windowInsets) -> {
-                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
                     ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v1.getLayoutParams();
                     mlp.topMargin = insets.top;
                     mlp.leftMargin = insets.left;

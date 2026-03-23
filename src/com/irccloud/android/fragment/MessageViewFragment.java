@@ -64,6 +64,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.ListFragment;
+import androidx.window.layout.WindowMetricsCalculator;
 
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -86,6 +87,7 @@ import com.irccloud.android.OOBFetcher;
 import com.irccloud.android.OffsetLinearLayout;
 import com.irccloud.android.R;
 import com.irccloud.android.activity.BaseActivity;
+import com.irccloud.android.activity.ImageViewerActivity;
 import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.BuffersList;
@@ -1234,9 +1236,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.metadata.setVisibility(View.GONE);
                         holder.thumbnailWrapper.setBackgroundDrawable(null);
                     }
-                    int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
-                    if(getActivity().getWindowManager().getDefaultDisplay().getHeight() < width)
-                        width = getActivity().getWindowManager().getDefaultDisplay().getHeight();
+                    int width = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(getActivity()).getBounds().width();
+                    if(WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(getActivity()).getBounds().height() < width)
+                        width = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(getActivity()).getBounds().height();
                     width /= 2;
                     if (e.entities.get("properties") != null && e.entities.get("properties").get("width") != null && width > e.entities.get("properties").get("width").asInt())
                         width = e.entities.get("properties").get("width").asInt();
@@ -2375,9 +2377,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         insertEntity(messageAdapter, event, properties, backlog || !ready);
                                         try {
                                             URL u = new URL(info.thumbnail);
-                                            int width = getActivity().getWindowManager().getDefaultDisplay().getWidth();
-                                            if(getActivity().getWindowManager().getDefaultDisplay().getHeight() < width)
-                                                width = getActivity().getWindowManager().getDefaultDisplay().getHeight();
+                                            int width = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(getActivity()).getBounds().width();
+                                            if(WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(getActivity()).getBounds().height() < width)
+                                                width = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(getActivity()).getBounds().height();
                                             width /= 2;
                                             ImageList.getInstance().fetchImage(u, width, null, 0);
                                         } catch (Exception e) {

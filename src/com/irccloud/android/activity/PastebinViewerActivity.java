@@ -56,6 +56,7 @@ import androidx.browser.customtabs.CustomTabsClient;
 import androidx.browser.customtabs.CustomTabsServiceConnection;
 import androidx.browser.customtabs.CustomTabsSession;
 import androidx.core.app.ShareCompat;
+import androidx.window.layout.WindowMetricsCalculator;
 
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorScheme;
@@ -169,7 +170,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
         getWindow().setNavigationBarColor(ColorScheme.getInstance().dialogBackgroundColor);
         onMultiWindowModeChanged(isMultiWindow());
-        if(savedInstanceState == null && (getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) || isMultiWindow()))
+        if(savedInstanceState == null && (!isMediumWidthLayout() || isMultiWindow()))
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_pastebin);
         mSpinner = findViewById(R.id.spinner);
@@ -271,7 +272,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
         super.onMultiWindowModeChanged(isInMultiWindowMode);
         WindowManager.LayoutParams params = getWindow().getAttributes();
-        if(getWindowManager().getDefaultDisplay().getWidth() > TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) && !isMultiWindow()) {
+        if(isExpandedWidthLayout() && !isMultiWindow()) {
             params.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
             params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
         } else {
@@ -352,7 +353,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if(getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) || isMultiWindow())
+        if(!isMediumWidthLayout() || isMultiWindow())
             overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
     }
 
@@ -379,7 +380,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
-            if(getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) || isMultiWindow())
+            if(!isMediumWidthLayout() || isMultiWindow())
                 overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if(item.getItemId() == R.id.delete) {

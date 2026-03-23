@@ -166,7 +166,7 @@ public class LoginActivity extends FragmentActivity {
             ViewGroupCompat.installCompatInsetsDispatch(findViewById(android.R.id.content));
 
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, windowInsets) -> {
-                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
                 ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
                 mlp.leftMargin = insets.left;
                 mlp.bottomMargin = insets.bottom;

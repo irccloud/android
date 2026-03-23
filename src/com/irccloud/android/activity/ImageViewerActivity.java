@@ -39,6 +39,7 @@ import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -55,6 +56,9 @@ import androidx.browser.customtabs.CustomTabsSession;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ShareCompat;
 import androidx.core.view.MenuItemCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewGroupCompat;
+import androidx.window.layout.WindowMetricsCalculator;
 
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudLinkMovementMethod;
@@ -132,6 +136,24 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_imageviewer);
+
+        View content = getWindow().getDecorView().findViewById(android.R.id.content);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && content != null) {
+            ViewGroupCompat.installCompatInsetsDispatch(content);
+
+            ViewCompat.setOnApplyWindowInsetsListener(content, (v, windowInsets) -> {
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                mlp.topMargin = 0;
+                mlp.leftMargin = 0;
+                mlp.bottomMargin = 0;
+                mlp.rightMargin = 0;
+                v.setLayoutParams(mlp);
+                return windowInsets;
+            });
+        }
+
+
         toolbar = findViewById(R.id.toolbar);
         try {
             setSupportActionBar(toolbar);
@@ -201,8 +223,8 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                                 int videoWidth = player.getVideoWidth();
                                 int videoHeight = player.getVideoHeight();
 
-                                int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-                                int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
+                                int screenWidth = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(ImageViewerActivity.this).getBounds().width();
+                                int screenHeight = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(ImageViewerActivity.this).getBounds().height();
 
                                 int scaledWidth = (int) (((float) videoWidth / (float) videoHeight) * (float) screenHeight);
                                 int scaledHeight = (int) (((float) videoHeight / (float) videoWidth) * (float) screenWidth);
