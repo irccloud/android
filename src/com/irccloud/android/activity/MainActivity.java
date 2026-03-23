@@ -562,6 +562,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 mlp.bottomMargin = 0;
                 v.setLayoutParams(mlp);
 
+                v = buffersListView;
+                mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                mlp.bottomMargin = insets.bottom;
+                v.setLayoutParams(mlp);
+
+                v = userListView;
+                mlp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
+                mlp.bottomMargin = insets.bottom;
+                v.setLayoutParams(mlp);
+
                 return windowInsets;
             });
         }
