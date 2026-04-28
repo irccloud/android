@@ -24,12 +24,6 @@
             android:summaryOff="Your display will turn off as normal"
             android:title="Prevent display sleep" />
         <SwitchPreference
-            android:key="kb_send"
-            android:defaultValue="false"
-            android:summaryOn="Send button will be displayed on the on-screen keyboard"
-            android:summaryOff="Emoticon button will be displayed on the on-screen keyboard"
-            android:title="Show send button" />
-        <SwitchPreference
             android:key="kb_caps"
             android:defaultValue="true"
             android:summaryOn="Messages will automatically start with a capital letter"
